@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>shuttle-esb-core</id>
+		<version>{semver}</version>
+		<authors>Eben Roux</authors>
+		<owners>Eben Roux</owners>
+		<licenseUrl>https://github.com/shuttle/shuttle-esb/raw/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/shuttle/shuttle-esb</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/Shuttle/shuttle-esb/master/media/logo/logo-core-small.png</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Contains the binaries required to develop a Shuttle ESB solution.</description>
+		<releaseNotes/>
+		<copyright>Copyright (c) 2011-2014, Eben Roux</copyright>
+		<tags>shuttle-esb enterprise-service-bus esb messaging service-bus soa</tags>
+		<dependencies>
+			<dependency id="shuttle-core-infrastructure" version="[3.1.4]" />
+		</dependencies>
+	</metadata>
+</package>

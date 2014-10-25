@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{92003637-69A0-4A0D-AA48-BFF6CD22861D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Shuttle.ESB.Core.Tests</RootNamespace>
+    <AssemblyName>Shuttle.ESB.Core.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceBusSection\ControlInboxServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\InboxServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\MessageRoutesServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\OutboxServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\QueueFactoriesServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\ServiceBusSectionFixture.cs" />
+    <Compile Include="ServiceBusSection\SharedServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\TransactionScopeServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\UriResolverServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\WorkerServiceBusSection.cs" />
+    <Compile Include="ThreadActivityTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ServiceBusSection\files\Control-Full-Grouped.config" />
+    <None Include="ServiceBusSection\files\Control-Full.config" />
+    <None Include="ServiceBusSection\files\Empty.config" />
+    <None Include="ServiceBusSection\files\ForwardingRoutes-Grouped.config" />
+    <None Include="ServiceBusSection\files\ForwardingRoutes.config" />
+    <None Include="ServiceBusSection\files\Inbox-Full-Grouped.config" />
+    <None Include="ServiceBusSection\files\Inbox-Full.config" />
+    <None Include="ServiceBusSection\files\Inbox-Required.config" />
+    <None Include="ServiceBusSection\files\MessageRoutes-Grouped.config" />
+    <None Include="ServiceBusSection\files\MessageRoutes.config" />
+    <None Include="ServiceBusSection\files\Outbox-Full-Grouped.config" />
+    <None Include="ServiceBusSection\files\Outbox-Full.config" />
+    <None Include="ServiceBusSection\files\Outbox-Required.config" />
+    <None Include="ServiceBusSection\files\QueueFactories-EmptyTypes.config" />
+    <None Include="ServiceBusSection\files\QueueFactories-Grouped.config" />
+    <None Include="ServiceBusSection\files\QueueFactories-Missing.config" />
+    <None Include="ServiceBusSection\files\QueueFactories.config" />
+    <None Include="ServiceBusSection\files\Shared-Grouped.config" />
+    <None Include="ServiceBusSection\files\Shared.config" />
+    <None Include="ServiceBusSection\files\TransactionScope-Grouped.config" />
+    <None Include="ServiceBusSection\files\TransactionScope.config" />
+    <None Include="ServiceBusSection\files\UriResolver-Grouped.config" />
+    <None Include="ServiceBusSection\files\UriResolver.config" />
+    <None Include="ServiceBusSection\files\Worker-Grouped.config" />
+    <None Include="ServiceBusSection\files\Worker.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
