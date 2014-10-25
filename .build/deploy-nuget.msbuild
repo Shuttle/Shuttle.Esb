@@ -1,0 +1,45 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
+	<PropertyGroup>
+		<DeploymentFolder>deployment</DeploymentFolder>
+		<ShuttleCoreMSBuildVersion>1.0.2</ShuttleCoreMSBuildVersion>
+		<ShuttleCoreMSBuildFrameworkVersion>net35-full</ShuttleCoreMSBuildFrameworkVersion>
+	</PropertyGroup>
+
+	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.Prompt" />
+	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.RegexFindAndReplace" />
+	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.SetNugetPackageVersions" />
+
+	<Target Name="Deploy">
+		<Prompt Text="Enter semantic version:" Condition="$(SemanticVersion) == ''">
+			<Output TaskParameter="UserInput" PropertyName="SemanticVersion" />
+		</Prompt>
+
+		<Error Text="Please enter a version number." Condition="$(SemanticVersion) == ''" />
+
+		<ItemGroup>
+			<AssemblyInfoFiles Include="..\**\*AssemblyInfo.cs" Exclude="..\*.Tests\**\*AssemblyInfo.cs"/>
+			<NugetFiles Include="..\**\*.nuspec"/>
+		</ItemGroup>
+
+		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyInformationalVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyInformationalVersion(&quot;$(SemanticVersion)&quot;)" />
+		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyVersion(&quot;$(SemanticVersion).0&quot;)" />
+
+		<MSBuild Projects="build.msbuild" />
+
+		<ItemGroup>
+			<NugetBinaries Include="$(DeploymentFolder)\release\**\Shuttle.ESB.Core.dll" />
+		</ItemGroup>
+
+		<Copy SourceFiles="shuttle-esb-core.nuspec" DestinationFolder="$(DeploymentFolder)\nuget\shuttle-esb-core" SkipUnchangedFiles="false" />
+		<Copy SourceFiles="@(NugetBinaries)" DestinationFolder="$(DeploymentFolder)\nuget\shuttle-esb-core\lib\%(RecursiveDir)" SkipUnchangedFiles="false" />
+
+		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.nuspec" FindExpression="\{semver\}" ReplacementText="$(SemanticVersion)" />
+		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.nuspec" PackageFolder="..\packages" />
+
+		<Exec Command="nuget pack shuttle-esb-core.nuspec -NoPackageAnalysis" WorkingDirectory="$(DeploymentFolder)\nuget\shuttle-esb-core" />
+		<Exec Command="nuget push $(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
+	</Target>
+
+	<Target Name="ApplyVersionNumbers">
+	</Target>
+</Project>

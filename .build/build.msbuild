@@ -1,0 +1,13 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="4.0">
+	<ItemGroup>
+		<Framework Include="net35-full;net40-full;net45-full;net451-full" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Shuttle.ESB.Core\Shuttle.ESB.Core.csproj" />
+	</ItemGroup>
+
+	<Target Name="Build">
+		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Debug;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\debug\%(Framework.Identity)"/>
+		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Release;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\release\%(Framework.Identity)"/>
+	</Target>
+</Project>

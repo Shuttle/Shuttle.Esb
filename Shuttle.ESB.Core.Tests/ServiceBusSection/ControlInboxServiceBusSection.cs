@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Shuttle.ESB.Test.Integration
+namespace Shuttle.ESB.Core.Tests
 {
     [TestFixture]
     public class ControlInboxServiceBusSection : ServiceBusSectionFixture
@@ -11,7 +11,7 @@ namespace Shuttle.ESB.Test.Integration
 		[TestCase("Control-Full-Grouped.config")]
         public void Should_be_able_to_load_a_full_configuration(string file)
         {
-            var section = GetServiceBusSection(file);
+            var section =  GetServiceBusSection(file);
 
             Assert.IsNotNull(section);
 

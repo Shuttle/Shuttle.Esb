@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using Shuttle.ESB.Core;
 
-namespace Shuttle.ESB.Test.Integration
+namespace Shuttle.ESB.Core.Tests
 {
     [TestFixture]
     public class UriResolverServiceBusSection : ServiceBusSectionFixture

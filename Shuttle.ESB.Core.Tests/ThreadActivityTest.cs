@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Shuttle.Core.Infrastructure;
 using Shuttle.ESB.Core;
 
-namespace Shuttle.ESB.Test.Integration.Core
+namespace Shuttle.ESB.Core.Tests.Core
 {
 	public class ThreadActivityTest : IntegrationFixture
 	{

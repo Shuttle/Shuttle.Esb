@@ -1,17 +1,10 @@
-using Shuttle.ESB.Core;
-
-namespace Shuttle.ESB.Test.Integration
+namespace Shuttle.ESB.Core.Tests
 {
     public class ServiceBusSectionFixture
     {
         protected ServiceBusSection GetServiceBusSection(string file)
         {
-			return ShuttleConfigurationSection.Open<ServiceBusSection>("serviceBus", string.Format(@".\ConfigurationSections\ServiceBusSection\files\{0}", file));
-        }
-
-		protected T GetServiceBusSection<T>(string file) where T : class
-        {
-			return ShuttleConfigurationSection.Open<T>("serviceBus", string.Format(@".\ConfigurationSections\ServiceBusSection\files\{0}", file));
+			return ShuttleConfigurationSection.Open("serviceBus", string.Format(@".\ServiceBusSection\files\{0}", file));
         }
     }
 }

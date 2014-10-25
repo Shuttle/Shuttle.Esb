@@ -1,7 +1,7 @@
 using System.Transactions;
 using NUnit.Framework;
 
-namespace Shuttle.ESB.Test.Integration
+namespace Shuttle.ESB.Core.Tests
 {
 	[TestFixture]
 	public class SharedServiceBusSection : ServiceBusSectionFixture

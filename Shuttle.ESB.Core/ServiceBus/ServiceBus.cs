@@ -14,7 +14,7 @@ namespace Shuttle.ESB.Core
 		private IProcessorThreadPool _outboxThreadPool;
 		private IProcessorThreadPool _deferredMessageThreadPool;
 
-		internal ServiceBus(IServiceBusConfiguration configuration)
+		public ServiceBus(IServiceBusConfiguration configuration)
 		{
 			Guard.AgainstNull(configuration, "configuration");
 

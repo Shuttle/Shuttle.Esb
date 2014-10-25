@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -19,9 +19,6 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyVersion("3.3.5.0")]
-[assembly: InternalsVisibleTo("Shuttle.ESB.Test.Shared")]
-[assembly: InternalsVisibleTo("Shuttle.ESB.Test.Integration")]
-[assembly: InternalsVisibleTo("Shuttle.ESB.Test.Unit")]
 [assembly: AssemblyCopyright("Copyright © Eben Roux 2010-2014")]
 [assembly: AssemblyProduct("Shuttle.ESB")]
 [assembly: AssemblyCompany("Shuttle")]
