@@ -32,7 +32,6 @@
 
 		<ItemGroup>
 			<AssemblyInfoFiles Include="..\**\*AssemblyInfo.cs" Exclude="..\*.Tests\**\*AssemblyInfo.cs"/>
-			<NugetFiles Include="..\**\*.nuspec"/>
 		</ItemGroup>
 
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyInformationalVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyInformationalVersion(&quot;$(SemanticVersion)&quot;)" />
@@ -51,6 +50,7 @@
 		<Copy SourceFiles="@(NugetBinaries)" DestinationFolder="$(DeploymentFolder)\nuget\$(PackageName)\lib\%(RecursiveDir)" SkipUnchangedFiles="false" />
 
 		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec" FindExpression="\{semver\}" ReplacementText="$(SemanticVersion)" />
+		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec" FindExpression="\{year\}" ReplacementText="$([System.DateTime]::Now.ToString(`yyyy`))" />
 		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec" PackageFolder="..\packages" />
 
 		<Exec Command="$(NuGetExecutablePath) pack $(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec -OutputDirectory $(DeploymentFolder)\nuget\$(PackageName) -NoPackageAnalysis" />
