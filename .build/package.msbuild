@@ -3,11 +3,25 @@
 		<DeploymentFolder>deployment</DeploymentFolder>
 		<ShuttleCoreMSBuildVersion>1.0.2</ShuttleCoreMSBuildVersion>
 		<ShuttleCoreMSBuildFrameworkVersion>net35-full</ShuttleCoreMSBuildFrameworkVersion>
+		<NuGetExecutablePath>..\.nuget\nuget.exe</NuGetExecutablePath>
+		<PackageName>shuttle-esb-core</PackageName>
 	</PropertyGroup>
 
 	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.Prompt" />
 	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.RegexFindAndReplace" />
 	<UsingTask AssemblyFile="..\packages\shuttle-core-msbuild.$(ShuttleCoreMSBuildVersion)\tools\$(ShuttleCoreMSBuildFrameworkVersion)\Shuttle.Core.MSBuild.dll" TaskName="Shuttle.Core.MSBuild.SetNugetPackageVersions" />
+
+	<ItemGroup>
+		<Framework Include="net35-full;net40-full;net45-full;net451-full" />
+		<ProjectReference Include="..\Shuttle.ESB.Core\Shuttle.ESB.Core.csproj" />
+	</ItemGroup>
+
+	<Target Name="Build">
+		<Exec Command="$(NuGetExecutablePath) restore ..\$(PackageName).sln" />
+		
+		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Debug;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\debug\%(Framework.Identity)"/>
+		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Release;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\release\%(Framework.Identity)"/>
+	</Target>
 
 	<Target Name="Deploy">
 		<Prompt Text="Enter semantic version:" Condition="$(SemanticVersion) == ''">
@@ -24,22 +38,22 @@
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyInformationalVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyInformationalVersion(&quot;$(SemanticVersion)&quot;)" />
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyVersion(&quot;$(SemanticVersion).0&quot;)" />
 
-		<MSBuild Projects="build.msbuild" />
+		<MSBuild
+            Projects="$(MSBuildProjectFile)"
+            Targets="Build"
+        />
 
 		<ItemGroup>
 			<NugetBinaries Include="$(DeploymentFolder)\release\**\Shuttle.ESB.Core.dll" />
 		</ItemGroup>
 
-		<Copy SourceFiles="shuttle-esb-core.nuspec" DestinationFolder="$(DeploymentFolder)\nuget\shuttle-esb-core" SkipUnchangedFiles="false" />
-		<Copy SourceFiles="@(NugetBinaries)" DestinationFolder="$(DeploymentFolder)\nuget\shuttle-esb-core\lib\%(RecursiveDir)" SkipUnchangedFiles="false" />
+		<Copy SourceFiles="$(PackageName).nuspec" DestinationFolder="$(DeploymentFolder)\nuget\$(PackageName)" SkipUnchangedFiles="false" />
+		<Copy SourceFiles="@(NugetBinaries)" DestinationFolder="$(DeploymentFolder)\nuget\$(PackageName)\lib\%(RecursiveDir)" SkipUnchangedFiles="false" />
 
-		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.nuspec" FindExpression="\{semver\}" ReplacementText="$(SemanticVersion)" />
-		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.nuspec" PackageFolder="..\packages" />
+		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec" FindExpression="\{semver\}" ReplacementText="$(SemanticVersion)" />
+		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec" PackageFolder="..\packages" />
 
-		<Exec Command="nuget pack shuttle-esb-core.nuspec -NoPackageAnalysis" WorkingDirectory="$(DeploymentFolder)\nuget\shuttle-esb-core" />
-		<Exec Command="nuget push $(DeploymentFolder)\nuget\shuttle-esb-core\shuttle-esb-core.$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
-	</Target>
-
-	<Target Name="ApplyVersionNumbers">
+		<Exec Command="$(NuGetExecutablePath) pack $(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).nuspec -OutputDirectory $(DeploymentFolder)\nuget\$(PackageName) -NoPackageAnalysis" />
+		<Exec Command="$(NuGetExecutablePath) push $(DeploymentFolder)\nuget\$(PackageName)\$(PackageName).$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
 	</Target>
 </Project>

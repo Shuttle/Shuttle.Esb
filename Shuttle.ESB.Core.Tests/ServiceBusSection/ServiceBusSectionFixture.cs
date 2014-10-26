@@ -4,7 +4,7 @@ namespace Shuttle.ESB.Core.Tests
     {
         protected ServiceBusSection GetServiceBusSection(string file)
         {
-			return ShuttleConfigurationSection.Open("serviceBus", string.Format(@".\ServiceBusSection\files\{0}", file));
+			return ShuttleConfigurationSection.Open<ServiceBusSection>("serviceBus", string.Format(@".\ServiceBusSection\files\{0}", file));
         }
     }
 }

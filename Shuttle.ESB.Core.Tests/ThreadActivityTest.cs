@@ -2,11 +2,11 @@ using System;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Infrastructure;
-using Shuttle.ESB.Core;
 
-namespace Shuttle.ESB.Core.Tests.Core
+namespace Shuttle.ESB.Core.Tests
 {
-	public class ThreadActivityTest : IntegrationFixture
+	[TestFixture]
+	public class ThreadActivityTest 
 	{
 		[Test]
 		public void Should_be_able_to_have_the_thread_wait()
