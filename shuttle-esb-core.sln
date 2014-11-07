@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.ESB.Core.Tests", "S
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{F31307C0-8769-462A-A9A7-11F82AA569EE}"
 	ProjectSection(SolutionItems) = preProject
-		.build\package.msbuild.old = .build\package.msbuild.old
+		.build\package.msbuild = .build\package.msbuild
 		.build\package.nuspec = .build\package.nuspec
 		.build\Shuttle.Core.MSBuild.dll = .build\Shuttle.Core.MSBuild.dll
 		.build\Shuttle.Core.MSBuild.targets = .build\Shuttle.Core.MSBuild.targets
