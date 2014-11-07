@@ -1,0 +1,2 @@
+- updated logo
+- applied shutle-core-msbuild v1.1.1
