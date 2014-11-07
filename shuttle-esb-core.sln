@@ -6,15 +6,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{321739
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.ESB.Core.Tests", "Shuttle.ESB.Core.Tests\Shuttle.ESB.Core.Tests.csproj", "{92003637-69A0-4A0D-AA48-BFF6CD22861D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{F31307C0-8769-462A-A9A7-11F82AA569EE}"
 	ProjectSection(SolutionItems) = preProject
-		.build\package.msbuild = .build\package.msbuild
-		.build\shuttle-esb-core.nuspec = .build\shuttle-esb-core.nuspec
+		.build\package.msbuild.old = .build\package.msbuild.old
+		.build\package.nuspec = .build\package.nuspec
+		.build\Shuttle.Core.MSBuild.dll = .build\Shuttle.Core.MSBuild.dll
+		.build\Shuttle.Core.MSBuild.targets = .build\Shuttle.Core.MSBuild.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3FC0F515-8DBB-415D-A94F-F9D05091427C}"
