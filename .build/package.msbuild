@@ -3,7 +3,6 @@
 		<DeploymentFolder>deployment</DeploymentFolder>
 		<ShuttleCoreMSBuildVersion>1.0.2</ShuttleCoreMSBuildVersion>
 		<ShuttleCoreMSBuildFrameworkVersion>net35-full</ShuttleCoreMSBuildFrameworkVersion>
-		<NuGetExecutablePath>..\.nuget\nuget.exe</NuGetExecutablePath>
 		<PackageName>shuttle-esb-core</PackageName>
 	</PropertyGroup>
 
@@ -17,8 +16,6 @@
 	</ItemGroup>
 
 	<Target Name="Build">
-		<Exec Command="$(NuGetExecutablePath) restore ..\$(PackageName).sln" />
-		
 		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Debug;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\debug\%(Framework.Identity)"/>
 		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Release;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\release\%(Framework.Identity)"/>
 	</Target>
