@@ -405,8 +405,8 @@
     <value>Cannot send reply as the provided transport message received has no inbox work queue uri.</value>
   </data>
   <data name="OpenSectionException" xml:space="preserve">
-    <value>Could not find a section named '{0}' in configuration file '{1}'.</value>
-    <comment>{0} = section name, {1} = configuration file</comment>
+    <value>Could not find a section named '{0}' in configuration file '{1}' that is of type '{2}'.</value>
+    <comment>{0} = section name, {1} = configuration file, {2} = the section type</comment>
   </data>
   <data name="UriNameNotFoundException" xml:space="preserve">
     <value>The IUriResolver type '{0}' could not resolve name '{1}'.</value>

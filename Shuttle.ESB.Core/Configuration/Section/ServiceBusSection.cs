@@ -76,10 +76,5 @@ namespace Shuttle.ESB.Core
 		{
 			get { return (UriResolverElement)this["uriResolver"]; }
 		}
-
-		protected override bool OnDeserializeUnrecognizedElement(string elementName, XmlReader reader)
-		{
-			return true;
-		}
 	}
 }

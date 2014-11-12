@@ -24,7 +24,7 @@ namespace Shuttle.ESB.Core
 
 			if (section == null)
 			{
-				throw new ConfigurationErrorsException(string.Format(ESBResources.OpenSectionException, name, file));
+				throw new ConfigurationErrorsException(string.Format(ESBResources.OpenSectionException, name, file, typeof(T).FullName));
 			}
 
 			return section;

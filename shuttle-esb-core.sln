@@ -13,7 +13,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{F31307C0-8769-462A-A9A7-11F82AA569EE}"
 	ProjectSection(SolutionItems) = preProject
 		.build\package.msbuild = .build\package.msbuild
-		.build\shuttle-esb-core.nuspec = .build\shuttle-esb-core.nuspec
+		.build\package.nuspec = .build\package.nuspec
+		.build\Shuttle.Core.MSBuild.dll = .build\Shuttle.Core.MSBuild.dll
+		.build\Shuttle.Core.MSBuild.targets = .build\Shuttle.Core.MSBuild.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3FC0F515-8DBB-415D-A94F-F9D05091427C}"
