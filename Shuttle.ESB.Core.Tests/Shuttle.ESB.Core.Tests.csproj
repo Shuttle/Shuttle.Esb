@@ -39,8 +39,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Shuttle.Core.Infrastructure">
-      <HintPath>..\packages\shuttle-core-infrastructure.3.1.4\lib\net35-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=3.1.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\shuttle-core-infrastructure.3.1.5\lib\net35-full\Shuttle.Core.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -83,6 +84,7 @@
     <Compile Include="UriExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="ServiceBusSection\files\Control-Full-Grouped.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
