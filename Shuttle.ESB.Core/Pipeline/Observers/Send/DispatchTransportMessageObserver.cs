@@ -15,6 +15,7 @@ namespace Shuttle.ESB.Core
 		public void Execute(OnDispatchTransportMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
+			var transportMessage = state.GetTransportMessage();
 			var transportMessageReceived = state.GetTransportMessageReceived();
 			var bus = state.GetServiceBus();
 
@@ -22,7 +23,7 @@ namespace Shuttle.ESB.Core
 			{
 				try
 				{
-					bus.Configuration.IdempotenceService.AddDeferredMessage(transportMessageReceived, state.GetTransportMessageStream());
+					bus.Configuration.IdempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage, state.GetTransportMessageStream());
 				}
 				catch (Exception ex)
 				{
@@ -31,8 +32,6 @@ namespace Shuttle.ESB.Core
 
 				return;
 			}
-
-			var transportMessage = state.GetTransportMessage();
 
 			Guard.AgainstNull(transportMessage, "transportMessage");
 			Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
