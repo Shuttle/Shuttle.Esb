@@ -110,13 +110,6 @@ namespace Shuttle.ESB.Core
 			return this;
 		}
 
-		public ServiceBusConfigurator ForwardingRouteProvider(IMessageRouteProvider forwardingRouteProvider)
-		{
-			Guard.AgainstNull(forwardingRouteProvider, "forwardingRouteProvider");
-
-			return this;
-		}
-
 		public ServiceBusConfigurator IdempotenceService(IIdempotenceService idempotenceService)
 		{
 			Guard.AgainstNull(idempotenceService, "idempotenceService");

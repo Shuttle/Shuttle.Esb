@@ -94,12 +94,6 @@
     <None Include="ServiceBusSection\files\Empty.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ServiceBusSection\files\ForwardingRoutes-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ServiceBusSection\files\ForwardingRoutes.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ServiceBusSection\files\Inbox-Full-Grouped.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
