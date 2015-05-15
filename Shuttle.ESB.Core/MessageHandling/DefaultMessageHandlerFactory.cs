@@ -39,7 +39,7 @@ namespace Shuttle.ESB.Core
 
             _messageHandlerTypes.Add(messageType, messageHandlerType);
 
-            _log.Information(string.Format("[add message handler] : message type = '{0}' / handler type = '{1}' ", messageType.FullName, messageHandlerType.FullName));
+            _log.Information(string.Format(ESBResources.MessageHandlerFactoryHandlerRegistered, messageType.FullName, messageHandlerType.FullName));
         }
 
         public override IMessageHandler CreateHandler(object message)

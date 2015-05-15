@@ -18,11 +18,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Shuttle.ESB.Core for .NET Framework 4.5.1")]
 #endif
 
-[assembly: AssemblyVersion("3.4.1.0")]
-[assembly: AssemblyCopyright("Copyright © Eben Roux 2010-2014")]
+[assembly: AssemblyVersion("3.4.2.0")]
+[assembly: AssemblyCopyright("Copyright © Eben Roux 2010-2015")]
 [assembly: AssemblyProduct("Shuttle.ESB")]
 [assembly: AssemblyCompany("Shuttle")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyInformationalVersion("3.4.1")]
+[assembly: AssemblyInformationalVersion("3.4.2")]
 [assembly: ComVisible(false)]
 

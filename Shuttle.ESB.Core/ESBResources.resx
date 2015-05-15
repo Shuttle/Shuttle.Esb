@@ -416,4 +416,8 @@
     <value>No IUriResolver implementation has been configured.  Cannot resolve uri name '{0}'.</value>
     <comment>{0} = the uri name to resolve</comment>
   </data>
+  <data name="MessageHandlerFactoryHandlerRegistered" xml:space="preserve">
+    <value>[message handler registered] : message type = '{0}' / handler type = '{1}'</value>
+    <comment>{0} = full name of message type, {1} = full name of handler type</comment>
+  </data>
 </root>

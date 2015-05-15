@@ -187,6 +187,15 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [message handler registered] : message type = &apos;{0}&apos; / handler type = &apos;{1}&apos;.
+        /// </summary>
+        public static string MessageHandlerFactoryHandlerRegistered {
+            get {
+                return ResourceManager.GetString("MessageHandlerFactoryHandlerRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; invoking on handler &apos;{2}&apos;..
         /// </summary>
         public static string MessageHandlerInvoke {

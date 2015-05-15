@@ -6,9 +6,9 @@ namespace Shuttle.ESB.Core
 {
 	public class WorkerAvailabilityManager : IWorkerAvailabilityManager
 	{
-		private static readonly object padlock = new object();
+		private static readonly object _padlock = new object();
 
-		private List<AvailableWorker> availableWorkers = new List<AvailableWorker>();
+		private List<AvailableWorker> _availableWorkers = new List<AvailableWorker>();
 
 		private readonly ILog _log;
 
@@ -19,16 +19,16 @@ namespace Shuttle.ESB.Core
 
 		public AvailableWorker GetAvailableWorker()
 		{
-			lock (padlock)
+			lock (_padlock)
 			{
-				if (availableWorkers.Count == 0)
+				if (_availableWorkers.Count == 0)
 				{
 					return null;
 				}
 
-				var result = availableWorkers[0];
+				var result = _availableWorkers[0];
 
-				availableWorkers.RemoveAt(0);
+				_availableWorkers.RemoveAt(0);
 
 				return result;
 			}
@@ -36,9 +36,9 @@ namespace Shuttle.ESB.Core
 
 		public void WorkerAvailable(WorkerThreadAvailableCommand message)
 		{
-			lock (padlock)
+			lock (_padlock)
 			{
-				availableWorkers.Add(new AvailableWorker(message));
+				_availableWorkers.Add(new AvailableWorker(message));
 			}
 
 			if (_log.IsTraceEnabled)
@@ -54,19 +54,19 @@ namespace Shuttle.ESB.Core
 				return;
 			}
 
-			lock (padlock)
+			lock (_padlock)
 			{
-				availableWorkers.Add(availableWorker);
+				_availableWorkers.Add(availableWorker);
 			}
 		}
 
 		public void WorkerStarted(WorkerStartedEvent message)
 		{
-			lock (padlock)
+			lock (_padlock)
 			{
 				var result = new List<AvailableWorker>();
 
-				foreach (var availableWorker in availableWorkers)
+				foreach (var availableWorker in _availableWorkers)
 				{
 					if (
 						!(availableWorker.InboxWorkQueueUri.Equals(message.InboxWorkQueueUri,
@@ -77,7 +77,7 @@ namespace Shuttle.ESB.Core
 					}
 				}
 
-				availableWorkers = result;
+				_availableWorkers = result;
 			}
 		}
 	}
