@@ -8,6 +8,7 @@ namespace Shuttle.ESB.Core
 	public class TransportMessageConfigurator
 	{
 		private bool _local;
+		private string _sendInboxWorkQueueUri;
 		private string _recipientInboxWorkQueueUri;
 		private TransportMessage _transportMessageReceived;
 		private DateTime _ignoreTillDate;
@@ -39,23 +40,25 @@ namespace Shuttle.ESB.Core
 			var identity = WindowsIdentity.GetCurrent();
 
 			var result = new TransportMessage
-				{
-					RecipientInboxWorkQueueUri = _local ? configuration.Inbox.WorkQueue.Uri.ToString() : _recipientInboxWorkQueueUri,
-					SenderInboxWorkQueueUri = configuration.HasInbox
-						                          ? configuration.Inbox.WorkQueue.Uri.ToString()
-						                          : string.Empty,
-					PrincipalIdentityName = identity != null
-						                        ? identity.Name
-						                        : WindowsIdentity.GetAnonymous().Name,
-					IgnoreTillDate = _ignoreTillDate,
-					MessageType = Message.GetType().FullName,
-					AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
-					EncryptionAlgorithm = configuration.EncryptionAlgorithm,
-					CompressionAlgorithm = configuration.CompressionAlgorithm,
-					MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
-					CorrelationId = _correlationId,
-					SendDate = DateTime.Now
-				};
+			{
+				RecipientInboxWorkQueueUri = _local ? configuration.Inbox.WorkQueue.Uri.ToString() : _recipientInboxWorkQueueUri,
+				SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
+					? configuration.HasInbox
+						? configuration.Inbox.WorkQueue.Uri.ToString()
+						: string.Empty
+					: _sendInboxWorkQueueUri,
+				PrincipalIdentityName = identity != null
+					? identity.Name
+					: WindowsIdentity.GetAnonymous().Name,
+				IgnoreTillDate = _ignoreTillDate,
+				MessageType = Message.GetType().FullName,
+				AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
+				EncryptionAlgorithm = configuration.EncryptionAlgorithm,
+				CompressionAlgorithm = configuration.CompressionAlgorithm,
+				MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
+				CorrelationId = _correlationId,
+				SendDate = DateTime.Now
+			};
 
 			result.Headers.Merge(Headers);
 
@@ -106,6 +109,23 @@ namespace Shuttle.ESB.Core
 			_local = false;
 
 			_recipientInboxWorkQueueUri = uri;
+
+			return this;
+		}
+
+		public TransportMessageConfigurator WithSender(IQueue queue)
+		{
+			return WithSender(queue.Uri.ToString());
+		}
+
+		public TransportMessageConfigurator WithSender(Uri uri)
+		{
+			return WithSender(uri.ToString());
+		}
+
+		public TransportMessageConfigurator WithSender(string uri)
+		{
+			_sendInboxWorkQueueUri = uri;
 
 			return this;
 		}

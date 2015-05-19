@@ -60,6 +60,7 @@
     <Compile Include="MessageRouteTest.cs" />
     <Compile Include="Messages\OtherNamespaceCommand.cs" />
     <Compile Include="Messages\SimpleEvent.cs" />
+    <Compile Include="NullQueue.cs" />
     <Compile Include="Pipeline\MockAuthenticateObserver.cs" />
     <Compile Include="Pipeline\MockPipelineEvent1.cs" />
     <Compile Include="Pipeline\PipelineTest.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="StringDurationArrayConverterTest.cs" />
     <Compile Include="ThreadActivityTest.cs" />
     <Compile Include="TranportMessageTest.cs" />
+    <Compile Include="TransportMessageConfiguratorTest.cs" />
     <Compile Include="TypeListMessageRouteSpecificationTest.cs" />
     <Compile Include="UriExtensionsTest.cs" />
   </ItemGroup>
