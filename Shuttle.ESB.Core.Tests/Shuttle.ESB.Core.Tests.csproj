@@ -68,6 +68,7 @@
     <Compile Include="RouteSpecificationTest.cs" />
     <Compile Include="ServiceBusRoutingModule.cs" />
     <Compile Include="ServiceBusSection\ControlInboxServiceBusSection.cs" />
+    <Compile Include="ServiceBusSection\ModulesServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\InboxServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\MessageRoutesServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\OutboxServiceBusSection.cs" />
@@ -91,6 +92,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\Control-Full.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ServiceBusSection\files\Modules-Grouped.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ServiceBusSection\files\Modules.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\Empty.config">
@@ -124,9 +131,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\QueueFactories-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ServiceBusSection\files\QueueFactories-Missing.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\QueueFactories.config">

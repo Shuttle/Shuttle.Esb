@@ -20,7 +20,9 @@ namespace Shuttle.ESB.Core
 				.WithEvent<OnRegisterOutboxQueueConfiguration>()
 				.WithEvent<OnAfterRegisterOutboxQueueConfiguration>()
 				.WithEvent<OnRegisterWorkerConfiguration>()
-				.WithEvent<OnAfterRegisterWorkerConfiguration>();
+				.WithEvent<OnAfterRegisterWorkerConfiguration>()
+				.WithEvent<OnRegisterModuleConfiguration>()
+				.WithEvent<OnAfterRegisterModuleConfiguration>();
 
 			RegisterStage("Initializing")
 				.WithEvent<OnInitializeQueueFactories>()
@@ -38,7 +40,9 @@ namespace Shuttle.ESB.Core
 				.WithEvent<OnInitializeIdempotenceService>()
 				.WithEvent<OnAfterInitializeIdempotenceService>()
 				.WithEvent<OnInitializeTransactionScopeFactory>()
-				.WithEvent<OnAfterInitializeTransactionScopeFactory>();
+				.WithEvent<OnAfterInitializeTransactionScopeFactory>()
+				.WithEvent<OnInitializeModules>()
+				.WithEvent<OnAfterInitializeModules>();
 
 			RegisterStage("Start")
 				.WithEvent<OnStartInboxProcessing>()

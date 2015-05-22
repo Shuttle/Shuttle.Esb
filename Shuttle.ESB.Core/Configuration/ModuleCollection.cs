@@ -1,16 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-	public class ModuleCollection : IEnumerable<IModule>
+	public class ModuleCollection : IEnumerable<IModule>, IDisposable
 	{
-		private readonly List<IModule> modules = new List<IModule>();
+		private readonly List<IModule> _modules = new List<IModule>();
 
 		public IEnumerator<IModule> GetEnumerator()
 		{
-			return modules.GetEnumerator();
+			return _modules.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
@@ -22,7 +23,15 @@ namespace Shuttle.ESB.Core
 		{
 			Guard.AgainstNull(module, "module");
 
-			modules.Add(module);
+			_modules.Add(module);
+		}
+
+		public void Dispose()
+		{
+			foreach (var module in _modules)
+			{
+				module.AttemptDispose();
+			}
 		}
 	}
 }

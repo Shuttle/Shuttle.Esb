@@ -241,6 +241,15 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Module could not be instantiated: {0}.
+        /// </summary>
+        public static string ModuleInstantiationException {
+            get {
+                return ResourceManager.GetString("ModuleInstantiationException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No IIdempotenceService implementation has been configured..
         /// </summary>
         public static string NoIdempotenceService {
@@ -354,6 +363,15 @@ namespace Shuttle.ESB.Core {
         public static string PublishWithoutSubscriptionManagerException {
             get {
                 return ResourceManager.GetString("PublishWithoutSubscriptionManagerException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue factory could not be instantiated: {0}.
+        /// </summary>
+        public static string QueueFactoryInstantiationException {
+            get {
+                return ResourceManager.GetString("QueueFactoryInstantiationException", resourceCulture);
             }
         }
         
@@ -660,6 +678,15 @@ namespace Shuttle.ESB.Core {
         public static string UnknownMessageRouteSpecification {
             get {
                 return ResourceManager.GetString("UnknownMessageRouteSpecification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not get type: {0}.
+        /// </summary>
+        public static string UnknownTypeException {
+            get {
+                return ResourceManager.GetString("UnknownTypeException", resourceCulture);
             }
         }
         

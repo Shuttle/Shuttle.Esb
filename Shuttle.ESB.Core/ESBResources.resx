@@ -420,4 +420,16 @@
     <value>[message handler registered] : message type = '{0}' / handler type = '{1}'</value>
     <comment>{0} = full name of message type, {1} = full name of handler type</comment>
   </data>
+  <data name="ModuleInstantiationException" xml:space="preserve">
+    <value>Module could not be instantiated: {0}</value>
+    <comment>{0} = full type name of module type to be instanced</comment>
+  </data>
+  <data name="QueueFactoryInstantiationException" xml:space="preserve">
+    <value>Queue factory could not be instantiated: {0}</value>
+    <comment>{0} = full type name of queue factory type to be instanced</comment>
+  </data>
+  <data name="UnknownTypeException" xml:space="preserve">
+    <value>Could not get type: {0}</value>
+    <comment>{0} = type descriptor that cannot be found</comment>
+  </data>
 </root>

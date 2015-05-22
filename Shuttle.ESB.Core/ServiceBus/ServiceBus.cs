@@ -37,11 +37,6 @@ namespace Shuttle.ESB.Core
 
 			GuardAgainstInvalidConfiguration();
 
-			foreach (var module in Configuration.Modules)
-			{
-				module.Initialize(this);
-			}
-
 			var startupPipeline = new StartupPipeline(this);
 
 			Events.OnPipelineCreated(this, new PipelineEventArgs(startupPipeline));

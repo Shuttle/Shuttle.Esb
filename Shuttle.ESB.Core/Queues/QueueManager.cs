@@ -48,7 +48,11 @@ namespace Shuttle.ESB.Core
 
 							foreach (QueueFactoryElement queueFactoryElement in ServiceBusConfiguration.ServiceBusSection.QueueFactories)
 							{
-								factoryTypes.Add(Type.GetType(queueFactoryElement.Type));
+								var type = Type.GetType(queueFactoryElement.Type);
+
+								Guard.Against<ESBConfigurationException>(type == null, string.Format(ESBResources.UnknownTypeException, queueFactoryElement.Type));
+
+								factoryTypes.Add(type);
 							}
 						}
 
@@ -61,7 +65,7 @@ namespace Shuttle.ESB.Core
 						{
 							try
 							{
-								type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "Queue factory", type.FullName));
+								type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
 
 								var instance = (IQueueFactory)Activator.CreateInstance(type);
 
@@ -72,7 +76,7 @@ namespace Shuttle.ESB.Core
 							}
 							catch (Exception ex)
 							{
-								_log.Warning(string.Format("Queue factory not instantiated: {0}", ex.Message));
+								throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, ex.Message));
 							}
 						}
 

@@ -92,6 +92,8 @@
     <Compile Include="Compression\ICompressionAlgorithm.cs" />
     <Compile Include="Compression\NullCompressionAlgorithm.cs" />
     <Compile Include="Compression\GZipCompressionAlgorithm.cs" />
+    <Compile Include="Configuration\Section\ModuleElement.cs" />
+    <Compile Include="Configuration\Section\ModulesElement.cs" />
     <Compile Include="Configuration\Section\UriResolverItemElement.cs" />
     <Compile Include="Configuration\Section\UriResolverElement.cs" />
     <Compile Include="Configuration\Section\QueueFactoryElement.cs" />

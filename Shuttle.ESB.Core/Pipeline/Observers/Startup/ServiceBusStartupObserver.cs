@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
@@ -9,6 +10,7 @@ namespace Shuttle.ESB.Core
 		IPipelineObserver<OnRegisterInboxQueueConfiguration>,
 		IPipelineObserver<OnRegisterOutboxQueueConfiguration>,
 		IPipelineObserver<OnRegisterWorkerConfiguration>,
+		IPipelineObserver<OnRegisterModuleConfiguration>,
 		IPipelineObserver<OnInitializeQueueFactories>,
 		IPipelineObserver<OnCreateQueues>,
 		IPipelineObserver<OnInitializeMessageHandlerFactory>,
@@ -17,6 +19,7 @@ namespace Shuttle.ESB.Core
 		IPipelineObserver<OnInitializeSubscriptionManager>,
 		IPipelineObserver<OnInitializeIdempotenceService>,
 		IPipelineObserver<OnInitializeTransactionScopeFactory>,
+		IPipelineObserver<OnInitializeModules>,
 		IPipelineObserver<OnStartInboxProcessing>,
 		IPipelineObserver<OnStartControlInboxProcessing>,
 		IPipelineObserver<OnStartOutboxProcessing>,
@@ -24,14 +27,13 @@ namespace Shuttle.ESB.Core
 		IPipelineObserver<OnStartWorker>
 	{
 		private readonly TimeSpan[] defaultDurationToIgnoreOnFailure =
-			new[]
-				{
-					TimeSpan.FromMinutes(5),
-					TimeSpan.FromMinutes(10),
-					TimeSpan.FromMinutes(15),
-					TimeSpan.FromMinutes(30),
-					TimeSpan.FromMinutes(60)
-				};
+		{
+			TimeSpan.FromMinutes(5),
+			TimeSpan.FromMinutes(10),
+			TimeSpan.FromMinutes(15),
+			TimeSpan.FromMinutes(30),
+			TimeSpan.FromMinutes(60)
+		};
 
 		private readonly TimeSpan[] defaultDurationToSleepWhenIdle =
 			(TimeSpan[])
@@ -321,6 +323,47 @@ namespace Shuttle.ESB.Core
 				new WorkerConfiguration(_configuration.QueueManager.CreateQueue(
 					ServiceBusConfiguration.ServiceBusSection.Worker.DistributorControlWorkQueueUri),
 				                        ServiceBusConfiguration.ServiceBusSection.Worker.ThreadAvailableNotificationIntervalSeconds);
+		}
+
+		public void Execute(OnRegisterModuleConfiguration pipelineEvent)
+		{
+			if (ServiceBusConfiguration.ServiceBusSection == null || ServiceBusConfiguration.ServiceBusSection.Modules == null)
+			{
+				return;
+			}
+
+			var types = new List<Type>();
+				
+			foreach (ModuleElement moduleElement in ServiceBusConfiguration.ServiceBusSection.Modules)
+			{
+				var type = Type.GetType(moduleElement.Type);
+
+				Guard.Against<ESBConfigurationException>(type == null, string.Format(ESBResources.UnknownTypeException, moduleElement.Type));
+
+				types.Add(type);
+			}
+
+			foreach (var type in types)
+			{
+				try
+				{
+					type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "Module", type.FullName));
+
+					_configuration.Modules.Add((IModule)Activator.CreateInstance(type));
+				}
+				catch (Exception ex)
+				{
+					throw new ESBConfigurationException(string.Format(ESBResources.ModuleInstantiationException, ex.Message));
+				}
+			}
+		}
+
+		public void Execute(OnInitializeModules pipelineEvent)
+		{
+			foreach (var module in _configuration.Modules)
+			{
+				module.Initialize(_bus);
+			}
 		}
 	}
 }

@@ -1,9 +1,9 @@
-﻿using Shuttle.Core.Infrastructure;
-
-namespace Shuttle.ESB.Core
+﻿namespace Shuttle.ESB.Core
 {
 	public class OnRegisterSharedConfiguration : PipelineEvent { }
 	public class OnAfterRegisterSharedConfiguration : PipelineEvent { }
+	public class OnRegisterModuleConfiguration : PipelineEvent { }
+	public class OnAfterRegisterModuleConfiguration : PipelineEvent { }
 	public class OnRegisterControlInboxQueueConfiguration : PipelineEvent { }
 	public class OnAfterRegisterControlInboxQueueConfiguration : PipelineEvent { }
 	public class OnRegisterInboxQueueConfiguration : PipelineEvent { }
@@ -13,6 +13,8 @@ namespace Shuttle.ESB.Core
 	public class OnRegisterWorkerConfiguration : PipelineEvent { }
 	public class OnAfterRegisterWorkerConfiguration : PipelineEvent { }
 	
+	public class OnInitializeModules : PipelineEvent {}
+	public class OnAfterInitializeModules : PipelineEvent {}
 	public class OnInitializeQueueFactories : PipelineEvent {}
 	public class OnAfterInitializeQueueFactories : PipelineEvent { }
 	public class OnCreateQueues : PipelineEvent {}
