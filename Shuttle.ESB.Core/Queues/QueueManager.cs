@@ -242,8 +242,15 @@ namespace Shuttle.ESB.Core
 
 		public void Dispose()
 		{
-			_queueFactories.AttemptDispose();
-			_queues.AttemptDispose();
+			foreach (var queueFactory in _queueFactories)
+			{
+				queueFactory.AttemptDispose();
+			}
+
+			foreach (var queue in _queues)
+			{
+				queue.AttemptDispose();
+			}
 
 			_queueFactories.Clear();
 			_queues.Clear();
