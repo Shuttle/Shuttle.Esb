@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
@@ -8,7 +8,7 @@ namespace Shuttle.ESB.Core
 	{
 		private static readonly object _padlock = new object();
 
-		private List<AvailableWorker> _availableWorkers = new List<AvailableWorker>();
+		private readonly Dictionary<string, List<AvailableWorker>> _workers = new Dictionary<string, List<AvailableWorker>>();
 
 		private readonly ILog _log;
 
@@ -21,16 +21,38 @@ namespace Shuttle.ESB.Core
 		{
 			lock (_padlock)
 			{
-				if (_availableWorkers.Count == 0)
+				KeyValuePair<string, List<AvailableWorker>>? worker = null;
+
+				foreach (var w in _workers)
 				{
-					return null;
+					if (worker == null)
+					{
+						worker = w;
+					}
+					else
+					{
+						if (w.Value.Count > worker.Value.Value.Count)
+						{
+							worker = w;
+						}
+					}
 				}
 
-				var result = _availableWorkers[0];
+				if (worker.HasValue)
+				{
+					if (worker.Value.Value.Count == 0)
+					{
+						return null;
+					}
 
-				_availableWorkers.RemoveAt(0);
+					var result = worker.Value.Value[0];
 
-				return result;
+					worker.Value.Value.RemoveAt(0);
+
+					return result;
+				}
+
+				return null;
 			}
 		}
 
@@ -38,13 +60,23 @@ namespace Shuttle.ESB.Core
 		{
 			lock (_padlock)
 			{
-				_availableWorkers.Add(new AvailableWorker(message));
+				GetAvailableWorkers(message.InboxWorkQueueUri).Add(new AvailableWorker(message));
 			}
 
 			if (_log.IsTraceEnabled)
 			{
 				_log.Trace(string.Format("AvailableWorker: {0}", message.InboxWorkQueueUri));
 			}
+		}
+
+		private List<AvailableWorker> GetAvailableWorkers(string inboxWorkQueueUri)
+		{
+			if (!_workers.ContainsKey(inboxWorkQueueUri))
+			{
+				_workers.Add(inboxWorkQueueUri, new List<AvailableWorker>());
+			}
+
+			return _workers[inboxWorkQueueUri];
 		}
 
 		public void ReturnAvailableWorker(AvailableWorker availableWorker)
@@ -56,7 +88,7 @@ namespace Shuttle.ESB.Core
 
 			lock (_padlock)
 			{
-				_availableWorkers.Add(availableWorker);
+				GetAvailableWorkers(availableWorker.InboxWorkQueueUri).Add(availableWorker);
 			}
 		}
 
@@ -64,20 +96,9 @@ namespace Shuttle.ESB.Core
 		{
 			lock (_padlock)
 			{
-				var result = new List<AvailableWorker>();
-
-				foreach (var availableWorker in _availableWorkers)
-				{
-					if (
-						!(availableWorker.InboxWorkQueueUri.Equals(message.InboxWorkQueueUri,
-						                                           StringComparison.InvariantCultureIgnoreCase) &&
-						  availableWorker.WorkerSendDate < message.DateStarted))
-					{
-						result.Add(availableWorker);
-					}
-				}
-
-				_availableWorkers = result;
+				_workers[message.InboxWorkQueueUri] = GetAvailableWorkers(message.InboxWorkQueueUri)
+					.Where(availableWorker => availableWorker.WorkerSendDate < message.DateStarted)
+					.ToList();
 			}
 		}
 	}
