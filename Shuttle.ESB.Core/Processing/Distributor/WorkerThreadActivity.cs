@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
@@ -32,6 +33,7 @@ namespace Shuttle.ESB.Core
 					{
 						Identifier = identifier,
 						InboxWorkQueueUri = bus.Configuration.Inbox.WorkQueue.Uri.ToString(),
+						ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
 						DateSent = DateTime.Now
 					},
 				         c => c.WithRecipient(bus.Configuration.Worker.DistributorControlInboxWorkQueue));

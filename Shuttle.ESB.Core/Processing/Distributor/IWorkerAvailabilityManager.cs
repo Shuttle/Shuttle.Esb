@@ -7,5 +7,6 @@ namespace Shuttle.ESB.Core
 
         void WorkerAvailable(WorkerThreadAvailableCommand message);
         void WorkerStarted(WorkerStartedEvent message);
+	    void RemoveByThread(WorkerThreadAvailableCommand message);
     }
 }

@@ -101,5 +101,14 @@ namespace Shuttle.ESB.Core
 					.ToList();
 			}
 		}
+
+		public void RemoveByThread(WorkerThreadAvailableCommand message)
+		{
+			lock (_padlock)
+			{
+				GetAvailableWorkers(message.InboxWorkQueueUri)
+					.RemoveAll(candidate => candidate.ManagedThreadId == message.ManagedThreadId);
+			}
+		}
 	}
 }

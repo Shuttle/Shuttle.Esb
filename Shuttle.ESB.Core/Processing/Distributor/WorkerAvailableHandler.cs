@@ -8,6 +8,8 @@ namespace Shuttle.ESB.Core
 									   ? context.Configuration.Inbox.DistributeSendCount
 									   : 5;
 
+			context.Configuration.WorkerAvailabilityManager.RemoveByThread(context.Message);
+
 			for (var i = 0; i < distributeSendCount; i++)
 			{
 				context.Configuration.WorkerAvailabilityManager.WorkerAvailable(context.Message);
