@@ -113,6 +113,8 @@ namespace Shuttle.ESB.Core
 
 		public IQueue GetQueue(string uri)
 		{
+			Guard.AgainstNullOrEmptyString(uri, "uri");
+
 			var queue =
 				_queues.Find(
 					candidate => Find(candidate, uri));
@@ -149,11 +151,11 @@ namespace Shuttle.ESB.Core
 						throw new KeyNotFoundException(string.Format(ESBResources.UriNameNotFoundException, UriResolver.GetType().FullName, uri));
 					}
 
-					queue = new ResolvedQueue(GetQueueFactory(resolvedQueueUri).Create(resolvedQueueUri), queueUri);
+					queue = new ResolvedQueue(CreateQueue(GetQueueFactory(resolvedQueueUri), resolvedQueueUri), queueUri);
 				}
 				else
 				{
-					queue = GetQueueFactory(queueUri).Create(queueUri);
+					queue = CreateQueue(GetQueueFactory(queueUri), queueUri);
 				}
 
 				_queues.Add(queue);
@@ -162,9 +164,39 @@ namespace Shuttle.ESB.Core
 			}
 		}
 
-		private static bool Find(IQueue candidate, string uri)
+		private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
 		{
-			return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
+			var result = queueFactory.Create(queueUri);
+
+			Guard.AgainstNull(result, string.Format(ESBResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri.ToString()));
+
+			return result;
+		}
+
+
+		private bool Find(IQueue candidate, string uri)
+		{
+			try
+			{
+				return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
+			}
+			catch (Exception ex)
+			{
+				var candidateTypeName = "(candidate is null)";
+				var candidateUri= "(candidate is null)";
+
+				if (candidate != null)
+				{
+					candidateTypeName = candidate.GetType().FullName;
+					candidateUri = candidate.Uri != null
+						? candidate.Uri.ToString()
+						: "(candidate.Uri is null)";
+				}
+				
+				_log.Error(string.Format(ESBResources.FindQueueException, candidateTypeName, candidateUri, uri ?? "(comparison uri is null)", ex.AllMessages()));
+
+				return false;
+			}
 		}
 
 		public IQueue CreateQueue(string uri)

@@ -151,6 +151,15 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An exception occurred trying to find a queue.  Candidate queue type = &apos;{0}&apos;.  Candidate uri = &apos;{1}&apos;.  Comparison uri = &apos;{2}&apos;.  All exception messages = &apos;{3}&apos;..
+        /// </summary>
+        public static string FindQueueException {
+            get {
+                return ResourceManager.GetString("FindQueueException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to dd MMM yyyy HH:mm:ss.
         /// </summary>
         public static string FormatDateFull {
@@ -363,6 +372,15 @@ namespace Shuttle.ESB.Core {
         public static string PublishWithoutSubscriptionManagerException {
             get {
                 return ResourceManager.GetString("PublishWithoutSubscriptionManagerException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Queue factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
+        /// </summary>
+        public static string QueueFactoryCreatedNullQueue {
+            get {
+                return ResourceManager.GetString("QueueFactoryCreatedNullQueue", resourceCulture);
             }
         }
         

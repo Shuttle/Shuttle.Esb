@@ -47,10 +47,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyMessageRouteSpecificationTest.cs" />
@@ -61,6 +57,7 @@
     <Compile Include="Messages\OtherNamespaceCommand.cs" />
     <Compile Include="Messages\SimpleEvent.cs" />
     <Compile Include="NullQueue.cs" />
+    <Compile Include="NullQueueFactory.cs" />
     <Compile Include="Pipeline\MockAuthenticateObserver.cs" />
     <Compile Include="Pipeline\MockPipelineEvent1.cs" />
     <Compile Include="Pipeline\PipelineTest.cs" />

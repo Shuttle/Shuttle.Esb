@@ -13,15 +13,15 @@ namespace Shuttle.ESB.Core.Tests
 			{
 				Inbox = new InboxQueueConfiguration
 				{
-					WorkQueue = new NullQueue("nq://./work-queue")
+					WorkQueue = new NullQueue("null-queue://./work-queue")
 				}
 			};
 
-			Assert.AreEqual("nq://./work-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
+			Assert.AreEqual("null-queue://./work-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
 
-			configurator.WithSender("nq://./another-queue");
+			configurator.WithSender("null-queue://./another-queue");
 
-			Assert.AreEqual("nq://./another-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
+			Assert.AreEqual("null-queue://./another-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
 		}
 	}
 }

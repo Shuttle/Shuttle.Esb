@@ -6,8 +6,13 @@ namespace Shuttle.ESB.Core.Tests
 	public class NullQueue : IQueue
 	{
 		public NullQueue(string uri)
+			: this(new Uri(uri))
 		{
-			Uri = new Uri(uri);
+		}
+
+		public NullQueue(Uri uri)
+		{
+			Uri = uri;
 		}
 
 		public Uri Uri { get; private set; }

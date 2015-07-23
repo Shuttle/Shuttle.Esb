@@ -432,4 +432,12 @@
     <value>Could not get type: {0}</value>
     <comment>{0} = type descriptor that cannot be found</comment>
   </data>
+  <data name="FindQueueException" xml:space="preserve">
+    <value>An exception occurred trying to find a queue.  Candidate queue type = '{0}'.  Candidate uri = '{1}'.  Comparison uri = '{2}'.  All exception messages = '{3}'.</value>
+    <comment>{0} = candidate queue type, {1} = candidate uri, {2} = comparison uri, {3} = all exception messages</comment>
+  </data>
+  <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
+    <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
+    <comment>{0} = the queue factory type name, {1} = the uri that the factory was requested to create the queue for</comment>
+  </data>
 </root>
