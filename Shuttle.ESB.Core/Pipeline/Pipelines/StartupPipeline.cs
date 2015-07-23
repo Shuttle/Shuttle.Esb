@@ -40,9 +40,7 @@ namespace Shuttle.ESB.Core
 				.WithEvent<OnInitializeIdempotenceService>()
 				.WithEvent<OnAfterInitializeIdempotenceService>()
 				.WithEvent<OnInitializeTransactionScopeFactory>()
-				.WithEvent<OnAfterInitializeTransactionScopeFactory>()
-				.WithEvent<OnInitializeModules>()
-				.WithEvent<OnAfterInitializeModules>();
+				.WithEvent<OnAfterInitializeTransactionScopeFactory>();
 
 			RegisterStage("Start")
 				.WithEvent<OnStartInboxProcessing>()

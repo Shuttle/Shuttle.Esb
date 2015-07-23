@@ -13,8 +13,6 @@
 	public class OnRegisterWorkerConfiguration : PipelineEvent { }
 	public class OnAfterRegisterWorkerConfiguration : PipelineEvent { }
 	
-	public class OnInitializeModules : PipelineEvent {}
-	public class OnAfterInitializeModules : PipelineEvent {}
 	public class OnInitializeQueueFactories : PipelineEvent {}
 	public class OnAfterInitializeQueueFactories : PipelineEvent { }
 	public class OnCreateQueues : PipelineEvent {}

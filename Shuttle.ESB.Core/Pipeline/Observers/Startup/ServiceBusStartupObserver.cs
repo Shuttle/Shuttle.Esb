@@ -19,7 +19,6 @@ namespace Shuttle.ESB.Core
 		IPipelineObserver<OnInitializeSubscriptionManager>,
 		IPipelineObserver<OnInitializeIdempotenceService>,
 		IPipelineObserver<OnInitializeTransactionScopeFactory>,
-		IPipelineObserver<OnInitializeModules>,
 		IPipelineObserver<OnStartInboxProcessing>,
 		IPipelineObserver<OnStartControlInboxProcessing>,
 		IPipelineObserver<OnStartOutboxProcessing>,
@@ -355,14 +354,6 @@ namespace Shuttle.ESB.Core
 				{
 					throw new ESBConfigurationException(string.Format(ESBResources.ModuleInstantiationException, ex.Message));
 				}
-			}
-		}
-
-		public void Execute(OnInitializeModules pipelineEvent)
-		{
-			foreach (var module in _configuration.Modules)
-			{
-				module.Initialize(_bus);
 			}
 		}
 	}
