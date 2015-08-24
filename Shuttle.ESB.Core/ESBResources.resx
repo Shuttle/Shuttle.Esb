@@ -296,7 +296,7 @@
     <value>No IIdempotenceService implementation has been configured.</value>
   </data>
   <data name="TraceMessageHandled" xml:space="preserve">
-    <value>[receive message state service] : transport message type '{0}' with id '{1}' has already been handled.</value>
+    <value>[idempotence service] : transport message type '{0}' with id '{1}' has already been handled.</value>
     <comment>{0} = message type, {1} = message id</comment>
   </data>
   <data name="SerializerUnknownTypeExcption" xml:space="preserve">
@@ -439,5 +439,13 @@
   <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
     <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
     <comment>{0} = the queue factory type name, {1} = the uri that the factory was requested to create the queue for</comment>
+  </data>
+  <data name="TraceMessageIgnored" xml:space="preserve">
+    <value>[idempotence service] : transport message type '{0}' with id '{1}' has already been assigned to another thread.</value>
+    <comment>{0} = message type, {1} = message id</comment>
+  </data>
+  <data name="TraceMessageAssigned" xml:space="preserve">
+    <value>[idempotence service] : transport message type '{0}' with id '{1}' has been assigned to a thread on this endpoint.</value>
+    <comment>{0} = message type, {1} = message id</comment>
   </data>
 </root>

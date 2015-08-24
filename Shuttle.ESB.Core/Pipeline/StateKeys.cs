@@ -15,6 +15,7 @@ namespace Shuttle.ESB.Core
 		public const string MessageBytes = "MessageBytes";
 		public const string MessageHandler = "MessageHandler";
 		public const string NextDeferredProcessDate = "NextDeferredProcessDate";
+		public const string ProcessingStatus = "ProcessingStatus";
 		public const string ReceivedMessage = "ReceivedMessage";
 		public const string TransactionComplete = "TransactionComplete";
 		public const string TransactionScope = "TransactionScope";

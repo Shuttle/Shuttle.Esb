@@ -61,6 +61,16 @@ namespace Shuttle.ESB.Core
 			return state.Get<TransportMessage>(StateKeys.TransportMessageReceived);
 		}
 
+		public static void SetProcessingStatus(this State<Pipeline> state, ProcessingStatus processingStatus)
+		{
+			state.Replace(StateKeys.ProcessingStatus, processingStatus);
+		}
+
+		public static ProcessingStatus GetProcessingStatus(this State<Pipeline> state)
+		{
+			return state.Get<ProcessingStatus>(StateKeys.ProcessingStatus);
+		}
+
 		public static void SetReceivedMessage(this State<Pipeline> state, ReceivedMessage receivedMessage)
 		{
 			state.Replace(StateKeys.ReceivedMessage, receivedMessage);

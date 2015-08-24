@@ -3,16 +3,16 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-    public class SendDeferredObserver :
+	public class SendDeferredObserver :
 		IPipelineObserver<OnSendDeferred>,
 		IPipelineObserver<OnAfterSendDeferred>
-    {
-        private readonly ILog _log;
+	{
+		private readonly ILog _log;
 
-        public SendDeferredObserver()
-        {
-            _log = Log.For(this);
-        }
+		public SendDeferredObserver()
+		{
+			_log = Log.For(this);
+		}
 
 		public void Execute(OnSendDeferred pipelineEvent)
 		{
@@ -24,6 +24,11 @@ namespace Shuttle.ESB.Core
 				return;
 			}
 
+			if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
+			{
+				return;
+			}
+
 			var transportMessage = state.GetTransportMessage();
 			var idempotenceService = configuration.IdempotenceService;
 
@@ -31,10 +36,11 @@ namespace Shuttle.ESB.Core
 			{
 				foreach (var stream in idempotenceService.GetDeferredMessages(transportMessage))
 				{
-					var deferredTransportMessage = (TransportMessage)configuration.Serializer.Deserialize(typeof (TransportMessage), stream);
+					var deferredTransportMessage =
+						(TransportMessage) configuration.Serializer.Deserialize(typeof (TransportMessage), stream);
 
 					state.GetServiceBus().Dispatch(deferredTransportMessage);
-				
+
 					idempotenceService.DeferredMessageSent(transportMessage, deferredTransportMessage);
 				}
 			}
@@ -44,8 +50,8 @@ namespace Shuttle.ESB.Core
 			}
 		}
 
-	    public void Execute(OnAfterSendDeferred pipelineEvent)
-	    {
+		public void Execute(OnAfterSendDeferred pipelineEvent)
+		{
 			var state = pipelineEvent.Pipeline.State;
 
 			if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionComplete())
@@ -56,17 +62,24 @@ namespace Shuttle.ESB.Core
 			var bus = state.GetServiceBus();
 			var transportMessage = state.GetTransportMessage();
 
-			if (bus.Configuration.HasIdempotenceService)
+			if (!bus.Configuration.HasIdempotenceService)
 			{
-				try
-				{
-					bus.Configuration.IdempotenceService.ProcessingCompleted(transportMessage);
-				}
-				catch (Exception ex)
-				{
-					bus.Configuration.IdempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-				}
+				return;
+			}
+
+			if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
+			{
+				return;
+			}
+
+			try
+			{
+				bus.Configuration.IdempotenceService.ProcessingCompleted(transportMessage);
+			}
+			catch (Exception ex)
+			{
+				bus.Configuration.IdempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
 			}
 		}
-    }
+	}
 }
