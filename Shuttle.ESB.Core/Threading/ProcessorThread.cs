@@ -5,89 +5,91 @@ namespace Shuttle.ESB.Core
 {
 	internal class ProcessorThread : IThreadState
 	{
-		private readonly IProcessor processor;
-		private volatile bool active;
+		private readonly string _name;
+		private readonly IProcessor _processor;
+		private volatile bool _active;
 
-		private readonly int threadJoinTimeoutInterval =
+		private readonly int _threadJoinTimeoutInterval =
 			ConfigurationItem<int>.ReadSetting("ThreadJoinTimeoutInterval", 1000).GetValue();
 
 		private Thread thread;
 
 		private readonly ILog log;
 
-		public ProcessorThread(IProcessor processor)
+		public ProcessorThread(string name, IProcessor processor)
 		{
-			this.processor = processor;
+			_name = name;
+			_processor = processor;
 
 			log = Log.For(this);
 		}
 
 		public void Start()
 		{
-			if (active)
+			if (_active)
 			{
 				return;
 			}
 
-			thread = new Thread(Work);
+			thread = new Thread(Work) {Name = _name};
 
 			thread.SetApartmentState(ApartmentState.MTA);
 			thread.IsBackground = true;
 			thread.Priority = ThreadPriority.Normal;
 
-			active = true;
+			_active = true;
 
 			thread.Start();
 
 			log.Trace(string.Format(ESBResources.TraceProcessorThreadStarting, thread.ManagedThreadId,
-			                        processor.GetType().FullName));
+			                        _processor.GetType().FullName));
 
-			while (!thread.IsAlive && active)
+			while (!thread.IsAlive && _active)
 			{
 			}
 
-			if (active)
+			if (_active)
 			{
 				log.Trace(string.Format(ESBResources.TraceProcessorThreadActive, thread.ManagedThreadId,
-				                        processor.GetType().FullName));
+				                        _processor.GetType().FullName));
 			}
 		}
 
 		public void Stop()
 		{
 			log.Trace(string.Format(ESBResources.TraceProcessorThreadStopping, thread.ManagedThreadId,
-			                        processor.GetType().FullName));
+			                        _processor.GetType().FullName));
 
-			active = false;
+			_active = false;
 
 			if (thread.IsAlive)
 			{
-				thread.Join(threadJoinTimeoutInterval);
+				thread.Join(_threadJoinTimeoutInterval);
 			}
 		}
 
 		private void Work()
 		{
-			while (active)
+			while (_active)
 			{
 				log.Verbose(string.Format(ESBResources.VerboseProcessorExecuting, thread.ManagedThreadId,
-				                          processor.GetType().FullName));
+				                          _processor.GetType().FullName));
 
-				processor.Execute(this);
+				_processor.Execute(this);
 			}
 
 			log.Trace(string.Format(ESBResources.TraceProcessorThreadStopped, thread.ManagedThreadId,
-			                        processor.GetType().FullName));
+			                        _processor.GetType().FullName));
 		}
 
 		public bool Active
 		{
-			get { return active; }
+			get { return _active; }
 		}
 
 		internal void Deactivate()
 		{
-			active = false;
+			_active = false;
 		}
 	}
 }

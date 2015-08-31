@@ -6,40 +6,40 @@ namespace Shuttle.ESB.Core
 {
     public class ThreadActivity : IThreadActivity
     {
-        private static readonly TimeSpan defaultDuration = TimeSpan.FromMilliseconds(250);
+        private static readonly TimeSpan _defaultDuration = TimeSpan.FromMilliseconds(250);
 
-        private int durationIndex;
-        private readonly TimeSpan[] durations;
+        private int _durationIndex;
+        private readonly TimeSpan[] _durations;
 
         public ThreadActivity(TimeSpan[] durationToSleepWhenIdle)
         {
             Guard.AgainstNull(durationToSleepWhenIdle, "durationToSleepWhenIdle");
 
-            durations = durationToSleepWhenIdle;
-            durationIndex = 0;
+            _durations = durationToSleepWhenIdle;
+            _durationIndex = 0;
         }
 
         public ThreadActivity(IThreadActivityConfiguration threadActivityConfiguration)
         {
             Guard.AgainstNull(threadActivityConfiguration, "threadActivityConfiguration");
 
-            durations = threadActivityConfiguration.DurationToSleepWhenIdle;
-            durationIndex = 0;
+            _durations = threadActivityConfiguration.DurationToSleepWhenIdle;
+            _durationIndex = 0;
         }
 
         private TimeSpan GetSleepTimeSpan()
         {
-            if (durations == null || durations.Length == 0)
+            if (_durations == null || _durations.Length == 0)
             {
-                return defaultDuration;
+                return _defaultDuration;
             }
 
-            if (durationIndex >= durations.Length)
+            if (_durationIndex >= _durations.Length)
             {
-                durationIndex = durations.Length - 1;
+                _durationIndex = _durations.Length - 1;
             }
 
-            return durations[durationIndex++];
+            return _durations[_durationIndex++];
         }
 
         public void Waiting(IThreadState state)
@@ -51,7 +51,7 @@ namespace Shuttle.ESB.Core
 
         public void Working()
         {
-            durationIndex = 0;
+            _durationIndex = 0;
         }
     }
 }

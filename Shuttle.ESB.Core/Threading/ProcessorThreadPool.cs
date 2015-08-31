@@ -6,60 +6,60 @@ namespace Shuttle.ESB.Core
 {
 	public class ProcessorThreadPool : IProcessorThreadPool
 	{
-		private readonly string name;
-		private readonly IProcessorFactory processorFactory;
-		private readonly int threadCount;
-		private readonly List<ProcessorThread> threads = new List<ProcessorThread>();
-		private bool disposed;
-		private bool started;
+		private readonly string _name;
+		private readonly IProcessorFactory _processorFactory;
+		private readonly int _threadCount;
+		private readonly List<ProcessorThread> _threads = new List<ProcessorThread>();
+		private bool _disposed;
+		private bool _started;
 		private readonly ILog _log;
 
 		public ProcessorThreadPool(string name, int threadCount, IProcessorFactory processorFactory)
 		{
-			this.name = name;
-			this.threadCount = threadCount;
-			this.processorFactory = processorFactory;
+			_name = name;
+			_threadCount = threadCount;
+			_processorFactory = processorFactory;
 
 			_log = Log.For(this);
 		}
 
 		public void Pause()
 		{
-			foreach (var thread in threads)
+			foreach (var thread in _threads)
 			{
 				thread.Stop();
 			}
 
-			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, name, "paused"));
+			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, _name, "paused"));
 		}
 
 		public void Resume()
 		{
-			foreach (var thread in threads)
+			foreach (var thread in _threads)
 			{
 				thread.Start();
 			}
 
-			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, name, "resumed"));
+			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, _name, "resumed"));
 		}
 
 		public IProcessorThreadPool Start()
 		{
-			if (started)
+			if (_started)
 			{
 				return this;
 			}
 
-			if (threadCount < 1)
+			if (_threadCount < 1)
 			{
 				throw new ThreadCountZeroException();
 			}
 
 			StartThreads();
 
-			started = true;
+			_started = true;
 
-			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, name, "started"));
+			_log.Information(string.Format(ESBResources.ThreadPoolStatusChange, _name, "started"));
 
 			return this;
 		}
@@ -75,11 +75,11 @@ namespace Shuttle.ESB.Core
 		{
 			var i = 0;
 
-			while (i++ < threadCount)
+			while (i++ < _threadCount)
 			{
-				var thread = new ProcessorThread(processorFactory.Create());
+				var thread = new ProcessorThread(string.Format("{0} / {1}", _name, i), _processorFactory.Create());
 
-				threads.Add(thread);
+				_threads.Add(thread);
 
 				thread.Start();
 			}
@@ -87,25 +87,25 @@ namespace Shuttle.ESB.Core
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (disposed)
+			if (_disposed)
 			{
 				return;
 			}
 
 			if (disposing)
 			{
-				foreach (var thread in threads)
+				foreach (var thread in _threads)
 				{
 					thread.Deactivate();
 				}
 
-				foreach (var thread in threads)
+				foreach (var thread in _threads)
 				{
 					thread.Stop();
 				}
 			}
 
-			disposed = true;
+			_disposed = true;
 		}
 	}
 }
