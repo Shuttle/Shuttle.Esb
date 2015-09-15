@@ -1,8 +1,7 @@
 using System;
 using NUnit.Framework;
-using Shuttle.ESB.Core;
 
-namespace Shuttle.ESB.Test.Unit.Configuration
+namespace Shuttle.ESB.Core.Tests
 {
 	[TestFixture]
     public class StringDurationArrayConverterTest 
