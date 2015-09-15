@@ -10,7 +10,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-    public class DefaultSerializer : ISerializer
+    public sealed class DefaultSerializer : ISerializer
     {
         private const string SOAP_INCLUDE = "SoapInclude";
         private const string TYPE_ERROR = "--- could not retrieve type name from exception ---";
