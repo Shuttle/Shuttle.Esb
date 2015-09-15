@@ -1,20 +1,40 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-	public class DefaultMessageRouteProvider : IMessageRouteProvider, IRequireInitialization
+	public sealed class DefaultMessageRouteProvider : IMessageRouteProvider, IRequireInitialization
 	{
-		private readonly IMessageRouteCollection messageRoutes = new MessageRouteCollection();
+		private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
 		public IEnumerable<string> GetRouteUris(string messageType)
 		{
-			var uri = messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
+			var uri = _messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
 
 			return
 				string.IsNullOrEmpty(uri)
 					? new List<string>()
 					: new List<string> {uri};
+		}
+
+		public void AddMessageRoute(IMessageRoute messageRoute)
+		{
+			Guard.AgainstNull(messageRoute, "messageRoute");
+
+			var existing = _messageRoutes.Find(messageRoute.Queue.Uri);
+
+			if (existing == null)
+			{
+				_messageRoutes.Add(messageRoute);
+			}
+			else
+			{
+				foreach (var specification in messageRoute.Specifications)
+				{
+					existing.AddSpecification(specification);
+				}
+			}
 		}
 
 		public void Initialize(IServiceBus bus)
@@ -28,18 +48,18 @@ namespace Shuttle.ESB.Core
 
 			foreach (MessageRouteElement mapElement in ServiceBusConfiguration.ServiceBusSection.MessageRoutes)
 			{
-				var map = messageRoutes.Find(mapElement.Uri);
+				var messageRoute = _messageRoutes.Find(mapElement.Uri);
 
-				if (map == null)
+				if (messageRoute == null)
 				{
-					map = new MessageRoute(bus.Configuration.QueueManager.GetQueue(mapElement.Uri));
+					messageRoute = new MessageRoute(bus.Configuration.QueueManager.GetQueue(mapElement.Uri));
 
-					messageRoutes.Add(map);
+					_messageRoutes.Add(messageRoute);
 				}
 
 				foreach (SpecificationElement specificationElement in mapElement)
 				{
-					map.AddSpecification(factory.Create(specificationElement.Name, specificationElement.Value));
+					messageRoute.AddSpecification(factory.Create(specificationElement.Name, specificationElement.Value));
 				}
 			}
 		}

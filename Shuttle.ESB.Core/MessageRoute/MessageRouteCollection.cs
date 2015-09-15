@@ -8,21 +8,21 @@ namespace Shuttle.ESB.Core
 {
     public class MessageRouteCollection : IMessageRouteCollection
     {
-        private readonly List<IMessageRoute> maps = new List<IMessageRoute>();
+        private readonly List<IMessageRoute> _messageRoutes = new List<IMessageRoute>();
 
-        public IMessageRouteCollection Add(IMessageRoute map)
+        public IMessageRouteCollection Add(IMessageRoute messageRoute)
         {
-            Guard.AgainstNull(map, "map");
+            Guard.AgainstNull(messageRoute, "messageRoute");
 
-            var existing = Find(map.Queue);
+            var existing = Find(messageRoute.Queue);
 
             if (existing == null)
             {
-                maps.Add(map);
+                _messageRoutes.Add(messageRoute);
             }
             else
             {
-                foreach (var specification in map.Specifications)
+                foreach (var specification in messageRoute.Specifications)
                 {
                     existing.AddSpecification(specification);
                 }
@@ -35,7 +35,7 @@ namespace Shuttle.ESB.Core
         {
             Guard.AgainstNull(messageType, "message");
 
-        	return maps.Where(map => map.IsSatisfiedBy(messageType)).ToList();
+        	return _messageRoutes.Where(map => map.IsSatisfiedBy(messageType)).ToList();
         }
 
     	public IMessageRoute Find(Uri uri)
@@ -47,7 +47,7 @@ namespace Shuttle.ESB.Core
 
         public IMessageRoute Find(string uri)
         {
-            return maps.Find(map => map.Queue.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase));
+            return _messageRoutes.Find(map => map.Queue.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public IMessageRoute Find(IQueue queue)
@@ -59,7 +59,7 @@ namespace Shuttle.ESB.Core
 
         public IEnumerator<IMessageRoute> GetEnumerator()
         {
-            return maps.GetEnumerator();
+            return _messageRoutes.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

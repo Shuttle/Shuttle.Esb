@@ -4,6 +4,6 @@ namespace Shuttle.ESB.Core
 {
 	public interface IMessageRouteProvider
 	{
-		IEnumerable<string> GetRouteUris(string messageType);	
+		IEnumerable<string> GetRouteUris(string messageType);
 	}
 }

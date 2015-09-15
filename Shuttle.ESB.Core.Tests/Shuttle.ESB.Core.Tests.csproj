@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AssemblyMessageRouteSpecificationTest.cs" />
     <Compile Include="CompressionAlgorithmTest.cs" />
+    <Compile Include="DefaultMessageRouteProviderTest.cs" />
     <Compile Include="DefaultMessageSerializerTest.cs" />
     <Compile Include="MessageRoutesTest.cs" />
     <Compile Include="MessageRouteTest.cs" />
