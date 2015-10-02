@@ -72,7 +72,7 @@ namespace Shuttle.ESB.Core
 					(string.Format(ESBResources.TransactionAlreadyStartedException, GetType().FullName, MethodBase.GetCurrentMethod().Name)));
 			}
 
-			scope = state.GetServiceBus().Configuration.TransactionScopeFactory.Create(pipelineEvent);
+			scope = state.GetServiceBus().Configuration.TransactionScopeFactory.Create();
 
 			state.SetTransactionScope(scope);
 		}
