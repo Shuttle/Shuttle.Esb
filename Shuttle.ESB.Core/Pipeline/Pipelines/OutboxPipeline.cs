@@ -19,6 +19,7 @@
 
 			RegisterObserver(new GetWorkMessageObserver());
 			RegisterObserver(new DeserializeTransportMessageObserver());
+			RegisterObserver(new DeferTransportMessageObserver());
 			RegisterObserver(new SendOutboxMessageObserver());
 
 			RegisterObserver(new AcknowledgeMessageObserver());
