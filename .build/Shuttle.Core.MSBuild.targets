@@ -7,4 +7,5 @@
 	<UsingTask AssemblyFile="$(ShuttleTasksPath)" TaskName="Shuttle.Core.MSBuild.Prompt" />
 	<UsingTask AssemblyFile="$(ShuttleTasksPath)" TaskName="Shuttle.Core.MSBuild.RegexFindAndReplace" />
 	<UsingTask AssemblyFile="$(ShuttleTasksPath)" TaskName="Shuttle.Core.MSBuild.SetNugetPackageVersions" />
+	<UsingTask AssemblyFile="$(ShuttleTasksPath)" TaskName="Shuttle.Core.MSBuild.Zip" />
 </Project>
