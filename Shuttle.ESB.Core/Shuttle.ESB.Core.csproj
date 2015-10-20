@@ -53,11 +53,7 @@
     <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <PropertyGroup>
-    <Framework Condition=" '$(Framework)' == '' ">net35-full</Framework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Framework)' == 'net35-full'">
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <DefineConstants>$(DefineConstants);NET35FULL</DefineConstants>
+    <Framework Condition=" '$(Framework)' == '' ">net40-full</Framework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Framework)' == 'net40-full'">
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -74,7 +70,7 @@
   <ItemGroup>
     <Reference Include="Shuttle.Core.Infrastructure, Version=3.1.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\shuttle-core-infrastructure.3.1.5\lib\net35-full\Shuttle.Core.Infrastructure.dll</HintPath>
+      <HintPath>..\packages\shuttle-core-infrastructure.3.1.5\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
