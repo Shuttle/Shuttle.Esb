@@ -6,62 +6,62 @@ namespace Shuttle.ESB.Core
 {
 	public class WorkerThreadActivity : IThreadActivity
 	{
-		private readonly Guid identifier = Guid.NewGuid();
-		private readonly IServiceBus bus;
-		private readonly ThreadActivity threadActivity;
+		private readonly IServiceBus _bus;
+		private readonly Guid _identifier = Guid.NewGuid();
+		private readonly ThreadActivity _threadActivity;
 
-		private DateTime nextNotificationDate = DateTime.Now;
+		private readonly ILog _log;
 
-		private readonly ILog log;
+		private DateTime _nextNotificationDate = DateTime.Now;
 
 		public WorkerThreadActivity(IServiceBus bus, ThreadActivity threadActivity)
 		{
 			Guard.AgainstNull(bus, "bus");
 			Guard.AgainstNull(threadActivity, "threadActivity");
 
-			this.bus = bus;
-			this.threadActivity = threadActivity;
+			_bus = bus;
+			_threadActivity = threadActivity;
 
-			log = Log.For(this);
+			_log = Log.For(this);
 		}
 
 		public void Waiting(IThreadState state)
 		{
 			if (ShouldNotifyDistributor())
 			{
-				bus.Send(new WorkerThreadAvailableCommand
-					{
-						Identifier = identifier,
-						InboxWorkQueueUri = bus.Configuration.Inbox.WorkQueue.Uri.ToString(),
-						ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
-						DateSent = DateTime.Now
-					},
-				         c => c.WithRecipient(bus.Configuration.Worker.DistributorControlInboxWorkQueue));
-
-				if (log.IsVerboseEnabled)
+				_bus.Send(new WorkerThreadAvailableCommand
 				{
-					log.Verbose(string.Format(ESBResources.DebugWorkerAvailable,
-					                          identifier,
-					                          bus.Configuration.Inbox.WorkQueue.Uri,
-					                          bus.Configuration.Worker.DistributorControlInboxWorkQueue.Uri));
+					Identifier = _identifier,
+					InboxWorkQueueUri = _bus.Configuration.Inbox.WorkQueue.Uri.ToString(),
+					ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
+					DateSent = DateTime.Now
+				},
+					c => c.WithRecipient(_bus.Configuration.Worker.DistributorControlInboxWorkQueue));
+
+				if (_log.IsVerboseEnabled)
+				{
+					_log.Verbose(string.Format(ESBResources.DebugWorkerAvailable,
+						_identifier,
+						_bus.Configuration.Inbox.WorkQueue.Uri,
+						_bus.Configuration.Worker.DistributorControlInboxWorkQueue.Uri));
 				}
 
-				nextNotificationDate = DateTime.Now.AddSeconds(bus.Configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
+				_nextNotificationDate = DateTime.Now.AddSeconds(_bus.Configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
 			}
 
-			threadActivity.Waiting(state);
-		}
-
-		private bool ShouldNotifyDistributor()
-		{
-			return nextNotificationDate <= DateTime.Now;
+			_threadActivity.Waiting(state);
 		}
 
 		public void Working()
 		{
-			nextNotificationDate = DateTime.Now;
+			_nextNotificationDate = DateTime.Now;
 
-			threadActivity.Working();
+			_threadActivity.Working();
+		}
+
+		private bool ShouldNotifyDistributor()
+		{
+			return _nextNotificationDate <= DateTime.Now;
 		}
 	}
 }

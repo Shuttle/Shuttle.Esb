@@ -6,90 +6,34 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-	public class QueueManager : IQueueManager, IDisposable
+	public class QueueManager : IQueueManager, IRequireInitialization, IDisposable
 	{
-		private bool _initialized;
-		private bool _initializing;
-		private static readonly object _padlock = new object();
-
-		private readonly List<IQueue> _queues = new List<IQueue>();
 		private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
+		private readonly List<IQueue> _queues = new List<IQueue>();
 
 		private readonly ILog _log;
+		private static readonly object Padlock = new object();
+		private IUriResolver _uriResolver;
 
 		public QueueManager()
 		{
-			UriResolver = new DefaultUriResolver();
-
 			_log = Log.For(this);
 		}
 
-		private List<IQueueFactory> QueueFactories()
+		public void Dispose()
 		{
-			if (_initialized || _initializing)
+			foreach (var queueFactory in _queueFactories)
 			{
-				return _queueFactories;
+				queueFactory.AttemptDispose();
 			}
 
-			try
+			foreach (var queue in _queues)
 			{
-				_initializing = true;
-
-				lock (_padlock)
-				{
-					if (!_initialized)
-					{
-						var factoryTypes = new List<Type>();
-						var scan = true;
-
-						if (ServiceBusConfiguration.ServiceBusSection != null && ServiceBusConfiguration.ServiceBusSection.QueueFactories != null)
-						{
-							scan = ServiceBusConfiguration.ServiceBusSection.QueueFactories.Scan;
-
-							foreach (QueueFactoryElement queueFactoryElement in ServiceBusConfiguration.ServiceBusSection.QueueFactories)
-							{
-								var type = Type.GetType(queueFactoryElement.Type);
-
-								Guard.Against<ESBConfigurationException>(type == null, string.Format(ESBResources.UnknownTypeException, queueFactoryElement.Type));
-
-								factoryTypes.Add(type);
-							}
-						}
-
-						if (scan)
-						{
-							factoryTypes.AddRange(new ReflectionService().GetTypes<IQueueFactory>());
-						}
-
-						foreach (var type in factoryTypes)
-						{
-							try
-							{
-								type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
-
-								var instance = (IQueueFactory)Activator.CreateInstance(type);
-
-								if (!ContainsQueueFactory(instance.Scheme))
-								{
-									RegisterQueueFactory(instance);
-								}
-							}
-							catch (Exception ex)
-							{
-								throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, ex.Message));
-							}
-						}
-
-						_initialized = true;
-					}
-				}
-			}
-			finally
-			{
-				_initializing = false;
+				queue.AttemptDispose();
 			}
 
-			return _queueFactories;
+			_queueFactories.Clear();
+			_queues.Clear();
 		}
 
 		public IQueueFactory GetQueueFactory(string scheme)
@@ -97,13 +41,13 @@ namespace Shuttle.ESB.Core
 			Uri uri;
 
 			return Uri.TryCreate(scheme, UriKind.Absolute, out uri)
-					   ? GetQueueFactory(uri)
-					   : QueueFactories().Find(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
+				? GetQueueFactory(uri)
+				: _queueFactories.Find(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
 		}
 
 		public IQueueFactory GetQueueFactory(Uri uri)
 		{
-			foreach (var factory in QueueFactories().Where(factory => factory.CanCreate(uri)))
+			foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
 			{
 				return factory;
 			}
@@ -124,7 +68,7 @@ namespace Shuttle.ESB.Core
 				return queue;
 			}
 
-			lock (_padlock)
+			lock (Padlock)
 			{
 				queue =
 					_queues.Find(
@@ -139,16 +83,17 @@ namespace Shuttle.ESB.Core
 
 				if (queueUri.Scheme.Equals("resolver"))
 				{
-					if (UriResolver == null)
+					if (_uriResolver == null)
 					{
 						throw new InvalidOperationException(string.Format(ESBResources.NoUriResolverException, uri));
 					}
 
-					var resolvedQueueUri = UriResolver.Get(uri);
+					var resolvedQueueUri = _uriResolver.Get(uri);
 
 					if (resolvedQueueUri == null)
 					{
-						throw new KeyNotFoundException(string.Format(ESBResources.UriNameNotFoundException, UriResolver.GetType().FullName, uri));
+						throw new KeyNotFoundException(string.Format(ESBResources.UriNameNotFoundException, _uriResolver.GetType().FullName,
+							uri));
 					}
 
 					queue = new ResolvedQueue(CreateQueue(GetQueueFactory(resolvedQueueUri), resolvedQueueUri), queueUri);
@@ -164,41 +109,6 @@ namespace Shuttle.ESB.Core
 			}
 		}
 
-		private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
-		{
-			var result = queueFactory.Create(queueUri);
-
-			Guard.AgainstNull(result, string.Format(ESBResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri.ToString()));
-
-			return result;
-		}
-
-
-		private bool Find(IQueue candidate, string uri)
-		{
-			try
-			{
-				return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
-			}
-			catch (Exception ex)
-			{
-				var candidateTypeName = "(candidate is null)";
-				var candidateUri= "(candidate is null)";
-
-				if (candidate != null)
-				{
-					candidateTypeName = candidate.GetType().FullName;
-					candidateUri = candidate.Uri != null
-						? candidate.Uri.ToString()
-						: "(candidate.Uri is null)";
-				}
-				
-				_log.Error(string.Format(ESBResources.FindQueueException, candidateTypeName, candidateUri, uri ?? "(comparison uri is null)", ex.AllMessages()));
-
-				return false;
-			}
-		}
-
 		public IQueue CreateQueue(string uri)
 		{
 			return CreateQueue(new Uri(uri));
@@ -209,34 +119,119 @@ namespace Shuttle.ESB.Core
 			return GetQueueFactory(uri).Create(uri);
 		}
 
-		public void CreatePhysicalQueues(IServiceBusConfiguration serviceBusConfiguration)
-		{
-			if (serviceBusConfiguration.HasInbox)
-			{
-				CreateQueues(serviceBusConfiguration.Inbox);
-
-				if (serviceBusConfiguration.HasDeferredQueue)
-				{
-					serviceBusConfiguration.Inbox.DeferredQueue.AttemptCreate();
-				}
-			}
-
-			if (serviceBusConfiguration.HasOutbox)
-			{
-				CreateQueues(serviceBusConfiguration.Outbox);
-			}
-
-			if (serviceBusConfiguration.HasControlInbox)
-			{
-				CreateQueues(serviceBusConfiguration.ControlInbox);
-			}
-		}
-
-		public IEnumerable<IQueueFactory> GetQueueFactories()
+		public IEnumerable<IQueueFactory> QueueFactories()
 		{
 			return new ReadOnlyCollection<IQueueFactory>(_queueFactories);
 		}
 
+		public void RegisterQueueFactory(IQueueFactory queueFactory)
+		{
+			Guard.AgainstNull(queueFactory, "queueFactory");
+
+			var factory = GetQueueFactory(queueFactory.Scheme);
+
+			if (factory != null)
+			{
+				_queueFactories.Remove(factory);
+
+				_log.Warning(string.Format(ESBResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
+					factory.GetType().FullName, queueFactory.GetType().FullName));
+			}
+
+			_queueFactories.Add(queueFactory);
+		}
+
+		public bool ContainsQueueFactory(string scheme)
+		{
+			return GetQueueFactory(scheme) != null;
+		}
+
+		public void ScanForQueueFactories()
+		{
+			foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
+			{
+				RegisterQueueFactory(type);
+			}
+		}
+
+		public void RegisterQueueFactory(Type type)
+		{
+			try
+			{
+				type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
+
+				var instance = (IQueueFactory)Activator.CreateInstance(type);
+
+				if (!ContainsQueueFactory(instance.Scheme))
+				{
+					RegisterQueueFactory(instance);
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, ex.Message));
+			}
+		}
+
+		private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
+		{
+			var result = queueFactory.Create(queueUri);
+
+			Guard.AgainstNull(result,
+				string.Format(ESBResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
+
+			return result;
+		}
+
+		private bool Find(IQueue candidate, string uri)
+		{
+			try
+			{
+				return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
+			}
+			catch (Exception ex)
+			{
+				var candidateTypeName = "(candidate is null)";
+				var candidateUri = "(candidate is null)";
+
+				if (candidate != null)
+				{
+					candidateTypeName = candidate.GetType().FullName;
+					candidateUri = candidate.Uri != null
+						? candidate.Uri.ToString()
+						: "(candidate.Uri is null)";
+				}
+
+				_log.Error(string.Format(ESBResources.FindQueueException, candidateTypeName, candidateUri,
+					uri ?? "(comparison uri is null)", ex.AllMessages()));
+
+				return false;
+			}
+		}
+
+		public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
+		{
+			if (configuration.HasInbox)
+			{
+				CreateQueues(configuration.Inbox);
+
+				if (configuration.Inbox.HasDeferredQueue)
+				{
+					configuration.Inbox.DeferredQueue.AttemptCreate();
+				}
+			}
+
+			if (configuration.HasOutbox)
+			{
+				CreateQueues(configuration.Outbox);
+			}
+
+			if (configuration.HasControlInbox)
+			{
+				CreateQueues(configuration.ControlInbox);
+			}
+		}
+		
 		private void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
 		{
 			workQueueConfiguration.WorkQueue.AttemptCreate();
@@ -249,45 +244,11 @@ namespace Shuttle.ESB.Core
 			}
 		}
 
-		public void RegisterQueueFactory(IQueueFactory queueFactory)
+		public void Initialize(IServiceBus bus)
 		{
-			Guard.AgainstNull(queueFactory, "queueFactory");
+			Guard.AgainstNull(bus, "bus");
 
-			var factory = GetQueueFactory(queueFactory.Scheme);
-
-			if (factory != null)
-			{
-				QueueFactories().Remove(factory);
-
-				_log.Warning(string.Format(ESBResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme, factory.GetType().FullName, queueFactory.GetType().FullName));
-			}
-
-			QueueFactories().Add(queueFactory);
-		}
-
-		public bool ContainsQueueFactory(string scheme)
-		{
-			return GetQueueFactory(scheme) != null;
-		}
-
-		public IUriResolver UriResolver { get; set; }
-
-		public void Dispose()
-		{
-			foreach (var queueFactory in _queueFactories)
-			{
-				queueFactory.AttemptDispose();
-			}
-
-			foreach (var queue in _queues)
-			{
-				queue.AttemptDispose();
-			}
-
-			_queueFactories.Clear();
-			_queues.Clear();
-
-			_initialized = false;
+			_uriResolver = bus.Configuration.UriResolver;
 		}
 	}
 }

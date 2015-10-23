@@ -7,32 +7,32 @@ namespace Shuttle.ESB.Core.Tests
 		IPipelineObserver<MockPipelineEvent2>,
 		IPipelineObserver<MockPipelineEvent3>
 	{
-		private string callSequence = string.Empty;
+		private string _callSequence = string.Empty;
 
 		public void Execute(MockPipelineEvent1 pipelineEvent)
 		{
 			Console.WriteLine("MockAuthenticateObserver.Execute() called for event '{0}'.", pipelineEvent.Name);
 
-			callSequence += "1";
+			_callSequence += "1";
 		}
 
 		public void Execute(MockPipelineEvent2 pipelineEvent)
 		{
 			Console.WriteLine("MockAuthenticateObserver.Execute() called for event '{0}'.", pipelineEvent.Name);
 
-			callSequence += "2";
+			_callSequence += "2";
 		}
 
 		public void Execute(MockPipelineEvent3 pipelineEvent)
 		{
 			Console.WriteLine("MockAuthenticateObserver.Execute() called for event '{0}'.", pipelineEvent.Name);
 
-			callSequence += "3";
+			_callSequence += "3";
 		}
 
 		public string CallSequence
 		{
-			get { return callSequence; }
+			get { return _callSequence; }
 		}
 	}
 }

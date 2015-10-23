@@ -10,11 +10,11 @@ namespace Shuttle.ESB.Core
         IQueue GetQueue(string uri);
         IQueue CreateQueue(string uri);
         IQueue CreateQueue(Uri uri);
-	    void CreatePhysicalQueues(IServiceBusConfiguration serviceBusConfiguration);
-        IEnumerable<IQueueFactory> GetQueueFactories();
+	    IEnumerable<IQueueFactory> QueueFactories();
         void RegisterQueueFactory(IQueueFactory queueFactory);
         bool ContainsQueueFactory(string scheme);
-
-		IUriResolver UriResolver { get; set; }
+	    void ScanForQueueFactories();
+	    void RegisterQueueFactory(Type type);
+	    void CreatePhysicalQueues(IServiceBusConfiguration configuration);
     }
 }

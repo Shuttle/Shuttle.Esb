@@ -79,6 +79,15 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A configurator wih type name &apos;{0}&apos; has already been registered..
+        /// </summary>
+        public static string ConfiguratorAlreadyRegisteredException {
+            get {
+                return ResourceManager.GetString("ConfiguratorAlreadyRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [worker available ({0})] worker inbox = {1} / distributor control inbox = {2}.
         /// </summary>
         public static string DebugWorkerAvailable {
@@ -837,9 +846,9 @@ namespace Shuttle.ESB.Core {
         /// <summary>
         ///   Looks up a localized string similar to No inbox has been configured.  A worker requires an inbox..
         /// </summary>
-        public static string WorkerRequiresInbox {
+        public static string WorkerRequiresInboxException {
             get {
-                return ResourceManager.GetString("WorkerRequiresInbox", resourceCulture);
+                return ResourceManager.GetString("WorkerRequiresInboxException", resourceCulture);
             }
         }
     }

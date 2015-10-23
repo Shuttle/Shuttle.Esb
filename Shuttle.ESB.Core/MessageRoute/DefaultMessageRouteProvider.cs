@@ -4,7 +4,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-	public sealed class DefaultMessageRouteProvider : IMessageRouteProvider, IRequireInitialization
+	public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
 	{
 		private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
@@ -15,10 +15,10 @@ namespace Shuttle.ESB.Core
 			return
 				string.IsNullOrEmpty(uri)
 					? new List<string>()
-					: new List<string> {uri};
+					: new List<string> { uri };
 		}
 
-		public void AddMessageRoute(IMessageRoute messageRoute)
+		public void Add(IMessageRoute messageRoute)
 		{
 			Guard.AgainstNull(messageRoute, "messageRoute");
 
@@ -37,31 +37,9 @@ namespace Shuttle.ESB.Core
 			}
 		}
 
-		public void Initialize(IServiceBus bus)
+		public IMessageRoute Find(string uri)
 		{
-			if (ServiceBusConfiguration.ServiceBusSection == null || ServiceBusConfiguration.ServiceBusSection.MessageRoutes == null)
-			{
-				return;
-			}
-
-			var factory = new MessageRouteSpecificationFactory();
-
-			foreach (MessageRouteElement mapElement in ServiceBusConfiguration.ServiceBusSection.MessageRoutes)
-			{
-				var messageRoute = _messageRoutes.Find(mapElement.Uri);
-
-				if (messageRoute == null)
-				{
-					messageRoute = new MessageRoute(bus.Configuration.QueueManager.GetQueue(mapElement.Uri));
-
-					_messageRoutes.Add(messageRoute);
-				}
-
-				foreach (SpecificationElement specificationElement in mapElement)
-				{
-					messageRoute.AddSpecification(factory.Create(specificationElement.Name, specificationElement.Value));
-				}
-			}
+			return _messageRoutes.Find(uri);
 		}
 	}
 }

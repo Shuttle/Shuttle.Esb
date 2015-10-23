@@ -12,16 +12,16 @@ namespace Shuttle.ESB.Core
 		private readonly int _threadJoinTimeoutInterval =
 			ConfigurationItem<int>.ReadSetting("ThreadJoinTimeoutInterval", 1000).GetValue();
 
-		private Thread thread;
+		private Thread _thread;
 
-		private readonly ILog log;
+		private readonly ILog _log;
 
 		public ProcessorThread(string name, IProcessor processor)
 		{
 			_name = name;
 			_processor = processor;
 
-			log = Log.For(this);
+			_log = Log.For(this);
 		}
 
 		public void Start()
@@ -31,40 +31,40 @@ namespace Shuttle.ESB.Core
 				return;
 			}
 
-			thread = new Thread(Work) {Name = _name};
+			_thread = new Thread(Work) {Name = _name};
 
-			thread.SetApartmentState(ApartmentState.MTA);
-			thread.IsBackground = true;
-			thread.Priority = ThreadPriority.Normal;
+			_thread.SetApartmentState(ApartmentState.MTA);
+			_thread.IsBackground = true;
+			_thread.Priority = ThreadPriority.Normal;
 
 			_active = true;
 
-			thread.Start();
+			_thread.Start();
 
-			log.Trace(string.Format(ESBResources.TraceProcessorThreadStarting, thread.ManagedThreadId,
+			_log.Trace(string.Format(ESBResources.TraceProcessorThreadStarting, _thread.ManagedThreadId,
 			                        _processor.GetType().FullName));
 
-			while (!thread.IsAlive && _active)
+			while (!_thread.IsAlive && _active)
 			{
 			}
 
 			if (_active)
 			{
-				log.Trace(string.Format(ESBResources.TraceProcessorThreadActive, thread.ManagedThreadId,
+				_log.Trace(string.Format(ESBResources.TraceProcessorThreadActive, _thread.ManagedThreadId,
 				                        _processor.GetType().FullName));
 			}
 		}
 
 		public void Stop()
 		{
-			log.Trace(string.Format(ESBResources.TraceProcessorThreadStopping, thread.ManagedThreadId,
+			_log.Trace(string.Format(ESBResources.TraceProcessorThreadStopping, _thread.ManagedThreadId,
 			                        _processor.GetType().FullName));
 
 			_active = false;
 
-			if (thread.IsAlive)
+			if (_thread.IsAlive)
 			{
-				thread.Join(_threadJoinTimeoutInterval);
+				_thread.Join(_threadJoinTimeoutInterval);
 			}
 		}
 
@@ -72,13 +72,13 @@ namespace Shuttle.ESB.Core
 		{
 			while (_active)
 			{
-				log.Verbose(string.Format(ESBResources.VerboseProcessorExecuting, thread.ManagedThreadId,
+				_log.Verbose(string.Format(ESBResources.VerboseProcessorExecuting, _thread.ManagedThreadId,
 				                          _processor.GetType().FullName));
 
 				_processor.Execute(this);
 			}
 
-			log.Trace(string.Format(ESBResources.TraceProcessorThreadStopped, thread.ManagedThreadId,
+			_log.Trace(string.Format(ESBResources.TraceProcessorThreadStopped, _thread.ManagedThreadId,
 			                        _processor.GetType().FullName));
 		}
 

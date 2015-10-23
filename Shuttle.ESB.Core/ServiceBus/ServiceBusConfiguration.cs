@@ -6,40 +6,52 @@ namespace Shuttle.ESB.Core
 {
 	public class ServiceBusConfiguration : IServiceBusConfiguration
 	{
-		private static ServiceBusSection _serviceBusSection;
+		public static readonly TimeSpan[] DefaultDurationToIgnoreOnFailure =
+		{
+			TimeSpan.FromMinutes(5),
+			TimeSpan.FromMinutes(10),
+			TimeSpan.FromMinutes(15),
+			TimeSpan.FromMinutes(30),
+			TimeSpan.FromMinutes(60)
+		};
 
-		private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
+		public static readonly TimeSpan[] DefaultDurationToSleepWhenIdle =
+			(TimeSpan[])
+				new StringDurationArrayConverter()
+					.ConvertFrom("250ms*4,500ms*2,1s");
+
+
+		private static ServiceBusSection _serviceBusSection;
 		private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
+		private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
+		private IMessageHandlerFactory _messageHandlerFactory;
+		private IMessageRouteProvider _messageRouteProvider;
+		private IPipelineFactory _pipelineFactory;
+		private IServiceBusPolicy _policy;
+		private IQueueManager _queueManager;
 
 		private ISerializer _serializer;
 		private ISubscriptionManager _subscriptionManager;
+		private IThreadActivityFactory _threadActivityFactory;
+		private ITransactionScopeConfiguration _transactionScope;
+		private ITransactionScopeFactory _transactionScopeFactory;
+		private IWorkerAvailabilityManager _workerAvailabilityManager;
+		private IUriResolver _uriResolver;
+		private static readonly object Padlock = new object();
 
 		public ServiceBusConfiguration()
 		{
-			WorkerAvailabilityManager = new WorkerAvailabilityManager();
 			Modules = new ModuleCollection();
-			TransactionScope = new TransactionScopeConfiguration();
-			QueueManager = new QueueManager();
-			Serializer = new DefaultSerializer();
-			MessageHandlerFactory = new DefaultMessageHandlerFactory();
-			MessageRouteProvider = new DefaultMessageRouteProvider();
-			PipelineFactory = new DefaultPipelineFactory();
-			TransactionScopeFactory = new DefaultTransactionScopeFactory();
-			Policy = new DefaultServiceBusPolicy();
-			ThreadActivityFactory = new DefaultThreadActivityFactory();
 		}
 
 		public static ServiceBusSection ServiceBusSection
 		{
-			get
-			{
-				return _serviceBusSection ?? (_serviceBusSection = ShuttleConfigurationSection.Open<ServiceBusSection>());
-			}
+			get { return _serviceBusSection ?? Synchronised(() => _serviceBusSection = ShuttleConfigurationSection.Open<ServiceBusSection>()); }
 		}
 
 		public ISerializer Serializer
 		{
-			get { return _serializer; }
+			get { return _serializer ?? Synchronised(() => _serializer = new DefaultSerializer()); }
 			set
 			{
 				Guard.AgainstNull(value, "serializer");
@@ -57,18 +69,54 @@ namespace Shuttle.ESB.Core
 		public IControlInboxQueueConfiguration ControlInbox { get; set; }
 		public IOutboxQueueConfiguration Outbox { get; set; }
 		public IWorkerConfiguration Worker { get; set; }
-		public ITransactionScopeConfiguration TransactionScope { get; set; }
 
-		public IQueueManager QueueManager { get; set; }
+		public ITransactionScopeConfiguration TransactionScope
+		{
+			get { return _transactionScope ?? Synchronised(() => _transactionScope = new TransactionScopeConfiguration()); }
+			set { _transactionScope = value; }
+		}
+
+		public bool CreateQueues { get; set; }
+
+		public IUriResolver UriResolver
+		{
+			get { return _uriResolver ?? Synchronised(() => _uriResolver = new DefaultUriResolver()); }
+			set { _uriResolver = value; }
+		}
+
+		public IQueueManager QueueManager
+		{
+			get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager()); }
+			set { _queueManager = value; }
+		}
+
 		public IIdempotenceService IdempotenceService { get; set; }
 
 		public ModuleCollection Modules { get; private set; }
 
-		public IMessageHandlerFactory MessageHandlerFactory { get; set; }
-		public IMessageRouteProvider MessageRouteProvider { get; set; }
-		public IServiceBusPolicy Policy { get; set; }
-		public IThreadActivityFactory ThreadActivityFactory { get; set; }
-		public DeferredMessageProcessor DeferredMessageProcessor { get; set; }
+		public IMessageHandlerFactory MessageHandlerFactory
+		{
+			get { return _messageHandlerFactory ?? Synchronised(() => _messageHandlerFactory = new DefaultMessageHandlerFactory()); }
+			set { _messageHandlerFactory = value; }
+		}
+
+		public IMessageRouteProvider MessageRouteProvider
+		{
+			get { return _messageRouteProvider ?? Synchronised(() => _messageRouteProvider = new DefaultMessageRouteProvider()); }
+			set { _messageRouteProvider = value; }
+		}
+
+		public IServiceBusPolicy Policy
+		{
+			get { return _policy ?? Synchronised(() => _policy = new DefaultServiceBusPolicy()); }
+			set { _policy = value; }
+		}
+
+		public IThreadActivityFactory ThreadActivityFactory
+		{
+			get { return _threadActivityFactory ?? Synchronised(() => _threadActivityFactory = new DefaultThreadActivityFactory()); }
+			set { _threadActivityFactory = value; }
+		}
 
 		public bool HasIdempotenceService
 		{
@@ -94,11 +142,6 @@ namespace Shuttle.ESB.Core
 			set { _subscriptionManager = value; }
 		}
 
-		public bool HasDeferredQueue
-		{
-			get { return HasInbox && Inbox.DeferredQueue != null; }
-		}
-
 		public bool HasInbox
 		{
 			get { return Inbox != null; }
@@ -114,24 +157,26 @@ namespace Shuttle.ESB.Core
 			get { return ControlInbox != null; }
 		}
 
-		public bool HasServiceBusSection
-		{
-			get { return ServiceBusSection != null; }
-		}
-
 		public bool RemoveMessagesNotHandled { get; set; }
 		public string EncryptionAlgorithm { get; set; }
 		public string CompressionAlgorithm { get; set; }
 
-		public IWorkerAvailabilityManager WorkerAvailabilityManager { get; private set; }
-
-		public IPipelineFactory PipelineFactory { get; set; }
-
-		public ITransactionScopeFactory TransactionScopeFactory { get; set; }
-
-		public IServiceBus StartServiceBus()
+		public IWorkerAvailabilityManager WorkerAvailabilityManager
 		{
-			return new ServiceBus(this);
+			get { return _workerAvailabilityManager ?? Synchronised(() => _workerAvailabilityManager = new WorkerAvailabilityManager()); }
+			set { _workerAvailabilityManager = value; }
+		}
+
+		public IPipelineFactory PipelineFactory
+		{
+			get { return _pipelineFactory ?? Synchronised(() => _pipelineFactory = new DefaultPipelineFactory()); }
+			set { _pipelineFactory = value; }
+		}
+
+		public ITransactionScopeFactory TransactionScopeFactory
+		{
+			get { return _transactionScopeFactory ?? Synchronised(() => _transactionScopeFactory = new DefaultTransactionScopeFactory()); }
+			set { _transactionScopeFactory = value; }
 		}
 
 		public IEncryptionAlgorithm FindEncryptionAlgorithm(string name)
@@ -163,6 +208,14 @@ namespace Shuttle.ESB.Core
 		public bool IsWorker
 		{
 			get { return Worker != null; }
+		}
+
+		private static T Synchronised<T>(Func<T> f)
+		{
+			lock (Padlock)
+			{
+				return f.Invoke();
+			}
 		}
 	}
 }

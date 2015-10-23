@@ -66,7 +66,7 @@ namespace Shuttle.ESB.Core
 			Guard.Against<ESBConfigurationException>(Configuration.MessageHandlerFactory == null,
 			                                         ESBResources.NoMessageHandlerFactoryException);
 
-			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox, ESBResources.WorkerRequiresInbox);
+			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox, ESBResources.WorkerRequiresInboxException);
 
 			if (Configuration.HasInbox)
 			{
@@ -107,6 +107,11 @@ namespace Shuttle.ESB.Core
 
 			if (Configuration.HasInbox)
 			{
+				if (Configuration.Inbox.HasDeferredQueue)
+				{
+					_deferredMessageThreadPool.Dispose();
+				}
+
 				_inboxThreadPool.Dispose();
 			}
 
@@ -118,11 +123,6 @@ namespace Shuttle.ESB.Core
 			if (Configuration.HasOutbox)
 			{
 				_outboxThreadPool.Dispose();
-			}
-
-			if (Configuration.HasDeferredQueue)
-			{
-				_deferredMessageThreadPool.Dispose();
 			}
 
 			Configuration.QueueManager.AttemptDispose();
@@ -145,9 +145,9 @@ namespace Shuttle.ESB.Core
 			return Create(null);
 		}
 
-		public static IServiceBus Create(Action<ServiceBusConfigurator> configure)
+		public static IServiceBus Create(Action<DefaultConfigurator> configure)
 		{
-			var configurator = new ServiceBusConfigurator();
+			var configurator = new DefaultConfigurator();
 
 			if (configure != null)
 			{

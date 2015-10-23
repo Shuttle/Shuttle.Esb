@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DuplicateQueueFactoryReplaced" xml:space="preserve">
     <value>A queue factory for scheme '{0}' already existed.  Removed queue factory type '{1}' to register queue factory type '{2}'.</value>
@@ -194,7 +194,7 @@
   <data name="ReplyWithoutCurrentMessage" xml:space="preserve">
     <value>There is no current message.  Cannot reply.</value>
   </data>
-  <data name="WorkerRequiresInbox" xml:space="preserve">
+  <data name="WorkerRequiresInboxException" xml:space="preserve">
     <value>No inbox has been configured.  A worker requires an inbox.</value>
   </data>
   <data name="TripleDESSectionMissing" xml:space="preserve">
@@ -447,5 +447,9 @@
   <data name="TraceMessageAssigned" xml:space="preserve">
     <value>[idempotence service] : transport message type '{0}' with id '{1}' has been assigned to a thread on this endpoint.</value>
     <comment>{0} = message type, {1} = message id</comment>
+  </data>
+  <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">
+    <value>A configurator wih type name '{0}' has already been registered.</value>
+    <comment>{0} = full type name of the configurator</comment>
   </data>
 </root>
