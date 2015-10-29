@@ -8,18 +8,21 @@ namespace Shuttle.ESB.Core
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			if (ServiceBusConfiguration.ServiceBusSection == null)
+		    var section = ServiceBusConfiguration.ServiceBusSection;
+
+		    if (section == null)
 			{
 				configuration.RemoveMessagesNotHandled = false;
 
 				return;
 			}
 
-			configuration.RemoveMessagesNotHandled = ServiceBusConfiguration.ServiceBusSection.RemoveMessagesNotHandled;
-			configuration.CompressionAlgorithm = ServiceBusConfiguration.ServiceBusSection.CompressionAlgorithm;
-			configuration.EncryptionAlgorithm = ServiceBusConfiguration.ServiceBusSection.EncryptionAlgorithm;
+		    configuration.CreateQueues = section.CreateQueues;
+			configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
+			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
+			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
 
-			var transactionScopeElement = ServiceBusConfiguration.ServiceBusSection.TransactionScope;
+			var transactionScopeElement = section.TransactionScope;
 
 			configuration.TransactionScope = transactionScopeElement != null
 				? new TransactionScopeConfiguration
