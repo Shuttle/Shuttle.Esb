@@ -48,21 +48,6 @@ namespace Shuttle.ESB.Core
 				            ? bus.Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
 				            : bus.Configuration.Outbox.WorkQueue;
 
-			if (_log.IsVerboseEnabled)
-			{
-				_log.Verbose(string.Format(ESBResources.TraceCorrelationIdReceived, transportMessage.CorrelationId));
-
-				foreach (var header in transportMessage.Headers)
-				{
-					_log.Verbose(string.Format(ESBResources.TraceTransportHeaderReceived, header.Key, header.Value));
-				}
-
-				_log.Trace(string.Format(ESBResources.TraceMessageEnqueued,
-				                         transportMessage.MessageType,
-				                         transportMessage.MessageId,
-				                         queue.Uri));
-			}
-
 			using (var stream = state.GetTransportMessageStream().Copy())
 			{
 				queue.Enqueue(transportMessage.MessageId, stream);

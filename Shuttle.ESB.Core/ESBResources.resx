@@ -175,17 +175,9 @@
     <value>{0} '{1}' has no default constructor.</value>
     <comment>{0} = name of required instance, {1} = full type name</comment>
   </data>
-  <data name="TraceStreamDequeued" xml:space="preserve">
-    <value>Stream dequeued from queue '{0}'.</value>
-    <comment>{0} = queue uri</comment>
-  </data>
   <data name="TraceMessageEnqueued" xml:space="preserve">
     <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
     <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
-  </data>
-  <data name="MessageHandlerInvoke" xml:space="preserve">
-    <value>Message type '{0}' with id '{1}' invoking on handler '{2}'.</value>
-    <comment>{0} = full type name of message, {1} = message id, {2} = full type name of message handler</comment>
   </data>
   <data name="RequiredQueueMissing" xml:space="preserve">
     <value>Required queue '{0}' has not been configured.  Please check your  application configuration or your code if you implemented it explicitly.</value>
@@ -221,10 +213,6 @@
   </data>
   <data name="TraceMessageDeserialized" xml:space="preserve">
     <value>Message type '{0}' with id '{1}' has been deserialized.</value>
-    <comment>{0} = full type name of message, {1} = message id</comment>
-  </data>
-  <data name="TransportMessageDeserialized" xml:space="preserve">
-    <value>TransportMessage with message type '{0}' and id '{1}' has been deserialized.</value>
     <comment>{0} = full type name of message, {1} = message id</comment>
   </data>
   <data name="CompressionAlgorithmException" xml:space="preserve">
@@ -268,14 +256,6 @@
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') has been ignored.</value>
     <comment>{0} = full type name of the discarded message, {1}= message id</comment>
   </data>
-  <data name="TraceCorrelationIdReceived" xml:space="preserve">
-    <value>[received correlation id] : '{0}'</value>
-    <comment>{0} = correlation id</comment>
-  </data>
-  <data name="TraceTransportHeaderReceived" xml:space="preserve">
-    <value>[transport message header (received)] : {0} = {1}</value>
-    <comment>{0} = key, {1} = value</comment>
-  </data>
   <data name="WarningPublishWithoutSubscribers" xml:space="preserve">
     <value>[publishing] : no subscribers / event message type = '{0}'</value>
     <comment>{0} = full type name of event message</comment>
@@ -303,17 +283,9 @@
     <value>Type '{0}' is not registered with the serializer so it cannot be serialized.  Please use [SerialierInstance].AddKnownType to add the type before attempting to serialize or deserialize a TransportMessage containing this type in the object graph of the message property.</value>
     <comment>{0} = type name that is unknown.</comment>
   </data>
-  <data name="TraceAcknowledge" xml:space="preserve">
-    <value>[acknowledged] : message type = '{0}' / message id = '{1}'</value>
-    <comment>{0} = message type, {1} = message id</comment>
-  </data>
   <data name="FatalIdempotenceServiceException" xml:space="preserve">
     <value>Encountered a fatal exception accessing the idempotence service type '{0}'.  Without the idempotence service operational the integrity of the message processing cannot be guaranteed.  The pipeline has been aborted.  Exception: {1}</value>
     <comment>{0} = full type name of the idempotence service, {1} = compact exception message</comment>
-  </data>
-  <data name="TraceDeferredTransportMessageReturned" xml:space="preserve">
-    <value>Deferred transport message with id '{0}' has been returned to the inbox work queue.</value>
-    <comment>{0} = message id</comment>
   </data>
   <data name="DeferredMessageProcessorInstanceException" xml:space="preserve">
     <value>Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread.</value>

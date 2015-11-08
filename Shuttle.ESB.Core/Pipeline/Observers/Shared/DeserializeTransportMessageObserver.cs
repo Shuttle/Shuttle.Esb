@@ -53,12 +53,6 @@ namespace Shuttle.ESB.Core
 			state.SetMessageBytes(transportMessage.Message);
 
 			transportMessage.AcceptInvariants();
-
-			if (_log.IsVerboseEnabled)
-            {
-                _log.Verbose(string.Format(ESBResources.TransportMessageDeserialized, transportMessage.MessageType,
-                                          transportMessage.MessageId));
-            }
 		}
 	}
 }

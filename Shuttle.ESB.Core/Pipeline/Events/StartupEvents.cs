@@ -1,5 +1,6 @@
 ﻿namespace Shuttle.ESB.Core
 {
+	public class OnInitializing : PipelineEvent {}
 	public class OnInitializeQueueFactories : PipelineEvent {}
 	public class OnAfterInitializeQueueFactories : PipelineEvent { }
 	public class OnCreateQueues : PipelineEvent {}
@@ -27,4 +28,5 @@
 	public class OnStartWorker : PipelineEvent {}
 	public class OnAfterStartWorker : PipelineEvent { }
 	public class OnStarting : PipelineEvent {}
+	public class OnStarted : PipelineEvent {}
 }

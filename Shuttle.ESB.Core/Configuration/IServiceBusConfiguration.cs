@@ -19,6 +19,7 @@ namespace Shuttle.ESB.Core
 		IOutboxQueueConfiguration Outbox { get; set; }
 
 		IMessageHandlerFactory MessageHandlerFactory { get; set; }
+		IMessageHandlerInvoker MessageHandlerInvoker { get; set; }
 		IThreadActivityFactory ThreadActivityFactory { get; set; }
 
 		IIdempotenceService IdempotenceService { get; set; }

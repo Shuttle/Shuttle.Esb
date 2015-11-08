@@ -104,6 +104,9 @@
     <Compile Include="Configurator\QueueManagerConfigurator.cs" />
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
+    <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
+    <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
+    <Compile Include="MessageHandling\MessageHandlerInvokeResult.cs" />
     <Compile Include="Queues\DefaultUriResolver.cs" />
     <Compile Include="Queues\IUriResolver.cs" />
     <Compile Include="Queues\ResolvedQueue.cs" />

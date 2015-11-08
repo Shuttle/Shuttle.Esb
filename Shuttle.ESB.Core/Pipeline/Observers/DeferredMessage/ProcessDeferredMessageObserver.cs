@@ -50,11 +50,6 @@ namespace Shuttle.ESB.Core
 			}
 
 			state.SetDeferredMessageReturned(true);
-
-			if (_log.IsTraceEnabled)
-			{
-				_log.Trace(string.Format(ESBResources.TraceDeferredTransportMessageReturned, transportMessage.MessageId));
-			}
 		}
     }
 }

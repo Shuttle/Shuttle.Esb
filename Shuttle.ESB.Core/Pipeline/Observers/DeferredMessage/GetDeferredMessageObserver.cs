@@ -32,11 +32,6 @@ namespace Shuttle.ESB.Core
             {
 				state.SetWorking();
 				state.SetReceivedMessage(receivedMessage);
-
-                if (_log.IsVerboseEnabled)
-                {
-                    _log.Trace(string.Format(ESBResources.TraceStreamDequeued, queue.Uri.Secured()));
-                }
             }
         }
     }

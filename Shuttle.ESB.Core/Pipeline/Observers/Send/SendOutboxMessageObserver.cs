@@ -24,14 +24,6 @@ namespace Shuttle.ESB.Core
 			var queue =
 				state.GetServiceBus().Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
 
-			if (_log.IsVerboseEnabled)
-			{
-				_log.Trace(string.Format(ESBResources.TraceMessageEnqueued,
-				                         transportMessage.MessageType,
-				                         transportMessage.MessageId,
-				                         queue.Uri));
-			}
-
 			using (var stream = receivedMessage.Stream.Copy())
 			{
 				queue.Enqueue(transportMessage.MessageId, stream);

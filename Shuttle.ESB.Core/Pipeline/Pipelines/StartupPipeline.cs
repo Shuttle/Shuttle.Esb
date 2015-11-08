@@ -11,6 +11,7 @@ namespace Shuttle.ESB.Core
 			State.Add(bus);
 
 			RegisterStage("Initializing")
+				.WithEvent<OnInitializing>()
 				.WithEvent<OnInitializeQueueFactories>()
 				.WithEvent<OnAfterInitializeQueueFactories>()
 				.WithEvent<OnCreateQueues>()
@@ -29,6 +30,7 @@ namespace Shuttle.ESB.Core
 				.WithEvent<OnAfterInitializeTransactionScopeFactory>();
 
 			RegisterStage("Start")
+				.WithEvent<OnStarting>()
 				.WithEvent<OnStartInboxProcessing>()
 				.WithEvent<OnAfterStartInboxProcessing>()
 				.WithEvent<OnStartControlInboxProcessing>()
@@ -41,7 +43,7 @@ namespace Shuttle.ESB.Core
 				.WithEvent<OnAfterStartWorker>();
 
 			RegisterStage("Final")
-				.WithEvent<OnStarting>();
+				.WithEvent<OnStarted>();
 
 			RegisterObserver(new ServiceBusStartupObserver(bus));
 		}

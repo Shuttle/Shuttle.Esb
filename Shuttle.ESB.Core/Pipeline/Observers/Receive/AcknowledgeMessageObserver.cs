@@ -21,11 +21,7 @@ namespace Shuttle.ESB.Core
 				return;
 			}
 
-			var transportMessage = state.GetTransportMessage();
-
 			state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
-
-			_log.Trace(string.Format(ESBResources.TraceAcknowledge, transportMessage.MessageType, transportMessage.MessageId));
 		}
 	}
 }

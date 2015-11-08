@@ -25,6 +25,7 @@ namespace Shuttle.ESB.Core
 		private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
 		private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
 		private IMessageHandlerFactory _messageHandlerFactory;
+		private IMessageHandlerInvoker _messageHandlerInvoker;
 		private IMessageRouteProvider _messageRouteProvider;
 		private IPipelineFactory _pipelineFactory;
 		private IServiceBusPolicy _policy;
@@ -98,6 +99,12 @@ namespace Shuttle.ESB.Core
 		{
 			get { return _messageHandlerFactory ?? Synchronised(() => _messageHandlerFactory = new DefaultMessageHandlerFactory()); }
 			set { _messageHandlerFactory = value; }
+		}
+
+		public IMessageHandlerInvoker MessageHandlerInvoker
+		{
+			get { return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker()); }
+			set { _messageHandlerInvoker = value; }
 		}
 
 		public IMessageRouteProvider MessageRouteProvider

@@ -156,12 +156,12 @@ namespace Shuttle.ESB.Core
 			state.Replace(StateKeys.TransactionScope, scope);
 		}
 
-		public static void SetMessageHandler(this State<Pipeline> state, IMessageHandler handler)
+		public static void SetMessageHandler(this State<Pipeline> state, object handler)
 		{
 			state.Replace(StateKeys.MessageHandler, handler);
 		}
 
-		public static IMessageHandler GetMessageHandler(this State<Pipeline> state)
+		public static object GetMessageHandler(this State<Pipeline> state)
 		{
 			return state.Get<IMessageHandler>(StateKeys.MessageHandler);
 		}
