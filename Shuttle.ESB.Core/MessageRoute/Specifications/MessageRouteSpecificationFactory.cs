@@ -1,8 +1,10 @@
+using Shuttle.Core.Infrastructure;
+
 namespace Shuttle.ESB.Core
 {
 	public class MessageRouteSpecificationFactory
     {
-        public IMessageRouteSpecification Create(string specification, string value)
+        public ISpecification<string> Create(string specification, string value)
         {
             switch (specification.ToLower())
             {

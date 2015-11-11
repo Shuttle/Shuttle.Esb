@@ -68,9 +68,9 @@
     <DefineConstants>$(DefineConstants);NET451FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\shuttle-core-infrastructure.3.2.0\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=3.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\shuttle-core-infrastructure.3.3.0\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -88,6 +88,8 @@
     <Compile Include="Compression\ICompressionAlgorithm.cs" />
     <Compile Include="Compression\NullCompressionAlgorithm.cs" />
     <Compile Include="Compression\GZipCompressionAlgorithm.cs" />
+    <Compile Include="Configuration\IMessageHandlingAssessor.cs" />
+    <Compile Include="Configuration\DefaultMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\Section\ModuleElement.cs" />
     <Compile Include="Configuration\Section\ModulesElement.cs" />
     <Compile Include="Configuration\Section\UriResolverItemElement.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\MessageHandlerInvokeResult.cs" />
+    <Compile Include="Pipeline\Observers\Receive\IdempotenceObserver.cs" />
+    <Compile Include="Pipeline\Observers\Receive\AssessMessageHandlingObserver.cs" />
     <Compile Include="Queues\DefaultUriResolver.cs" />
     <Compile Include="Queues\IUriResolver.cs" />
     <Compile Include="Queues\ResolvedQueue.cs" />
@@ -295,7 +299,6 @@
     <Compile Include="Configuration\IServiceBusConfiguration.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="MessageRoute\IMessageRouteCollection.cs" />
-    <Compile Include="MessageRoute\Specifications\IMessageRouteSpecification.cs" />
     <Compile Include="MessageRoute\Specifications\RegexMessageRouteSpecification.cs" />
     <Compile Include="MessageRoute\Specifications\StartsWithMessageRouteSpecification.cs" />
     <Compile Include="MessageRoute\Specifications\TypeListMessageRouteSpecification.cs" />

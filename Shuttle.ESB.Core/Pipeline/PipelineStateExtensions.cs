@@ -166,6 +166,16 @@ namespace Shuttle.ESB.Core
 			return state.Get<IMessageHandler>(StateKeys.MessageHandler);
 		}
 
+		public static void SetShouldProcess(this State<Pipeline> state, bool shouldProcess)
+		{
+			state.Replace(StateKeys.ShouldProcess, shouldProcess);
+		}
+
+		public static bool GetShouldProcess(this State<Pipeline> state)
+		{
+			return state.Get<bool>(StateKeys.ShouldProcess);
+		}
+
 		public static Guid GetCheckpointMessageId(this State<Pipeline> state)
 		{
 			return state.Get<Guid>(StateKeys.CheckpointMessageId);

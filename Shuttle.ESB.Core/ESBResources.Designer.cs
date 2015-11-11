@@ -511,47 +511,11 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [idempotence service] : transport message type &apos;{0}&apos; with id &apos;{1}&apos; has been assigned to a thread on this endpoint..
-        /// </summary>
-        public static string TraceMessageAssigned {
-            get {
-                return ResourceManager.GetString("TraceMessageAssigned", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; has been deserialized..
-        /// </summary>
-        public static string TraceMessageDeserialized {
-            get {
-                return ResourceManager.GetString("TraceMessageDeserialized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; equeuing on queue &apos;{2}&apos;..
         /// </summary>
         public static string TraceMessageEnqueued {
             get {
                 return ResourceManager.GetString("TraceMessageEnqueued", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [idempotence service] : transport message type &apos;{0}&apos; with id &apos;{1}&apos; has already been handled..
-        /// </summary>
-        public static string TraceMessageHandled {
-            get {
-                return ResourceManager.GetString("TraceMessageHandled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [idempotence service] : transport message type &apos;{0}&apos; with id &apos;{1}&apos; has already been assigned to another thread..
-        /// </summary>
-        public static string TraceMessageIgnored {
-            get {
-                return ResourceManager.GetString("TraceMessageIgnored", resourceCulture);
             }
         }
         

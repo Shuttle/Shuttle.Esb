@@ -4,9 +4,9 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-    public class TypeListMessageRouteSpecification : IMessageRouteSpecification
+    public class TypeListMessageRouteSpecification : ISpecification<string>
     {
-        protected readonly List<string> _messageTypes = new List<string>();
+        protected readonly List<string> MessageTypes = new List<string>();
 
         public TypeListMessageRouteSpecification(params string[] messageTypes)
             : this((IEnumerable<string>)messageTypes)
@@ -17,7 +17,7 @@ namespace Shuttle.ESB.Core
         {
             Guard.AgainstNull(messageTypes, "messageTypes");
 
-            _messageTypes.AddRange(_messageTypes);
+            MessageTypes.AddRange(MessageTypes);
         }
 
         public TypeListMessageRouteSpecification(string value)
@@ -43,7 +43,7 @@ namespace Shuttle.ESB.Core
                     throw new MessageRouteSpecificationException(string.Format(ESBResources.TypeListMessageRouteSpecificationUnknownType, typeName));
                 }
 
-                _messageTypes.Add(type.FullName);
+                MessageTypes.Add(type.FullName);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Shuttle.ESB.Core
         {
             Guard.AgainstNull(messageType, "message");
 
-            return _messageTypes.Contains(messageType);
+            return MessageTypes.Contains(messageType);
         }
     }
 }

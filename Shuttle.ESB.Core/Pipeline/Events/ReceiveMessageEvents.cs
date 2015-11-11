@@ -32,11 +32,31 @@
 	{
 	}
 
-	public class OnHandleMessage : PipelineEvent
+	public class OnAssessMessageHandling : PipelineEvent
+	{
+	}
+
+	public class OnAfterAssessMessageHandling : PipelineEvent
+	{
+	}
+
+	public class OnAfterReviewPocessing : PipelineEvent
+	{
+	}
+
+    public class OnProcessIdempotenceMessage : PipelineEvent
+    {
+    }
+    
+    public class OnHandleMessage : PipelineEvent
 	{
 	}
 
 	public class OnAfterHandleMessage : PipelineEvent
+	{
+	}
+
+    public class OnIdempotenceMessageHandled : PipelineEvent
 	{
 	}
 

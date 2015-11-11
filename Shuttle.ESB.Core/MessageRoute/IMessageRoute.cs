@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
     public interface IMessageRoute
     {
         IQueue Queue { get; }
-        IMessageRoute AddSpecification(IMessageRouteSpecification specification);
+        IMessageRoute AddSpecification(ISpecification<string> specification);
         bool IsSatisfiedBy(string messageType);
 
-        IEnumerable<IMessageRouteSpecification> Specifications { get; }
+        IEnumerable<ISpecification<string>> Specifications { get; }
     }
 }

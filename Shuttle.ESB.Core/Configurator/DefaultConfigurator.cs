@@ -24,6 +24,24 @@ namespace Shuttle.ESB.Core
 			return this;
 		}
 
+		public DefaultConfigurator MessageHandlerInvoker(IMessageHandlerInvoker messageHandlerInvoker)
+		{
+            Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
+
+            _configuration.MessageHandlerInvoker = messageHandlerInvoker;
+
+			return this;
+		}
+
+		public DefaultConfigurator MessageHandlingAssessor(IMessageHandlingAssessor messageHandlingAssessor)
+		{
+            Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
+
+            _configuration.MessageHandlingAssessor = messageHandlingAssessor;
+
+			return this;
+		}
+
 		public DefaultConfigurator AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
 		{
 			Guard.AgainstNull(algorithm, "algorithm");

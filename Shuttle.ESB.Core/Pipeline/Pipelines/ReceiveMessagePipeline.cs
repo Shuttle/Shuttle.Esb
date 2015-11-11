@@ -19,6 +19,9 @@
 
 			RegisterStage("Handle")
 				.WithEvent<OnStartTransactionScope>()
+				.WithEvent<OnAssessMessageHandling>()
+				.WithEvent<OnAfterReviewPocessing>()
+				.WithEvent<OnProcessIdempotenceMessage>()
 				.WithEvent<OnHandleMessage>()
 				.WithEvent<OnAfterHandleMessage>()
 				.WithEvent<OnCompleteTransactionScope>()
@@ -34,7 +37,9 @@
 			RegisterObserver(new DeserializeMessageObserver());
 			RegisterObserver(new DecryptMessageObserver());
 			RegisterObserver(new DecompressMessageObserver());
-			RegisterObserver(new HandleMessageObserver());
+            RegisterObserver(new AssessMessageHandlingObserver());
+            RegisterObserver(new IdempotenceObserver());
+            RegisterObserver(new HandleMessageObserver());
 			RegisterObserver(new TransactionScopeObserver());
 			RegisterObserver(new AcknowledgeMessageObserver());
 			RegisterObserver(new SendDeferredObserver());

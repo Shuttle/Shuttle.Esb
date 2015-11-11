@@ -20,6 +20,7 @@ namespace Shuttle.ESB.Core
 
 		IMessageHandlerFactory MessageHandlerFactory { get; set; }
 		IMessageHandlerInvoker MessageHandlerInvoker { get; set; }
+		IMessageHandlingAssessor MessageHandlingAssessor { get; set; }
 		IThreadActivityFactory ThreadActivityFactory { get; set; }
 
 		IIdempotenceService IdempotenceService { get; set; }

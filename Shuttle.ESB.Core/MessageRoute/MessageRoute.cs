@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
     public class MessageRoute : IMessageRoute
     {
-        private readonly List<IMessageRouteSpecification> specifications = new List<IMessageRouteSpecification>();
+        private readonly List<ISpecification<string>> _specifications = new List<ISpecification<string>>();
 
         public MessageRoute(IQueue queue)
         {
@@ -14,16 +15,16 @@ namespace Shuttle.ESB.Core
 
         public IQueue Queue { get; private set; }
 
-        public IMessageRoute AddSpecification(IMessageRouteSpecification specification)
+        public IMessageRoute AddSpecification(ISpecification<string> specification)
         {
-            specifications.Add(specification);
+            _specifications.Add(specification);
 
             return this;
         }
 
         public bool IsSatisfiedBy(string messageType)
         {
-            foreach (var specification in specifications)
+            foreach (var specification in _specifications)
             {
                 if (specification.IsSatisfiedBy(messageType))
                 {
@@ -34,11 +35,11 @@ namespace Shuttle.ESB.Core
             return false;
         }
 
-        public IEnumerable<IMessageRouteSpecification> Specifications
+        public IEnumerable<ISpecification<string>> Specifications
         {
             get
             {
-                return new ReadOnlyCollection<IMessageRouteSpecification>(specifications);
+                return new ReadOnlyCollection<ISpecification<string>>(_specifications);
             }
         }
     }

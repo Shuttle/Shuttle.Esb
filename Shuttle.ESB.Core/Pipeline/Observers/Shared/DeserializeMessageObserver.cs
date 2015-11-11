@@ -6,11 +6,11 @@ namespace Shuttle.ESB.Core
 {
 	public class DeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
 	{
-		private readonly ILog log;
+		private readonly ILog _log;
 
 		public DeserializeMessageObserver()
 		{
-			log = Log.For(this);
+			_log = Log.For(this);
 		}
 
 		public void Execute(OnDeserializeMessage pipelineEvent)
@@ -52,11 +52,6 @@ namespace Shuttle.ESB.Core
             }
             
             state.SetMessage(message);
-
-			if (log.IsVerboseEnabled)
-            {
-                log.Trace(string.Format(ESBResources.TraceMessageDeserialized, message.GetType(), transportMessage.MessageId));
-            }
 		}
 	}
 }

@@ -2,20 +2,20 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-    public class StartsWithMessageRouteSpecification : IMessageRouteSpecification
+    public class StartsWithMessageRouteSpecification : ISpecification<string>
     {
-        private readonly string startWith;
+        private readonly string _startWith;
 
         public StartsWithMessageRouteSpecification(string startWith)
         {
-            this.startWith = startWith.ToLower();
+            this._startWith = startWith.ToLower();
         }
 
         public bool IsSatisfiedBy(string messageType)
         {
             Guard.AgainstNull(messageType, "message");
 
-            return messageType.ToLower().StartsWith(startWith);
+            return messageType.ToLower().StartsWith(_startWith);
         }
     }
 }

@@ -3,20 +3,20 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-    public class RegexMessageRouteSpecification : IMessageRouteSpecification
+    public class RegexMessageRouteSpecification : ISpecification<string>
     {
-        private readonly Regex regex;
+        private readonly Regex _regex;
 
         public RegexMessageRouteSpecification(string pattern)
         {
-            regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            _regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         public bool IsSatisfiedBy(string messageType)
         {
             Guard.AgainstNull(messageType, "message");
 
-            return regex.IsMatch(messageType);
+            return _regex.IsMatch(messageType);
         }
     }
 }

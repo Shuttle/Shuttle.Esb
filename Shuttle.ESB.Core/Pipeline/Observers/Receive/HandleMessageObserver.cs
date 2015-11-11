@@ -17,42 +17,14 @@ namespace Shuttle.ESB.Core
         public void Execute(OnHandleMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-            var bus = state.GetServiceBus();
-            var transportMessage = state.GetTransportMessage();
 
-            if (bus.Configuration.HasIdempotenceService)
+            if (!state.GetShouldProcess())
             {
-                try
-                {
-                    var processingStatus = bus.Configuration.IdempotenceService.ProcessingStatus(transportMessage);
-
-                    state.SetProcessingStatus(processingStatus);
-
-                    if (processingStatus == ProcessingStatus.Ignore)
-                    {
-                        _log.Trace(string.Format(ESBResources.TraceMessageIgnored, transportMessage.MessageType,
-                            transportMessage.MessageId));
-
-                        return;
-                    }
-
-                    if (processingStatus == ProcessingStatus.MessageHandled)
-                    {
-                        _log.Trace(string.Format(ESBResources.TraceMessageHandled, transportMessage.MessageType,
-                            transportMessage.MessageId));
-
-                        return;
-                    }
-
-                    _log.Trace(string.Format(ESBResources.TraceMessageAssigned, transportMessage.MessageType,
-                        transportMessage.MessageId));
-                }
-                catch (Exception ex)
-                {
-                    bus.Configuration.IdempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-                }
+                return;
             }
 
+            var bus = state.GetServiceBus();
+            var transportMessage = state.GetTransportMessage();
             var message = state.GetMessage();
 
             try
@@ -62,10 +34,6 @@ namespace Shuttle.ESB.Core
                 if (messageHandlerInvokeResult.Invoked)
                 {
                     state.SetMessageHandler(messageHandlerInvokeResult.MessageHandler);
-                    if (bus.Configuration.HasIdempotenceService)
-                    {
-                        bus.Configuration.IdempotenceService.MessageHandled(transportMessage);
-                    }
                 }
                 else
                 {

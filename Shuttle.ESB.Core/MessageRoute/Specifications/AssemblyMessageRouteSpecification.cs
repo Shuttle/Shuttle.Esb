@@ -52,7 +52,7 @@ namespace Shuttle.ESB.Core
         {
 			foreach (var type in assembly.GetTypes())
 	        {
-		        _messageTypes.Add(type.FullName);
+		        MessageTypes.Add(type.FullName);
 	        }
         }
     }
