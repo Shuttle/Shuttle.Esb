@@ -4,14 +4,7 @@ namespace Shuttle.ESB.Core
 {
     public class GetWorkMessageObserver : IPipelineObserver<OnGetMessage>
     {
-		private readonly ILog _log;
-
-		public GetWorkMessageObserver()
-		{
-			_log = Log.For(this);
-		}
-
-        public void Execute(OnGetMessage pipelineEvent)
+		public void Execute(OnGetMessage pipelineEvent)
         {
 			var state = pipelineEvent.Pipeline.State;
 			var queue = state.GetWorkQueue();
@@ -28,6 +21,7 @@ namespace Shuttle.ESB.Core
             }
             else
             {
+                state.SetProcessingStatus(ProcessingStatus.Active);
 				state.SetWorking();
 				state.SetReceivedMessage(receivedMessage);
             }

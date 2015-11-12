@@ -5,9 +5,10 @@ namespace Shuttle.ESB.Core
 {
 	public enum ProcessingStatus
 	{
-		Ignore = 0,
-		MessageHandled = 1,
-		Assigned = 2
+		Active = 0,
+		Ignore = 1,
+		MessageHandled = 2,
+		Assigned = 3
 	}
 
 	public interface IIdempotenceService

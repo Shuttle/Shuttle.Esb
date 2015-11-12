@@ -17,8 +17,9 @@ namespace Shuttle.ESB.Core
         public void Execute(OnHandleMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
+            var processingStatus = state.GetProcessingStatus();
 
-            if (!state.GetShouldProcess())
+            if (processingStatus == ProcessingStatus.Ignore || processingStatus == ProcessingStatus.MessageHandled)
             {
                 return;
             }

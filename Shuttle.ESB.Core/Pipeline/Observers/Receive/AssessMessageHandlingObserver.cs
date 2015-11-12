@@ -7,7 +7,12 @@
             var state = pipelineEvent.Pipeline.State;
             var configuration = state.GetServiceBus().Configuration;
 
-            state.SetShouldProcess(configuration.MessageHandlingAssessor.IsSatisfiedBy(pipelineEvent));
+            if (configuration.MessageHandlingAssessor.IsSatisfiedBy(pipelineEvent))
+            {
+                return;
+            }
+
+            state.SetProcessingStatus(ProcessingStatus.Ignore);
         }
     }
 }

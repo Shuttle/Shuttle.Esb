@@ -20,7 +20,7 @@ namespace Shuttle.ESB.Core
             var bus = state.GetServiceBus();
             var transportMessage = state.GetTransportMessage();
 
-            if (!bus.Configuration.HasIdempotenceService || !state.GetShouldProcess())
+            if (!bus.Configuration.HasIdempotenceService || state.GetProcessingStatus() == ProcessingStatus.Ignore)
             {
                 return;
             }
@@ -33,7 +33,7 @@ namespace Shuttle.ESB.Core
             var state = pipelineEvent.Pipeline.State;
             var bus = state.GetServiceBus();
 
-            if (!bus.Configuration.HasIdempotenceService || !state.GetShouldProcess())
+            if (!bus.Configuration.HasIdempotenceService || state.GetProcessingStatus() == ProcessingStatus.Ignore)
             {
                 return;
             }
