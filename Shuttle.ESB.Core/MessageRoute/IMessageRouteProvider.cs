@@ -7,5 +7,6 @@ namespace Shuttle.ESB.Core
 		IEnumerable<string> GetRouteUris(string messageType);
 		void Add(IMessageRoute messageRoute);
 		IMessageRoute Find(string uri);
+	    bool Any();
 	}
 }

@@ -41,5 +41,10 @@ namespace Shuttle.ESB.Core
 		{
 			return _messageRoutes.Find(uri);
 		}
+
+	    public bool Any()
+	    {
+	        return _messageRoutes.Any();
+	    }
 	}
 }
