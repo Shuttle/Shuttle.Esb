@@ -164,10 +164,6 @@
   <data name="RequeueWithNoInbox" xml:space="preserve">
     <value>You have tried to requeue a message but no inbox has been configured.</value>
   </data>
-  <data name="DurationToIgnoreOnFailureFormatError" xml:space="preserve">
-    <value>The application configuration contains a 'durationToIgnoreOnFailure' with invalid items '{0}'.</value>
-    <comment>{0} = string containing invalid format</comment>
-  </data>
   <data name="NoSubscriptionManager" xml:space="preserve">
     <value>No ISubscriptionManager implementation has been configured.</value>
   </data>

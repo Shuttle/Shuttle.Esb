@@ -10,7 +10,7 @@ namespace Shuttle.ESB.Core
 
 		public DeferredMessageProcessorFactory(IServiceBus bus)
 		{
-			Guard.AgainstNull(bus, "_bus");
+			Guard.AgainstNull(bus, "Bus");
 
 			_bus = bus;
 		}

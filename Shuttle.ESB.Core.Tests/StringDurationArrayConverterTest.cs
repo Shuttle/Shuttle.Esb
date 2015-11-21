@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core.Tests
 {

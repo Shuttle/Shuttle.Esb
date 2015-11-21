@@ -133,15 +133,6 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The application configuration contains a &apos;durationToIgnoreOnFailure&apos; with invalid items &apos;{0}&apos;..
-        /// </summary>
-        public static string DurationToIgnoreOnFailureFormatError {
-            get {
-                return ResourceManager.GetString("DurationToIgnoreOnFailureFormatError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Encryption algorithm &apos;{0}&apos; has not been registered..
         /// </summary>
         public static string EncryptionAlgorithmException {

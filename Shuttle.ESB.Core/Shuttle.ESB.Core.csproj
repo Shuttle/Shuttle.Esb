@@ -68,9 +68,9 @@
     <DefineConstants>$(DefineConstants);NET451FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\shuttle-core-infrastructure.4.0.3\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+      <HintPath>..\packages\shuttle-core-infrastructure.4.0.5\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -246,7 +246,6 @@
     <Compile Include="Configuration\Section\MessageRouteElementCollection.cs" />
     <Compile Include="Configuration\Section\ServiceBusSection.cs" />
     <Compile Include="Configuration\Section\SpecificationElement.cs" />
-    <Compile Include="Configuration\Section\StringDurationArrayConverter.cs" />
     <Compile Include="Configuration\WorkerConfiguration.cs" />
     <Compile Include="Exceptions\SendMessageException.cs" />
     <Compile Include="Exceptions\SubscriptionManagerException.cs" />
