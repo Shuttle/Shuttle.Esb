@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Transactions;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {

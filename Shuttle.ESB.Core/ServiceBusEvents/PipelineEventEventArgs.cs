@@ -1,4 +1,6 @@
-﻿namespace Shuttle.ESB.Core
+﻿using Shuttle.Core.Infrastructure;
+
+namespace Shuttle.ESB.Core
 {
 	public class PipelineEventEventArgs
 	{

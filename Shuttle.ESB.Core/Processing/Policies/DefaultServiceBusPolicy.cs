@@ -1,4 +1,5 @@
 ﻿using System;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {

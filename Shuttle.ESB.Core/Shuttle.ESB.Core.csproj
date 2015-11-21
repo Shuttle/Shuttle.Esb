@@ -68,9 +68,9 @@
     <DefineConstants>$(DefineConstants);NET451FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=3.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\shuttle-core-infrastructure.3.3.1\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+      <HintPath>..\packages\shuttle-core-infrastructure.4.0.3\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -90,6 +90,7 @@
     <Compile Include="Compression\GZipCompressionAlgorithm.cs" />
     <Compile Include="Configuration\IMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\DefaultMessageHandlingAssessor.cs" />
+    <Compile Include="Configuration\IThreadCount.cs" />
     <Compile Include="Configuration\Section\ModuleElement.cs" />
     <Compile Include="Configuration\Section\ModulesElement.cs" />
     <Compile Include="Configuration\Section\UriResolverItemElement.cs" />
@@ -130,28 +131,14 @@
     <Compile Include="Idempotence\IdempotenceServiceExtensions.cs" />
     <Compile Include="Messages\ReceivedMessage.cs" />
     <Compile Include="Messages\TransportMessageConfigurator.cs" />
-    <Compile Include="Pipeline\IExecuteEventThen.cs" />
-    <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\IPipelineObserver.cs" />
-    <Compile Include="Pipeline\IRegisterObserverAnd.cs" />
-    <Compile Include="Pipeline\IRegisterObserverForEventAnd.cs" />
-    <Compile Include="Pipeline\Pipeline.cs" />
     <Compile Include="Pipeline\Observers\DeferredMessage\ProcessDeferredMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\AcknowledgeMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\SendDeferredObserver.cs" />
     <Compile Include="Pipeline\Observers\DeferredMessage\GetDeferredMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\DeferTransportMessageObserver.cs" />
-    <Compile Include="Pipeline\PipelineEvent.cs" />
-    <Compile Include="Pipeline\PipelineStage.cs" />
     <Compile Include="Pipeline\Pipelines\TransportMessagePipeline.cs" />
     <Compile Include="Pipeline\Pipelines\DeferredMessagePipeline.cs" />
     <Compile Include="Pipeline\Pipelines\DispatchTransportMessagePipeline.cs" />
-    <Compile Include="Pipeline\RegisterEventAfter.cs" />
-    <Compile Include="Pipeline\RegisterEventBefore.cs" />
-    <Compile Include="Pipeline\State.cs" />
-    <Compile Include="Pipeline\SystemEvents\OnAbortPipeline.cs" />
-    <Compile Include="Pipeline\SystemEvents\OnPipelineException.cs" />
-    <Compile Include="Pipeline\SystemEvents\OnPipelineStarting.cs" />
     <Compile Include="Pipeline\Transactions\DefaultTransactionScopeFactory.cs" />
     <Compile Include="Exceptions\ProcessMessageMethodMissingException.cs" />
     <Compile Include="Exceptions\UnrecoverableHandlerException.cs" />
@@ -307,16 +294,6 @@
     <Compile Include="ServiceBus\ServiceBusConfiguration.cs" />
     <Compile Include="Processing\DeferredMessage\DeferredMessageProcessor.cs" />
     <Compile Include="Pipeline\Transactions\DefaultTransactionScope.cs" />
-    <Compile Include="Threading\IProcessor.cs" />
-    <Compile Include="Threading\IProcessorFactory.cs" />
-    <Compile Include="Threading\IProcessorThreadPool.cs" />
-    <Compile Include="Threading\IThreadActivity.cs" />
-    <Compile Include="Threading\IThreadActivityConfiguration.cs" />
-    <Compile Include="Threading\IThreadCount.cs" />
-    <Compile Include="Threading\ProcessorThread.cs" />
-    <Compile Include="Threading\ProcessorThreadPool.cs" />
-    <Compile Include="Threading\ThreadActivity.cs" />
-    <Compile Include="Threading\ThreadCountZeroException.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ESBResources.resx">

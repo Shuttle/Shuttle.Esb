@@ -290,64 +290,9 @@
     <value>There has been an exception in the ReceiveMessagePipeline.  The message has been released.  Exception: {0}</value>
     <comment>{0} = exception</comment>
   </data>
-  <data name="PipelineStageEventNotRegistered" xml:space="preserve">
-    <value>Pipeline stage '{0}' has no event of type '{1}'.</value>
-    <comment>{0} = pipeline stage name, {1} = unknown event type name</comment>
-  </data>
-  <data name="PipelineStageNotFound" xml:space="preserve">
-    <value>There is no pipeline stage with a name of '{0}'.</value>
-    <comment>{0} = unknown stage name</comment>
-  </data>
-  <data name="VerboseRaisingPipelineEvent" xml:space="preserve">
-    <value>Raising pipeline event '{0}' in stage '{1}' for observer '{2}'.</value>
-    <comment>{0} = pipeline event name, {1}= pipeline stage name, {2} = observer name</comment>
-  </data>
-  <data name="VerboseEnteringPipelineStage" xml:space="preserve">
-    <value>Entering pipeline stage '{0}'.</value>
-    <comment>{0} = pipeline stage</comment>
-  </data>
-  <data name="VerboseExecutingPipeline" xml:space="preserve">
-    <value>Executing pipeline '{0}'.</value>
-    <comment>{0} = pipeline full type name</comment>
-  </data>
-  <data name="VerboseFirstChanceExceptionHandledByPipeline" xml:space="preserve">
-    <value>First chance exception handled by pipeline: {0}</value>
-    <comment>{0} = exception message</comment>
-  </data>
-  <data name="UnhandledPipelineException" xml:space="preserve">
-    <value>Unhandled exception during event '{0}': {1}</value>
-    <comment>{0} = event name, {1} = exception message</comment>
-  </data>
   <data name="DefaultMessageHandlerFactoryNoDefaultConstructor" xml:space="preserve">
     <value>Handler type '{0}' has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you.</value>
     <comment>{0} = full type name of message handler</comment>
-  </data>
-  <data name="ThreadPoolStatusChange" xml:space="preserve">
-    <value>Thread pool '{0}' has {1} successfully.</value>
-    <comment>{0} = thread pool name , {1} = new status</comment>
-  </data>
-  <data name="ThreadCountZeroException" xml:space="preserve">
-    <value>The queue handler configuration requires thread count of at least 1.  The input queue can not be processed.</value>
-  </data>
-  <data name="TraceProcessorThreadActive" xml:space="preserve">
-    <value>[processor thread active] : managed thread id = {0} / processor type = {1}</value>
-    <comment>{0} = managed thread id, {1} = full type name of processor</comment>
-  </data>
-  <data name="TraceProcessorThreadStarting" xml:space="preserve">
-    <value>[processor thread starting] : managed thread id = {0} / processor type = {1}</value>
-    <comment>{0} = managed thread id, {1} = full type name of processor</comment>
-  </data>
-  <data name="TraceProcessorThreadStopped" xml:space="preserve">
-    <value>[processor thread stopped] : managed thread id = {0} / processor type = {1}</value>
-    <comment>{0} = managed thread id, {1} = full type name of processor</comment>
-  </data>
-  <data name="TraceProcessorThreadStopping" xml:space="preserve">
-    <value>[processor thread stopping] : managed thread id = {0} / processor type = {1}</value>
-    <comment>{0} = managed thread id, {1} = full type name of processor</comment>
-  </data>
-  <data name="VerboseProcessorExecuting" xml:space="preserve">
-    <value>[processor thread executing] : managed thread id = {0} / processor type = {1}</value>
-    <comment>{0} = managed thread id, {1} = full type name of processor</comment>
   </data>
   <data name="NoMessageHandlerFactoryException" xml:space="preserve">
     <value>No IMessageHandlerFactory implementation has been configured.</value>
@@ -357,10 +302,6 @@
   </data>
   <data name="NoSerializerException" xml:space="preserve">
     <value>No ISerializer implementation has been configured.</value>
-  </data>
-  <data name="PipelineExecutionException" xml:space="preserve">
-    <value>Could not execute pipeline '{0}'.  Exception: {1}</value>
-    <comment>{0} = pipeline name, {1} = exception message(s)</comment>
   </data>
   <data name="SendToSelfException" xml:space="preserve">
     <value>You cannot send a message to this endpoint (Local) since this endpoint has no inbox.</value>
@@ -407,5 +348,9 @@
   <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">
     <value>A configurator wih type name '{0}' has already been registered.</value>
     <comment>{0} = full type name of the configurator</comment>
+  </data>
+  <data name="PipelineExecutionException" xml:space="preserve">
+    <value>Could not execute pipeline '{0}'.  Exception: {1}</value>
+    <comment>{0} = pipeline name, {1} = exception message(s)</comment>
   </data>
 </root>

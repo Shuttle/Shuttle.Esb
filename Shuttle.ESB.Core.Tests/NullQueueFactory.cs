@@ -1,5 +1,5 @@
 ﻿using System;
-using NUnit.Framework;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core.Tests
 {
@@ -14,7 +14,7 @@ namespace Shuttle.ESB.Core.Tests
 		
 		public IQueue Create(Uri uri)
 		{
-			Guard.ArgumentNotNull(uri, "uri");
+			Guard.AgainstNull(uri, "uri");
 
 			return new NullQueue(uri);
 		}

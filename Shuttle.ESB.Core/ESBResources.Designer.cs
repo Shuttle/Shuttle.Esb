@@ -340,24 +340,6 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Pipeline stage &apos;{0}&apos; has no event of type &apos;{1}&apos;..
-        /// </summary>
-        public static string PipelineStageEventNotRegistered {
-            get {
-                return ResourceManager.GetString("PipelineStageEventNotRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There is no pipeline stage with a name of &apos;{0}&apos;..
-        /// </summary>
-        public static string PipelineStageNotFound {
-            get {
-                return ResourceManager.GetString("PipelineStageNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the requires ProcessMessage method that handles message type &apos;{1}&apos;..
         /// </summary>
         public static string ProcessMessageMethodMissingException {
@@ -493,65 +475,11 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The queue handler configuration requires thread count of at least 1.  The input queue can not be processed..
-        /// </summary>
-        public static string ThreadCountZeroException {
-            get {
-                return ResourceManager.GetString("ThreadCountZeroException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Thread pool &apos;{0}&apos; has {1} successfully..
-        /// </summary>
-        public static string ThreadPoolStatusChange {
-            get {
-                return ResourceManager.GetString("ThreadPoolStatusChange", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; equeuing on queue &apos;{2}&apos;..
         /// </summary>
         public static string TraceMessageEnqueued {
             get {
                 return ResourceManager.GetString("TraceMessageEnqueued", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [processor thread active] : managed thread id = {0} / processor type = {1}.
-        /// </summary>
-        public static string TraceProcessorThreadActive {
-            get {
-                return ResourceManager.GetString("TraceProcessorThreadActive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [processor thread starting] : managed thread id = {0} / processor type = {1}.
-        /// </summary>
-        public static string TraceProcessorThreadStarting {
-            get {
-                return ResourceManager.GetString("TraceProcessorThreadStarting", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [processor thread stopped] : managed thread id = {0} / processor type = {1}.
-        /// </summary>
-        public static string TraceProcessorThreadStopped {
-            get {
-                return ResourceManager.GetString("TraceProcessorThreadStopped", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [processor thread stopping] : managed thread id = {0} / processor type = {1}.
-        /// </summary>
-        public static string TraceProcessorThreadStopping {
-            get {
-                return ResourceManager.GetString("TraceProcessorThreadStopping", resourceCulture);
             }
         }
         
@@ -610,15 +538,6 @@ namespace Shuttle.ESB.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unhandled exception during event &apos;{0}&apos;: {1}.
-        /// </summary>
-        public static string UnhandledPipelineException {
-            get {
-                return ResourceManager.GetString("UnhandledPipelineException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unknown message route specification &apos;{0}&apos;.  Cannot create the specification..
         /// </summary>
         public static string UnknownMessageRouteSpecification {
@@ -651,51 +570,6 @@ namespace Shuttle.ESB.Core {
         public static string UriNameNotFoundException {
             get {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Entering pipeline stage &apos;{0}&apos;..
-        /// </summary>
-        public static string VerboseEnteringPipelineStage {
-            get {
-                return ResourceManager.GetString("VerboseEnteringPipelineStage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Executing pipeline &apos;{0}&apos;..
-        /// </summary>
-        public static string VerboseExecutingPipeline {
-            get {
-                return ResourceManager.GetString("VerboseExecutingPipeline", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to First chance exception handled by pipeline: {0}.
-        /// </summary>
-        public static string VerboseFirstChanceExceptionHandledByPipeline {
-            get {
-                return ResourceManager.GetString("VerboseFirstChanceExceptionHandledByPipeline", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [processor thread executing] : managed thread id = {0} / processor type = {1}.
-        /// </summary>
-        public static string VerboseProcessorExecuting {
-            get {
-                return ResourceManager.GetString("VerboseProcessorExecuting", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Raising pipeline event &apos;{0}&apos; in stage &apos;{1}&apos; for observer &apos;{2}&apos;..
-        /// </summary>
-        public static string VerboseRaisingPipelineEvent {
-            get {
-                return ResourceManager.GetString("VerboseRaisingPipelineEvent", resourceCulture);
             }
         }
         

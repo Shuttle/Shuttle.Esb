@@ -1,3 +1,0 @@
-- `ServiceBus` constructor made public
-- moved message forwarding to modules 
-- removed distributor control inbox creation 

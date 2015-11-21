@@ -1,4 +1,0 @@
-- removed OnDeserializeUnrecognizedElement from ServiceBusSection
-- added type name of section not found to OpenSectionException
-- updated logo
-- applied shutle-core-msbuild v1.1.1
