@@ -5,11 +5,11 @@ namespace Shuttle.ESB.Core
 {
     public class DefaultPipelineFactory : IPipelineFactory
     {
-        private readonly ReusableObjectPool<MessagePipeline> pool;
+        private readonly ReusableObjectPool<MessagePipeline> _pool;
 
         public DefaultPipelineFactory()
         {
-            pool = new ReusableObjectPool<MessagePipeline>();
+            _pool = new ReusableObjectPool<MessagePipeline>();
         }
 
         private MessagePipeline CreatePipeline<TPipeline>(IServiceBus bus)
@@ -24,7 +24,7 @@ namespace Shuttle.ESB.Core
 
         public TPipeline GetPipeline<TPipeline>(IServiceBus bus) where TPipeline : MessagePipeline
         {
-            var messagePipeline = pool.Get(typeof (TPipeline)) ?? CreatePipeline<TPipeline>(bus);
+            var messagePipeline = _pool.Get(typeof (TPipeline)) ?? CreatePipeline<TPipeline>(bus);
 
             messagePipeline.Obtained();
 
@@ -35,7 +35,7 @@ namespace Shuttle.ESB.Core
         {
             Guard.AgainstNull(messagePipeline, "messagePipeline");
 
-            pool.Release(messagePipeline);
+            _pool.Release(messagePipeline);
 
             messagePipeline.Released();
         }
