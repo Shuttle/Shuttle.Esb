@@ -5,13 +5,6 @@ namespace Shuttle.ESB.Core
 {
 	public class ProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
     {
-		private readonly ILog _log;
-
-		public ProcessDeferredMessageObserver()
-		{
-			_log = Log.For(this);
-		}
-
 		public void Execute(OnProcessDeferredMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;

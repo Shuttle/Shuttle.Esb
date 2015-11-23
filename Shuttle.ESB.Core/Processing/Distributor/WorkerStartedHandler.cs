@@ -2,7 +2,7 @@ namespace Shuttle.ESB.Core
 {
 	public class WorkerStartedHandler : IMessageHandler<WorkerStartedEvent>
 	{
-		public void ProcessMessage(HandlerContext<WorkerStartedEvent> context)
+		public void ProcessMessage(IHandlerContext<WorkerStartedEvent> context)
 		{
 			context.Configuration.WorkerAvailabilityManager.WorkerStarted(context.Message);
 		}

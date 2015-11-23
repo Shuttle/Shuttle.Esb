@@ -2,7 +2,7 @@ namespace Shuttle.ESB.Core
 {
 	public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
 	{
-		public void ProcessMessage(HandlerContext<WorkerThreadAvailableCommand> context)
+		public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
 		{
 			var distributeSendCount = context.Configuration.Inbox.DistributeSendCount > 0
 									   ? context.Configuration.Inbox.DistributeSendCount

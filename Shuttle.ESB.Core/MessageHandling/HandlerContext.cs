@@ -4,10 +4,8 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.ESB.Core
 {
-	public class HandlerContext<T> : IMessageSender
-		where T : class
+    public class HandlerContext<T> : IHandlerContext<T> where T : class
 	{
-		private readonly IServiceBus _bus;
 		private readonly IMessageSender _messageSender;
 
 		public HandlerContext(IServiceBus bus, TransportMessage transportMessage, T message, IThreadState activeState)
@@ -17,13 +15,12 @@ namespace Shuttle.ESB.Core
 			Guard.AgainstNull(message, "message");
 			Guard.AgainstNull(activeState, "activeState");
 
-			_bus = bus;
 			_messageSender = new MessageSender(bus, transportMessage);
 
 			TransportMessage = transportMessage;
 			Message = message;
 			ActiveState = activeState;
-			Configuration = _bus.Configuration;
+			Configuration = bus.Configuration;
 		}
 
 		public TransportMessage TransportMessage { get; private set; }

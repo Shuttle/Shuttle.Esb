@@ -5,8 +5,8 @@ namespace Shuttle.ESB.Core
 		bool IsReusable { get; }
     }
 
-	public interface IMessageHandler<T> : IMessageHandler where T : class
+	public interface IMessageHandler<in T> : IMessageHandler where T : class
 	{
-		void ProcessMessage(HandlerContext<T> context);
+		void ProcessMessage(IHandlerContext<T> context);
 	}
 }

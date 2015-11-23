@@ -108,6 +108,7 @@
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
+    <Compile Include="MessageHandling\IHandlerContext.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\MessageHandlerInvokeResult.cs" />
     <Compile Include="Pipeline\Observers\Receive\IdempotenceObserver.cs" />
