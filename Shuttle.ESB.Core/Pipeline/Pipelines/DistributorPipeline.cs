@@ -28,7 +28,7 @@
 			RegisterObserver(new DistributorExceptionObserver()); // must be last
 		}
 
-		public override sealed void Obtained()
+		public sealed override void Obtained()
 		{
 			base.Obtained();
 

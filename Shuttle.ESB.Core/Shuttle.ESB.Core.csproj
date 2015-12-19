@@ -67,6 +67,18 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <DefineConstants>$(DefineConstants);NET451FULL</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Framework)' == 'net452-full'">
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <DefineConstants>$(DefineConstants);NET452FULL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Framework)' == 'net46-full'">
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <DefineConstants>$(DefineConstants);NET46FULL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Framework)' == 'net461-full'">
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Shuttle.Core.Infrastructure, Version=4.0.7.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
