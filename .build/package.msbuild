@@ -18,7 +18,7 @@
 		<MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Release;Platform=AnyCPU;Framework=%(Framework.Identity);OutputPath=$(MSBuildProjectDirectory)\deployment\release\%(Framework.Identity)"/>
 	</Target>
 
-	<Target Name="Deploy">
+	<Target Name="SemanticVersion">
 		<Prompt Text="Enter semantic version:" Condition="$(SemanticVersion) == ''">
 			<Output TaskParameter="UserInput" PropertyName="SemanticVersion" />
 		</Prompt>
@@ -31,10 +31,24 @@
 
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyInformationalVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyInformationalVersion(&quot;$(SemanticVersion)&quot;)" />
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyVersion(&quot;$(SemanticVersion).0&quot;)" />
+	</Target>
 
+	<Target Name="Deploy" DependsOnTargets="SemanticVersion">
 		<MSBuild
-            Projects="$(MSBuildProjectFile)"
-            Targets="Build"
+				Projects="$(MSBuildProjectFile)"
+				Targets="Package"
+				Properties="SemanticVersion=$(SemanticVersion)"
+        />
+
+		<Exec Command="$(NuGetExecutablePath) push $(DeploymentFolder)\nuget\$(PackageName).$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
+		<Exec Command="git commit -a -m &quot;- v$(SemanticVersion)&quot;" />
+		<Exec Command="git push" />
+	</Target>
+
+	<Target Name="Package" DependsOnTargets="SemanticVersion">
+		<MSBuild
+				Projects="$(MSBuildProjectFile)"
+				Targets="Build"
         />
 
 		<ItemGroup>
@@ -49,8 +63,13 @@
 		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\package.nuspec" PackageFolder="..\packages" />
 
 		<Exec Command="$(NuGetExecutablePath) pack $(DeploymentFolder)\nuget\package.nuspec -OutputDirectory $(DeploymentFolder)\nuget -NoPackageAnalysis" />
-		<Exec Command="$(NuGetExecutablePath) push $(DeploymentFolder)\nuget\$(PackageName).$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
-		<Exec Command="git commit -a -m &quot;- v$(SemanticVersion)&quot;" />
-		<Exec Command="git push" />
+
+		<MakeDir Directories="$(NugetPackageSourceFolder)" Condition="$(NugetPackageSourceFolder) != ''" />
+
+		<Copy
+		  SourceFiles="$(DeploymentFolder)\nuget\$(PackageName).$(SemanticVersion).nupkg"
+		  DestinationFolder="$(NugetPackageSourceFolder)"
+		  SkipUnchangedFiles="false"
+		  Condition="$(NugetPackageSourceFolder) != ''" />
 	</Target>
 </Project>
