@@ -41,8 +41,8 @@
       <HintPath>..\packages\NUnit.3.0.1\lib\net40\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\shuttle-core-infrastructure.4.0.8\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\shuttle-core-infrastructure.4.1.4\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -54,7 +54,6 @@
     <Compile Include="AssemblyMessageRouteSpecificationTest.cs" />
     <Compile Include="CompressionAlgorithmTest.cs" />
     <Compile Include="DefaultMessageRouteProviderTest.cs" />
-    <Compile Include="DefaultMessageSerializerTest.cs" />
     <Compile Include="MessageRoutesTest.cs" />
     <Compile Include="MessageRouteTest.cs" />
     <Compile Include="Messages\OtherNamespaceCommand.cs" />
