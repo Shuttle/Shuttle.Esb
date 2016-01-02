@@ -15,7 +15,7 @@ namespace Shuttle.ESB.Core
         private MessagePipeline CreatePipeline<TPipeline>(IServiceBus bus)
             where TPipeline : MessagePipeline
         {
-            var messagePipeline = Activator.CreateInstance(typeof (TPipeline), new object[] {bus}) as MessagePipeline;
+            var messagePipeline = Activator.CreateInstance(typeof (TPipeline), bus) as MessagePipeline;
 
             bus.Events.OnPipelineCreated(this, new PipelineEventArgs(messagePipeline));
 
