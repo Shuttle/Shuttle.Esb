@@ -7,14 +7,14 @@ namespace Shuttle.ESB.Core
 {
 	public class DefaultTransactionScope : ITransactionScope
 	{
-		private readonly bool ignore = false;
-        private readonly string name;
-        private readonly TransactionScope scope;
+		private readonly bool _ignore;
+        private readonly string _name;
+        private readonly TransactionScope _scope;
 
         private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadUncommitted;
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
-		private readonly ILog log;
+		private readonly ILog _log;
 
         public DefaultTransactionScope()
             : this(Guid.NewGuid().ToString("n"), DefaultIsolationLevel, TimeSpan.FromMinutes(15))
@@ -33,76 +33,77 @@ namespace Shuttle.ESB.Core
 
         public DefaultTransactionScope(string name, IsolationLevel isolationLevel, TimeSpan timeout)
         {
-            this.name = name;
-        	log = Log.For(this);
+            _name = name;
 
-        	ignore = Transaction.Current != null;
+        	_log = Log.For(this);
 
-			if (ignore)
+        	_ignore = Transaction.Current != null;
+
+			if (_ignore)
 			{
-                if (log.IsVerboseEnabled)
+                if (_log.IsVerboseEnabled)
                 {
-                    log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbient, name,
+                    _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbient, name,
                                               Thread.CurrentThread.ManagedThreadId));
                 }
 
 			    return;
 			}
 
-        	scope = new TransactionScope(TransactionScopeOption.RequiresNew,
+        	_scope = new TransactionScope(TransactionScopeOption.RequiresNew,
 				                             new TransactionOptions
 				                             	{
 				                             		IsolationLevel = isolationLevel,
 				                             		Timeout = timeout
 				                             	});
 
-            if (log.IsVerboseEnabled)
+            if (_log.IsVerboseEnabled)
             {
-                log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCreated, name, isolationLevel, timeout,
+                _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCreated, name, isolationLevel, timeout,
                                           Thread.CurrentThread.ManagedThreadId));
             }
         }
 
         public void Dispose()
         {
-            if (scope == null)
+            if (_scope == null)
             {
                 return;
             }
 
         	try
             {
-                scope.Dispose();
+                _scope.Dispose();
 			}
             catch 
             {
-                // ignore --- may be bug in transaction scope: http://connect.microsoft.com/VisualStudio/feedback/details/449469/transactedconnectionpool-bug-in-vista-server-2008-sp2#details
+                // _ignore --- may be bug in transaction _scope: http://connect.microsoft.com/VisualStudio/feedback/details/449469/transactedconnectionpool-bug-in-vista-server-2008-sp2#details
             }
 		}
 
         public void Complete()
         {
-			if (ignore)
+			if (_ignore)
 			{
-                if (log.IsVerboseEnabled)
+                if (_log.IsVerboseEnabled)
                 {
-                    log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbientCompleted, name,
+                    _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbientCompleted, _name,
                                               Thread.CurrentThread.ManagedThreadId));
                 }
 
 			    return;
 			}
 
-			if (scope == null)
+			if (_scope == null)
             {
                 return;
             }
 
-            scope.Complete();
+            _scope.Complete();
 
-            if (log.IsVerboseEnabled)
+            if (_log.IsVerboseEnabled)
             {
-                log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCompleted, name,
+                _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCompleted, _name,
                                           Thread.CurrentThread.ManagedThreadId));
             }
         }
