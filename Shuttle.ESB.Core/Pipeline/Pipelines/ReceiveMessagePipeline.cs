@@ -20,7 +20,7 @@
 			RegisterStage("Handle")
 				.WithEvent<OnStartTransactionScope>()
 				.WithEvent<OnAssessMessageHandling>()
-				.WithEvent<OnAfterReviewPocessing>()
+				.WithEvent<OnAfterAssessMessageHandling>()
 				.WithEvent<OnProcessIdempotenceMessage>()
 				.WithEvent<OnHandleMessage>()
 				.WithEvent<OnAfterHandleMessage>()

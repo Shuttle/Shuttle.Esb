@@ -149,7 +149,7 @@ namespace Shuttle.ESB.Core
 		{
 			var configurator = new DefaultConfigurator();
 
-			if (configure != null)
+			if (configure !=  null)
 			{
 				configure.Invoke(configurator);
 			}

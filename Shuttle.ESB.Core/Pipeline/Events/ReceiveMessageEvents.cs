@@ -42,10 +42,6 @@ namespace Shuttle.ESB.Core
 	{
 	}
 
-	public class OnAfterReviewPocessing : PipelineEvent
-	{
-	}
-
     public class OnProcessIdempotenceMessage : PipelineEvent
     {
     }
@@ -67,6 +63,10 @@ namespace Shuttle.ESB.Core
 	}
 
 	public class OnStartTransactionScope : PipelineEvent
+	{
+	}
+
+	public class OnAfterStartTransactionScope : PipelineEvent
 	{
 	}
 

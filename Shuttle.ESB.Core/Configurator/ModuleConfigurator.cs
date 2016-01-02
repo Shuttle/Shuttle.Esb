@@ -40,7 +40,6 @@ namespace Shuttle.ESB.Core
 					throw new ESBConfigurationException(string.Format(ESBResources.ModuleInstantiationException, ex.Message));
 				}
 			}
-
 		}
 	}
 }
