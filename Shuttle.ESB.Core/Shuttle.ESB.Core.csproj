@@ -80,8 +80,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.1.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\shuttle-core-infrastructure.4.1.4\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\shuttle-core-infrastructure.4.1.6\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -119,6 +119,7 @@
     <Compile Include="Configurator\QueueManagerConfigurator.cs" />
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
+    <Compile Include="IRequireInitialization.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IHandlerContext.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
@@ -259,7 +260,6 @@
     <Compile Include="Configuration\WorkerConfiguration.cs" />
     <Compile Include="Exceptions\SendMessageException.cs" />
     <Compile Include="Exceptions\SubscriptionManagerException.cs" />
-    <Compile Include="IRequireInitialization.cs" />
     <Compile Include="Security\Section\TripleDESSection.cs" />
     <Compile Include="Security\IEncryptionAlgorithm.cs" />
     <Compile Include="Security\TripleDesEncryptionAlgorithm.cs" />
