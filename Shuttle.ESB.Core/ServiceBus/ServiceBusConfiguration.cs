@@ -48,7 +48,7 @@ namespace Shuttle.ESB.Core
 
 		public static ServiceBusSection ServiceBusSection
 		{
-			get { return _serviceBusSection ?? Synchronised(() => _serviceBusSection = ShuttleConfigurationSection.Open<ServiceBusSection>()); }
+			get { return _serviceBusSection ?? Synchronised(() => _serviceBusSection = ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus")); }
 		}
 
 		public ISerializer Serializer

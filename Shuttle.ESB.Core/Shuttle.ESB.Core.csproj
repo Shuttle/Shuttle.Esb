@@ -80,8 +80,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.1.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\shuttle-core-infrastructure.4.1.6\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\shuttle-core-infrastructure.4.1.9\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -109,7 +109,6 @@
     <Compile Include="Configuration\Section\UriResolverElement.cs" />
     <Compile Include="Configuration\Section\QueueFactoryElement.cs" />
     <Compile Include="Configuration\Section\QueueFactoriesElement.cs" />
-    <Compile Include="Configuration\Section\ShuttleConfigurationSection.cs" />
     <Compile Include="Configurator\ControlInboxConfigurator.cs" />
     <Compile Include="Configurator\CoreConfigurator.cs" />
     <Compile Include="Configurator\InboxConfigurator.cs" />
