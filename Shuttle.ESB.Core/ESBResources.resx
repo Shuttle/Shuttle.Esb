@@ -326,8 +326,8 @@
     <comment>{0} = full type name of module type to be instanced</comment>
   </data>
   <data name="QueueFactoryInstantiationException" xml:space="preserve">
-    <value>Queue factory could not be instantiated: {0}</value>
-    <comment>{0} = full type name of queue factory type to be instanced</comment>
+    <value>Queue factory type '{0}' could not be instantiated.  Exception: {1}</value>
+    <comment>{0} = full type name of queue factory type to be instanced, {1} = exception messages</comment>
   </data>
   <data name="UnknownTypeException" xml:space="preserve">
     <value>Could not get type: {0}</value>

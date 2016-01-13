@@ -169,7 +169,7 @@ namespace Shuttle.ESB.Core
 			}
 			catch (Exception ex)
 			{
-				throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, ex.Message));
+				throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, type.FullName, ex.AllMessages()));
 			}
 		}
 

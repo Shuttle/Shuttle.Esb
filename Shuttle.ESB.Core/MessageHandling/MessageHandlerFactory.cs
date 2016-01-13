@@ -7,11 +7,11 @@ namespace Shuttle.ESB.Core
 {
 	public abstract class MessageHandlerFactory : IMessageHandlerFactory
 	{
-		private static readonly object padlock = new object();
+		private static readonly object Padlock = new object();
 
-		private readonly List<IMessageHandler> releasedHandlers = new List<IMessageHandler>();
+		private readonly List<IMessageHandler> _releasedHandlers = new List<IMessageHandler>();
 
-		private readonly Type messageHandlerType = typeof (IMessageHandler<>);
+		private readonly Type _messageHandlerType = typeof (IMessageHandler<>);
 
 		public abstract void Initialize(IServiceBus bus);
 
@@ -21,12 +21,12 @@ namespace Shuttle.ESB.Core
 
 			var messageType = message.GetType();
 
-			lock (padlock)
+			lock (Padlock)
 			{
-				var handler = releasedHandlers.Find(candidate =>
+				var handler = _releasedHandlers.Find(candidate =>
 				                                    	{
 				                                    		foreach (var arguments in
-				                                    			candidate.GetType().InterfacesAssignableTo(messageHandlerType)
+				                                    			candidate.GetType().InterfacesAssignableTo(_messageHandlerType)
 				                                    				.Select(type => type.GetGenericArguments()))
 				                                    		{
 				                                    			if (arguments.Length != 1)
@@ -45,7 +45,7 @@ namespace Shuttle.ESB.Core
 
 				if (handler != null)
 				{
-					releasedHandlers.Remove(handler);
+					_releasedHandlers.Remove(handler);
 
 					return handler;
 				}
@@ -70,11 +70,11 @@ namespace Shuttle.ESB.Core
 				return;
 			}
 
-			lock (padlock)
+			lock (Padlock)
 			{
-				if (!releasedHandlers.Contains(handler))
+				if (!_releasedHandlers.Contains(handler))
 				{
-					releasedHandlers.Add(handler);
+					_releasedHandlers.Add(handler);
 				}
 			}
 		}
