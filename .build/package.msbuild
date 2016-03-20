@@ -1,8 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 	<PropertyGroup>
 		<DeploymentFolder>deployment</DeploymentFolder>
-		<PackageAssembly>Shuttle.ESB.Core</PackageAssembly>
-		<PackageName>shuttle-esb-core</PackageName>
+		<PackageAssembly>Shuttle.Esb</PackageAssembly>
+		<PackageName>Shuttle.Esb.Core</PackageName>
 	</PropertyGroup>
 
 	<Import Project="Shuttle.Core.MSBuild.targets" />
