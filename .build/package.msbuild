@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<DeploymentFolder>deployment</DeploymentFolder>
 		<PackageAssembly>Shuttle.Esb</PackageAssembly>
-		<PackageName>Shuttle.Esb.Core</PackageName>
+		<PackageName>Shuttle.Esb</PackageName>
 	</PropertyGroup>
 
 	<Import Project="Shuttle.Core.MSBuild.targets" />
