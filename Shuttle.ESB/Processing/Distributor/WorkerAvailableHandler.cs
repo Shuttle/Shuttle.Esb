@@ -1,0 +1,24 @@
+namespace Shuttle.Esb
+{
+	public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
+	{
+		public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
+		{
+			var distributeSendCount = context.Configuration.Inbox.DistributeSendCount > 0
+									   ? context.Configuration.Inbox.DistributeSendCount
+									   : 5;
+
+			context.Configuration.WorkerAvailabilityManager.RemoveByThread(context.Message);
+
+			for (var i = 0; i < distributeSendCount; i++)
+			{
+				context.Configuration.WorkerAvailabilityManager.WorkerAvailable(context.Message);
+			}
+		}
+
+		public bool IsReusable
+		{
+			get { return true; }
+		}
+	}
+}
