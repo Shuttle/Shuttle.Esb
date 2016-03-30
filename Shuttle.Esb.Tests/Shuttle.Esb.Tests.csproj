@@ -129,6 +129,7 @@
     </None>
     <None Include="ServiceBusSection\files\QueueFactories.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="ServiceBusSection\files\Shared-Grouped.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
