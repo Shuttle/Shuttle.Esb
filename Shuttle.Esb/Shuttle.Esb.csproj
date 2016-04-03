@@ -263,7 +263,7 @@
     <Compile Include="Security\TripleDesEncryptionAlgorithm.cs" />
     <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="Exceptions\MessageRouteSpecificationException.cs" />
-    <Compile Include="Exceptions\ESBConfigurationException.cs" />
+    <Compile Include="Exceptions\EsbConfigurationException.cs" />
     <Compile Include="Configuration\IInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\InboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IWorkQueueConfiguration.cs" />
@@ -274,8 +274,8 @@
     <Compile Include="MessageRoute\Specifications\MessageRouteSpecificationFactory.cs" />
     <Compile Include="Configuration\OutboxQueueConfiguration.cs" />
     <Compile Include="Queues\QueueManager.cs" />
-    <Compile Include="ESBResources.Designer.cs">
-      <DependentUpon>ESBResources.resx</DependentUpon>
+    <Compile Include="EsbResources.Designer.cs">
+      <DependentUpon>EsbResources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -300,9 +300,9 @@
     <Compile Include="Pipeline\Transactions\DefaultTransactionScope.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ESBResources.resx">
+    <EmbeddedResource Include="EsbResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>ESBResources.Designer.cs</LastGenOutput>
+      <LastGenOutput>EsbResources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

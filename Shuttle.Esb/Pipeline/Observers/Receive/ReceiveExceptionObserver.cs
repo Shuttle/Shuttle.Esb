@@ -37,11 +37,11 @@ namespace Shuttle.Esb
 						{
 							state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
 
-							_log.Error(string.Format(ESBResources.ReceivePipelineExceptionMessageReleased, pipelineEvent.Pipeline.Exception.AllMessages()));
+							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased, pipelineEvent.Pipeline.Exception.AllMessages()));
 						}
 						else
 						{
-							_log.Error(string.Format(ESBResources.ReceivePipelineExceptionMessageNotReceived, pipelineEvent.Pipeline.Exception.AllMessages()));
+							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived, pipelineEvent.Pipeline.Exception.AllMessages()));
 						}
 
 						return;
@@ -64,7 +64,7 @@ namespace Shuttle.Esb
 
 						if (retry)
 						{
-							_log.Warning(string.Format(ESBResources.MessageHandlerExceptionWillRetry,
+							_log.Warning(string.Format(EsbResources.MessageHandlerExceptionWillRetry,
 							                           handlerFullTypeName,
 							                           pipelineEvent.Pipeline.Exception.AllMessages(),
 							                           transportMessage.MessageType,
@@ -76,7 +76,7 @@ namespace Shuttle.Esb
 						}
 						else
 						{
-							_log.Error(string.Format(ESBResources.MessageHandlerExceptionFailure,
+							_log.Error(string.Format(EsbResources.MessageHandlerExceptionFailure,
 							                         handlerFullTypeName,
 							                         pipelineEvent.Pipeline.Exception.AllMessages(),
 							                         transportMessage.MessageType,

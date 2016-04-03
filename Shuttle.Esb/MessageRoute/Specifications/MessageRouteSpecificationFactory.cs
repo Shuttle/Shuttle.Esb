@@ -26,7 +26,7 @@ namespace Shuttle.Esb
                 }
             }
 
-            throw new MessageRouteSpecificationException(string.Format(ESBResources.UnknownMessageRouteSpecification, specification));
+            throw new MessageRouteSpecificationException(string.Format(EsbResources.UnknownMessageRouteSpecification, specification));
         }
     }
 }

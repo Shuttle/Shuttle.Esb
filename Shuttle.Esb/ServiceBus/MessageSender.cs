@@ -50,7 +50,7 @@ namespace Shuttle.Esb
 
 			if (!transportMessagePipeline.Execute(transportMessageConfigurator))
 			{
-				throw new PipelineException(string.Format(ESBResources.PipelineExecutionException, "TransportMessagePipeline",
+				throw new PipelineException(string.Format(EsbResources.PipelineExecutionException, "TransportMessagePipeline",
 														  transportMessagePipeline.Exception.AllMessages()));
 			}
 
@@ -120,11 +120,11 @@ namespace Shuttle.Esb
 					return result;
 				}
 
-				_log.Warning(string.Format(ESBResources.WarningPublishWithoutSubscribers, message.GetType().FullName));
+				_log.Warning(string.Format(EsbResources.WarningPublishWithoutSubscribers, message.GetType().FullName));
 			}
 			else
 			{
-				throw new InvalidOperationException(string.Format(ESBResources.PublishWithoutSubscriptionManagerException,
+				throw new InvalidOperationException(string.Format(EsbResources.PublishWithoutSubscriptionManagerException,
 																  message.GetType().FullName));
 			}
 

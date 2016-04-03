@@ -218,9 +218,6 @@
   <data name="ReplyWithoutSenderInboxWorkQueueUri" xml:space="preserve">
     <value>The current message has no SenderIndexWorkQueueUri.  Cannot reply.</value>
   </data>
-  <data name="FormatDateFull" xml:space="preserve">
-    <value>dd MMM yyyy HH:mm:ss</value>
-  </data>
   <data name="TraceTransportMessageDeferred" xml:space="preserve">
     <value>Transport message with id '{0}' will be deferred until '{1}'.</value>
     <comment>{0} = transport message id, {1} = deferred till date</comment>
@@ -348,5 +345,13 @@
   <data name="PipelineExecutionException" xml:space="preserve">
     <value>Could not execute pipeline '{0}'.  Exception: {1}</value>
     <comment>{0} = pipeline name, {1} = exception message(s)</comment>
+  </data>
+  <data name="TraceDeferredCheckpointMessageId" xml:space="preserve">
+    <value>Deferred checkpoint set to message id '{0}'</value>
+    <comment>{0} = transport message id</comment>
+  </data>
+  <data name="TraceDeferredProcessingReset" xml:space="preserve">
+    <value>Deferred processing has completed a cycle and will process again at date '{0}'.</value>
+    <comment>{0} = next process date</comment>
   </data>
 </root>

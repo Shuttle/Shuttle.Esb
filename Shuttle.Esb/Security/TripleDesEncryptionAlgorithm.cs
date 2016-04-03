@@ -28,14 +28,14 @@ namespace Shuttle.Esb
 
 			if (section == null)
 			{
-				throw new ConfigurationErrorsException(ESBResources.TripleDESSectionMissing);
+				throw new ConfigurationErrorsException(EsbResources.TripleDESSectionMissing);
 			}
 
 			key = section.Key;
 
 			if (string.IsNullOrEmpty(key))
 			{
-				throw new ConfigurationErrorsException(ESBResources.TripleDESKeyMissing);
+				throw new ConfigurationErrorsException(EsbResources.TripleDESKeyMissing);
 			}
 
 			_provider = new TripleDESCryptoServiceProvider

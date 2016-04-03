@@ -12,7 +12,7 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(ex, "ex");
 			Guard.AgainstNull(pipeline, "pipeline");
 
-			log.Fatal(string.Format(ESBResources.FatalIdempotenceServiceException, service.GetType().FullName,
+			log.Fatal(string.Format(EsbResources.FatalIdempotenceServiceException, service.GetType().FullName,
 			                        ex.AllMessages()));
 
 			pipeline.Abort();

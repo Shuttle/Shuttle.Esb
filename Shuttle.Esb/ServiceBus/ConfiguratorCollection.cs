@@ -16,7 +16,7 @@ namespace Shuttle.Esb
 
 			if (Contains(configurator))
 			{
-				throw new ESBConfigurationException(string.Format(ESBResources.ConfiguratorAlreadyRegisteredException, configurator.GetType().FullName));
+				throw new EsbConfigurationException(string.Format(EsbResources.ConfiguratorAlreadyRegisteredException, configurator.GetType().FullName));
 			}
 
 			_configurators.Add(configurator);

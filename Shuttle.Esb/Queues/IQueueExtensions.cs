@@ -27,7 +27,7 @@ namespace Shuttle.Esb
 
 			if (operation == null)
 			{
-				throw new InvalidOperationException(string.Format(ESBResources.NotImplementedOnQueue,
+				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
 																  queue.GetType().FullName, "ICreateQueue"));
 			}
 
@@ -56,7 +56,7 @@ namespace Shuttle.Esb
 
 			if (operation == null)
 			{
-				throw new InvalidOperationException(string.Format(ESBResources.NotImplementedOnQueue,
+				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
 																  queue.GetType().FullName, "IDropQueue"));
 			}
 
@@ -85,7 +85,7 @@ namespace Shuttle.Esb
 
 			if (operation == null)
 			{
-				throw new InvalidOperationException(string.Format(ESBResources.NotImplementedOnQueue,
+				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
 																  queue.GetType().FullName, "IPurgeQueue"));
 			}
 

@@ -39,7 +39,7 @@ namespace Shuttle.Esb
 
             _messageHandlerTypes.Add(messageType, messageHandlerType);
 
-            _log.Information(string.Format(ESBResources.MessageHandlerFactoryHandlerRegistered, messageType.FullName, messageHandlerType.FullName));
+            _log.Information(string.Format(EsbResources.MessageHandlerFactoryHandlerRegistered, messageType.FullName, messageHandlerType.FullName));
         }
 
         public override IMessageHandler CreateHandler(object message)
@@ -73,7 +73,7 @@ namespace Shuttle.Esb
 				}
 				else
 				{
-					_log.Warning(string.Format(ESBResources.DefaultMessageHandlerFactoryNoDefaultConstructor, type.FullName));
+					_log.Warning(string.Format(EsbResources.DefaultMessageHandlerFactoryNoDefaultConstructor, type.FullName));
 				}
 			}
         }

@@ -34,7 +34,7 @@ namespace Shuttle.Esb
 		{
 			if (_local && !configuration.HasInbox)
 			{
-				throw new InvalidOperationException(ESBResources.SendToSelfException);
+				throw new InvalidOperationException(EsbResources.SendToSelfException);
 			}
 
 			var identity = WindowsIdentity.GetCurrent();
@@ -141,7 +141,7 @@ namespace Shuttle.Esb
 		{
 			if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
 			{
-				throw new InvalidOperationException(ESBResources.SendReplyException);
+				throw new InvalidOperationException(EsbResources.SendReplyException);
 			}
 
 			_local = false;

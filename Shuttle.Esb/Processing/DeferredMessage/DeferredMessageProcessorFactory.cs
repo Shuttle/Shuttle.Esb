@@ -21,7 +21,7 @@ namespace Shuttle.Esb
 			{
 				if (_instanced)
 				{
-					throw new ProcessorException(ESBResources.DeferredMessageProcessorInstanceException);
+					throw new ProcessorException(EsbResources.DeferredMessageProcessorInstanceException);
 				}
 
 				_instanced = true;

@@ -9,7 +9,6 @@ namespace Shuttle.Esb
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
-			var checkpointMessageId = state.GetCheckpointMessageId();
 			var receivedMessage = state.GetReceivedMessage();
 			var workQueue = state.GetWorkQueue();
 			var deferredQueue = state.GetDeferredQueue();
@@ -21,28 +20,13 @@ namespace Shuttle.Esb
 
 			if (transportMessage.IsIgnoring())
 			{
-				if (Guid.Empty.Equals(checkpointMessageId))
-				{
-					state.SetCheckpointMessageId(transportMessage.MessageId);
-					state.SetNextDeferredProcessDate(transportMessage.IgnoreTillDate);
-				}
-
 				deferredQueue.Release(receivedMessage.AcknowledgementToken);
-
-				state.SetDeferredMessageReturned(false);
 
 				return;
 			}
 
 			workQueue.Enqueue(transportMessage.MessageId, receivedMessage.Stream);			
 			deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
-
-			if (checkpointMessageId.Equals(transportMessage.MessageId))
-			{
-				state.SetCheckpointMessageId(Guid.Empty);
-			}
-
-			state.SetDeferredMessageReturned(true);
 		}
     }
 }

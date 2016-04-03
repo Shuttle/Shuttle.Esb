@@ -40,7 +40,7 @@ namespace Shuttle.Esb
 
                 if (type == null)
                 {
-                    throw new MessageRouteSpecificationException(string.Format(ESBResources.TypeListMessageRouteSpecificationUnknownType, typeName));
+                    throw new MessageRouteSpecificationException(string.Format(EsbResources.TypeListMessageRouteSpecificationUnknownType, typeName));
                 }
 
                 MessageTypes.Add(type.FullName);

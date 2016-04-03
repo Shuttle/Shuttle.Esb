@@ -70,7 +70,7 @@ namespace Shuttle.Esb
 			if (scope != null)
 			{
 				throw new TransactionException(
-					(string.Format(ESBResources.TransactionAlreadyStartedException, GetType().FullName, MethodBase.GetCurrentMethod().Name)));
+					(string.Format(EsbResources.TransactionAlreadyStartedException, GetType().FullName, MethodBase.GetCurrentMethod().Name)));
 			}
 
 			scope = state.GetServiceBus().Configuration.TransactionScopeFactory.Create();

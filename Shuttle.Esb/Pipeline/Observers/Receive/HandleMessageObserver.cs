@@ -48,7 +48,7 @@ namespace Shuttle.Esb
 
                     if (!bus.Configuration.RemoveMessagesNotHandled)
                     {
-                        var error = string.Format(ESBResources.MessageNotHandledFailure, message.GetType().FullName,
+                        var error = string.Format(EsbResources.MessageNotHandledFailure, message.GetType().FullName,
                             transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
 
                         _log.Error(error);
@@ -62,7 +62,7 @@ namespace Shuttle.Esb
                     }
                     else
                     {
-                        _log.Warning(string.Format(ESBResources.MessageNotHandledIgnored,
+                        _log.Warning(string.Format(EsbResources.MessageNotHandledIgnored,
                             message.GetType().FullName,
                             transportMessage.MessageId));
                     }

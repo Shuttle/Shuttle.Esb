@@ -24,12 +24,12 @@ namespace Shuttle.Esb
 
             try
             {
-                messagePipeline.State.Replace(StateKeys.Working, false);
+                messagePipeline.State.ResetWorking();
                 messagePipeline.State.Replace(StateKeys.ActiveState, state);
 
                 messagePipeline.Execute();
 
-                if (messagePipeline.State.Get<bool>(StateKeys.Working))
+                if (messagePipeline.State.GetWorking())
                 {
                     Bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(TMessagePipeline)));
 

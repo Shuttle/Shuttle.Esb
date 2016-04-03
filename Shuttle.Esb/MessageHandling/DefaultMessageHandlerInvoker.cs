@@ -29,7 +29,7 @@ namespace Shuttle.Esb
                 if (method == null)
                 {
                     throw new ProcessMessageMethodMissingException(string.Format(
-                        ESBResources.ProcessMessageMethodMissingException,
+                        EsbResources.ProcessMessageMethodMissingException,
                         handler.GetType().FullName,
                         messageType.FullName));
                 }

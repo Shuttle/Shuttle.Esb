@@ -17,8 +17,8 @@ namespace Shuttle.Esb
 			{
 				var type = Type.GetType(queueFactoryElement.Type);
 
-				Guard.Against<ESBConfigurationException>(type == null,
-					string.Format(ESBResources.UnknownTypeException, queueFactoryElement.Type));
+				Guard.Against<EsbConfigurationException>(type == null,
+					string.Format(EsbResources.UnknownTypeException, queueFactoryElement.Type));
 
 				configuration.QueueManager.RegisterQueueFactory(type);
 			}

@@ -32,7 +32,7 @@ namespace Shuttle.Esb
 		{
 			if (Started)
 			{
-				throw new ApplicationException(ESBResources.ServiceBusInstanceAlreadyStarted);
+				throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
 			}
 
 			GuardAgainstInvalidConfiguration();
@@ -61,38 +61,38 @@ namespace Shuttle.Esb
 
 		private void GuardAgainstInvalidConfiguration()
 		{
-			Guard.Against<ESBConfigurationException>(Configuration.Serializer == null, ESBResources.NoSerializerException);
+			Guard.Against<EsbConfigurationException>(Configuration.Serializer == null, EsbResources.NoSerializerException);
 
-			Guard.Against<ESBConfigurationException>(Configuration.MessageHandlerFactory == null,
-			                                         ESBResources.NoMessageHandlerFactoryException);
+			Guard.Against<EsbConfigurationException>(Configuration.MessageHandlerFactory == null,
+			                                         EsbResources.NoMessageHandlerFactoryException);
 
-			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox, ESBResources.WorkerRequiresInboxException);
+			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox, EsbResources.WorkerRequiresInboxException);
 
 			if (Configuration.HasInbox)
 			{
-				Guard.Against<ESBConfigurationException>(Configuration.Inbox.WorkQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "Inbox.WorkQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.Inbox.WorkQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "Inbox.WorkQueue"));
 
-				Guard.Against<ESBConfigurationException>(Configuration.Inbox.ErrorQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "Inbox.ErrorQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.Inbox.ErrorQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "Inbox.ErrorQueue"));
 			}
 
 			if (Configuration.HasOutbox)
 			{
-				Guard.Against<ESBConfigurationException>(Configuration.Outbox.WorkQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "Outbox.WorkQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.Outbox.WorkQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "Outbox.WorkQueue"));
 
-				Guard.Against<ESBConfigurationException>(Configuration.Outbox.ErrorQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "Outbox.ErrorQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.Outbox.ErrorQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "Outbox.ErrorQueue"));
 			}
 
 			if (Configuration.HasControlInbox)
 			{
-				Guard.Against<ESBConfigurationException>(Configuration.ControlInbox.WorkQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "ControlInbox.WorkQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.ControlInbox.WorkQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "ControlInbox.WorkQueue"));
 
-				Guard.Against<ESBConfigurationException>(Configuration.ControlInbox.ErrorQueue == null,
-				                                         string.Format(ESBResources.RequiredQueueMissing, "ControlInbox.ErrorQueue"));
+				Guard.Against<EsbConfigurationException>(Configuration.ControlInbox.ErrorQueue == null,
+				                                         string.Format(EsbResources.RequiredQueueMissing, "ControlInbox.ErrorQueue"));
 			}
 		}
 

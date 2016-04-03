@@ -148,7 +148,7 @@ namespace Shuttle.Esb
 			{
 				if (!HasSubscriptionManager)
 				{
-					throw new SubscriptionManagerException(ESBResources.NoSubscriptionManager);
+					throw new SubscriptionManagerException(EsbResources.NoSubscriptionManager);
 				}
 
 				return _subscriptionManager;

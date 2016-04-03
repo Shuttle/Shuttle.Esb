@@ -43,7 +43,7 @@ namespace Shuttle.Esb
 			{
                 if (_log.IsVerboseEnabled)
                 {
-                    _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbient, name,
+                    _log.Verbose(string.Format(EsbResources.VerboseTransactionScopeAmbient, name,
                                               Thread.CurrentThread.ManagedThreadId));
                 }
 
@@ -59,7 +59,7 @@ namespace Shuttle.Esb
 
             if (_log.IsVerboseEnabled)
             {
-                _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCreated, name, isolationLevel, timeout,
+                _log.Verbose(string.Format(EsbResources.VerboseTransactionScopeCreated, name, isolationLevel, timeout,
                                           Thread.CurrentThread.ManagedThreadId));
             }
         }
@@ -87,7 +87,7 @@ namespace Shuttle.Esb
 			{
                 if (_log.IsVerboseEnabled)
                 {
-                    _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeAmbientCompleted, _name,
+                    _log.Verbose(string.Format(EsbResources.VerboseTransactionScopeAmbientCompleted, _name,
                                               Thread.CurrentThread.ManagedThreadId));
                 }
 
@@ -103,7 +103,7 @@ namespace Shuttle.Esb
 
             if (_log.IsVerboseEnabled)
             {
-                _log.Verbose(string.Format(ESBResources.VerboseTransactionScopeCompleted, _name,
+                _log.Verbose(string.Format(EsbResources.VerboseTransactionScopeCompleted, _name,
                                           Thread.CurrentThread.ManagedThreadId));
             }
         }

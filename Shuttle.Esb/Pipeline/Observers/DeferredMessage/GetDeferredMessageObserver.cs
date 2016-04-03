@@ -24,7 +24,6 @@ namespace Shuttle.Esb
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)
             {
-				state.SetNextDeferredProcessDate(DateTime.MaxValue);
 				state.GetServiceBus().Events.OnQueueEmpty(this, new QueueEmptyEventArgs(pipelineEvent, queue));
                 pipelineEvent.Pipeline.Abort();
             }

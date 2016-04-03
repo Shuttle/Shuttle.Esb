@@ -18,7 +18,7 @@ namespace Shuttle.Esb
 			var algorithm =
 				state.GetServiceBus().Configuration.FindEncryptionAlgorithm(transportMessage.EncryptionAlgorithm);
 
-			Guard.Against<InvalidOperationException>(algorithm == null, string.Format(ESBResources.EncryptionAlgorithmException, transportMessage.CompressionAlgorithm));
+			Guard.Against<InvalidOperationException>(algorithm == null, string.Format(EsbResources.EncryptionAlgorithmException, transportMessage.CompressionAlgorithm));
 
 			transportMessage.Message = algorithm.Encrypt(transportMessage.Message);
 		}

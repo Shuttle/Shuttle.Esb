@@ -40,7 +40,7 @@ namespace Shuttle.Esb
 
 				if (_log.IsVerboseEnabled)
 				{
-					_log.Verbose(string.Format(ESBResources.DebugWorkerAvailable,
+					_log.Verbose(string.Format(EsbResources.DebugWorkerAvailable,
 						_identifier,
 						_bus.Configuration.Inbox.WorkQueue.Uri,
 						_bus.Configuration.Worker.DistributorControlInboxWorkQueue.Uri));

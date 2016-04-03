@@ -35,7 +35,7 @@ namespace Shuttle.Esb
 			catch (Exception ex)
 			{
                 _log.Error(ex.ToString());
-                _log.Error(string.Format(ESBResources.TransportMessageDeserializationException, workQueue.Uri, ex));
+                _log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri, ex));
 
 				pipelineEvent.Pipeline.Abort();
 

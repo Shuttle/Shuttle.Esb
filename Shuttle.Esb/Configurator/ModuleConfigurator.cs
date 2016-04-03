@@ -21,8 +21,8 @@ namespace Shuttle.Esb
 			{
 				var type = Type.GetType(moduleElement.Type);
 
-				Guard.Against<ESBConfigurationException>(type == null,
-					string.Format(ESBResources.UnknownTypeException, moduleElement.Type));
+				Guard.Against<EsbConfigurationException>(type == null,
+					string.Format(EsbResources.UnknownTypeException, moduleElement.Type));
 
 				types.Add(type);
 			}
@@ -31,13 +31,13 @@ namespace Shuttle.Esb
 			{
 				try
 				{
-					type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "Module", type.FullName));
+					type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "Module", type.FullName));
 
 					configuration.Modules.Add((IModule)Activator.CreateInstance(type));
 				}
 				catch (Exception ex)
 				{
-					throw new ESBConfigurationException(string.Format(ESBResources.ModuleInstantiationException, ex.Message));
+					throw new EsbConfigurationException(string.Format(EsbResources.ModuleInstantiationException, ex.Message));
 				}
 			}
 		}

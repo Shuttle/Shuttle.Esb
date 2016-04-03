@@ -20,19 +20,19 @@ namespace Shuttle.Esb
 		{
 			if (routeProvider == null)
 			{
-				throw new ESBConfigurationException(ESBResources.NoMessageRouteProviderException);
+				throw new EsbConfigurationException(EsbResources.NoMessageRouteProviderException);
 			}
 
 			var routeUris = routeProvider.GetRouteUris(messageType).ToList();
 
 			if (!routeUris.Any())
 			{
-				throw new SendMessageException(string.Format(ESBResources.MessageRouteNotFound, messageType));
+				throw new SendMessageException(string.Format(EsbResources.MessageRouteNotFound, messageType));
 			}
 
 			if (routeUris.Count() > 1)
 			{
-				throw new SendMessageException(string.Format(ESBResources.MessageRoutedToMoreThanOneEndpoint,
+				throw new SendMessageException(string.Format(EsbResources.MessageRoutedToMoreThanOneEndpoint,
 				                                             messageType, string.Join(",", routeUris.ToArray())));
 			}
 

@@ -85,14 +85,14 @@ namespace Shuttle.Esb
 				{
 					if (_uriResolver == null)
 					{
-						throw new InvalidOperationException(string.Format(ESBResources.NoUriResolverException, uri));
+						throw new InvalidOperationException(string.Format(EsbResources.NoUriResolverException, uri));
 					}
 
 					var resolvedQueueUri = _uriResolver.Get(uri);
 
 					if (resolvedQueueUri == null)
 					{
-						throw new KeyNotFoundException(string.Format(ESBResources.UriNameNotFoundException, _uriResolver.GetType().FullName,
+						throw new KeyNotFoundException(string.Format(EsbResources.UriNameNotFoundException, _uriResolver.GetType().FullName,
 							uri));
 					}
 
@@ -134,7 +134,7 @@ namespace Shuttle.Esb
 			{
 				_queueFactories.Remove(factory);
 
-				_log.Warning(string.Format(ESBResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
+				_log.Warning(string.Format(EsbResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
 					factory.GetType().FullName, queueFactory.GetType().FullName));
 			}
 
@@ -158,7 +158,7 @@ namespace Shuttle.Esb
 		{
 			try
 			{
-				type.AssertDefaultConstructor(string.Format(ESBResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
+				type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
 
 				var instance = (IQueueFactory)Activator.CreateInstance(type);
 
@@ -169,7 +169,7 @@ namespace Shuttle.Esb
 			}
 			catch (Exception ex)
 			{
-				throw new ESBConfigurationException(string.Format(ESBResources.QueueFactoryInstantiationException, type.FullName, ex.AllMessages()));
+				throw new EsbConfigurationException(string.Format(EsbResources.QueueFactoryInstantiationException, type.FullName, ex.AllMessages()));
 			}
 		}
 
@@ -178,7 +178,7 @@ namespace Shuttle.Esb
 			var result = queueFactory.Create(queueUri);
 
 			Guard.AgainstNull(result,
-				string.Format(ESBResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
+				string.Format(EsbResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
 
 			return result;
 		}
@@ -202,7 +202,7 @@ namespace Shuttle.Esb
 						: "(candidate.Uri is null)";
 				}
 
-				_log.Error(string.Format(ESBResources.FindQueueException, candidateTypeName, candidateUri,
+				_log.Error(string.Format(EsbResources.FindQueueException, candidateTypeName, candidateUri,
 					uri ?? "(comparison uri is null)", ex.AllMessages()));
 
 				return false;

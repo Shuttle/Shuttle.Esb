@@ -22,14 +22,14 @@ namespace Shuttle.Esb {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ESBResources {
+    public class EsbResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ESBResources() {
+        internal EsbResources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Shuttle.Esb {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Esb.ESBResources", typeof(ESBResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Esb.EsbResources", typeof(EsbResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -156,15 +156,6 @@ namespace Shuttle.Esb {
         public static string FindQueueException {
             get {
                 return ResourceManager.GetString("FindQueueException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to dd MMM yyyy HH:mm:ss.
-        /// </summary>
-        public static string FormatDateFull {
-            get {
-                return ResourceManager.GetString("FormatDateFull", resourceCulture);
             }
         }
         
@@ -462,6 +453,24 @@ namespace Shuttle.Esb {
         public static string ServiceBusInstanceAlreadyStarted {
             get {
                 return ResourceManager.GetString("ServiceBusInstanceAlreadyStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deferred checkpoint set to message id &apos;{0}&apos;.
+        /// </summary>
+        public static string TraceDeferredCheckpointMessageId {
+            get {
+                return ResourceManager.GetString("TraceDeferredCheckpointMessageId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deferred processing has completed a cycle and will process again at date &apos;{0}&apos;..
+        /// </summary>
+        public static string TraceDeferredProcessingReset {
+            get {
+                return ResourceManager.GetString("TraceDeferredProcessingReset", resourceCulture);
             }
         }
         

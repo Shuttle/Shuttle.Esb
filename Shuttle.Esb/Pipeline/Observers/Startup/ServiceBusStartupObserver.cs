@@ -46,7 +46,7 @@ namespace Shuttle.Esb
         {
             if (!_configuration.HasIdempotenceService)
             {
-                _log.Information(ESBResources.NoIdempotenceService);
+                _log.Information(EsbResources.NoIdempotenceService);
 
                 return;
             }
@@ -83,7 +83,7 @@ namespace Shuttle.Esb
         {
             if (!_configuration.HasSubscriptionManager)
             {
-                _log.Information(ESBResources.NoSubscriptionManager);
+                _log.Information(EsbResources.NoSubscriptionManager);
 
                 return;
             }

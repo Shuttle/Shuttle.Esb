@@ -2,9 +2,9 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public class ESBConfigurationException : Exception
+    public class EsbConfigurationException : Exception
     {
-        public ESBConfigurationException(string message) : base(message)
+        public EsbConfigurationException(string message) : base(message)
         {
         }
     }

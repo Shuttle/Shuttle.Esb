@@ -141,6 +141,11 @@ namespace Shuttle.Esb
 			state.Replace(StateKeys.Working, true);
 		}
 
+		public static bool GetWorking(this State<Pipeline> state)
+		{
+			return state.Get<bool>(StateKeys.Working);
+		}
+
 		public static void ResetWorking(this State<Pipeline> state)
 		{
 			state.Replace(StateKeys.Working, false);
@@ -164,36 +169,6 @@ namespace Shuttle.Esb
 		public static object GetMessageHandler(this State<Pipeline> state)
 		{
 			return state.Get<IMessageHandler>(StateKeys.MessageHandler);
-		}
-
-		public static Guid GetCheckpointMessageId(this State<Pipeline> state)
-		{
-			return state.Get<Guid>(StateKeys.CheckpointMessageId);
-		}
-
-		public static void SetCheckpointMessageId(this State<Pipeline> state, Guid checkpointMessageId)
-		{
-			state.Replace(StateKeys.CheckpointMessageId, checkpointMessageId);
-		}
-
-		public static DateTime GetNextDeferredProcessDate(this State<Pipeline> state)
-		{
-			return state.Get<DateTime>(StateKeys.NextDeferredProcessDate);
-		}
-
-		public static void SetNextDeferredProcessDate(this State<Pipeline> state, DateTime nextDeferredProcessDate)
-		{
-			state.Replace(StateKeys.NextDeferredProcessDate, nextDeferredProcessDate);
-		}
-
-		public static bool GetDeferredMessageReturned(this State<Pipeline> state)
-		{
-			return state.Get<bool>(StateKeys.DeferredMessageReturned);
-		}
-
-		public static void SetDeferredMessageReturned(this State<Pipeline> state, bool deferredMessageReturned)
-		{
-			state.Replace(StateKeys.DeferredMessageReturned, deferredMessageReturned);
 		}
 
 		public static void SetWorkQueue(this State<Pipeline> state, IQueue queue)

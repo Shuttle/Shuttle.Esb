@@ -51,7 +51,7 @@ namespace Shuttle.Esb
 
 				messagePipeline.Execute();
 
-				if (messagePipeline.State.Get<bool>(StateKeys.Working))
+				if (messagePipeline.State.GetWorking())
 				{
 					_bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (InboxMessagePipeline)));
 

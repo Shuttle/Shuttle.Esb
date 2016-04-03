@@ -30,7 +30,7 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNullOrEmptyString(message, "message");
 
-			transportMessage.FailureMessages.Add(string.Format("[{0}] : {1}", DateTime.Now.ToString(ESBResources.FormatDateFull), message));
+			transportMessage.FailureMessages.Add(string.Format("[{0}] : {1}", DateTime.Now.ToString("O"), message));
 			transportMessage.IgnoreTillDate = DateTime.Now.Add(timeSpanToIgnore);
 		}
 

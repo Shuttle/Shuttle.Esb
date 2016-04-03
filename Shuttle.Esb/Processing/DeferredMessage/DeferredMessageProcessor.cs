@@ -5,18 +5,20 @@ namespace Shuttle.Esb
 {
 	public class DeferredMessageProcessor : IProcessor
 	{
-		private bool _messageDeferred;
 		private readonly object _messageDeferredLock = new object();
 		private DateTime _nextDeferredProcessDate = DateTime.MinValue;
+		private DateTime _ignoreTillDate = DateTime.MaxValue;
 		private Guid _checkpointMessageId = Guid.Empty;
 
 		private readonly IServiceBus _bus;
+		private readonly ILog _log;
 
 		public DeferredMessageProcessor(IServiceBus bus)
 		{
 			Guard.AgainstNull(bus, "bus");
 
 			_bus = bus;
+			_log = Log.For(this);
 		}
 
 		public void Execute(IThreadState state)
@@ -28,50 +30,46 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			lock (_messageDeferredLock)
-			{
-				_messageDeferred = false;
-			}
-
 			var pipeline = _bus.Configuration.PipelineFactory.GetPipeline<DeferredMessagePipeline>(_bus);
 
-			pipeline.State.SetCheckpointMessageId(_checkpointMessageId);
-			pipeline.State.SetNextDeferredProcessDate(_nextDeferredProcessDate);
-			pipeline.State.SetDeferredMessageReturned(false);
+			pipeline.State.ResetWorking();
 
 			pipeline.Execute();
 
-			var nextDeferredProcessDate = pipeline.State.Get<DateTime>(StateKeys.NextDeferredProcessDate);
-
-			if (_messageDeferred)
+			if (pipeline.State.GetWorking())
 			{
-				if (nextDeferredProcessDate < _nextDeferredProcessDate)
+				var transportMessage = pipeline.State.GetTransportMessage();
+
+				if (transportMessage.IgnoreTillDate < _ignoreTillDate)
 				{
-					_nextDeferredProcessDate = nextDeferredProcessDate;
+					_ignoreTillDate = transportMessage.IgnoreTillDate;
+				}
+
+				if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+				{
+					if (Guid.Empty.Equals(_checkpointMessageId))
+					{
+						_checkpointMessageId = transportMessage.MessageId;
+
+						_log.Trace(String.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
+					}
+
+					return;
 				}
 			}
-			else
-			{
-				_nextDeferredProcessDate = nextDeferredProcessDate;
-			}
 
-			if (_checkpointMessageId != pipeline.State.Get<Guid>(StateKeys.CheckpointMessageId))
-			{
-				_checkpointMessageId = pipeline.State.Get<Guid>(StateKeys.CheckpointMessageId);
-
-				return;
-			}
-
+			_nextDeferredProcessDate = _ignoreTillDate;
+			_ignoreTillDate = DateTime.MaxValue;
 			_checkpointMessageId = Guid.Empty;
+
+			_log.Trace(string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
 		}
 
 		public void MessageDeferred(DateTime ignoreTillDate)
 		{
 			lock (_messageDeferredLock)
 			{
-				_messageDeferred = true;
-
-				if (_nextDeferredProcessDate > ignoreTillDate)
+				if (ignoreTillDate < _nextDeferredProcessDate)
 				{
 					_nextDeferredProcessDate = ignoreTillDate;
 				}
@@ -82,7 +80,6 @@ namespace Shuttle.Esb
 		{
 			return (DateTime.Now >= _nextDeferredProcessDate);
 		}
-
 	}
 }
 
