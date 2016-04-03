@@ -47,12 +47,14 @@ namespace Shuttle.Esb
 
 				if (!_checkpointMessageId.Equals(transportMessage.MessageId))
 				{
-					if (Guid.Empty.Equals(_checkpointMessageId))
+					if (!Guid.Empty.Equals(_checkpointMessageId))
 					{
-						_checkpointMessageId = transportMessage.MessageId;
-
-						_log.Trace(String.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
+						return;
 					}
+
+					_checkpointMessageId = transportMessage.MessageId;
+
+					_log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
 
 					return;
 				}
