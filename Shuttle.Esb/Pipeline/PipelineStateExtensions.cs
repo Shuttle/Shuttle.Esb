@@ -210,5 +210,15 @@ namespace Shuttle.Esb
 		{
 			state.Replace(StateKeys.HandlerContext, handlerContext);
 		}
+
+		public static bool GetDeferredMessageReturned(this State<Pipeline> state)
+		{
+			return state.Get<bool>(StateKeys.DeferredMessageReturned);
+		}
+
+		public static void SetDeferredMessageReturned(this State<Pipeline> state, bool deferredMessageReturned)
+		{
+			state.Replace(StateKeys.DeferredMessageReturned, deferredMessageReturned);
+		}
 	}
 }

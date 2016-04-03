@@ -22,11 +22,15 @@ namespace Shuttle.Esb
 			{
 				deferredQueue.Release(receivedMessage.AcknowledgementToken);
 
+				state.SetDeferredMessageReturned(false);
+
 				return;
 			}
 
 			workQueue.Enqueue(transportMessage.MessageId, receivedMessage.Stream);			
 			deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+
+			state.SetDeferredMessageReturned(true);
 		}
     }
 }
