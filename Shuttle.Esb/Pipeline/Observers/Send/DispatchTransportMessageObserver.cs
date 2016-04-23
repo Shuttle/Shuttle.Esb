@@ -23,7 +23,8 @@ namespace Shuttle.Esb
 			{
 				try
 				{
-					bus.Configuration.IdempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage, state.GetTransportMessageStream());
+					bus.Configuration.IdempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
+						state.GetTransportMessageStream());
 				}
 				catch (Exception ex)
 				{
@@ -45,8 +46,8 @@ namespace Shuttle.Esb
 			}
 
 			var queue = !bus.Configuration.HasOutbox
-				            ? bus.Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
-				            : bus.Configuration.Outbox.WorkQueue;
+				? bus.Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
+				: bus.Configuration.Outbox.WorkQueue;
 
 			using (var stream = state.GetTransportMessageStream().Copy())
 			{

@@ -46,7 +46,7 @@ namespace Shuttle.Esb
 			if (_log.IsTraceEnabled)
 			{
 				_log.Trace(string.Format(EsbResources.TraceTransportMessageDeferred, transportMessage.MessageId,
-				                         transportMessage.IgnoreTillDate.ToString("O")));
+					transportMessage.IgnoreTillDate.ToString("O")));
 			}
 
 			pipelineEvent.Pipeline.Abort();

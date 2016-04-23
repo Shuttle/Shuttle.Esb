@@ -24,24 +24,24 @@ namespace Shuttle.Esb
 			lock (Padlock)
 			{
 				var handler = _releasedHandlers.Find(candidate =>
-				                                    	{
-				                                    		foreach (var arguments in
-				                                    			candidate.GetType().InterfacesAssignableTo(_messageHandlerType)
-				                                    				.Select(type => type.GetGenericArguments()))
-				                                    		{
-				                                    			if (arguments.Length != 1)
-				                                    			{
-				                                    				return false;
-				                                    			}
+				{
+					foreach (var arguments in
+						candidate.GetType().InterfacesAssignableTo(_messageHandlerType)
+							.Select(type => type.GetGenericArguments()))
+					{
+						if (arguments.Length != 1)
+						{
+							return false;
+						}
 
-				                                    			if (arguments[0] == messageType)
-				                                    			{
-				                                    				return true;
-				                                    			}
-				                                    		}
+						if (arguments[0] == messageType)
+						{
+							return true;
+						}
+					}
 
-				                                    		return false;
-				                                    	});
+					return false;
+				});
 
 				if (handler != null)
 				{

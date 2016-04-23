@@ -1,10 +1,9 @@
-﻿using System;
-using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
 	public class ProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
-    {
+	{
 		public void Execute(OnProcessDeferredMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
@@ -27,10 +26,10 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			workQueue.Enqueue(transportMessage, receivedMessage.Stream);			
+			workQueue.Enqueue(transportMessage, receivedMessage.Stream);
 			deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
 
 			state.SetDeferredMessageReturned(true);
 		}
-    }
+	}
 }

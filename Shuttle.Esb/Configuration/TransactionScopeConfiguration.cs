@@ -2,7 +2,7 @@ using System.Transactions;
 
 namespace Shuttle.Esb
 {
-	public class TransactionScopeConfiguration: ITransactionScopeConfiguration
+	public class TransactionScopeConfiguration : ITransactionScopeConfiguration
 	{
 		public TransactionScopeConfiguration()
 		{

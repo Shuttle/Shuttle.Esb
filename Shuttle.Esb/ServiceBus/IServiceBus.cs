@@ -2,8 +2,8 @@ using System;
 
 namespace Shuttle.Esb
 {
-	public interface IServiceBus : 
-		IMessageSender, 
+	public interface IServiceBus :
+		IMessageSender,
 		IDisposable
 	{
 		IServiceBus Start();

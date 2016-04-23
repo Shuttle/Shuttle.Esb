@@ -5,8 +5,8 @@ namespace Shuttle.Esb
 		public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
 		{
 			var distributeSendCount = context.Configuration.Inbox.DistributeSendCount > 0
-									   ? context.Configuration.Inbox.DistributeSendCount
-									   : 5;
+				? context.Configuration.Inbox.DistributeSendCount
+				: 5;
 
 			context.Configuration.WorkerAvailabilityManager.RemoveByThread(context.Message);
 

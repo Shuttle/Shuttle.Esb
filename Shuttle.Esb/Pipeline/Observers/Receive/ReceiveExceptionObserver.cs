@@ -37,11 +37,13 @@ namespace Shuttle.Esb
 						{
 							state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
 
-							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased, pipelineEvent.Pipeline.Exception.AllMessages()));
+							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased,
+								pipelineEvent.Pipeline.Exception.AllMessages()));
 						}
 						else
 						{
-							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived, pipelineEvent.Pipeline.Exception.AllMessages()));
+							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived,
+								pipelineEvent.Pipeline.Exception.AllMessages()));
 						}
 
 						return;
@@ -50,7 +52,7 @@ namespace Shuttle.Esb
 					var action = bus.Configuration.Policy.EvaluateMessageHandlingFailure(pipelineEvent);
 
 					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-					                                 action.TimeSpanToIgnoreRetriedMessage);
+						action.TimeSpanToIgnoreRetriedMessage);
 
 					using (var stream = bus.Configuration.Serializer.Serialize(transportMessage))
 					{
@@ -65,24 +67,24 @@ namespace Shuttle.Esb
 						if (retry)
 						{
 							_log.Warning(string.Format(EsbResources.MessageHandlerExceptionWillRetry,
-							                           handlerFullTypeName,
-							                           pipelineEvent.Pipeline.Exception.AllMessages(),
-							                           transportMessage.MessageType,
-							                           transportMessage.MessageId,
-							                           currentRetryCount,
-							                           state.GetMaximumFailureCount()));
+								handlerFullTypeName,
+								pipelineEvent.Pipeline.Exception.AllMessages(),
+								transportMessage.MessageType,
+								transportMessage.MessageId,
+								currentRetryCount,
+								state.GetMaximumFailureCount()));
 
 							state.GetWorkQueue().Enqueue(transportMessage, stream);
 						}
 						else
 						{
 							_log.Error(string.Format(EsbResources.MessageHandlerExceptionFailure,
-							                         handlerFullTypeName,
-							                         pipelineEvent.Pipeline.Exception.AllMessages(),
-							                         transportMessage.MessageType,
-							                         transportMessage.MessageId,
-							                         state.GetMaximumFailureCount(),
-							                         state.GetErrorQueue().Uri));
+								handlerFullTypeName,
+								pipelineEvent.Pipeline.Exception.AllMessages(),
+								transportMessage.MessageType,
+								transportMessage.MessageId,
+								state.GetMaximumFailureCount(),
+								state.GetErrorQueue().Uri));
 
 							state.GetErrorQueue().Enqueue(transportMessage, stream);
 						}
@@ -94,7 +96,7 @@ namespace Shuttle.Esb
 				{
 					pipelineEvent.Pipeline.MarkExceptionHandled();
 					bus.Events.OnAfterPipelineExceptionHandled(this,
-					                                           new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+						new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 				}
 			}
 			finally

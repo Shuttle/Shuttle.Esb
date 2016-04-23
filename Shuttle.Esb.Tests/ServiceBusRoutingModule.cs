@@ -17,7 +17,7 @@ namespace Shuttle.Esb.Tests
 		private void PipelineCreated(object sender, PipelineEventArgs e)
 		{
 			if (!e.Pipeline.GetType()
-				  .FullName.Equals(typeof(InboxMessagePipeline).FullName, StringComparison.InvariantCultureIgnoreCase))
+				.FullName.Equals(typeof (InboxMessagePipeline).FullName, StringComparison.InvariantCultureIgnoreCase))
 			{
 				return;
 			}
@@ -27,7 +27,7 @@ namespace Shuttle.Esb.Tests
 
 		public void Execute(OnAfterDeserializeMessage pipelineEvent)
 		{
-			SimpleCommand = (SimpleCommand)pipelineEvent.Pipeline.State.GetMessage();
+			SimpleCommand = (SimpleCommand) pipelineEvent.Pipeline.State.GetMessage();
 		}
 	}
 }

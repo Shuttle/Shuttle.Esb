@@ -10,7 +10,7 @@ namespace Shuttle.Esb
 
 		public ResolvedQueue(IQueue queue, Uri uri)
 		{
-			Guard.AgainstNull(queue,"queue");
+			Guard.AgainstNull(queue, "queue");
 			Guard.AgainstNull(uri, "uri");
 
 			_queue = queue;

@@ -7,7 +7,7 @@ namespace Shuttle.Esb
 		public void Apply(IServiceBusConfiguration configuration)
 		{
 			if (ServiceBusConfiguration.ServiceBusSection == null ||
-				ServiceBusConfiguration.ServiceBusSection.UriResolver == null)
+			    ServiceBusConfiguration.ServiceBusSection.UriResolver == null)
 			{
 				return;
 			}

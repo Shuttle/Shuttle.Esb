@@ -4,7 +4,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class ModuleConfigurator: IConfigurator
+	public class ModuleConfigurator : IConfigurator
 	{
 		public void Apply(IServiceBusConfiguration configuration)
 		{
@@ -33,7 +33,7 @@ namespace Shuttle.Esb
 				{
 					type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "Module", type.FullName));
 
-					configuration.Modules.Add((IModule)Activator.CreateInstance(type));
+					configuration.Modules.Add((IModule) Activator.CreateInstance(type));
 				}
 				catch (Exception ex)
 				{

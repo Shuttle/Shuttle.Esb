@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shuttle.Core.Infrastructure;
+using Enumerable = System.Linq.Enumerable;
 
 namespace Shuttle.Esb
 {
@@ -10,15 +11,15 @@ namespace Shuttle.Esb
 		public static bool EncryptionEnabled(this TransportMessage transportMessage)
 		{
 			return !string.IsNullOrEmpty(transportMessage.EncryptionAlgorithm)
-				   &&
-				   !transportMessage.EncryptionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
+			       &&
+			       !transportMessage.EncryptionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		public static bool CompressionEnabled(this TransportMessage transportMessage)
 		{
 			return !string.IsNullOrEmpty(transportMessage.CompressionAlgorithm)
-				   &&
-				   !transportMessage.CompressionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
+			       &&
+			       !transportMessage.CompressionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		public static void RegisterFailure(this TransportMessage transportMessage, string message)
@@ -45,7 +46,7 @@ namespace Shuttle.Esb
 		}
 
 		public static TransportMessage SetMessage(this TransportMessage transportMessage, ISerializer serializer,
-												  object message)
+			object message)
 		{
 			transportMessage.Message = serializer.Serialize(message).ToBytes();
 			transportMessage.MessageType = message.GetType().FullName;
@@ -71,13 +72,13 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(headers, "headers");
 
-			foreach (var header in headers.Where(header => !merge.Contains(header.Key)))
+			foreach (var header in Enumerable.Where(headers, header => !merge.Contains(header.Key)))
 			{
 				merge.Add(new TransportHeader
-							{
-								Key = header.Key,
-								Value = header.Value
-							});
+				{
+					Key = header.Key,
+					Value = header.Value
+				});
 			}
 		}
 
@@ -108,10 +109,10 @@ namespace Shuttle.Esb
 			else
 			{
 				headers.Add(new TransportHeader
-								{
-									Key = key,
-									Value = value
-								});
+				{
+					Key = key,
+					Value = value
+				});
 			}
 		}
 

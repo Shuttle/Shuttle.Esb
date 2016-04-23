@@ -1,7 +1,7 @@
 namespace Shuttle.Esb
 {
-    public interface IStartEndpoint
-    {
-        IServiceBus Start();
-    }
+	public interface IStartEndpoint
+	{
+		IServiceBus Start();
+	}
 }

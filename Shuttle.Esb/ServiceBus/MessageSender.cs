@@ -8,7 +8,8 @@ namespace Shuttle.Esb
 {
 	public class MessageSender : IMessageSender
 	{
-		private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight = new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
+		private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
+			new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
 
 		private readonly IServiceBus _bus;
 		private readonly TransportMessage _transportMessageReceived;
@@ -51,7 +52,7 @@ namespace Shuttle.Esb
 			if (!transportMessagePipeline.Execute(transportMessageConfigurator))
 			{
 				throw new PipelineException(string.Format(EsbResources.PipelineExecutionException, "TransportMessagePipeline",
-														  transportMessagePipeline.Exception.AllMessages()));
+					transportMessagePipeline.Exception.AllMessages()));
 			}
 
 			return transportMessagePipeline.State.GetTransportMessage();
@@ -125,7 +126,7 @@ namespace Shuttle.Esb
 			else
 			{
 				throw new InvalidOperationException(string.Format(EsbResources.PublishWithoutSubscriptionManagerException,
-																  message.GetType().FullName));
+					message.GetType().FullName));
 			}
 
 			return EmptyPublishFlyweight;

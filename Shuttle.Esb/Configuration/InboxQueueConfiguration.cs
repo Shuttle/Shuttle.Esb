@@ -13,19 +13,19 @@ namespace Shuttle.Esb
 			DistributeSendCount = 5;
 
 			DurationToSleepWhenIdle = new[]
-                                            {
-                                                TimeSpan.FromMilliseconds(250), 
-                                                TimeSpan.FromMilliseconds(500), 
-                                                TimeSpan.FromSeconds(1),
-                                                TimeSpan.FromSeconds(5)
-                                            };
+			{
+				TimeSpan.FromMilliseconds(250),
+				TimeSpan.FromMilliseconds(500),
+				TimeSpan.FromSeconds(1),
+				TimeSpan.FromSeconds(5)
+			};
 
 			DurationToIgnoreOnFailure = new[]
-                                            {
-                                                TimeSpan.FromMinutes(5), 
-                                                TimeSpan.FromMinutes(30), 
-                                                TimeSpan.FromHours(1)
-                                            };
+			{
+				TimeSpan.FromMinutes(5),
+				TimeSpan.FromMinutes(30),
+				TimeSpan.FromHours(1)
+			};
 		}
 
 		public IQueue WorkQueue { get; set; }
@@ -41,14 +41,15 @@ namespace Shuttle.Esb
 			set
 			{
 				_threadCount = value > 0
-								  ? value
-								  : 5;
+					? value
+					: 5;
 			}
 		}
 
 		public int MaximumFailureCount { get; set; }
 		public TimeSpan[] DurationToIgnoreOnFailure { get; set; }
 		public TimeSpan[] DurationToSleepWhenIdle { get; set; }
+
 		public bool HasDeferredQueue
 		{
 			get { return DeferredQueue != null; }

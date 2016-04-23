@@ -29,19 +29,20 @@ namespace Shuttle.Esb
 			{
 				using (var stream = receivedMessage.Stream.Copy())
 				{
-					transportMessage = (TransportMessage)state.GetServiceBus().Configuration.Serializer.Deserialize(typeof(TransportMessage), stream);
+					transportMessage =
+						(TransportMessage) state.GetServiceBus().Configuration.Serializer.Deserialize(typeof (TransportMessage), stream);
 				}
 			}
 			catch (Exception ex)
 			{
-                _log.Error(ex.ToString());
-                _log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri, ex));
+				_log.Error(ex.ToString());
+				_log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri, ex));
 
 				pipelineEvent.Pipeline.Abort();
 
 				state.GetServiceBus().Events.OnTransportMessageDeserializationException(this,
 					new DeserializationExceptionEventArgs(
-						pipelineEvent, 
+						pipelineEvent,
 						workQueue,
 						errorQueue,
 						ex));

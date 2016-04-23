@@ -48,7 +48,12 @@ namespace Shuttle.Esb
 
 		public static ServiceBusSection ServiceBusSection
 		{
-			get { return _serviceBusSection ?? Synchronised(() => _serviceBusSection = ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus")); }
+			get
+			{
+				return _serviceBusSection ??
+				       Synchronised(
+					       () => _serviceBusSection = ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus"));
+			}
 		}
 
 		public ISerializer Serializer
@@ -98,25 +103,38 @@ namespace Shuttle.Esb
 
 		public IMessageHandlerFactory MessageHandlerFactory
 		{
-			get { return _messageHandlerFactory ?? Synchronised(() => _messageHandlerFactory = new DefaultMessageHandlerFactory()); }
+			get
+			{
+				return _messageHandlerFactory ?? Synchronised(() => _messageHandlerFactory = new DefaultMessageHandlerFactory());
+			}
 			set { _messageHandlerFactory = value; }
 		}
 
 		public IMessageHandlerInvoker MessageHandlerInvoker
 		{
-			get { return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker()); }
+			get
+			{
+				return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
+			}
 			set { _messageHandlerInvoker = value; }
 		}
 
-        public IMessageHandlingAssessor MessageHandlingAssessor
-        {
-            get { return _messageHandlingAssessor ?? Synchronised(() => _messageHandlingAssessor = new DefaultMessageHandlingAssessor()); }
-            set { _messageHandlingAssessor = value; }
-        }
-
-	    public IMessageRouteProvider MessageRouteProvider
+		public IMessageHandlingAssessor MessageHandlingAssessor
 		{
-			get { return _messageRouteProvider ?? Synchronised(() => _messageRouteProvider = new DefaultMessageRouteProvider()); }
+			get
+			{
+				return _messageHandlingAssessor ??
+				       Synchronised(() => _messageHandlingAssessor = new DefaultMessageHandlingAssessor());
+			}
+			set { _messageHandlingAssessor = value; }
+		}
+
+		public IMessageRouteProvider MessageRouteProvider
+		{
+			get
+			{
+				return _messageRouteProvider ?? Synchronised(() => _messageRouteProvider = new DefaultMessageRouteProvider());
+			}
 			set { _messageRouteProvider = value; }
 		}
 
@@ -128,7 +146,10 @@ namespace Shuttle.Esb
 
 		public IThreadActivityFactory ThreadActivityFactory
 		{
-			get { return _threadActivityFactory ?? Synchronised(() => _threadActivityFactory = new DefaultThreadActivityFactory()); }
+			get
+			{
+				return _threadActivityFactory ?? Synchronised(() => _threadActivityFactory = new DefaultThreadActivityFactory());
+			}
 			set { _threadActivityFactory = value; }
 		}
 
@@ -177,7 +198,11 @@ namespace Shuttle.Esb
 
 		public IWorkerAvailabilityManager WorkerAvailabilityManager
 		{
-			get { return _workerAvailabilityManager ?? Synchronised(() => _workerAvailabilityManager = new WorkerAvailabilityManager()); }
+			get
+			{
+				return _workerAvailabilityManager ??
+				       Synchronised(() => _workerAvailabilityManager = new WorkerAvailabilityManager());
+			}
 			set { _workerAvailabilityManager = value; }
 		}
 
@@ -189,7 +214,11 @@ namespace Shuttle.Esb
 
 		public ITransactionScopeFactory TransactionScopeFactory
 		{
-			get { return _transactionScopeFactory ?? Synchronised(() => _transactionScopeFactory = new DefaultTransactionScopeFactory()); }
+			get
+			{
+				return _transactionScopeFactory ??
+				       Synchronised(() => _transactionScopeFactory = new DefaultTransactionScopeFactory());
+			}
 			set { _transactionScopeFactory = value; }
 		}
 

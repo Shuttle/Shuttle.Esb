@@ -4,7 +4,7 @@
 	{
 		public InboxMessagePipeline(IServiceBus bus) : base(bus)
 		{
-        }
+		}
 
 		public override sealed void Obtained()
 		{

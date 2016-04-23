@@ -8,16 +8,16 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-		    var section = ServiceBusConfiguration.ServiceBusSection;
+			var section = ServiceBusConfiguration.ServiceBusSection;
 
-		    if (section == null)
+			if (section == null)
 			{
 				configuration.RemoveMessagesNotHandled = false;
 
 				return;
 			}
 
-		    configuration.CreateQueues = section.CreateQueues;
+			configuration.CreateQueues = section.CreateQueues;
 			configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
 			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
 			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;

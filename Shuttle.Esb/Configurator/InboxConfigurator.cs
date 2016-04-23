@@ -25,9 +25,11 @@ namespace Shuttle.Esb
 					ThreadCount = ServiceBusConfiguration.ServiceBusSection.Inbox.ThreadCount,
 					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Inbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
-						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToIgnoreOnFailure ?? ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToIgnoreOnFailure ??
+						ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
 					DurationToSleepWhenIdle =
-						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToSleepWhenIdle ?? ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
+						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToSleepWhenIdle ??
+						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
 					Distribute = ServiceBusConfiguration.ServiceBusSection.Inbox.Distribute,
 					DistributeSendCount = ServiceBusConfiguration.ServiceBusSection.Inbox.DistributeSendCount,
 					DeferredQueue =

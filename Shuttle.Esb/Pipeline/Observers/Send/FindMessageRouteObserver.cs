@@ -12,7 +12,8 @@ namespace Shuttle.Esb
 
 			if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
 			{
-				transportMessage.RecipientInboxWorkQueueUri = FindRoute(state.GetServiceBus().Configuration.MessageRouteProvider, transportMessage.MessageType);
+				transportMessage.RecipientInboxWorkQueueUri = FindRoute(state.GetServiceBus().Configuration.MessageRouteProvider,
+					transportMessage.MessageType);
 			}
 		}
 
@@ -33,7 +34,7 @@ namespace Shuttle.Esb
 			if (routeUris.Count() > 1)
 			{
 				throw new SendMessageException(string.Format(EsbResources.MessageRoutedToMoreThanOneEndpoint,
-				                                             messageType, string.Join(",", routeUris.ToArray())));
+					messageType, string.Join(",", routeUris.ToArray())));
 			}
 
 			return routeUris.ElementAt(0);

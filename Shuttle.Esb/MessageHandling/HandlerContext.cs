@@ -4,7 +4,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class HandlerContext<T> : IHandlerContext<T> where T : class
+	public class HandlerContext<T> : IHandlerContext<T> where T : class
 	{
 		private readonly IMessageSender _messageSender;
 

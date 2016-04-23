@@ -10,12 +10,13 @@ namespace Shuttle.Esb
 
 		public IEnumerable<string> GetRouteUris(string messageType)
 		{
-			var uri = _messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
+			var uri =
+				_messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
 
 			return
 				string.IsNullOrEmpty(uri)
 					? new List<string>()
-					: new List<string> { uri };
+					: new List<string> {uri};
 		}
 
 		public void Add(IMessageRoute messageRoute)
@@ -42,9 +43,9 @@ namespace Shuttle.Esb
 			return _messageRoutes.Find(uri);
 		}
 
-	    public bool Any()
-	    {
-	        return _messageRoutes.Any();
-	    }
+		public bool Any()
+		{
+			return _messageRoutes.Any();
+		}
 	}
 }

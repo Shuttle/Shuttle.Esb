@@ -4,56 +4,57 @@ using System.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class AssemblyMessageRouteSpecification : TypeListMessageRouteSpecification
-    {
-        public AssemblyMessageRouteSpecification(Assembly assembly)
-        {
-            AddAssemblyTypes(assembly);
-        }
+	public class AssemblyMessageRouteSpecification : TypeListMessageRouteSpecification
+	{
+		public AssemblyMessageRouteSpecification(Assembly assembly)
+		{
+			AddAssemblyTypes(assembly);
+		}
 
-        public AssemblyMessageRouteSpecification(string assembly)
-        {
-            Assembly scanAssembly = null;
+		public AssemblyMessageRouteSpecification(string assembly)
+		{
+			Assembly scanAssembly = null;
 
-            try
-            {
-                switch (Path.GetExtension(assembly))
-                {
-                    case ".dll":
-                    case ".exe":
-                    {
-                        scanAssembly = Path.GetDirectoryName(assembly) == AppDomain.CurrentDomain.BaseDirectory
-                                       ? Assembly.Load(Path.GetFileNameWithoutExtension(assembly))
-                                       : Assembly.LoadFile(assembly);
-                        break;
-                    }
+			try
+			{
+				switch (Path.GetExtension(assembly))
+				{
+					case ".dll":
+					case ".exe":
+					{
+						scanAssembly = Path.GetDirectoryName(assembly) == AppDomain.CurrentDomain.BaseDirectory
+							? Assembly.Load(Path.GetFileNameWithoutExtension(assembly))
+							: Assembly.LoadFile(assembly);
+						break;
+					}
 
-                    default:
-                    {
-                        scanAssembly = Assembly.Load(assembly);
+					default:
+					{
+						scanAssembly = Assembly.Load(assembly);
 
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-            }
+						break;
+					}
+				}
+			}
+			catch
+			{
+			}
 
-            if (scanAssembly == null)
-            {
-                throw new MessageRouteSpecificationException(string.Format(EsbResources.AssemblyNotFound, assembly, "AssemblyMessageRouteSpecification"));
-            }
+			if (scanAssembly == null)
+			{
+				throw new MessageRouteSpecificationException(string.Format(EsbResources.AssemblyNotFound, assembly,
+					"AssemblyMessageRouteSpecification"));
+			}
 
-            AddAssemblyTypes(scanAssembly);
-        }
+			AddAssemblyTypes(scanAssembly);
+		}
 
-        private void AddAssemblyTypes(Assembly assembly)
-        {
+		private void AddAssemblyTypes(Assembly assembly)
+		{
 			foreach (var type in assembly.GetTypes())
-	        {
-		        MessageTypes.Add(type.FullName);
-	        }
-        }
-    }
+			{
+				MessageTypes.Add(type.FullName);
+			}
+		}
+	}
 }

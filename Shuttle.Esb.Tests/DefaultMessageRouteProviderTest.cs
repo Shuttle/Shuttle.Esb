@@ -17,13 +17,15 @@ namespace Shuttle.Esb.Tests
 
 			Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
 
-			provider.Add(new MessageRoute(new NullQueue(nullQueueUri)).AddSpecification(new StartsWithMessageRouteSpecification("first")));
+			provider.Add(
+				new MessageRoute(new NullQueue(nullQueueUri)).AddSpecification(new StartsWithMessageRouteSpecification("first")));
 
 			Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
 			Assert.IsFalse(provider.GetRouteUris(secondMessageType).Any());
 			Assert.AreEqual(nullQueueUri, provider.GetRouteUris(firstMessageType).First());
 
-			provider.Add(new MessageRoute(new NullQueue(nullQueueUri)).AddSpecification(new StartsWithMessageRouteSpecification("second")));
+			provider.Add(
+				new MessageRoute(new NullQueue(nullQueueUri)).AddSpecification(new StartsWithMessageRouteSpecification("second")));
 
 			Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
 			Assert.IsTrue(provider.GetRouteUris(secondMessageType).Any());

@@ -4,43 +4,40 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class MessageRoute : IMessageRoute
-    {
-        private readonly List<ISpecification<string>> _specifications = new List<ISpecification<string>>();
+	public class MessageRoute : IMessageRoute
+	{
+		private readonly List<ISpecification<string>> _specifications = new List<ISpecification<string>>();
 
-        public MessageRoute(IQueue queue)
-        {
-            Queue = queue;
-        }
+		public MessageRoute(IQueue queue)
+		{
+			Queue = queue;
+		}
 
-        public IQueue Queue { get; private set; }
+		public IQueue Queue { get; private set; }
 
-        public IMessageRoute AddSpecification(ISpecification<string> specification)
-        {
-            _specifications.Add(specification);
+		public IMessageRoute AddSpecification(ISpecification<string> specification)
+		{
+			_specifications.Add(specification);
 
-            return this;
-        }
+			return this;
+		}
 
-        public bool IsSatisfiedBy(string messageType)
-        {
-            foreach (var specification in _specifications)
-            {
-                if (specification.IsSatisfiedBy(messageType))
-                {
-                    return true;
-                }
-            }
+		public bool IsSatisfiedBy(string messageType)
+		{
+			foreach (var specification in _specifications)
+			{
+				if (specification.IsSatisfiedBy(messageType))
+				{
+					return true;
+				}
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        public IEnumerable<ISpecification<string>> Specifications
-        {
-            get
-            {
-                return new ReadOnlyCollection<ISpecification<string>>(_specifications);
-            }
-        }
-    }
+		public IEnumerable<ISpecification<string>> Specifications
+		{
+			get { return new ReadOnlyCollection<ISpecification<string>>(_specifications); }
+		}
+	}
 }

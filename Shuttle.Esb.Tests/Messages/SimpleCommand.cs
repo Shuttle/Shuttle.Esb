@@ -3,7 +3,7 @@
 	public class SimpleCommand : object
 	{
 		public SimpleCommand()
-			: this(typeof(SimpleCommand).GetType().FullName)
+			: this(typeof (SimpleCommand).GetType().FullName)
 		{
 		}
 

@@ -4,25 +4,28 @@ namespace Shuttle.Esb
 
 	public delegate void AfterPipelineExceptionHandledDelegate(object sender, PipelineExceptionEventArgs e);
 
-	public delegate void TransportMessageDeserializationExceptionDelegate(object sender, DeserializationExceptionEventArgs e);
+	public delegate void TransportMessageDeserializationExceptionDelegate(
+		object sender, DeserializationExceptionEventArgs e);
 
 	public delegate void MessageDeserializationExceptionDelegate(object sender, DeserializationExceptionEventArgs e);
 
 	public delegate void QueueEmptyDelegate(object sender, QueueEmptyEventArgs e);
 
 	public delegate void MessageNotHandledDelegate(object sender, MessageNotHandledEventArgs e);
+
 	public delegate void MessageExpiredDelegate(object sender, MessageNotHandledEventArgs e);
 
 	public delegate void HandlerExceptionDelegate(object sender, HandlerExceptionEventArgs e);
 
 	public delegate void PipelineCreatedDelegate(object sender, PipelineEventArgs e);
 
-    public delegate void PipelineObtainedDelegate(object sender, PipelineEventArgs e);
+	public delegate void PipelineObtainedDelegate(object sender, PipelineEventArgs e);
 
 	public delegate void PipelineReleaseDelegate(object sender, PipelineEventArgs e);
-	
-    public delegate void ThreadWorkingDelegate(object sender, ThreadStateEventArgs e);
-    public delegate void ThreadWaitingDelegate(object sender, ThreadStateEventArgs e);
+
+	public delegate void ThreadWorkingDelegate(object sender, ThreadStateEventArgs e);
+
+	public delegate void ThreadWaitingDelegate(object sender, ThreadStateEventArgs e);
 
 	public interface IServiceBusEvents
 	{
@@ -33,14 +36,15 @@ namespace Shuttle.Esb
 
 		event QueueEmptyDelegate QueueEmpty;
 		event MessageNotHandledDelegate MessageNotHandled;
+		event MessageExpiredDelegate MessageExpired;
 		event HandlerExceptionDelegate HandlerException;
 
 		event PipelineCreatedDelegate PipelineCreated;
-	    event PipelineObtainedDelegate PipelineObtained;
+		event PipelineObtainedDelegate PipelineObtained;
 		event PipelineReleaseDelegate PipelineReleased;
-		
-        event ThreadWorkingDelegate ThreadWorking;
-        event ThreadWaitingDelegate ThreadWaiting;
+
+		event ThreadWorkingDelegate ThreadWorking;
+		event ThreadWaitingDelegate ThreadWaiting;
 
 		void OnBeforePipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
 		void OnAfterPipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
@@ -52,10 +56,10 @@ namespace Shuttle.Esb
 		void OnHandlerException(object sender, HandlerExceptionEventArgs args);
 
 		void OnPipelineCreated(object sender, PipelineEventArgs args);
-	    void OnPipelineObtained(object sender, PipelineEventArgs args);
+		void OnPipelineObtained(object sender, PipelineEventArgs args);
 		void OnPipelineReleased(object sender, PipelineEventArgs args);
-		
-        void OnThreadWorking(object sender, ThreadStateEventArgs args);
-        void OnThreadWaiting(object sender, ThreadStateEventArgs args);
+
+		void OnThreadWorking(object sender, ThreadStateEventArgs args);
+		void OnThreadWaiting(object sender, ThreadStateEventArgs args);
 	}
 }

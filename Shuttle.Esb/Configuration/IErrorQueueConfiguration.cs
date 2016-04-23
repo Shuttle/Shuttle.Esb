@@ -1,7 +1,7 @@
 namespace Shuttle.Esb
 {
-    public interface IErrorQueueConfiguration
-    {
-        IQueue ErrorQueue { get; }
-    }
+	public interface IErrorQueueConfiguration
+	{
+		IQueue ErrorQueue { get; }
+	}
 }

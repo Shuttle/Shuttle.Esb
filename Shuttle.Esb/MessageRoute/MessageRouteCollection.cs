@@ -6,65 +6,65 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class MessageRouteCollection : IMessageRouteCollection
-    {
-        private readonly List<IMessageRoute> _messageRoutes = new List<IMessageRoute>();
+	public class MessageRouteCollection : IMessageRouteCollection
+	{
+		private readonly List<IMessageRoute> _messageRoutes = new List<IMessageRoute>();
 
-        public IMessageRouteCollection Add(IMessageRoute messageRoute)
-        {
-            Guard.AgainstNull(messageRoute, "messageRoute");
+		public IMessageRouteCollection Add(IMessageRoute messageRoute)
+		{
+			Guard.AgainstNull(messageRoute, "messageRoute");
 
-            var existing = Find(messageRoute.Queue);
+			var existing = Find(messageRoute.Queue);
 
-            if (existing == null)
-            {
-                _messageRoutes.Add(messageRoute);
-            }
-            else
-            {
-                foreach (var specification in messageRoute.Specifications)
-                {
-                    existing.AddSpecification(specification);
-                }
-            }
+			if (existing == null)
+			{
+				_messageRoutes.Add(messageRoute);
+			}
+			else
+			{
+				foreach (var specification in messageRoute.Specifications)
+				{
+					existing.AddSpecification(specification);
+				}
+			}
 
-            return this;
-        }
+			return this;
+		}
 
-        public List<IMessageRoute> FindAll(string messageType)
-        {
-            Guard.AgainstNull(messageType, "message");
+		public List<IMessageRoute> FindAll(string messageType)
+		{
+			Guard.AgainstNull(messageType, "message");
 
-        	return _messageRoutes.Where(map => map.IsSatisfiedBy(messageType)).ToList();
-        }
+			return _messageRoutes.Where(map => map.IsSatisfiedBy(messageType)).ToList();
+		}
 
-    	public IMessageRoute Find(Uri uri)
-        {
-            Guard.AgainstNull(uri, "uri");
+		public IMessageRoute Find(Uri uri)
+		{
+			Guard.AgainstNull(uri, "uri");
 
-            return Find(uri.ToString());
-        }
+			return Find(uri.ToString());
+		}
 
-        public IMessageRoute Find(string uri)
-        {
-            return _messageRoutes.Find(map => map.Queue.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase));
-        }
+		public IMessageRoute Find(string uri)
+		{
+			return _messageRoutes.Find(map => map.Queue.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase));
+		}
 
-        public IMessageRoute Find(IQueue queue)
-        {
-            Guard.AgainstNull(queue, "queue");
+		public IMessageRoute Find(IQueue queue)
+		{
+			Guard.AgainstNull(queue, "queue");
 
-            return Find(queue.Uri.ToString());
-        }
+			return Find(queue.Uri.ToString());
+		}
 
-        public IEnumerator<IMessageRoute> GetEnumerator()
-        {
-            return _messageRoutes.GetEnumerator();
-        }
+		public IEnumerator<IMessageRoute> GetEnumerator()
+		{
+			return _messageRoutes.GetEnumerator();
+		}
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+	}
 }

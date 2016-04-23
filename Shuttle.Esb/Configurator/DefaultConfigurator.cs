@@ -26,18 +26,18 @@ namespace Shuttle.Esb
 
 		public DefaultConfigurator MessageHandlerInvoker(IMessageHandlerInvoker messageHandlerInvoker)
 		{
-            Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
+			Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
 
-            _configuration.MessageHandlerInvoker = messageHandlerInvoker;
+			_configuration.MessageHandlerInvoker = messageHandlerInvoker;
 
 			return this;
 		}
 
 		public DefaultConfigurator MessageHandlingAssessor(IMessageHandlingAssessor messageHandlingAssessor)
 		{
-            Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
+			Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
 
-            _configuration.MessageHandlingAssessor = messageHandlingAssessor;
+			_configuration.MessageHandlingAssessor = messageHandlingAssessor;
 
 			return this;
 		}

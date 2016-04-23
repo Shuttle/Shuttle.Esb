@@ -37,9 +37,9 @@
 			RegisterObserver(new DeserializeMessageObserver());
 			RegisterObserver(new DecryptMessageObserver());
 			RegisterObserver(new DecompressMessageObserver());
-            RegisterObserver(new AssessMessageHandlingObserver());
-            RegisterObserver(new IdempotenceObserver());
-            RegisterObserver(new HandleMessageObserver());
+			RegisterObserver(new AssessMessageHandlingObserver());
+			RegisterObserver(new IdempotenceObserver());
+			RegisterObserver(new HandleMessageObserver());
 			RegisterObserver(new TransactionScopeObserver());
 			RegisterObserver(new AcknowledgeMessageObserver());
 			RegisterObserver(new SendDeferredObserver());

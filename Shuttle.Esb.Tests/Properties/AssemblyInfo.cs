@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #if NET40FULL
@@ -33,4 +32,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("Release")]
 [assembly: AssemblyInformationalVersion("5.1.4")]
 [assembly: ComVisible(false)]
-

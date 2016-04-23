@@ -42,61 +42,61 @@ namespace Shuttle.Esb
 			}
 
 			try
-				{
-					var messageHandlerInvokeResult = bus.Configuration.MessageHandlerInvoker.Invoke(pipelineEvent);
+			{
+				var messageHandlerInvokeResult = bus.Configuration.MessageHandlerInvoker.Invoke(pipelineEvent);
 
-					if (messageHandlerInvokeResult.Invoked)
+				if (messageHandlerInvokeResult.Invoked)
+				{
+					state.SetMessageHandler(messageHandlerInvokeResult.MessageHandler);
+				}
+				else
+				{
+					bus.Events.OnMessageNotHandled(this,
+						new MessageNotHandledEventArgs(
+							pipelineEvent,
+							state.GetWorkQueue(),
+							state.GetErrorQueue(),
+							transportMessage,
+							message));
+
+					if (!bus.Configuration.RemoveMessagesNotHandled)
 					{
-						state.SetMessageHandler(messageHandlerInvokeResult.MessageHandler);
+						var error = string.Format(EsbResources.MessageNotHandledFailure, message.GetType().FullName,
+							transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
+
+						_log.Error(error);
+
+						transportMessage.RegisterFailure(error);
+
+						using (var stream = bus.Configuration.Serializer.Serialize(transportMessage))
+						{
+							state.GetErrorQueue().Enqueue(transportMessage, stream);
+						}
 					}
 					else
 					{
-						bus.Events.OnMessageNotHandled(this,
-							new MessageNotHandledEventArgs(
-								pipelineEvent,
-								state.GetWorkQueue(),
-								state.GetErrorQueue(),
-								transportMessage,
-								message));
-
-						if (!bus.Configuration.RemoveMessagesNotHandled)
-						{
-							var error = string.Format(EsbResources.MessageNotHandledFailure, message.GetType().FullName,
-								transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
-
-							_log.Error(error);
-
-							transportMessage.RegisterFailure(error);
-
-							using (var stream = bus.Configuration.Serializer.Serialize(transportMessage))
-							{
-								state.GetErrorQueue().Enqueue(transportMessage, stream);
-							}
-						}
-						else
-						{
-							_log.Warning(string.Format(EsbResources.MessageNotHandledIgnored,
-								message.GetType().FullName,
-								transportMessage.MessageId));
-						}
+						_log.Warning(string.Format(EsbResources.MessageNotHandledIgnored,
+							message.GetType().FullName,
+							transportMessage.MessageId));
 					}
 				}
-				catch (Exception ex)
-				{
-					var exception = ex.TrimLeading<TargetInvocationException>();
+			}
+			catch (Exception ex)
+			{
+				var exception = ex.TrimLeading<TargetInvocationException>();
 
-					bus.Events.OnHandlerException(
-						this,
-						new HandlerExceptionEventArgs(
-							pipelineEvent,
-							transportMessage,
-							message,
-							state.GetWorkQueue(),
-							state.GetErrorQueue(),
-							exception));
+				bus.Events.OnHandlerException(
+					this,
+					new HandlerExceptionEventArgs(
+						pipelineEvent,
+						transportMessage,
+						message,
+						state.GetWorkQueue(),
+						state.GetErrorQueue(),
+						exception));
 
-					throw exception;
-				}
+				throw exception;
+			}
 		}
 	}
 }

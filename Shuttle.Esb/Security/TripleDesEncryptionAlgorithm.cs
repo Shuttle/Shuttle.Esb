@@ -39,11 +39,11 @@ namespace Shuttle.Esb
 			}
 
 			_provider = new TripleDESCryptoServiceProvider
-				{
-					IV = new byte[8],
-					Key =
-						new PasswordDeriveBytes(key, new byte[0]).CryptDeriveKey("RC2", "MD5", 128, new byte[8])
-				};
+			{
+				IV = new byte[8],
+				Key =
+					new PasswordDeriveBytes(key, new byte[0]).CryptDeriveKey("RC2", "MD5", 128, new byte[8])
+			};
 		}
 
 		public string Name

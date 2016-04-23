@@ -11,7 +11,7 @@ namespace Shuttle.Esb.Tests
 		}
 
 		public string Scheme { get; private set; }
-		
+
 		public IQueue Create(Uri uri)
 		{
 			Guard.AgainstNull(uri, "uri");

@@ -39,8 +39,8 @@ namespace Shuttle.Esb
 			{
 				timeSpanToIgnoreRetriedMessage = durationToIgnoreOnFailure.Length <
 				                                 failureIndex
-					                                 ? durationToIgnoreOnFailure[durationToIgnoreOnFailure.Length - 1]
-					                                 : durationToIgnoreOnFailure[failureIndex - 1];
+					? durationToIgnoreOnFailure[durationToIgnoreOnFailure.Length - 1]
+					: durationToIgnoreOnFailure[failureIndex - 1];
 			}
 
 			return new MessageFailureAction(

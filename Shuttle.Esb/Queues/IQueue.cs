@@ -3,15 +3,15 @@ using System.IO;
 
 namespace Shuttle.Esb
 {
-    public interface IQueue
-    {
-        Uri Uri { get; }
+	public interface IQueue
+	{
+		Uri Uri { get; }
 
 		bool IsEmpty();
 
-	    void Enqueue(TransportMessage message, Stream stream);
-        ReceivedMessage GetMessage();
-	    void Acknowledge(object acknowledgementToken);
-	    void Release(object acknowledgementToken);
-    }
+		void Enqueue(TransportMessage message, Stream stream);
+		ReceivedMessage GetMessage();
+		void Acknowledge(object acknowledgementToken);
+		void Release(object acknowledgementToken);
+	}
 }

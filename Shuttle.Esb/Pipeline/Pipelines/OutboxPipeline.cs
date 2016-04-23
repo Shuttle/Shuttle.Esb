@@ -23,7 +23,7 @@
 			RegisterObserver(new SendOutboxMessageObserver());
 
 			RegisterObserver(new AcknowledgeMessageObserver());
-			
+
 			RegisterObserver(new OutboxExceptionObserver()); // must be last
 		}
 

@@ -33,9 +33,10 @@ namespace Shuttle.Esb
 						return;
 					}
 
-				    var action = bus.Configuration.Policy.EvaluateOutboxFailure(pipelineEvent);
+					var action = bus.Configuration.Policy.EvaluateOutboxFailure(pipelineEvent);
 
-					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
+					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+						action.TimeSpanToIgnoreRetriedMessage);
 
 					if (action.Retry)
 					{
@@ -50,7 +51,7 @@ namespace Shuttle.Esb
 							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
 					}
 
-					state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken); 
+					state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
 				}
 				finally
 				{

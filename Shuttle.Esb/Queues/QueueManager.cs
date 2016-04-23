@@ -92,7 +92,8 @@ namespace Shuttle.Esb
 
 					if (resolvedQueueUri == null)
 					{
-						throw new KeyNotFoundException(string.Format(EsbResources.UriNameNotFoundException, _uriResolver.GetType().FullName,
+						throw new KeyNotFoundException(string.Format(EsbResources.UriNameNotFoundException,
+							_uriResolver.GetType().FullName,
 							uri));
 					}
 
@@ -160,7 +161,7 @@ namespace Shuttle.Esb
 			{
 				type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
 
-				var instance = (IQueueFactory)Activator.CreateInstance(type);
+				var instance = (IQueueFactory) Activator.CreateInstance(type);
 
 				if (!ContainsQueueFactory(instance.Scheme))
 				{
@@ -169,7 +170,8 @@ namespace Shuttle.Esb
 			}
 			catch (Exception ex)
 			{
-				throw new EsbConfigurationException(string.Format(EsbResources.QueueFactoryInstantiationException, type.FullName, ex.AllMessages()));
+				throw new EsbConfigurationException(string.Format(EsbResources.QueueFactoryInstantiationException, type.FullName,
+					ex.AllMessages()));
 			}
 		}
 
@@ -231,7 +233,7 @@ namespace Shuttle.Esb
 				CreateQueues(configuration.ControlInbox);
 			}
 		}
-		
+
 		private void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
 		{
 			workQueueConfiguration.WorkQueue.AttemptCreate();

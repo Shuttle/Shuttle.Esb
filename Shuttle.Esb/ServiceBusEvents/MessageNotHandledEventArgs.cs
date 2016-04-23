@@ -9,7 +9,8 @@ namespace Shuttle.Esb
 		public TransportMessage TransportMessage { get; private set; }
 		public object Message { get; private set; }
 
-		public MessageNotHandledEventArgs(PipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue, TransportMessage transportMessage, object message)
+		public MessageNotHandledEventArgs(PipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
+			TransportMessage transportMessage, object message)
 			: base(pipelineEvent)
 		{
 			Guard.AgainstNull(pipelineEvent, "pipelineEvent");

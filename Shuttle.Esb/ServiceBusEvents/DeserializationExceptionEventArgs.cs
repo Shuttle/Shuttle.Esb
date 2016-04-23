@@ -10,7 +10,7 @@ namespace Shuttle.Esb
 		public Exception Exception { get; private set; }
 
 		public DeserializationExceptionEventArgs(PipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
-		                                         Exception exception)
+			Exception exception)
 			: base(pipelineEvent)
 		{
 			WorkQueue = workQueue;

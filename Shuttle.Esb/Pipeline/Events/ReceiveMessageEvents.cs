@@ -42,11 +42,11 @@ namespace Shuttle.Esb
 	{
 	}
 
-    public class OnProcessIdempotenceMessage : PipelineEvent
-    {
-    }
-    
-    public class OnHandleMessage : PipelineEvent
+	public class OnProcessIdempotenceMessage : PipelineEvent
+	{
+	}
+
+	public class OnHandleMessage : PipelineEvent
 	{
 	}
 
@@ -54,7 +54,7 @@ namespace Shuttle.Esb
 	{
 	}
 
-    public class OnIdempotenceMessageHandled : PipelineEvent
+	public class OnIdempotenceMessageHandled : PipelineEvent
 	{
 	}
 

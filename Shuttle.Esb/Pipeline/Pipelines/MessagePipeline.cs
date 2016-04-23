@@ -6,7 +6,7 @@ namespace Shuttle.Esb
 	{
 		protected readonly IServiceBus _bus;
 
-	    protected MessagePipeline(IServiceBus bus)
+		protected MessagePipeline(IServiceBus bus)
 		{
 			Guard.AgainstNull(bus, "bus");
 
@@ -15,7 +15,7 @@ namespace Shuttle.Esb
 			State.Add(bus);
 		}
 
-	    protected MessagePipeline()
+		protected MessagePipeline()
 		{
 		}
 

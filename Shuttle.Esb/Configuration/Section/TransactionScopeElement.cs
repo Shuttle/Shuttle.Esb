@@ -12,10 +12,7 @@ namespace Shuttle.Esb
 		[ConfigurationProperty("enabled", IsRequired = false, DefaultValue = true)]
 		public bool Enabled
 		{
-			get
-			{
-				return (bool)this["enabled"];
-			}
+			get { return (bool) this["enabled"]; }
 		}
 
 		[ConfigurationProperty("isolationLevel", IsRequired = false, DefaultValue = DefaultIsolationLevel)]
@@ -32,7 +29,7 @@ namespace Shuttle.Esb
 
 				try
 				{
-					return (IsolationLevel)Enum.Parse(typeof(IsolationLevel), value.ToString());
+					return (IsolationLevel) Enum.Parse(typeof (IsolationLevel), value.ToString());
 				}
 				catch
 				{

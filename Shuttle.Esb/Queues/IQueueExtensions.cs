@@ -18,7 +18,7 @@ namespace Shuttle.Esb
 
 			return true;
 		}
-		
+
 		public static void Create(this IQueue queue)
 		{
 			Guard.AgainstNull(queue, "queue");
@@ -28,12 +28,12 @@ namespace Shuttle.Esb
 			if (operation == null)
 			{
 				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
-																  queue.GetType().FullName, "ICreateQueue"));
+					queue.GetType().FullName, "ICreateQueue"));
 			}
 
 			operation.Create();
 		}
-		
+
 		public static bool AttemptDrop(this IQueue queue)
 		{
 			var operation = queue as IDropQueue;
@@ -47,7 +47,7 @@ namespace Shuttle.Esb
 
 			return true;
 		}
-		
+
 		public static void Drop(this IQueue queue)
 		{
 			Guard.AgainstNull(queue, "queue");
@@ -57,12 +57,12 @@ namespace Shuttle.Esb
 			if (operation == null)
 			{
 				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
-																  queue.GetType().FullName, "IDropQueue"));
+					queue.GetType().FullName, "IDropQueue"));
 			}
 
 			operation.Drop();
 		}
-		
+
 		public static bool AttemptPurge(this IQueue queue)
 		{
 			var operation = queue as IPurgeQueue;
@@ -76,7 +76,7 @@ namespace Shuttle.Esb
 
 			return true;
 		}
-		
+
 		public static void Purge(this IQueue queue)
 		{
 			Guard.AgainstNull(queue, "queue");
@@ -86,7 +86,7 @@ namespace Shuttle.Esb
 			if (operation == null)
 			{
 				throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
-																  queue.GetType().FullName, "IPurgeQueue"));
+					queue.GetType().FullName, "IPurgeQueue"));
 			}
 
 			operation.Purge();

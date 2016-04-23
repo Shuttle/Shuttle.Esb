@@ -8,8 +8,8 @@ namespace Shuttle.Esb
 		public const string DeferredQueue = "DeferredQueue";
 		public const string DurationToIgnoreOnFailure = "DurationToIgnoreOnFailure";
 		public const string ErrorQueue = "ErrorQueue";
-        public const string ShouldProcess = "ShouldProcess";
-        public const string HandlerContext = "HandlerContext";
+		public const string ShouldProcess = "ShouldProcess";
+		public const string HandlerContext = "HandlerContext";
 		public const string MaximumFailureCount = "MaximumFailureCount";
 		public const string Message = "Message";
 		public const string MessageBytes = "MessageBytes";

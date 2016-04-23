@@ -24,34 +24,37 @@ namespace Shuttle.Esb
 
 			object message;
 
-		    try
-		    {
-		        using (var stream = new MemoryStream(transportMessage.Message))
-		        {
-		            message = state.GetServiceBus().Configuration.Serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream);
-		        }
-		    }
-            catch (Exception ex)
-            {
+			try
+			{
+				using (var stream = new MemoryStream(transportMessage.Message))
+				{
+					message =
+						state.GetServiceBus()
+							.Configuration.Serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream);
+				}
+			}
+			catch (Exception ex)
+			{
 				transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-				state.GetErrorQueue().Enqueue(transportMessage, state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
+				state.GetErrorQueue()
+					.Enqueue(transportMessage, state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
 				state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
-				
+
 				state.SetTransactionComplete();
 				pipelineEvent.Pipeline.Abort();
 
-                state.GetServiceBus().Events.OnMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(
-						pipelineEvent, 
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
-                        ex));
+				state.GetServiceBus().Events.OnMessageDeserializationException(this,
+					new DeserializationExceptionEventArgs(
+						pipelineEvent,
+						state.GetWorkQueue(),
+						state.GetErrorQueue(),
+						ex));
 
-                return;
-            }
-            
-            state.SetMessage(message);
+				return;
+			}
+
+			state.SetMessage(message);
 		}
 	}
 }

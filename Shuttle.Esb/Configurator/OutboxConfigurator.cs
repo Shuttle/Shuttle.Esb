@@ -24,9 +24,11 @@ namespace Shuttle.Esb
 					ErrorQueue = configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Outbox.ErrorQueueUri),
 					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Outbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
-						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToIgnoreOnFailure ?? ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToIgnoreOnFailure ??
+						ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
 					DurationToSleepWhenIdle =
-						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToSleepWhenIdle ?? ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
+						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToSleepWhenIdle ??
+						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
 					ThreadCount = ServiceBusConfiguration.ServiceBusSection.Inbox.ThreadCount
 				};
 		}

@@ -4,24 +4,21 @@ using System.Configuration;
 namespace Shuttle.Esb
 {
 	public class QueueFactoriesElement : ConfigurationElementCollection
-    {
-        [ConfigurationProperty("scan", IsRequired = false, DefaultValue = true)]
-        public bool Scan
-        {
-            get
-            {
-				return (bool)this["scan"];
-            }
-        }
+	{
+		[ConfigurationProperty("scan", IsRequired = false, DefaultValue = true)]
+		public bool Scan
+		{
+			get { return (bool) this["scan"]; }
+		}
 
-        protected override ConfigurationElement CreateNewElement()
-        {
+		protected override ConfigurationElement CreateNewElement()
+		{
 			return new QueueFactoryElement();
-        }
+		}
 
-        protected override object GetElementKey(ConfigurationElement element)
-        {
-            return Guid.NewGuid();
-        }
-    }
+		protected override object GetElementKey(ConfigurationElement element)
+		{
+			return Guid.NewGuid();
+		}
+	}
 }

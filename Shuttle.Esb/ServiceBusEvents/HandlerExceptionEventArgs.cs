@@ -12,8 +12,8 @@ namespace Shuttle.Esb
 		public Exception Exception { get; private set; }
 
 		public HandlerExceptionEventArgs(PipelineEvent pipelineEvent,
-		                                 TransportMessage transportMessage, object message, IQueue workQueue,
-		                                 IQueue errorQueue, Exception exception)
+			TransportMessage transportMessage, object message, IQueue workQueue,
+			IQueue errorQueue, Exception exception)
 			: base(pipelineEvent)
 		{
 			TransportMessage = transportMessage;

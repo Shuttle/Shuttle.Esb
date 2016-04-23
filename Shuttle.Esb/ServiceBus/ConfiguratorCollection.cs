@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Shuttle.Core.Infrastructure;
@@ -16,7 +15,8 @@ namespace Shuttle.Esb
 
 			if (Contains(configurator))
 			{
-				throw new EsbConfigurationException(string.Format(EsbResources.ConfiguratorAlreadyRegisteredException, configurator.GetType().FullName));
+				throw new EsbConfigurationException(string.Format(EsbResources.ConfiguratorAlreadyRegisteredException,
+					configurator.GetType().FullName));
 			}
 
 			_configurators.Add(configurator);
@@ -36,7 +36,10 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configurator, "configurator");
 
-			return _configurators.Any(candidate => candidate.GetType().FullName.Equals(configurator.GetType().FullName,StringComparison.OrdinalIgnoreCase));
+			return
+				_configurators.Any(
+					candidate =>
+						candidate.GetType().FullName.Equals(configurator.GetType().FullName, StringComparison.OrdinalIgnoreCase));
 		}
 	}
 }
