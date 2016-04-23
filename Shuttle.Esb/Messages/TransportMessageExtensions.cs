@@ -8,18 +8,30 @@ namespace Shuttle.Esb
 {
 	public static class TransportMessageExtensions
 	{
+		private static readonly DateTime _expiryDateImplementation = new DateTime(2016, 04, 23);
+
+		public static bool HasExpiryDate(this TransportMessage transportMessage)
+		{
+			return (transportMessage.ExpiryDate > _expiryDateImplementation && transportMessage.ExpiryDate < DateTime.MaxValue);
+		}
+
+		public static bool HasExpired(this TransportMessage transportMessage)
+		{
+			return (transportMessage.ExpiryDate > _expiryDateImplementation && transportMessage.ExpiryDate < DateTime.Now);
+		}
+
 		public static bool EncryptionEnabled(this TransportMessage transportMessage)
 		{
 			return !string.IsNullOrEmpty(transportMessage.EncryptionAlgorithm)
-			       &&
-			       !transportMessage.EncryptionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
+				   &&
+				   !transportMessage.EncryptionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		public static bool CompressionEnabled(this TransportMessage transportMessage)
 		{
 			return !string.IsNullOrEmpty(transportMessage.CompressionAlgorithm)
-			       &&
-			       !transportMessage.CompressionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
+				   &&
+				   !transportMessage.CompressionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
 		}
 
 		public static void RegisterFailure(this TransportMessage transportMessage, string message)

@@ -7,6 +7,48 @@ namespace Shuttle.Esb.Tests
 	public class TranportMessageTest
 	{
 		[Test]
+		public void Should_be_able_to_determine_if_message_has_an_expiry_date()
+		{
+			Assert.IsFalse(new TransportMessage().HasExpiryDate());
+
+			Assert.IsFalse(new TransportMessage
+			{
+				ExpiryDate = new DateTime(2016, 4, 22)
+			}.HasExpiryDate());
+
+			Assert.IsFalse(new TransportMessage
+			{
+				ExpiryDate = DateTime.MaxValue
+			}.HasExpiryDate());
+
+			Assert.IsTrue(new TransportMessage
+			{
+				ExpiryDate = DateTime.Now.AddSeconds(30)
+			}.HasExpiryDate());
+		}
+
+		[Test]
+		public void Should_be_able_to_determine_if_message_has_expired()
+		{
+			Assert.IsFalse(new TransportMessage().HasExpired());
+
+			Assert.IsFalse(new TransportMessage
+			{
+				ExpiryDate = new DateTime(2016, 4, 22)
+			}.HasExpired());
+
+			Assert.IsFalse(new TransportMessage
+			{
+				ExpiryDate = DateTime.MaxValue
+			}.HasExpired());
+
+			Assert.IsTrue(new TransportMessage
+			{
+				ExpiryDate = DateTime.Now.AddSeconds(-30)
+			}.HasExpired());
+		}
+
+		[Test]
 		public void Should_be_able_to_determine_if_message_should_be_ignored()
 		{
 			var messsage = new TransportMessage()

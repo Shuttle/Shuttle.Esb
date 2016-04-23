@@ -7,7 +7,6 @@ namespace Shuttle.Esb
 	public class HandleMessageObserver :
 		IPipelineObserver<OnHandleMessage>
 	{
-		private DateTime _expiryDateImplementation = new DateTime(2016, 04, 23);
 		private readonly ILog _log;
 
 		public HandleMessageObserver()
@@ -29,7 +28,7 @@ namespace Shuttle.Esb
 			var transportMessage = state.GetTransportMessage();
 			var message = state.GetMessage();
 
-			if (transportMessage.ExpiryDate > _expiryDateImplementation && transportMessage.ExpiryDate < DateTime.Now)
+			if (transportMessage.HasExpiryDate())
 			{
 				bus.Events.OnMessageExpired(this,
 					new MessageNotHandledEventArgs(
