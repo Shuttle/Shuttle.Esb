@@ -31,11 +31,11 @@ namespace Shuttle.Esb
 			{
 				if (state.GetDeferredQueue() == null)
 				{
-					workQueue.Enqueue(transportMessage.MessageId, stream);
+					workQueue.Enqueue(transportMessage, stream);
 				}
 				else
 				{
-					state.GetDeferredQueue().Enqueue(transportMessage.MessageId, stream);
+					state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
 					state.GetServiceBus().Configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
 				}

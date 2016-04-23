@@ -24,9 +24,9 @@ namespace Shuttle.Esb
 			return _queue.IsEmpty();
 		}
 
-		public void Enqueue(Guid messageId, Stream stream)
+		public void Enqueue(TransportMessage transportMessage, Stream stream)
 		{
-			_queue.Enqueue(messageId, stream);
+			_queue.Enqueue(transportMessage, stream);
 		}
 
 		public ReceivedMessage GetMessage()

@@ -40,13 +40,13 @@ namespace Shuttle.Esb
 					if (action.Retry)
 					{
 						state.GetWorkQueue().Enqueue(
-							transportMessage.MessageId,
+							transportMessage,
 							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
 					}
 					else
 					{
 						state.GetErrorQueue().Enqueue(
-							transportMessage.MessageId,
+							transportMessage,
 							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
 					}
 

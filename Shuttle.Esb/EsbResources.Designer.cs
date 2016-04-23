@@ -466,6 +466,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deferred processing has been halted since the deferred queue is empty.  Once another message is deferred the processing will restart..
+        /// </summary>
+        public static string TraceDeferredProcessingHalted {
+            get {
+                return ResourceManager.GetString("TraceDeferredProcessingHalted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deferred processing has completed a cycle and will process again at date &apos;{0}&apos;..
         /// </summary>
         public static string TraceDeferredProcessingReset {

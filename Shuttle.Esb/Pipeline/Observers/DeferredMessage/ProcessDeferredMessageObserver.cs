@@ -27,7 +27,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			workQueue.Enqueue(transportMessage.MessageId, receivedMessage.Stream);			
+			workQueue.Enqueue(transportMessage, receivedMessage.Stream);			
 			deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
 
 			state.SetDeferredMessageReturned(true);

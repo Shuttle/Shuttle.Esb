@@ -26,7 +26,7 @@ namespace Shuttle.Esb
 
 			using (var stream = receivedMessage.Stream.Copy())
 			{
-				queue.Enqueue(transportMessage.MessageId, stream);
+				queue.Enqueue(transportMessage, stream);
 			}
 		}
 	}

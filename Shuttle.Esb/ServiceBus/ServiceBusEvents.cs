@@ -8,6 +8,7 @@ namespace Shuttle.Esb
 		public event MessageDeserializationExceptionDelegate MessageDeserializationException = delegate { };
 		public event QueueEmptyDelegate QueueEmpty = delegate { };
 		public event MessageNotHandledDelegate MessageNotHandled = delegate { };
+		public event MessageExpiredDelegate MessageExpired = delegate { };
 		public event HandlerExceptionDelegate HandlerException = delegate { };
 
         public event PipelineCreatedDelegate PipelineCreated = delegate { };
@@ -45,6 +46,11 @@ namespace Shuttle.Esb
 		public void OnMessageNotHandled(object sender, MessageNotHandledEventArgs args)
 		{
 			MessageNotHandled.Invoke(sender, args);
+		}
+
+		public void OnMessageExpired(object sender, MessageNotHandledEventArgs args)
+		{
+			MessageExpired.Invoke(sender, args);
 		}
 
 		public void OnHandlerException(object sender, HandlerExceptionEventArgs args)

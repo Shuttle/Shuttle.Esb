@@ -72,7 +72,7 @@ namespace Shuttle.Esb
 							                           currentRetryCount,
 							                           state.GetMaximumFailureCount()));
 
-							state.GetWorkQueue().Enqueue(transportMessage.MessageId, stream);
+							state.GetWorkQueue().Enqueue(transportMessage, stream);
 						}
 						else
 						{
@@ -84,7 +84,7 @@ namespace Shuttle.Esb
 							                         state.GetMaximumFailureCount(),
 							                         state.GetErrorQueue().Uri));
 
-							state.GetErrorQueue().Enqueue(transportMessage.MessageId, stream);
+							state.GetErrorQueue().Enqueue(transportMessage, stream);
 						}
 					}
 

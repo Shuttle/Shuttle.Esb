@@ -38,7 +38,7 @@ namespace Shuttle.Esb
 
 			if (transportMessage.IsIgnoring() && bus.Configuration.HasInbox && bus.Configuration.Inbox.HasDeferredQueue)
 			{
-				bus.Configuration.Inbox.DeferredQueue.Enqueue(transportMessage.MessageId, state.GetTransportMessageStream());
+				bus.Configuration.Inbox.DeferredQueue.Enqueue(transportMessage, state.GetTransportMessageStream());
 				bus.Configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
 
 				return;
@@ -50,7 +50,7 @@ namespace Shuttle.Esb
 
 			using (var stream = state.GetTransportMessageStream().Copy())
 			{
-				queue.Enqueue(transportMessage.MessageId, stream);
+				queue.Enqueue(transportMessage, stream);
 			}
 		}
 	}

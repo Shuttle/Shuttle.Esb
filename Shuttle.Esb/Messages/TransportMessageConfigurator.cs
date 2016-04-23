@@ -12,6 +12,7 @@ namespace Shuttle.Esb
 		private string _recipientInboxWorkQueueUri;
 		private TransportMessage _transportMessageReceived;
 		private DateTime _ignoreTillDate;
+		private DateTime _expiryDate;
 		private string _correlationId;
 
 		public List<TransportHeader> Headers { get; set; }
@@ -26,6 +27,7 @@ namespace Shuttle.Esb
 
 			_correlationId = string.Empty;
 			_ignoreTillDate = DateTime.MinValue;
+			_expiryDate = DateTime.MaxValue;
 			_recipientInboxWorkQueueUri = null;
 			_local = false;
 		}
@@ -51,6 +53,7 @@ namespace Shuttle.Esb
 					? identity.Name
 					: WindowsIdentity.GetAnonymous().Name,
 				IgnoreTillDate = _ignoreTillDate,
+				ExpiryDate = _expiryDate,
 				MessageType = Message.GetType().FullName,
 				AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
 				EncryptionAlgorithm = configuration.EncryptionAlgorithm,
@@ -83,6 +86,13 @@ namespace Shuttle.Esb
 		public TransportMessageConfigurator Defer(DateTime ignoreTillDate)
 		{
 			_ignoreTillDate = ignoreTillDate;
+
+			return this;
+		}
+
+		public TransportMessageConfigurator WillExpire(DateTime expiryDate)
+		{
+			_expiryDate = expiryDate;
 
 			return this;
 		}

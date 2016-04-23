@@ -354,4 +354,7 @@
     <value>Deferred processing has completed a cycle and will process again at date '{0}'.</value>
     <comment>{0} = next process date</comment>
   </data>
+  <data name="TraceDeferredProcessingHalted" xml:space="preserve">
+    <value>Deferred processing has been halted since the deferred queue is empty.  Once another message is deferred the processing will restart.</value>
+  </data>
 </root>

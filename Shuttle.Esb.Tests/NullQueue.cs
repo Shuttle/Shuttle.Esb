@@ -22,7 +22,7 @@ namespace Shuttle.Esb.Tests
 			return true;
 		}
 
-		public void Enqueue(Guid messageId, Stream stream)
+		public void Enqueue(TransportMessage transportMessage, Stream stream)
 		{
 			throw new NotImplementedException();
 		}

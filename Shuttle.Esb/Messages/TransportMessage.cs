@@ -11,6 +11,7 @@ namespace Shuttle.Esb
 			MessageId = Guid.NewGuid();
 			SendDate = DateTime.MinValue;
 			IgnoreTillDate = DateTime.MinValue;
+			ExpiryDate = DateTime.MaxValue;
 
 			FailureMessages = new List<string>();
 			Headers = new List<TransportHeader>();
@@ -26,6 +27,7 @@ namespace Shuttle.Esb
 		public string PrincipalIdentityName { get; set; }
 		public DateTime IgnoreTillDate { get; set; }
 		public DateTime SendDate { get; set; }
+		public DateTime ExpiryDate { get; set; }
 		public List<string> FailureMessages { get; set; }
 		public string MessageType { get; set; }
 		public string AssemblyQualifiedName { get; set; }
