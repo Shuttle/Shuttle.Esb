@@ -28,15 +28,8 @@ namespace Shuttle.Esb
 			var transportMessage = state.GetTransportMessage();
 			var message = state.GetMessage();
 
-			if (transportMessage.HasExpiryDate())
+			if (transportMessage.HasExpired())
 			{
-				bus.Events.OnMessageExpired(this,
-					new MessageNotHandledEventArgs(
-						pipelineEvent,
-						state.GetWorkQueue(),
-						state.GetErrorQueue(),
-						transportMessage,
-						message));
 				return;
 			}
 

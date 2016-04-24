@@ -74,6 +74,10 @@
     <Compile Include="ServiceBusSection\UriResolverServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\WorkerServiceBusSection.cs" />
     <Compile Include="Messages\SimpleCommand.cs" />
+    <Compile Include="ServiceBus\FakeMessageHandlerInvoker.cs" />
+    <Compile Include="ServiceBus\FakeQueue.cs" />
+    <Compile Include="ServiceBus\ServiceBusTest.cs" />
+    <Compile Include="ServiceBus\SimpleCommandHandler.cs" />
     <Compile Include="StringDurationArrayConverterTest.cs" />
     <Compile Include="TranportMessageTest.cs" />
     <Compile Include="TransportMessageConfiguratorTest.cs" />

@@ -13,8 +13,6 @@ namespace Shuttle.Esb
 
 	public delegate void MessageNotHandledDelegate(object sender, MessageNotHandledEventArgs e);
 
-	public delegate void MessageExpiredDelegate(object sender, MessageNotHandledEventArgs e);
-
 	public delegate void HandlerExceptionDelegate(object sender, HandlerExceptionEventArgs e);
 
 	public delegate void PipelineCreatedDelegate(object sender, PipelineEventArgs e);
@@ -36,7 +34,6 @@ namespace Shuttle.Esb
 
 		event QueueEmptyDelegate QueueEmpty;
 		event MessageNotHandledDelegate MessageNotHandled;
-		event MessageExpiredDelegate MessageExpired;
 		event HandlerExceptionDelegate HandlerException;
 
 		event PipelineCreatedDelegate PipelineCreated;
@@ -52,7 +49,6 @@ namespace Shuttle.Esb
 		void OnMessageDeserializationException(object sender, DeserializationExceptionEventArgs args);
 		void OnQueueEmpty(object sender, QueueEmptyEventArgs args);
 		void OnMessageNotHandled(object sender, MessageNotHandledEventArgs args);
-		void OnMessageExpired(object sender, MessageNotHandledEventArgs args);
 		void OnHandlerException(object sender, HandlerExceptionEventArgs args);
 
 		void OnPipelineCreated(object sender, PipelineEventArgs args);
