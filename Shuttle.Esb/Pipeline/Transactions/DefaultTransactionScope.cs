@@ -17,7 +17,7 @@ namespace Shuttle.Esb
 		private readonly ILog _log;
 
 		public DefaultTransactionScope()
-			: this(Guid.NewGuid().ToString("n"), DefaultIsolationLevel, TimeSpan.FromMinutes(15))
+			: this(Guid.NewGuid().ToString("n"), DefaultIsolationLevel, DefaultTimeout)
 		{
 		}
 
