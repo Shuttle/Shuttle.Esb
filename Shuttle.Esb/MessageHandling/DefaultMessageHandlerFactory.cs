@@ -63,8 +63,6 @@ namespace Shuttle.Esb
 
 	    public override IMessageHandlerFactory RegisterHandlers(Assembly assembly)
 	    {
-            _messageHandlerTypes.Clear();
-
             var reflectionService = new ReflectionService();
 
             foreach (var type in reflectionService.GetTypes(typeof(IMessageHandler<>), assembly))
