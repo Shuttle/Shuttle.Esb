@@ -14,8 +14,6 @@ namespace Shuttle.Esb
 
 		private readonly Type _messageHandlerType = typeof (IMessageHandler<>);
 
-		public abstract void Initialize(IServiceBus bus);
-
 		public IMessageHandler GetHandler(object message)
 		{
 			Guard.AgainstNull(message, "message");

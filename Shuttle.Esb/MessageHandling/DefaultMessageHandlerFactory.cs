@@ -79,9 +79,5 @@ namespace Shuttle.Esb
 
 	        return this;
 	    }
-
-        public override void Initialize(IServiceBus bus)
-		{
-		}
 	}
 }
