@@ -5,7 +5,7 @@ namespace Shuttle.Esb
 {
 	public static class IdempotenceServiceExtensions
 	{
-		public static void AccessException(this IIdempotenceService service, ILog log, Exception ex, Pipeline pipeline)
+		public static void AccessException(this IIdempotenceService service, ILog log, Exception ex, IPipeline pipeline)
 		{
 			Guard.AgainstNull(service, "service");
 			Guard.AgainstNull(log, "log");

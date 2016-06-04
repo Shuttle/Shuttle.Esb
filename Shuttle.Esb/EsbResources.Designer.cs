@@ -583,42 +583,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TransactionScope (&apos;{0}&apos;) using ambient transaction..
-        /// </summary>
-        public static string VerboseTransactionScopeAmbient {
-            get {
-                return ResourceManager.GetString("VerboseTransactionScopeAmbient", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TransactionScope (&apos;{0}&apos;) using ambient transaction has completed..
-        /// </summary>
-        public static string VerboseTransactionScopeAmbientCompleted {
-            get {
-                return ResourceManager.GetString("VerboseTransactionScopeAmbientCompleted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TransactionScope (&apos;{0}&apos;) has completed..
-        /// </summary>
-        public static string VerboseTransactionScopeCompleted {
-            get {
-                return ResourceManager.GetString("VerboseTransactionScopeCompleted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TransactionScope (&apos;{0}&apos;) created with isolation level &apos;{1}&apos; and timeout of &apos;{2}&apos;..
-        /// </summary>
-        public static string VerboseTransactionScopeCreated {
-            get {
-                return ResourceManager.GetString("VerboseTransactionScopeCreated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [publishing] : no subscribers / event message type = &apos;{0}&apos;.
         /// </summary>
         public static string WarningPublishWithoutSubscribers {

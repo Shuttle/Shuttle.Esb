@@ -3,9 +3,9 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public interface IMessageHandlingAssessor : ISpecification<PipelineEvent>
+	public interface IMessageHandlingAssessor : ISpecification<IPipelineEvent>
 	{
-		void RegisterAssessor(Func<PipelineEvent, bool> assessor);
-		void RegisterAssessor(ISpecification<PipelineEvent> specification);
+		void RegisterAssessor(Func<IPipelineEvent, bool> assessor);
+		void RegisterAssessor(ISpecification<IPipelineEvent> specification);
 	}
 }

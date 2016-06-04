@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
 	public class QueueEmptyEventArgs : PipelineEventEventArgs
 	{
-		public QueueEmptyEventArgs(PipelineEvent pipelineEvent, IQueue queue)
+		public QueueEmptyEventArgs(IPipelineEvent pipelineEvent, IQueue queue)
 			: base(pipelineEvent)
 		{
 			Queue = queue;

@@ -5,9 +5,9 @@ namespace Shuttle.Esb
 {
 	public class PipelineEventArgs : EventArgs
 	{
-		public Pipeline Pipeline { get; private set; }
+		public IPipeline Pipeline { get; private set; }
 
-		public PipelineEventArgs(Pipeline pipeline)
+		public PipelineEventArgs(IPipeline pipeline)
 		{
 			Pipeline = pipeline;
 		}

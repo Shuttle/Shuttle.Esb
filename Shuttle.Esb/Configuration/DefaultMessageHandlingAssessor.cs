@@ -7,10 +7,10 @@ namespace Shuttle.Esb
 {
 	public class DefaultMessageHandlingAssessor : IMessageHandlingAssessor
 	{
-		private readonly List<Func<PipelineEvent, bool>> _assessors = new List<Func<PipelineEvent, bool>>();
-		private readonly List<ISpecification<PipelineEvent>> _specifications = new List<ISpecification<PipelineEvent>>();
+		private readonly List<Func<IPipelineEvent, bool>> _assessors = new List<Func<IPipelineEvent, bool>>();
+		private readonly List<ISpecification<IPipelineEvent>> _specifications = new List<ISpecification<IPipelineEvent>>();
 
-		public bool IsSatisfiedBy(PipelineEvent pipelineEvent)
+		public bool IsSatisfiedBy(IPipelineEvent pipelineEvent)
 		{
 			Guard.AgainstNull(pipelineEvent, "pipelineEvent");
 
@@ -19,14 +19,14 @@ namespace Shuttle.Esb
 			       _specifications.All(specification => specification.IsSatisfiedBy(pipelineEvent));
 		}
 
-		public void RegisterAssessor(Func<PipelineEvent, bool> assessor)
+		public void RegisterAssessor(Func<IPipelineEvent, bool> assessor)
 		{
 			Guard.AgainstNull(assessor, "assessor");
 
 			_assessors.Add(assessor);
 		}
 
-		public void RegisterAssessor(ISpecification<PipelineEvent> specification)
+		public void RegisterAssessor(ISpecification<IPipelineEvent> specification)
 		{
 			Guard.AgainstNull(specification, "specification");
 

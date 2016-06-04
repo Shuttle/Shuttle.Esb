@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -80,5 +81,17 @@ namespace Shuttle.Esb
 		}
 
 		public abstract IEnumerable<Type> MessageTypesHandled { get; }
+
+        public IMessageHandlerFactory RegisterHandlers()
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                RegisterHandlers(assembly);
+            }
+
+            return this;
+        }
+
+	    public abstract IMessageHandlerFactory RegisterHandlers(Assembly assembly);
 	}
 }

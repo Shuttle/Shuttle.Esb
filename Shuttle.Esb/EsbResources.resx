@@ -222,22 +222,6 @@
     <value>Transport message with id '{0}' will be deferred until '{1}'.</value>
     <comment>{0} = transport message id, {1} = deferred till date</comment>
   </data>
-  <data name="VerboseTransactionScopeAmbient" xml:space="preserve">
-    <value>TransactionScope ('{0}') using ambient transaction.</value>
-    <comment>{0} = transaction scope name</comment>
-  </data>
-  <data name="VerboseTransactionScopeAmbientCompleted" xml:space="preserve">
-    <value>TransactionScope ('{0}') using ambient transaction has completed.</value>
-    <comment>{0} = transaction scope name</comment>
-  </data>
-  <data name="VerboseTransactionScopeCompleted" xml:space="preserve">
-    <value>TransactionScope ('{0}') has completed.</value>
-    <comment>{0} = transaction scope name</comment>
-  </data>
-  <data name="VerboseTransactionScopeCreated" xml:space="preserve">
-    <value>TransactionScope ('{0}') created with isolation level '{1}' and timeout of '{2}'.</value>
-    <comment>{0} = transaction scope name, {1} = isolation level, {2} = timeout</comment>
-  </data>
   <data name="ServiceBusInstanceAlreadyStarted" xml:space="preserve">
     <value>The service bus instance has already been started.</value>
   </data>

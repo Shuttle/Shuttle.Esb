@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -60,23 +61,29 @@ namespace Shuttle.Esb
 			get { return _messageHandlerTypes.Keys; }
 		}
 
-		public override void Initialize(IServiceBus bus)
+	    public override IMessageHandlerFactory RegisterHandlers(Assembly assembly)
+	    {
+            _messageHandlerTypes.Clear();
+
+            var reflectionService = new ReflectionService();
+
+            foreach (var type in reflectionService.GetTypes(typeof(IMessageHandler<>), assembly))
+            {
+                if (type.GetConstructor(Type.EmptyTypes) != null)
+                {
+                    AddMessageHandlerType(type);
+                }
+                else
+                {
+                    _log.Warning(string.Format(EsbResources.DefaultMessageHandlerFactoryNoDefaultConstructor, type.FullName));
+                }
+            }
+
+	        return this;
+	    }
+
+        public override void Initialize(IServiceBus bus)
 		{
-			_messageHandlerTypes.Clear();
-
-			var reflectionService = new ReflectionService();
-
-			foreach (var type in reflectionService.GetTypes(typeof (IMessageHandler<>)))
-			{
-				if (type.GetConstructor(Type.EmptyTypes) != null)
-				{
-					AddMessageHandlerType(type);
-				}
-				else
-				{
-					_log.Warning(string.Format(EsbResources.DefaultMessageHandlerFactoryNoDefaultConstructor, type.FullName));
-				}
-			}
 		}
 	}
 }

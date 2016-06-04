@@ -5,7 +5,7 @@ namespace Shuttle.Esb
 {
 	public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
 	{
-		public MessageHandlerInvokeResult Invoke(PipelineEvent pipelineEvent)
+		public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
 		{
 			Guard.AgainstNull(pipelineEvent, "pipelineEvent");
 

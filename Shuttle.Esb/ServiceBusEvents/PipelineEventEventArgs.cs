@@ -4,11 +4,11 @@ namespace Shuttle.Esb
 {
 	public class PipelineEventEventArgs
 	{
-		public PipelineEventEventArgs(PipelineEvent pipelineEvent)
+		public PipelineEventEventArgs(IPipelineEvent pipelineEvent)
 		{
 			PipelineEvent = pipelineEvent;
 		}
 
-		public PipelineEvent PipelineEvent { get; private set; }
+		public IPipelineEvent PipelineEvent { get; private set; }
 	}
 }

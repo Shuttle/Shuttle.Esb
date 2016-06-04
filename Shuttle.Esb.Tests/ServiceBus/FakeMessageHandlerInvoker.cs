@@ -17,7 +17,7 @@ namespace Shuttle.Esb.Tests
 			return _invokeCounts[messageType];
 		}
 
-		public MessageHandlerInvokeResult Invoke(PipelineEvent pipelineEvent)
+		public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
 		{
 			var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
 
