@@ -341,4 +341,11 @@
   <data name="TraceDeferredProcessingHalted" xml:space="preserve">
     <value>Deferred processing has been halted since the deferred queue is empty.  Once another message is deferred the processing will restart.</value>
   </data>
+  <data name="RegisterHandlersException" xml:space="preserve">
+    <value>Could not register handlers from assembly '{0}'.  Exception messages: {1}</value>
+    <comment>0 = fully qualified assembly, 1 = all messages</comment>
+  </data>
+  <data name="SubscribeWithNoInboxException" xml:space="preserve">
+    <value>You have attempted to subscribe to messages but there is no inbox configured.</value>
+  </data>
 </root>

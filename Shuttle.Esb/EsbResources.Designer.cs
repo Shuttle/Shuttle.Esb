@@ -385,6 +385,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not register handlers from assembly &apos;{0}&apos;.  Exception messages: {1}.
+        /// </summary>
+        public static string RegisterHandlersException {
+            get {
+                return ResourceManager.GetString("RegisterHandlersException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no current message.  Cannot reply..
         /// </summary>
         public static string ReplyWithoutCurrentMessage {
@@ -453,6 +462,15 @@ namespace Shuttle.Esb {
         public static string ServiceBusInstanceAlreadyStarted {
             get {
                 return ResourceManager.GetString("ServiceBusInstanceAlreadyStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have attempted to subscribe to messages but there is no inbox configured..
+        /// </summary>
+        public static string SubscribeWithNoInboxException {
+            get {
+                return ResourceManager.GetString("SubscribeWithNoInboxException", resourceCulture);
             }
         }
         
