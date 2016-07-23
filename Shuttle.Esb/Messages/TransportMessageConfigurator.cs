@@ -14,8 +14,9 @@ namespace Shuttle.Esb
 		private DateTime _ignoreTillDate;
 		private DateTime _expiryDate;
 		private string _correlationId;
+	    private readonly string _anonymousName = WindowsIdentity.GetAnonymous().Name;
 
-		public List<TransportHeader> Headers { get; set; }
+        public List<TransportHeader> Headers { get; set; }
 		public object Message { get; private set; }
 
 		public TransportMessageConfigurator(object message)
@@ -39,7 +40,7 @@ namespace Shuttle.Esb
 				throw new InvalidOperationException(EsbResources.SendToSelfException);
 			}
 
-			var identity = WindowsIdentity.GetCurrent();
+		    var identity = configuration.IdentityProvider.Get(); 
 
 			var result = new TransportMessage
 			{
@@ -51,7 +52,7 @@ namespace Shuttle.Esb
 					: _sendInboxWorkQueueUri,
 				PrincipalIdentityName = identity != null
 					? identity.Name
-					: WindowsIdentity.GetAnonymous().Name,
+					: _anonymousName,
 				IgnoreTillDate = _ignoreTillDate,
 				ExpiryDate = _expiryDate,
 				MessageType = Message.GetType().FullName,

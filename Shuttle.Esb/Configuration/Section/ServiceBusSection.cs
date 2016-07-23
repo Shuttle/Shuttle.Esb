@@ -46,6 +46,12 @@ namespace Shuttle.Esb
 			get { return (bool) this["createQueues"]; }
 		}
 
+		[ConfigurationProperty("cacheIdentity", IsRequired = false, DefaultValue = true)]
+		public bool CacheIdentity
+        {
+			get { return (bool) this["cacheIdentity"]; }
+		}
+
 		[ConfigurationProperty("worker", IsRequired = false)]
 		public WorkerElement Worker
 		{

@@ -28,6 +28,7 @@ namespace Shuttle.Esb
         private IMessageHandlerInvoker _messageHandlerInvoker;
         private IMessageHandlingAssessor _messageHandlingAssessor;
         private IMessageRouteProvider _messageRouteProvider;
+        private IIdentityProvider _identityProvider;
         private IPipelineFactory _pipelineFactory;
         private IServiceBusPolicy _policy;
         private IQueueManager _queueManager;
@@ -84,6 +85,7 @@ namespace Shuttle.Esb
         }
 
         public bool CreateQueues { get; set; }
+        public bool CacheIdentity { get; set; }
 
         public IUriResolver UriResolver
         {
@@ -136,6 +138,15 @@ namespace Shuttle.Esb
                 return _messageRouteProvider ?? Synchronised(() => _messageRouteProvider = new DefaultMessageRouteProvider());
             }
             set { _messageRouteProvider = value; }
+        }
+
+        public IIdentityProvider IdentityProvider
+        {
+            get
+            {
+                return _identityProvider ?? Synchronised(() => _identityProvider = new DefaultIdentityProvider());
+            }
+            set { _identityProvider = value; }
         }
 
         public IServiceBusPolicy Policy

@@ -123,6 +123,15 @@ namespace Shuttle.Esb
 			return this;
 		}
 
+		public DefaultConfigurator IdentityProvider(IIdentityProvider identityProvider)
+		{
+			Guard.AgainstNull(identityProvider, "identityProvider");
+
+			_configuration.IdentityProvider = identityProvider;
+
+			return this;
+		}
+
 		public DefaultConfigurator IdempotenceService(IIdempotenceService idempotenceService)
 		{
 			Guard.AgainstNull(idempotenceService, "idempotenceService");

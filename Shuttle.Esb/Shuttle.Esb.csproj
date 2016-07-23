@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.0\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.2\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -122,6 +122,8 @@
     <Compile Include="MessageHandling\IHandlerContext.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\MessageHandlerInvokeResult.cs" />
+    <Compile Include="Messages\DefaultIdentityProvider.cs" />
+    <Compile Include="Messages\IIdentityProvider.cs" />
     <Compile Include="Pipeline\Observers\Receive\IdempotenceObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\AssessMessageHandlingObserver.cs" />
     <Compile Include="Queues\DefaultUriResolver.cs" />

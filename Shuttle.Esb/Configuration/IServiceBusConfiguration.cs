@@ -15,6 +15,7 @@ namespace Shuttle.Esb
 		IServiceBusPolicy Policy { get; set; }
 		ISerializer Serializer { get; set; }
 		IMessageRouteProvider MessageRouteProvider { get; set; }
+		IIdentityProvider IdentityProvider { get; set; }
 
 		IControlInboxQueueConfiguration ControlInbox { get; set; }
 		IInboxQueueConfiguration Inbox { get; set; }
@@ -40,6 +41,7 @@ namespace Shuttle.Esb
 		string CompressionAlgorithm { get; set; }
 		ITransactionScopeConfiguration TransactionScope { get; set; }
 		bool CreateQueues { get; set; }
+		bool CacheIdentity { get; set; }
 
 		IEncryptionAlgorithm FindEncryptionAlgorithm(string name);
 		void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm);
