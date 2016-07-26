@@ -32,45 +32,52 @@ namespace Shuttle.Esb
 
 			var pipeline = _bus.Configuration.PipelineFactory.GetPipeline<DeferredMessagePipeline>(_bus);
 
-			pipeline.State.ResetWorking();
-
-			pipeline.Execute();
-
-			if (pipeline.State.GetWorking())
+			try
 			{
-				var transportMessage = pipeline.State.GetTransportMessage();
+				pipeline.State.ResetWorking();
 
-				if (transportMessage.IgnoreTillDate < _ignoreTillDate)
-				{
-					_ignoreTillDate = transportMessage.IgnoreTillDate;
-				}
+				pipeline.Execute();
 
-				if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+				if (pipeline.State.GetWorking())
 				{
-					if (!Guid.Empty.Equals(_checkpointMessageId))
+					var transportMessage = pipeline.State.GetTransportMessage();
+
+					if (transportMessage.IgnoreTillDate < _ignoreTillDate)
 					{
-						return;
+						_ignoreTillDate = transportMessage.IgnoreTillDate;
 					}
 
-					_checkpointMessageId = transportMessage.MessageId;
+					if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+					{
+						if (!Guid.Empty.Equals(_checkpointMessageId))
+						{
+							return;
+						}
 
-					_log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
+						_checkpointMessageId = transportMessage.MessageId;
 
-					return;
+						_log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
+
+						return;
+					}
+				}
+
+				_nextDeferredProcessDate = _ignoreTillDate;
+				_ignoreTillDate = DateTime.MaxValue;
+				_checkpointMessageId = Guid.Empty;
+
+				if (_nextDeferredProcessDate.Equals(DateTime.MaxValue))
+				{
+					_log.Trace(EsbResources.TraceDeferredProcessingHalted);
+				}
+				else
+				{
+					_log.Trace(string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
 				}
 			}
-
-			_nextDeferredProcessDate = _ignoreTillDate;
-			_ignoreTillDate = DateTime.MaxValue;
-			_checkpointMessageId = Guid.Empty;
-
-			if (_nextDeferredProcessDate.Equals(DateTime.MaxValue))
+			finally
 			{
-				_log.Trace(EsbResources.TraceDeferredProcessingHalted);
-			}
-			else
-			{
-				_log.Trace(string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
+				_bus.Configuration.PipelineFactory.ReleasePipeline(pipeline);
 			}
 		}
 

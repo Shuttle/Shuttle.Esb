@@ -37,25 +37,32 @@ namespace Shuttle.Esb
 
 			var transportMessagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<TransportMessagePipeline>(_bus);
 
-			var transportMessageConfigurator = new TransportMessageConfigurator(message);
-
-			if (_transportMessageReceived != null)
+			try
 			{
-				transportMessageConfigurator.TransportMessageReceived(_transportMessageReceived);
-			}
+				var transportMessageConfigurator = new TransportMessageConfigurator(message);
 
-			if (configure != null)
+				if (_transportMessageReceived != null)
+				{
+					transportMessageConfigurator.TransportMessageReceived(_transportMessageReceived);
+				}
+
+				if (configure != null)
+				{
+					configure(transportMessageConfigurator);
+				}
+
+				if (!transportMessagePipeline.Execute(transportMessageConfigurator))
+				{
+					throw new PipelineException(string.Format(EsbResources.PipelineExecutionException, 
+						"TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()));
+				}
+
+				return transportMessagePipeline.State.GetTransportMessage();
+			}
+			finally
 			{
-				configure(transportMessageConfigurator);
+				_bus.Configuration.PipelineFactory.ReleasePipeline(transportMessagePipeline);
 			}
-
-			if (!transportMessagePipeline.Execute(transportMessageConfigurator))
-			{
-				throw new PipelineException(string.Format(EsbResources.PipelineExecutionException, "TransportMessagePipeline",
-					transportMessagePipeline.Exception.AllMessages()));
-			}
-
-			return transportMessagePipeline.State.GetTransportMessage();
 		}
 
 		public void Dispatch(TransportMessage transportMessage)
