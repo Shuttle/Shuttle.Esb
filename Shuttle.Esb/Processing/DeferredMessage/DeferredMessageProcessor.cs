@@ -66,14 +66,9 @@ namespace Shuttle.Esb
 				_ignoreTillDate = DateTime.MaxValue;
 				_checkpointMessageId = Guid.Empty;
 
-				if (_nextDeferredProcessDate.Equals(DateTime.MaxValue))
-				{
-					_log.Trace(EsbResources.TraceDeferredProcessingHalted);
-				}
-				else
-				{
-					_log.Trace(string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
-				}
+			    _log.Trace(_nextDeferredProcessDate.Equals(DateTime.MaxValue)
+			        ? EsbResources.TraceDeferredProcessingHalted
+			        : string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
 			}
 			finally
 			{
