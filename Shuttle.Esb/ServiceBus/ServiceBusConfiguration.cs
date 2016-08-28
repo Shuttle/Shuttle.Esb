@@ -86,6 +86,7 @@ namespace Shuttle.Esb
 
         public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
+        public bool RegisterHandlers { get; set; }
 
         public IUriResolver UriResolver
         {

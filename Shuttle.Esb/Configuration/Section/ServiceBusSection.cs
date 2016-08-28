@@ -52,6 +52,12 @@ namespace Shuttle.Esb
 			get { return (bool) this["cacheIdentity"]; }
 		}
 
+		[ConfigurationProperty("registerHandlers", IsRequired = false, DefaultValue = true)]
+		public bool RegisterHandlers
+        {
+			get { return (bool) this["registerHandlers"]; }
+		}
+
 		[ConfigurationProperty("worker", IsRequired = false)]
 		public WorkerElement Worker
 		{

@@ -42,6 +42,7 @@ namespace Shuttle.Esb
 		ITransactionScopeConfiguration TransactionScope { get; set; }
 		bool CreateQueues { get; set; }
 		bool CacheIdentity { get; set; }
+		bool RegisterHandlers { get; set; }
 
 		IEncryptionAlgorithm FindEncryptionAlgorithm(string name);
 		void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm);

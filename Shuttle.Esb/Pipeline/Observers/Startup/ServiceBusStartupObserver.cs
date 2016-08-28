@@ -58,7 +58,10 @@ namespace Shuttle.Esb
 		{
 			_configuration.MessageHandlerFactory.AttemptInitialization(_bus);
 
-		    _configuration.MessageHandlerFactory.RegisterHandlers();
+		    if (_bus.Configuration.RegisterHandlers)
+		    {
+		        _configuration.MessageHandlerFactory.RegisterHandlers();
+		    }
 		}
 
 		public void Execute(OnInitializeMessageRouteProvider pipelineEvent)

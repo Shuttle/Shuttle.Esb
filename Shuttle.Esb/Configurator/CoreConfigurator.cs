@@ -19,6 +19,7 @@ namespace Shuttle.Esb
 
 			configuration.CreateQueues = section.CreateQueues;
 			configuration.CacheIdentity = section.CacheIdentity;
+			configuration.RegisterHandlers = section.RegisterHandlers;
 			configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
 			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
 			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
