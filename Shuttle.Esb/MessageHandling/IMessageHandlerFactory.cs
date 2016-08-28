@@ -12,5 +12,6 @@ namespace Shuttle.Esb
 		IEnumerable<Type> MessageTypesHandled { get; }
 	    IMessageHandlerFactory RegisterHandlers();
 	    IMessageHandlerFactory RegisterHandlers(Assembly assembly);
+	    IMessageHandlerFactory RegisterHandler(Type type);
 	}
 }

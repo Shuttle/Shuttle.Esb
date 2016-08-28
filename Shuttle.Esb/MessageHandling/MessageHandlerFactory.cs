@@ -93,5 +93,6 @@ namespace Shuttle.Esb
         }
 
 	    public abstract IMessageHandlerFactory RegisterHandlers(Assembly assembly);
+	    public abstract IMessageHandlerFactory RegisterHandler(Type type);
 	}
 }

@@ -69,13 +69,22 @@ namespace Shuttle.Esb
             {
                 if (type.GetConstructor(Type.EmptyTypes) != null)
                 {
-                    AddMessageHandlerType(type);
+                    RegisterHandler(type);
                 }
                 else
                 {
                     _log.Warning(string.Format(EsbResources.DefaultMessageHandlerFactoryNoDefaultConstructor, type.FullName));
                 }
             }
+
+	        return this;
+	    }
+
+	    public override IMessageHandlerFactory RegisterHandler(Type type)
+	    {
+            Guard.AgainstNull(type, "type");
+
+            AddMessageHandlerType(type);
 
 	        return this;
 	    }
