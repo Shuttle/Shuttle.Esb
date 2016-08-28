@@ -6,8 +6,8 @@ namespace Shuttle.Esb
 {
 	public interface IMessageHandlerFactory
 	{
-		IMessageHandler GetHandler(object message);
-		void ReleaseHandler(IMessageHandler handler);
+		object GetHandler(object message);
+		void ReleaseHandler(object handler);
 
 		IEnumerable<Type> MessageTypesHandled { get; }
 	    IMessageHandlerFactory RegisterHandlers();

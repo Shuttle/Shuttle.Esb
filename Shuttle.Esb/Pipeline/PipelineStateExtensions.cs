@@ -168,7 +168,7 @@ namespace Shuttle.Esb
 
 		public static object GetMessageHandler(this IState<IPipeline> state)
 		{
-			return state.Get<IMessageHandler>(StateKeys.MessageHandler);
+			return state.Get<object>(StateKeys.MessageHandler);
 		}
 
 		public static void SetWorkQueue(this IState<IPipeline> state, IQueue queue)

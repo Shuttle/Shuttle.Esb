@@ -10,11 +10,11 @@ namespace Shuttle.Esb
 	{
 		private static readonly object Padlock = new object();
 
-		private readonly List<IMessageHandler> _releasedHandlers = new List<IMessageHandler>();
+		private readonly List<object> _releasedHandlers = new List<object>();
 
 		private readonly Type _messageHandlerType = typeof (IMessageHandler<>);
 
-		public IMessageHandler GetHandler(object message)
+		public object GetHandler(object message)
 		{
 			Guard.AgainstNull(message, "message");
 
@@ -53,16 +53,18 @@ namespace Shuttle.Esb
 			return CreateHandler(message);
 		}
 
-		public abstract IMessageHandler CreateHandler(object message);
+		public abstract object CreateHandler(object message);
 
-		public virtual void ReleaseHandler(IMessageHandler handler)
+		public virtual void ReleaseHandler(object handler)
 		{
 			if (handler == null)
 			{
 				return;
 			}
 
-			if (!handler.IsReusable)
+		    var reusability = handler as IReusability;
+
+			if (reusability != null && !reusability.IsReusable)
 			{
 				handler.AttemptDispose();
 

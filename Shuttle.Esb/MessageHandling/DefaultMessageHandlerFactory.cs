@@ -44,13 +44,13 @@ namespace Shuttle.Esb
 				messageHandlerType.FullName));
 		}
 
-		public override IMessageHandler CreateHandler(object message)
+		public override object CreateHandler(object message)
 		{
 			var messageType = message.GetType();
 
 			if (_messageHandlerTypes.ContainsKey(messageType))
 			{
-				return (IMessageHandler) Activator.CreateInstance(_messageHandlerTypes[messageType]);
+				return Activator.CreateInstance(_messageHandlerTypes[messageType]);
 			}
 
 			return null;
