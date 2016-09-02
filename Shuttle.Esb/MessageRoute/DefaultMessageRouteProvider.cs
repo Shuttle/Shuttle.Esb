@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Shuttle.Core.Infrastructure;
 
@@ -47,5 +48,9 @@ namespace Shuttle.Esb
 		{
 			return _messageRoutes.Any();
 		}
+
+	    public IEnumerable<IMessageRoute> MessageRoutes {
+	        get { return new ReadOnlyCollection<IMessageRoute>(new List<IMessageRoute>(_messageRoutes));} 
+	    }
 	}
 }

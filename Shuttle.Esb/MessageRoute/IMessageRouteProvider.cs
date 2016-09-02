@@ -8,5 +8,6 @@ namespace Shuttle.Esb
 		void Add(IMessageRoute messageRoute);
 		IMessageRoute Find(string uri);
 		bool Any();
+        IEnumerable<IMessageRoute> MessageRoutes { get; }
 	}
 }
