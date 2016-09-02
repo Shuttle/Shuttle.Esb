@@ -348,4 +348,8 @@
   <data name="SubscribeWithNoInboxException" xml:space="preserve">
     <value>You have attempted to subscribe to messages but there is no inbox configured.</value>
   </data>
+  <data name="DuplicateMessageHandlerException" xml:space="preserve">
+    <value>Message handler type '{0}' has already been registered as the handler for message type '{1}'.  Message handler type '{2}' also handles the message type.</value>
+    <comment>{0} = message handler type already registered, {1} = message type, {2} = {2} = duplicate message handler type</comment>
+  </data>
 </root>

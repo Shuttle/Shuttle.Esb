@@ -124,6 +124,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Message handler type &apos;{0}&apos; has already been registered as the handler for message type &apos;{1}&apos;.  Message handler type &apos;{2}&apos; also handles the message type..
+        /// </summary>
+        public static string DuplicateMessageHandlerException {
+            get {
+                return ResourceManager.GetString("DuplicateMessageHandlerException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue factory type &apos;{1}&apos; to register queue factory type &apos;{2}&apos;..
         /// </summary>
         public static string DuplicateQueueFactoryReplaced {
