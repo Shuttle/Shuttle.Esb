@@ -12,8 +12,6 @@ namespace Shuttle.Esb
 
 			if (section == null)
 			{
-				configuration.RemoveMessagesNotHandled = false;
-
 				return;
 			}
 

@@ -70,7 +70,7 @@ namespace Shuttle.Esb
 			get { return (TransactionScopeElement) this["transactionScope"]; }
 		}
 
-		[ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = true)]
+		[ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = false)]
 		public bool RemoveMessagesNotHandled
 		{
 			get { return (bool) this["removeMessagesNotHandled"]; }
