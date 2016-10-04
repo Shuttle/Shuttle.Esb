@@ -45,6 +45,8 @@ namespace Shuttle.Esb
         public ServiceBusConfiguration()
         {
             Modules = new ModuleCollection();
+
+            RegisterHandlers = true;
         }
 
         public static ServiceBusSection ServiceBusSection
