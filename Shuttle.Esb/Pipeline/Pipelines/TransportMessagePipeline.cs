@@ -10,7 +10,7 @@ namespace Shuttle.Esb
 		{
 			RegisterStage("Create")
 				.WithEvent<OnAssembleMessage>()
-				.WithEvent<OnAfterPrepareMessage>()
+				.WithEvent<OnAfterAssembleMessage>()
 				.WithEvent<OnSerializeMessage>()
 				.WithEvent<OnAfterSerializeMessage>()
 				.WithEvent<OnEncryptMessage>()

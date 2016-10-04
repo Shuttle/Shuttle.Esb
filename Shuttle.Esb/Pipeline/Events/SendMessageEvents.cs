@@ -6,7 +6,7 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnAfterPrepareMessage : PipelineEvent
+	public class OnAfterAssembleMessage : PipelineEvent
 	{
 	}
 
