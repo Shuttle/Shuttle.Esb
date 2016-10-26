@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -23,8 +24,8 @@ namespace Shuttle.Esb
 			{
 				var transportMessage = state.GetTransportMessage();
 				var messageType = message.GetType();
-				var contextType = typeof (HandlerContext<>).MakeGenericType(messageType);
-				var method = handler.GetType().GetMethod("ProcessMessage", new[] {contextType});
+				var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+				var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
 				if (method == null)
 				{
@@ -34,6 +35,7 @@ namespace Shuttle.Esb
 						messageType.FullName));
 				}
 
+				var contextType = typeof(HandlerContext<>).MakeGenericType(messageType);
 				var handlerContext = Activator.CreateInstance(contextType, bus, transportMessage, message, state.GetActiveState());
 
 				method.Invoke(handler, new[] {handlerContext});
