@@ -1,39 +1,32 @@
-﻿using System;
-using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class DispatchTransportMessagePipeline : MessagePipeline
-	{
-		public DispatchTransportMessagePipeline(IServiceBus bus)
-			: base(bus)
-		{
-			RegisterStage("Send")
-				.WithEvent<OnFindRouteForMessage>()
-				.WithEvent<OnAfterFindRouteForMessage>()
-				.WithEvent<OnSerializeTransportMessage>()
-				.WithEvent<OnAfterSerializeTransportMessage>()
-				.WithEvent<OnDispatchTransportMessage>()
-				.WithEvent<OnAfterDispatchTransportMessage>();
+    public class DispatchTransportMessagePipeline : Pipeline
+    {
+        public DispatchTransportMessagePipeline()
+        {
+            RegisterStage("Send")
+                .WithEvent<OnFindRouteForMessage>()
+                .WithEvent<OnAfterFindRouteForMessage>()
+                .WithEvent<OnSerializeTransportMessage>()
+                .WithEvent<OnAfterSerializeTransportMessage>()
+                .WithEvent<OnDispatchTransportMessage>()
+                .WithEvent<OnAfterDispatchTransportMessage>();
 
-			RegisterObserver(new FindMessageRouteObserver());
-			RegisterObserver(new SerializeTransportMessageObserver());
-			RegisterObserver(new DispatchTransportMessageObserver());
-		}
+            RegisterObserver(new FindMessageRouteObserver());
+            RegisterObserver(new SerializeTransportMessageObserver());
+            RegisterObserver(new DispatchTransportMessageObserver());
+        }
 
-		public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
-		{
-			Guard.AgainstNull(transportMessage, "transportMessage");
+        public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        {
+            Guard.AgainstNull(transportMessage, "transportMessage");
 
-			State.SetTransportMessage(transportMessage);
-			State.SetTransportMessageReceived(transportMessageReceived);
+            State.SetTransportMessage(transportMessage);
+            State.SetTransportMessageReceived(transportMessageReceived);
 
-			return base.Execute();
-		}
-
-		public override bool Execute()
-		{
-			throw new NotImplementedException();
-		}
-	}
+            return base.Execute();
+        }
+    }
 }

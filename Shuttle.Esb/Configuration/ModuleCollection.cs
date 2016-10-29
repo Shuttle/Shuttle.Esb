@@ -5,11 +5,11 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class ModuleCollection : IEnumerable<IModule>, IDisposable
+	public class ModuleCollection : IEnumerable<IPipelineModule>, IDisposable
 	{
-		private readonly List<IModule> _modules = new List<IModule>();
+		private readonly List<IPipelineModule> _modules = new List<IPipelineModule>();
 
-		public IEnumerator<IModule> GetEnumerator()
+		public IEnumerator<IPipelineModule> GetEnumerator()
 		{
 			return _modules.GetEnumerator();
 		}
@@ -19,7 +19,7 @@ namespace Shuttle.Esb
 			return GetEnumerator();
 		}
 
-		public void Add(IModule module)
+		public void Add(IPipelineModule module)
 		{
 			Guard.AgainstNull(module, "module");
 

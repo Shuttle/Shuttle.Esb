@@ -3,10 +3,9 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class TransportMessagePipeline : MessagePipeline
+	public class TransportMessagePipeline : Pipeline
 	{
-		public TransportMessagePipeline(IServiceBus bus)
-			: base(bus)
+		public TransportMessagePipeline()
 		{
 			RegisterStage("Create")
 				.WithEvent<OnAssembleMessage>()
@@ -31,11 +30,6 @@ namespace Shuttle.Esb
 			State.SetTransportMessageContext(configurator);
 
 			return base.Execute();
-		}
-
-		public override bool Execute()
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

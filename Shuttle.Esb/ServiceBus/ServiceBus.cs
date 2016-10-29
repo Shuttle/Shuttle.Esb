@@ -39,14 +39,20 @@ namespace Shuttle.Esb
 			// cannot be in startup pipeline as some modules may need to observe the startup pipeline
 			foreach (var module in Configuration.Modules)
 			{
-				module.Initialize(this);
+                module.AttemptDependencyInjection<IServiceBus>(this);
+
+				module.Start(Configuration.PipelineFactory);
 			}
 
-			var startupPipeline = new StartupPipeline(this);
+		    Configuration.PipelineFactory.PipelineCreated += (sender, args) =>
+		    {
+		        args.Pipeline.State.Add<IServiceBus>(this);
+                args.Pipeline.AttemptDependencyInjection<IServiceBus>(this);
+		    };
 
-			Events.OnPipelineCreated(this, new PipelineEventArgs(startupPipeline));
+            var startupPipeline = Configuration.PipelineFactory.GetPipeline<StartupPipeline>();
 
-			startupPipeline.Execute();
+            startupPipeline.Execute();
 
 			_inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
 			_controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");

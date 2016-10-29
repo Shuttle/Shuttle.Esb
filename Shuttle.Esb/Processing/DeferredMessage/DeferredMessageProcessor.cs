@@ -30,7 +30,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			var pipeline = _bus.Configuration.PipelineFactory.GetPipeline<DeferredMessagePipeline>(_bus);
+			var pipeline = _bus.Configuration.PipelineFactory.GetPipeline<DeferredMessagePipeline>();
 
 			try
 			{

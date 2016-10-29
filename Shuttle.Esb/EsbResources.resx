@@ -167,10 +167,6 @@
   <data name="NoSubscriptionManager" xml:space="preserve">
     <value>No ISubscriptionManager implementation has been configured.</value>
   </data>
-  <data name="DefaultConstructorRequired" xml:space="preserve">
-    <value>{0} '{1}' has no default constructor.</value>
-    <comment>{0} = name of required instance, {1} = full type name</comment>
-  </data>
   <data name="TraceMessageEnqueued" xml:space="preserve">
     <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
     <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
@@ -184,12 +180,6 @@
   </data>
   <data name="WorkerRequiresInboxException" xml:space="preserve">
     <value>No inbox has been configured.  A worker requires an inbox.</value>
-  </data>
-  <data name="TripleDESSectionMissing" xml:space="preserve">
-    <value>In order to use TripleDES cryptography you need to add the 'tripleDES' section to the application configuration file.  Remember to add the section handler.</value>
-  </data>
-  <data name="TripleDESKeyMissing" xml:space="preserve">
-    <value>The TripleDES section in the application configuration file may not have an empty value for the 'key' attribute.</value>
   </data>
   <data name="MessageRoutedToMoreThanOneEndpoint" xml:space="preserve">
     <value>Message of type '{0}' has been routed to more than one endpoint: {1}</value>
@@ -223,7 +213,7 @@
     <comment>{0} = transport message id, {1} = deferred till date</comment>
   </data>
   <data name="ServiceBusInstanceAlreadyStarted" xml:space="preserve">
-    <value>The service bus instance has already been started.</value>
+    <value>The service dependency instance has already been started.</value>
   </data>
   <data name="MessageNotHandledIgnored" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') has been ignored.</value>

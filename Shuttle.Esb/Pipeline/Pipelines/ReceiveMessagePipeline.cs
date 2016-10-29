@@ -1,9 +1,10 @@
-﻿namespace Shuttle.Esb
+﻿using Shuttle.Core.Infrastructure;
+
+namespace Shuttle.Esb
 {
-	public abstract class ReceiveMessagePipeline : MessagePipeline
+	public abstract class ReceiveMessagePipeline : Pipeline, IDependency<IServiceBus>
 	{
-		protected ReceiveMessagePipeline(IServiceBus bus)
-			: base(bus)
+		protected ReceiveMessagePipeline()
 		{
 			RegisterStage("Read")
 				.WithEvent<OnGetMessage>()
@@ -46,5 +47,7 @@
 
 			RegisterObserver(new ReceiveExceptionObserver()); // must be last
 		}
+
+	    public abstract void Assign(IServiceBus dependency);
 	}
 }

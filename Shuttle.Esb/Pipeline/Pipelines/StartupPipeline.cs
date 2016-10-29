@@ -2,14 +2,10 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class StartupPipeline : Pipeline
+	public class StartupPipeline : Pipeline, IDependency<IServiceBus>
 	{
-		public StartupPipeline(IServiceBus bus)
+		public StartupPipeline()
 		{
-			Guard.AgainstNull(bus, "bus");
-
-			State.Add(bus);
-
 			RegisterStage("Initializing")
 				.WithEvent<OnInitializing>()
 				.WithEvent<OnInitializeQueueFactories>()
@@ -44,8 +40,11 @@ namespace Shuttle.Esb
 
 			RegisterStage("Final")
 				.WithEvent<OnStarted>();
-
-			RegisterObserver(new ServiceBusStartupObserver(bus));
 		}
-	}
+
+	    public void Assign(IServiceBus dependency)
+	    {
+            RegisterObserver(new ServiceBusStartupObserver(dependency));
+        }
+    }
 }

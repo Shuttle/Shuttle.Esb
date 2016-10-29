@@ -198,7 +198,7 @@ namespace Shuttle.Esb
 
 		public static void SetActiveState(this IState<IPipeline> state, IThreadState activeState)
 		{
-			state.Add(StateKeys.ActiveState, activeState);
+			state.Replace(StateKeys.ActiveState, activeState);
 		}
 
 		public static IMessageSender GetHandlerContext(this IState<IPipeline> state)

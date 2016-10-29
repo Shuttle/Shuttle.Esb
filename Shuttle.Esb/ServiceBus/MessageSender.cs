@@ -35,7 +35,7 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(message, "message");
 
-			var transportMessagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<TransportMessagePipeline>(_bus);
+			var transportMessagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<TransportMessagePipeline>();
 
 			try
 			{
@@ -69,7 +69,7 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(transportMessage, "transportMessage");
 
-			var messagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<DispatchTransportMessagePipeline>(_bus);
+			var messagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 
 			try
 			{

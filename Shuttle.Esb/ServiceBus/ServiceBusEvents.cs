@@ -1,3 +1,5 @@
+using Shuttle.Core.Infrastructure;
+
 namespace Shuttle.Esb
 {
 	internal class ServiceBusEvents : IServiceBusEvents
@@ -9,10 +11,6 @@ namespace Shuttle.Esb
 		public event QueueEmptyDelegate QueueEmpty = delegate { };
 		public event MessageNotHandledDelegate MessageNotHandled = delegate { };
 		public event HandlerExceptionDelegate HandlerException = delegate { };
-
-		public event PipelineCreatedDelegate PipelineCreated = delegate { };
-		public event PipelineObtainedDelegate PipelineObtained = delegate { };
-		public event PipelineReleaseDelegate PipelineReleased = delegate { };
 
 		public event ThreadWorkingDelegate ThreadWorking = delegate { };
 		public event ThreadWaitingDelegate ThreadWaiting = delegate { };
@@ -50,21 +48,6 @@ namespace Shuttle.Esb
 		public void OnHandlerException(object sender, HandlerExceptionEventArgs args)
 		{
 			HandlerException.Invoke(sender, args);
-		}
-
-		public void OnPipelineCreated(object sender, PipelineEventArgs args)
-		{
-			PipelineCreated.Invoke(sender, args);
-		}
-
-		public void OnPipelineObtained(object sender, PipelineEventArgs args)
-		{
-			PipelineObtained.Invoke(sender, args);
-		}
-
-		public void OnPipelineReleased(object sender, PipelineEventArgs args)
-		{
-			PipelineReleased.Invoke(sender, args);
 		}
 
 		public void OnThreadWorking(object sender, ThreadStateEventArgs args)

@@ -97,15 +97,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} &apos;{1}&apos; has no default constructor..
-        /// </summary>
-        public static string DefaultConstructorRequired {
-            get {
-                return ResourceManager.GetString("DefaultConstructorRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Handler type &apos;{0}&apos; has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you..
         /// </summary>
         public static string DefaultMessageHandlerFactoryNoDefaultConstructor {
@@ -466,7 +457,7 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The service bus instance has already been started..
+        ///   Looks up a localized string similar to The service dependency instance has already been started..
         /// </summary>
         public static string ServiceBusInstanceAlreadyStarted {
             get {
@@ -543,24 +534,6 @@ namespace Shuttle.Esb {
         public static string TransportMessageDeserializationException {
             get {
                 return ResourceManager.GetString("TransportMessageDeserializationException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The TripleDES section in the application configuration file may not have an empty value for the &apos;key&apos; attribute..
-        /// </summary>
-        public static string TripleDESKeyMissing {
-            get {
-                return ResourceManager.GetString("TripleDESKeyMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to In order to use TripleDES cryptography you need to add the &apos;tripleDES&apos; section to the application configuration file.  Remember to add the section handler..
-        /// </summary>
-        public static string TripleDESSectionMissing {
-            get {
-                return ResourceManager.GetString("TripleDESSectionMissing", resourceCulture);
             }
         }
         

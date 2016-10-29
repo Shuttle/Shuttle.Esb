@@ -4,15 +4,10 @@ using Shuttle.Core.Infrastructure;
 namespace Shuttle.Esb.Tests
 {
 	public class ServiceBusRoutingModule :
-		IModule,
+		IPipelineModule,
 		IPipelineObserver<OnAfterDeserializeMessage>
 	{
 		public SimpleCommand SimpleCommand { get; private set; }
-
-		public void Initialize(IServiceBus bus)
-		{
-			bus.Events.PipelineCreated += PipelineCreated;
-		}
 
 		private void PipelineCreated(object sender, PipelineEventArgs e)
 		{
@@ -29,5 +24,10 @@ namespace Shuttle.Esb.Tests
 		{
 			SimpleCommand = (SimpleCommand) pipelineEvent.Pipeline.State.GetMessage();
 		}
+
+	    public void Start(IPipelineFactory pipelineFactory)
+	    {
+	        pipelineFactory.PipelineCreated += PipelineCreated;
+	    }
 	}
 }

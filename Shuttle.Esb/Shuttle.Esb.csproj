@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.3\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.5\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -95,10 +95,6 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Compression\DeflateCompressionAlgorithm.cs" />
-    <Compile Include="Compression\ICompressionAlgorithm.cs" />
-    <Compile Include="Compression\NullCompressionAlgorithm.cs" />
-    <Compile Include="Compression\GZipCompressionAlgorithm.cs" />
     <Compile Include="Configuration\IMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\DefaultMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\IThreadCount.cs" />
@@ -117,7 +113,6 @@
     <Compile Include="Configurator\QueueManagerConfigurator.cs" />
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
-    <Compile Include="IRequireInitialization.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IHandlerContext.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />
@@ -171,22 +166,16 @@
     <Compile Include="Queues\IPurgeQueue.cs" />
     <Compile Include="Queues\IQueueExtensions.cs" />
     <Compile Include="Queues\UriExtensions.cs" />
-    <Compile Include="ServiceBusEvents\PipelineEventEventArgs.cs" />
-    <Compile Include="ServiceBusEvents\PipelineExceptionEventArgs.cs" />
     <Compile Include="ServiceBusEvents\ThreadWorkingEventArgs.cs" />
     <Compile Include="ServiceBus\IMessageSender.cs" />
     <Compile Include="ServiceBus\MessageSender.cs" />
-    <Compile Include="ServiceBus\ServiceBusExtensions.cs" />
-    <Compile Include="IStartEndpoint.cs" />
     <Compile Include="MessageHandling\MessageHandlerFactory.cs" />
-    <Compile Include="IModule.cs" />
     <Compile Include="MessageHandling\HandlerContext.cs" />
     <Compile Include="MessageRoute\DefaultMessageRouteProvider.cs" />
     <Compile Include="MessageRoute\IMessageRouteProvider.cs" />
     <Compile Include="Messages\TransportHeader.cs" />
     <Compile Include="Messages\TransportMessageExtensions.cs" />
     <Compile Include="Pipeline\Pipelines\ControlInboxMessagePipeline.cs" />
-    <Compile Include="Pipeline\Pipelines\MessagePipeline.cs" />
     <Compile Include="Pipeline\Observers\Receive\ReceiveExceptionObserver.cs" />
     <Compile Include="Pipeline\Events\DistributorMessageEvents.cs" />
     <Compile Include="Pipeline\Observers\Distribute\DistributorMessageObserver.cs" />
@@ -198,14 +187,12 @@
     <Compile Include="Pipeline\Observers\Shared\DeserializeTransportMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\CompressMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\GetWorkMessageObserver.cs" />
-    <Compile Include="Pipeline\DefaultPipelineFactory.cs" />
     <Compile Include="Pipeline\Observers\Receive\HandleMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\SerializeTransportMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\TransactionScopeObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\DecompressMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Send\SendOutboxMessageObserver.cs" />
     <Compile Include="Pipeline\Events\SendMessageEvents.cs" />
-    <Compile Include="Pipeline\IPipelineFactory.cs" />
     <Compile Include="Pipeline\Observers\Shared\DecryptMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\DeserializeMessageObserver.cs" />
     <Compile Include="Pipeline\Observers\Shared\EncryptMessageObserver.cs" />
@@ -230,11 +217,9 @@
     <Compile Include="Processing\Distributor\WorkerThreadActivity.cs" />
     <Compile Include="Configuration\IWorkProcessorConfiguration.cs" />
     <Compile Include="Processing\QueueProcessor.cs" />
-    <Compile Include="Security\NullEncryptionAlgorithm.cs" />
     <Compile Include="ServiceBusEvents\HandlerExceptionEventArgs.cs" />
     <Compile Include="ServiceBusEvents\IServiceBusEvents.cs" />
     <Compile Include="ServiceBusEvents\MessageNotHandledEventArgs.cs" />
-    <Compile Include="ServiceBusEvents\PipelineEventArgs.cs" />
     <Compile Include="ServiceBus\ServiceBusEvents.cs" />
     <Compile Include="Configuration\ControlInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IErrorQueueConfiguration.cs" />
@@ -256,9 +241,6 @@
     <Compile Include="Configuration\WorkerConfiguration.cs" />
     <Compile Include="Exceptions\SendMessageException.cs" />
     <Compile Include="Exceptions\SubscriptionManagerException.cs" />
-    <Compile Include="Security\Section\TripleDESSection.cs" />
-    <Compile Include="Security\IEncryptionAlgorithm.cs" />
-    <Compile Include="Security\TripleDesEncryptionAlgorithm.cs" />
     <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="Exceptions\MessageRouteSpecificationException.cs" />
     <Compile Include="Exceptions\EsbConfigurationException.cs" />

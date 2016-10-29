@@ -31,9 +31,9 @@ namespace Shuttle.Esb
 			{
 				try
 				{
-					type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "Module", type.FullName));
+					type.AssertDefaultConstructor(string.Format(InfrastructureResources.DefaultConstructorRequired, "Module", type.FullName));
 
-					configuration.Modules.Add((IModule) Activator.CreateInstance(type));
+					configuration.Modules.Add((IPipelineModule) Activator.CreateInstance(type));
 				}
 				catch (Exception ex)
 				{

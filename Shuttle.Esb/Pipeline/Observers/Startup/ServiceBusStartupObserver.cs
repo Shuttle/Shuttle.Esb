@@ -51,12 +51,12 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			_configuration.IdempotenceService.AttemptInitialization(_bus);
+			_configuration.IdempotenceService.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnInitializeMessageHandlerFactory pipelineEvent)
 		{
-			_configuration.MessageHandlerFactory.AttemptInitialization(_bus);
+			_configuration.MessageHandlerFactory.AttemptDependencyInjection(_bus);
 
 		    if (_bus.Configuration.RegisterHandlers)
 		    {
@@ -66,21 +66,21 @@ namespace Shuttle.Esb
 
 		public void Execute(OnInitializeMessageRouteProvider pipelineEvent)
 		{
-			_configuration.MessageRouteProvider.AttemptInitialization(_bus);
+			_configuration.MessageRouteProvider.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnInitializePipelineFactory pipelineEvent)
 		{
-			_configuration.PipelineFactory.AttemptInitialization(_bus);
+			_configuration.PipelineFactory.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnInitializeQueueFactories pipelineEvent)
 		{
-			_configuration.QueueManager.AttemptInitialization(_bus);
+			_configuration.QueueManager.AttemptDependencyInjection(_bus);
 
 			foreach (var factory in _configuration.QueueManager.QueueFactories())
 			{
-				factory.AttemptInitialization(_bus);
+				factory.AttemptDependencyInjection(_bus);
 			}
 		}
 
@@ -93,12 +93,12 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			_configuration.SubscriptionManager.AttemptInitialization(_bus);
+			_configuration.SubscriptionManager.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnInitializeTransactionScopeFactory pipelineEvent)
 		{
-			_configuration.TransactionScopeFactory.AttemptInitialization(_bus);
+			_configuration.TransactionScopeFactory.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnStartControlInboxProcessing pipelineEvent)

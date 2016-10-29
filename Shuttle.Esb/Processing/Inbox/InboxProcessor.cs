@@ -35,8 +35,8 @@ namespace Shuttle.Esb
 			}
 
 			var messagePipeline = availableWorker == null
-				? _bus.Configuration.PipelineFactory.GetPipeline<InboxMessagePipeline>(_bus)
-				: (MessagePipeline) _bus.Configuration.PipelineFactory.GetPipeline<DistributorPipeline>(_bus);
+				? _bus.Configuration.PipelineFactory.GetPipeline<InboxMessagePipeline>()
+				: (IPipeline)_bus.Configuration.PipelineFactory.GetPipeline<DistributorPipeline>();
 
 			try
 			{

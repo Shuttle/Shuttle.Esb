@@ -1,9 +1,10 @@
-﻿namespace Shuttle.Esb
+﻿using Shuttle.Core.Infrastructure;
+
+namespace Shuttle.Esb
 {
-	public class OutboxPipeline : MessagePipeline
+	public class OutboxPipeline : Pipeline, IDependency<IServiceBus>
 	{
-		public OutboxPipeline(IServiceBus bus)
-			: base(bus)
+		public OutboxPipeline()
 		{
 			RegisterStage("Read")
 				.WithEvent<OnGetMessage>()
@@ -27,15 +28,15 @@
 			RegisterObserver(new OutboxExceptionObserver()); // must be last
 		}
 
-		public sealed override void Obtained()
-		{
-			base.Obtained();
+	    public void Assign(IServiceBus dependency)
+	    {
+            Guard.AgainstNull(dependency, "dependency");
 
-			State.SetWorkQueue(_bus.Configuration.Outbox.WorkQueue);
-			State.SetErrorQueue(_bus.Configuration.Outbox.ErrorQueue);
+            State.SetWorkQueue(dependency.Configuration.Outbox.WorkQueue);
+            State.SetErrorQueue(dependency.Configuration.Outbox.ErrorQueue);
 
-			State.SetDurationToIgnoreOnFailure(_bus.Configuration.Outbox.DurationToIgnoreOnFailure);
-			State.SetMaximumFailureCount(_bus.Configuration.Outbox.MaximumFailureCount);
-		}
-	}
+            State.SetDurationToIgnoreOnFailure(dependency.Configuration.Outbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(dependency.Configuration.Outbox.MaximumFailureCount);
+        }
+    }
 }

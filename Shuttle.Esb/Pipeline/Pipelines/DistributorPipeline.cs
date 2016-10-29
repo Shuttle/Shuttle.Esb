@@ -1,9 +1,10 @@
-﻿namespace Shuttle.Esb
+﻿using Shuttle.Core.Infrastructure;
+
+namespace Shuttle.Esb
 {
-	public class DistributorPipeline : MessagePipeline
+	public class DistributorPipeline : Pipeline, IDependency<IServiceBus>
 	{
-		public DistributorPipeline(IServiceBus bus)
-			: base(bus)
+		public DistributorPipeline()
 		{
 			RegisterStage("Distribute")
 				.WithEvent<OnGetMessage>()
@@ -28,12 +29,12 @@
 			RegisterObserver(new DistributorExceptionObserver()); // must be last
 		}
 
-		public sealed override void Obtained()
-		{
-			base.Obtained();
+	    public void Assign(IServiceBus dependency)
+	    {
+            Guard.AgainstNull(dependency, "dependency");
 
-			State.SetWorkQueue(_bus.Configuration.Inbox.WorkQueue);
-			State.SetErrorQueue(_bus.Configuration.Inbox.ErrorQueue);
-		}
-	}
+            State.SetWorkQueue(dependency.Configuration.Inbox.WorkQueue);
+            State.SetErrorQueue(dependency.Configuration.Inbox.ErrorQueue);
+        }
+    }
 }

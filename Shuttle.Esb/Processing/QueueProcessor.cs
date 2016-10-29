@@ -3,8 +3,8 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public abstract class QueueProcessor<TMessagePipeline> : IProcessor
-		where TMessagePipeline : MessagePipeline
+	public abstract class QueueProcessor<TPipeline> : IProcessor
+		where TPipeline : IPipeline
 	{
 		protected readonly IServiceBus Bus;
 		protected readonly IThreadActivity ThreadActivity;
@@ -20,7 +20,7 @@ namespace Shuttle.Esb
 
 		public virtual void Execute(IThreadState state)
 		{
-			var messagePipeline = Bus.Configuration.PipelineFactory.GetPipeline<TMessagePipeline>(Bus);
+			var messagePipeline = Bus.Configuration.PipelineFactory.GetPipeline<TPipeline>();
 
 			try
 			{
@@ -31,13 +31,13 @@ namespace Shuttle.Esb
 
 				if (messagePipeline.State.GetWorking())
 				{
-					Bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (TMessagePipeline)));
+					Bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (TPipeline)));
 
 					ThreadActivity.Working();
 				}
 				else
 				{
-					Bus.Events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof (TMessagePipeline)));
+					Bus.Events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof (TPipeline)));
 
 					ThreadActivity.Waiting(state);
 				}

@@ -3,7 +3,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class DefaultIdentityProvider : IIdentityProvider, IRequireInitialization
+    public class DefaultIdentityProvider : IIdentityProvider, IDependency<IServiceBus>
     {
         private static IIdentity _identity;
         private bool _cache;
@@ -13,11 +13,11 @@ namespace Shuttle.Esb
             return _cache ? _identity : WindowsIdentity.GetCurrent();
         }
 
-        public void Initialize(IServiceBus bus)
+        public void Assign(IServiceBus dependency)
         {
-            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(dependency, "dependency");
 
-            _cache = bus.Configuration.CacheIdentity;
+            _cache = dependency.Configuration.CacheIdentity;
 
             if (_cache)
             {

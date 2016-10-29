@@ -6,7 +6,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class QueueManager : IQueueManager, IRequireInitialization, IDisposable
+	public class QueueManager : IQueueManager, IDependency<IServiceBus>, IDisposable
 	{
 		private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
 		private readonly List<IQueue> _queues = new List<IQueue>();
@@ -159,7 +159,7 @@ namespace Shuttle.Esb
 		{
 			try
 			{
-				type.AssertDefaultConstructor(string.Format(EsbResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
+				type.AssertDefaultConstructor(string.Format(InfrastructureResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
 
 				var instance = (IQueueFactory) Activator.CreateInstance(type);
 
@@ -246,11 +246,11 @@ namespace Shuttle.Esb
 			}
 		}
 
-		public void Initialize(IServiceBus bus)
+		public void Assign(IServiceBus dependency)
 		{
-			Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(dependency, "dependency");
 
-			_uriResolver = bus.Configuration.UriResolver;
+            _uriResolver = dependency.Configuration.UriResolver;
 		}
 	}
 }

@@ -69,7 +69,7 @@ namespace Shuttle.Esb
 			return this;
 		}
 
-		public DefaultConfigurator AddModule(IModule module)
+		public DefaultConfigurator AddModule(IPipelineModule module)
 		{
 			Guard.AgainstNull(module, "module");
 

@@ -1,21 +1,19 @@
-﻿namespace Shuttle.Esb
+﻿using Shuttle.Core.Infrastructure;
+
+namespace Shuttle.Esb
 {
 	public class InboxMessagePipeline : ReceiveMessagePipeline
 	{
-		public InboxMessagePipeline(IServiceBus bus) : base(bus)
-		{
-		}
+	    public override void Assign(IServiceBus dependency)
+	    {
+            Guard.AgainstNull(dependency, "dependency");
 
-		public override sealed void Obtained()
-		{
-			base.Obtained();
+            State.SetWorkQueue(dependency.Configuration.Inbox.WorkQueue);
+            State.SetDeferredQueue(dependency.Configuration.Inbox.DeferredQueue);
+            State.SetErrorQueue(dependency.Configuration.Inbox.ErrorQueue);
 
-			State.SetWorkQueue(_bus.Configuration.Inbox.WorkQueue);
-			State.SetDeferredQueue(_bus.Configuration.Inbox.DeferredQueue);
-			State.SetErrorQueue(_bus.Configuration.Inbox.ErrorQueue);
-
-			State.SetDurationToIgnoreOnFailure(_bus.Configuration.Inbox.DurationToIgnoreOnFailure);
-			State.SetMaximumFailureCount(_bus.Configuration.Inbox.MaximumFailureCount);
-		}
-	}
+            State.SetDurationToIgnoreOnFailure(dependency.Configuration.Inbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(dependency.Configuration.Inbox.MaximumFailureCount);
+        }
+    }
 }
