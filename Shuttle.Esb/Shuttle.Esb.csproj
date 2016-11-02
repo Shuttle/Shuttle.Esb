@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.5\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.14\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -113,6 +113,7 @@
     <Compile Include="Configurator\QueueManagerConfigurator.cs" />
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
+    <Compile Include="ContainerExtensions.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IHandlerContext.cs" />
     <Compile Include="MessageHandling\IMessageHandlerInvoker.cs" />

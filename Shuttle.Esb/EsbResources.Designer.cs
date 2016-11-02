@@ -241,15 +241,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No IIdempotenceService implementation has been configured..
-        /// </summary>
-        public static string NoIdempotenceService {
-            get {
-                return ResourceManager.GetString("NoIdempotenceService", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No IMessageHandlerFactory implementation has been configured..
         /// </summary>
         public static string NoMessageHandlerFactoryException {
@@ -277,11 +268,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No ISubscriptionManager implementation has been configured..
+        ///   Looks up a localized string similar to No subscription manager has been registered..
         /// </summary>
-        public static string NoSubscriptionManager {
+        public static string NoSubscriptionManagerException {
             get {
-                return ResourceManager.GetString("NoSubscriptionManager", resourceCulture);
+                return ResourceManager.GetString("NoSubscriptionManagerException", resourceCulture);
             }
         }
         

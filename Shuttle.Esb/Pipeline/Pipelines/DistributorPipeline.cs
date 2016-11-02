@@ -2,11 +2,18 @@
 
 namespace Shuttle.Esb
 {
-	public class DistributorPipeline : Pipeline, IDependency<IServiceBus>
+	public class DistributorPipeline : Pipeline
 	{
-		public DistributorPipeline()
+		public DistributorPipeline(IServiceBus bus)
 		{
-			RegisterStage("Distribute")
+            Guard.AgainstNull(bus, "bus");
+
+            State.SetServiceBus(bus);
+
+            State.SetWorkQueue(bus.Configuration.Inbox.WorkQueue);
+            State.SetErrorQueue(bus.Configuration.Inbox.ErrorQueue);
+
+            RegisterStage("Distribute")
 				.WithEvent<OnGetMessage>()
 				.WithEvent<OnDeserializeTransportMessage>()
 				.WithEvent<OnAfterDeserializeTransportMessage>()
@@ -28,13 +35,5 @@ namespace Shuttle.Esb
 
 			RegisterObserver(new DistributorExceptionObserver()); // must be last
 		}
-
-	    public void Assign(IServiceBus dependency)
-	    {
-            Guard.AgainstNull(dependency, "dependency");
-
-            State.SetWorkQueue(dependency.Configuration.Inbox.WorkQueue);
-            State.SetErrorQueue(dependency.Configuration.Inbox.ErrorQueue);
-        }
     }
 }

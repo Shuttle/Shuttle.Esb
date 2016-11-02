@@ -15,14 +15,14 @@ namespace Shuttle.Esb
 			return this;
 		}
 
-		public DefaultConfigurator MessageHandlerFactory(IMessageHandlerFactory messageHandlerFactory)
-		{
-			Guard.AgainstNull(messageHandlerFactory, "messageHandlerFactory");
+        public DefaultConfigurator ComponentContainer(IComponentContainer container)
+        {
+            Guard.AgainstNull(container, "container");
 
-			_configuration.MessageHandlerFactory = messageHandlerFactory;
+            _configuration.Container = container;
 
-			return this;
-		}
+            return this;
+        }
 
 		public DefaultConfigurator MessageHandlerInvoker(IMessageHandlerInvoker messageHandlerInvoker)
 		{

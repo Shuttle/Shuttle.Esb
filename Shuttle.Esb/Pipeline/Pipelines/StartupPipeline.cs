@@ -2,28 +2,22 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class StartupPipeline : Pipeline, IDependency<IServiceBus>
+	public class StartupPipeline : Pipeline
 	{
-		public StartupPipeline()
+		public StartupPipeline(IServiceBus bus)
 		{
-			RegisterStage("Initializing")
+            Guard.AgainstNull(bus, "bus");
+
+            State.SetServiceBus(bus);
+
+            RegisterObserver(new ServiceBusStartupObserver(bus));
+
+            RegisterStage("Initializing")
 				.WithEvent<OnInitializing>()
-				.WithEvent<OnInitializeQueueFactories>()
-				.WithEvent<OnAfterInitializeQueueFactories>()
 				.WithEvent<OnCreateQueues>()
 				.WithEvent<OnAfterCreateQueues>()
-				.WithEvent<OnInitializeMessageHandlerFactory>()
-				.WithEvent<OnAfterInitializeMessageHandlerFactory>()
-				.WithEvent<OnInitializeMessageRouteProvider>()
-				.WithEvent<OnAfterInitializeMessageRouteProvider>()
-				.WithEvent<OnInitializePipelineFactory>()
-				.WithEvent<OnAfterInitializePipelineFactory>()
-				.WithEvent<OnInitializeSubscriptionManager>()
-				.WithEvent<OnAfterInitializeSubscriptionManager>()
-				.WithEvent<OnInitializeIdempotenceService>()
-				.WithEvent<OnAfterInitializeIdempotenceService>()
-				.WithEvent<OnInitializeTransactionScopeFactory>()
-				.WithEvent<OnAfterInitializeTransactionScopeFactory>();
+				.WithEvent<OnRegisterMessageHandlers>()
+				.WithEvent<OnAfterInitializeMessageHandlerFactory>();
 
 			RegisterStage("Start")
 				.WithEvent<OnStarting>()
@@ -41,10 +35,5 @@ namespace Shuttle.Esb
 			RegisterStage("Final")
 				.WithEvent<OnStarted>();
 		}
-
-	    public void Assign(IServiceBus dependency)
-	    {
-            RegisterObserver(new ServiceBusStartupObserver(dependency));
-        }
     }
 }

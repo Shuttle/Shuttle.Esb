@@ -6,14 +6,6 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnInitializeQueueFactories : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeQueueFactories : PipelineEvent
-	{
-	}
-
 	public class OnCreateQueues : PipelineEvent
 	{
 	}
@@ -22,51 +14,11 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnInitializeMessageHandlerFactory : PipelineEvent
+	public class OnRegisterMessageHandlers : PipelineEvent
 	{
 	}
 
 	public class OnAfterInitializeMessageHandlerFactory : PipelineEvent
-	{
-	}
-
-	public class OnInitializeMessageRouteProvider : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeMessageRouteProvider : PipelineEvent
-	{
-	}
-
-	public class OnInitializePipelineFactory : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializePipelineFactory : PipelineEvent
-	{
-	}
-
-	public class OnInitializeSubscriptionManager : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeSubscriptionManager : PipelineEvent
-	{
-	}
-
-	public class OnInitializeIdempotenceService : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeIdempotenceService : PipelineEvent
-	{
-	}
-
-	public class OnInitializeTransactionScopeFactory : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeTransactionScopeFactory : PipelineEvent
 	{
 	}
 

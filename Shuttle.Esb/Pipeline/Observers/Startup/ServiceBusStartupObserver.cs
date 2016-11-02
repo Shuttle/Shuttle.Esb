@@ -4,14 +4,8 @@ using Shuttle.Core.Infrastructure;
 namespace Shuttle.Esb
 {
 	public class ServiceBusStartupObserver :
-		IPipelineObserver<OnInitializeQueueFactories>,
 		IPipelineObserver<OnCreateQueues>,
-		IPipelineObserver<OnInitializeMessageHandlerFactory>,
-		IPipelineObserver<OnInitializeMessageRouteProvider>,
-		IPipelineObserver<OnInitializePipelineFactory>,
-		IPipelineObserver<OnInitializeSubscriptionManager>,
-		IPipelineObserver<OnInitializeIdempotenceService>,
-		IPipelineObserver<OnInitializeTransactionScopeFactory>,
+		IPipelineObserver<OnRegisterMessageHandlers>,
 		IPipelineObserver<OnStartInboxProcessing>,
 		IPipelineObserver<OnStartControlInboxProcessing>,
 		IPipelineObserver<OnStartOutboxProcessing>,
@@ -42,63 +36,12 @@ namespace Shuttle.Esb
 			_configuration.QueueManager.CreatePhysicalQueues(_configuration);
 		}
 
-		public void Execute(OnInitializeIdempotenceService pipelineEvent)
+		public void Execute(OnRegisterMessageHandlers pipelineEvent)
 		{
-			if (!_configuration.HasIdempotenceService)
-			{
-				_log.Information(EsbResources.NoIdempotenceService);
-
-				return;
-			}
-
-			_configuration.IdempotenceService.AttemptDependencyInjection(_bus);
-		}
-
-		public void Execute(OnInitializeMessageHandlerFactory pipelineEvent)
-		{
-			_configuration.MessageHandlerFactory.AttemptDependencyInjection(_bus);
-
 		    if (_bus.Configuration.RegisterHandlers)
 		    {
-		        _configuration.MessageHandlerFactory.RegisterHandlers();
+		        _configuration.Container.RegisterMessageHandlers();
 		    }
-		}
-
-		public void Execute(OnInitializeMessageRouteProvider pipelineEvent)
-		{
-			_configuration.MessageRouteProvider.AttemptDependencyInjection(_bus);
-		}
-
-		public void Execute(OnInitializePipelineFactory pipelineEvent)
-		{
-			_configuration.PipelineFactory.AttemptDependencyInjection(_bus);
-		}
-
-		public void Execute(OnInitializeQueueFactories pipelineEvent)
-		{
-			_configuration.QueueManager.AttemptDependencyInjection(_bus);
-
-			foreach (var factory in _configuration.QueueManager.QueueFactories())
-			{
-				factory.AttemptDependencyInjection(_bus);
-			}
-		}
-
-		public void Execute(OnInitializeSubscriptionManager pipelineEvent)
-		{
-			if (!_configuration.HasSubscriptionManager)
-			{
-				_log.Information(EsbResources.NoSubscriptionManager);
-
-				return;
-			}
-
-			_configuration.SubscriptionManager.AttemptDependencyInjection(_bus);
-		}
-
-		public void Execute(OnInitializeTransactionScopeFactory pipelineEvent)
-		{
-			_configuration.TransactionScopeFactory.AttemptDependencyInjection(_bus);
 		}
 
 		public void Execute(OnStartControlInboxProcessing pipelineEvent)

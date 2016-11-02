@@ -164,9 +164,6 @@
   <data name="RequeueWithNoInbox" xml:space="preserve">
     <value>You have tried to requeue a message but no inbox has been configured.</value>
   </data>
-  <data name="NoSubscriptionManager" xml:space="preserve">
-    <value>No ISubscriptionManager implementation has been configured.</value>
-  </data>
   <data name="TraceMessageEnqueued" xml:space="preserve">
     <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
     <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
@@ -234,9 +231,6 @@
   <data name="TransportMessageDeserializationException" xml:space="preserve">
     <value>Could not deserialize the transport message from queue '{0}'.  Exception reported: {1}</value>
     <comment>{0} = queue uri, {1} = exception</comment>
-  </data>
-  <data name="NoIdempotenceService" xml:space="preserve">
-    <value>No IIdempotenceService implementation has been configured.</value>
   </data>
   <data name="SerializerUnknownTypeExcption" xml:space="preserve">
     <value>Type '{0}' is not registered with the serializer so it cannot be serialized.  Please use [SerialierInstance].AddKnownType to add the type before attempting to serialize or deserialize a TransportMessage containing this type in the object graph of the message property.</value>
@@ -341,5 +335,8 @@
   <data name="DuplicateMessageHandlerException" xml:space="preserve">
     <value>Message handler type '{0}' has already been registered as the handler for message type '{1}'.  Message handler type '{2}' also handles the message type.</value>
     <comment>{0} = message handler type already registered, {1} = message type, {2} = {2} = duplicate message handler type</comment>
+  </data>
+  <data name="NoSubscriptionManagerException" xml:space="preserve">
+    <value>No subscription manager has been registered.</value>
   </data>
 </root>

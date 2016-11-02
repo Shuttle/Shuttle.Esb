@@ -2,7 +2,7 @@
 
 namespace Shuttle.Esb
 {
-	public abstract class ReceiveMessagePipeline : Pipeline, IDependency<IServiceBus>
+	public abstract class ReceiveMessagePipeline : Pipeline
 	{
 		protected ReceiveMessagePipeline()
 		{
@@ -47,7 +47,5 @@ namespace Shuttle.Esb
 
 			RegisterObserver(new ReceiveExceptionObserver()); // must be last
 		}
-
-	    public abstract void Assign(IServiceBus dependency);
 	}
 }

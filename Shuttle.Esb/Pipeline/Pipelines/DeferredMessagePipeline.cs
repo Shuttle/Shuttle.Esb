@@ -2,11 +2,19 @@
 
 namespace Shuttle.Esb
 {
-	public class DeferredMessagePipeline : Pipeline, IDependency<IServiceBus>
+	public class DeferredMessagePipeline : Pipeline
 	{
-		public DeferredMessagePipeline()
-		{
-			RegisterStage("Process")
+	    public DeferredMessagePipeline(IServiceBus bus)
+	    {
+	        Guard.AgainstNull(bus, "bus");
+
+            State.SetServiceBus(bus);
+
+            State.SetWorkQueue(bus.Configuration.Inbox.WorkQueue);
+            State.SetErrorQueue(bus.Configuration.Inbox.ErrorQueue);
+            State.SetDeferredQueue(bus.Configuration.Inbox.DeferredQueue);
+
+            RegisterStage("Process")
 				.WithEvent<OnGetMessage>()
 				.WithEvent<OnDeserializeTransportMessage>()
 				.WithEvent<OnAfterDeserializeTransportMessage>()
@@ -17,14 +25,5 @@ namespace Shuttle.Esb
 			RegisterObserver(new DeserializeTransportMessageObserver());
 			RegisterObserver(new ProcessDeferredMessageObserver());
 		}
-
-	    public void Assign(IServiceBus dependency)
-	    {
-            Guard.AgainstNull(dependency, "dependency");
-
-            State.SetWorkQueue(dependency.Configuration.Inbox.WorkQueue);
-            State.SetErrorQueue(dependency.Configuration.Inbox.ErrorQueue);
-            State.SetDeferredQueue(dependency.Configuration.Inbox.DeferredQueue);
-        }
     }
 }

@@ -21,7 +21,7 @@ namespace Shuttle.Esb
 		IInboxQueueConfiguration Inbox { get; set; }
 		IOutboxQueueConfiguration Outbox { get; set; }
 
-		IMessageHandlerFactory MessageHandlerFactory { get; set; }
+		IComponentContainer Container { get; set; }
 		IMessageHandlerInvoker MessageHandlerInvoker { get; set; }
 		IMessageHandlingAssessor MessageHandlingAssessor { get; set; }
 		IThreadActivityFactory ThreadActivityFactory { get; set; }

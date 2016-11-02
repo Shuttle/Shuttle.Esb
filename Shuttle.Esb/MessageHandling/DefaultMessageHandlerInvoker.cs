@@ -8,6 +8,7 @@ namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
+        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object _lock = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
 
@@ -18,52 +19,45 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var bus = state.GetServiceBus();
             var message = state.GetMessage();
-            var handler = bus.Configuration.MessageHandlerFactory.GetHandler(message);
+            var handler = bus.Configuration.Container.Resolve(MessageHandlerType.MakeGenericType(message.GetType()));
 
             if (handler == null)
             {
                 return MessageHandlerInvokeResult.InvokeFailure();
             }
 
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                var transportMessage = state.GetTransportMessage();
+                var messageType = message.GetType();
+
+                if (!_cache.ContainsKey(messageType))
                 {
-                    var transportMessage = state.GetTransportMessage();
-                    var messageType = message.GetType();
+                    var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+                    var method =
+                        handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
-                    if (!_cache.ContainsKey(messageType))
+                    if (method == null)
                     {
-                        var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-                        var method =
-                            handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
-
-                        if (method == null)
-                        {
-                            throw new ProcessMessageMethodMissingException(string.Format(
-                                EsbResources.ProcessMessageMethodMissingException,
-                                handler.GetType().FullName,
-                                messageType.FullName));
-                        }
-
-                        _cache.Add(messageType, new ContextMethod
-                        {
-                            ContextType = typeof(HandlerContext<>).MakeGenericType(messageType),
-                            Method = handler.GetType().GetInterfaceMap(typeof(IMessageHandler<>).MakeGenericType(messageType)).TargetMethods.SingleOrDefault()
-                        });
+                        throw new ProcessMessageMethodMissingException(string.Format(
+                            EsbResources.ProcessMessageMethodMissingException,
+                            handler.GetType().FullName,
+                            messageType.FullName));
                     }
 
-                    var contextMethod = _cache[messageType];
-
-                    var handlerContext = Activator.CreateInstance(contextMethod.ContextType, bus, transportMessage, message,
-                        state.GetActiveState());
-
-                    contextMethod.Method.Invoke(handler, new[] { handlerContext });
+                    _cache.Add(messageType, new ContextMethod
+                    {
+                        ContextType = typeof(HandlerContext<>).MakeGenericType(messageType),
+                        Method = handler.GetType().GetInterfaceMap(typeof(IMessageHandler<>).MakeGenericType(messageType)).TargetMethods.SingleOrDefault()
+                    });
                 }
-            }
-            finally
-            {
-                bus.Configuration.MessageHandlerFactory.ReleaseHandler(handler);
+
+                var contextMethod = _cache[messageType];
+
+                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, bus, transportMessage, message,
+                    state.GetActiveState());
+
+                contextMethod.Method.Invoke(handler, new[] { handlerContext });
             }
 
             return MessageHandlerInvokeResult.InvokedHandler(handler);

@@ -39,16 +39,18 @@ namespace Shuttle.Esb
 			// cannot be in startup pipeline as some modules may need to observe the startup pipeline
 			foreach (var module in Configuration.Modules)
 			{
-                module.AttemptDependencyInjection<IServiceBus>(this);
-
 				module.Start(Configuration.PipelineFactory);
 			}
 
-		    Configuration.PipelineFactory.PipelineCreated += (sender, args) =>
-		    {
-		        args.Pipeline.State.Add<IServiceBus>(this);
-                args.Pipeline.AttemptDependencyInjection<IServiceBus>(this);
-		    };
+		    Configuration.Container.Register(typeof (IServiceBus), this);
+		    Configuration.Container.Register(typeof (StartupPipeline), typeof (StartupPipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (InboxMessagePipeline), typeof (InboxMessagePipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (DistributorPipeline), typeof (DistributorPipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (DispatchTransportMessagePipeline), typeof (DispatchTransportMessagePipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (DeferredMessagePipeline), typeof (DeferredMessagePipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (OutboxPipeline), typeof (OutboxPipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (TransportMessagePipeline), typeof (TransportMessagePipeline), Lifestyle.Thread);
+		    Configuration.Container.Register(typeof (ControlInboxMessagePipeline), typeof (ControlInboxMessagePipeline), Lifestyle.Thread);
 
             var startupPipeline = Configuration.PipelineFactory.GetPipeline<StartupPipeline>();
 
@@ -68,7 +70,7 @@ namespace Shuttle.Esb
 		{
 			Guard.Against<EsbConfigurationException>(Configuration.Serializer == null, EsbResources.NoSerializerException);
 
-			Guard.Against<EsbConfigurationException>(Configuration.MessageHandlerFactory == null,
+			Guard.Against<EsbConfigurationException>(Configuration.Container == null,
 				EsbResources.NoMessageHandlerFactoryException);
 
 			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox,

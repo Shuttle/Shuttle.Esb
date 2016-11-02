@@ -24,7 +24,7 @@ namespace Shuttle.Esb
         private static ServiceBusSection _serviceBusSection;
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
-        private IMessageHandlerFactory _messageHandlerFactory;
+        private IComponentContainer _container;
         private IMessageHandlerInvoker _messageHandlerInvoker;
         private IMessageHandlingAssessor _messageHandlingAssessor;
         private IMessageRouteProvider _messageRouteProvider;
@@ -61,7 +61,7 @@ namespace Shuttle.Esb
 
         public ISerializer Serializer
         {
-            get { return _serializer ?? Synchronised(() => _serializer = new DefaultSerializer()); }
+            get { return _serializer ?? Synchronised(() => _serializer =  new DefaultSerializer()); }
             set
             {
                 Guard.AgainstNull(value, "serializer");
@@ -98,7 +98,7 @@ namespace Shuttle.Esb
 
         public IQueueManager QueueManager
         {
-            get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager()); }
+            get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager(this)); }
             set { _queueManager = value; }
         }
 
@@ -106,20 +106,20 @@ namespace Shuttle.Esb
 
         public ModuleCollection Modules { get; private set; }
 
-        public IMessageHandlerFactory MessageHandlerFactory
+        public IComponentContainer Container
         {
             get
             {
-                return _messageHandlerFactory ?? Synchronised(() => _messageHandlerFactory = new DefaultMessageHandlerFactory());
+                return _container ?? Synchronised(() => _container = new DefaultComponentContainer());
             }
-            set { _messageHandlerFactory = value; }
+            set { _container = value; }
         }
 
         public IMessageHandlerInvoker MessageHandlerInvoker
         {
             get
             {
-                return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
+                return _messageHandlerInvoker ?? (_messageHandlerInvoker = Container.Resolve<IMessageHandlerInvoker>()) ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
             }
             set { _messageHandlerInvoker = value; }
         }
@@ -147,7 +147,7 @@ namespace Shuttle.Esb
         {
             get
             {
-                return _identityProvider ?? Synchronised(() => _identityProvider = new DefaultIdentityProvider());
+                return _identityProvider ?? Synchronised(() => _identityProvider = new DefaultIdentityProvider(this));
             }
             set { _identityProvider = value; }
         }
@@ -183,7 +183,7 @@ namespace Shuttle.Esb
             {
                 if (!HasSubscriptionManager)
                 {
-                    throw new SubscriptionManagerException(EsbResources.NoSubscriptionManager);
+                    throw new SubscriptionManagerException(EsbResources.NoSubscriptionManagerException);
                 }
 
                 return _subscriptionManager;
@@ -222,7 +222,7 @@ namespace Shuttle.Esb
 
         public IPipelineFactory PipelineFactory
         {
-            get { return _pipelineFactory ?? Synchronised(() => _pipelineFactory = new DefaultPipelineFactory()); }
+            get { return _pipelineFactory ?? Synchronised(() => _pipelineFactory = new DefaultPipelineFactory(Container)); }
             set { _pipelineFactory = value; }
         }
 

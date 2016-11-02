@@ -2,41 +2,40 @@
 
 namespace Shuttle.Esb
 {
-	public class OutboxPipeline : Pipeline, IDependency<IServiceBus>
-	{
-		public OutboxPipeline()
-		{
-			RegisterStage("Read")
-				.WithEvent<OnGetMessage>()
-				.WithEvent<OnAfterGetMessage>()
-				.WithEvent<OnDeserializeTransportMessage>()
-				.WithEvent<OnAfterDeserializeTransportMessage>();
+    public class OutboxPipeline : Pipeline
+    {
+        public OutboxPipeline(IServiceBus bus)
+        {
+            Guard.AgainstNull(bus, "bus");
 
-			RegisterStage("Send")
-				.WithEvent<OnDispatchTransportMessage>()
-				.WithEvent<OnAfterDispatchTransportMessage>()
-				.WithEvent<OnAcknowledgeMessage>()
-				.WithEvent<OnAfterAcknowledgeMessage>();
+            State.SetServiceBus(bus);
 
-			RegisterObserver(new GetWorkMessageObserver());
-			RegisterObserver(new DeserializeTransportMessageObserver());
-			RegisterObserver(new DeferTransportMessageObserver());
-			RegisterObserver(new SendOutboxMessageObserver());
+            State.SetWorkQueue(bus.Configuration.Outbox.WorkQueue);
+            State.SetErrorQueue(bus.Configuration.Outbox.ErrorQueue);
 
-			RegisterObserver(new AcknowledgeMessageObserver());
+            State.SetDurationToIgnoreOnFailure(bus.Configuration.Outbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(bus.Configuration.Outbox.MaximumFailureCount);
 
-			RegisterObserver(new OutboxExceptionObserver()); // must be last
-		}
+            RegisterStage("Read")
+                .WithEvent<OnGetMessage>()
+                .WithEvent<OnAfterGetMessage>()
+                .WithEvent<OnDeserializeTransportMessage>()
+                .WithEvent<OnAfterDeserializeTransportMessage>();
 
-	    public void Assign(IServiceBus dependency)
-	    {
-            Guard.AgainstNull(dependency, "dependency");
+            RegisterStage("Send")
+                .WithEvent<OnDispatchTransportMessage>()
+                .WithEvent<OnAfterDispatchTransportMessage>()
+                .WithEvent<OnAcknowledgeMessage>()
+                .WithEvent<OnAfterAcknowledgeMessage>();
 
-            State.SetWorkQueue(dependency.Configuration.Outbox.WorkQueue);
-            State.SetErrorQueue(dependency.Configuration.Outbox.ErrorQueue);
+            RegisterObserver(new GetWorkMessageObserver());
+            RegisterObserver(new DeserializeTransportMessageObserver());
+            RegisterObserver(new DeferTransportMessageObserver());
+            RegisterObserver(new SendOutboxMessageObserver());
 
-            State.SetDurationToIgnoreOnFailure(dependency.Configuration.Outbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(dependency.Configuration.Outbox.MaximumFailureCount);
+            RegisterObserver(new AcknowledgeMessageObserver());
+
+            RegisterObserver(new OutboxExceptionObserver()); // must be last
         }
     }
 }

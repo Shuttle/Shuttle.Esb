@@ -6,18 +6,22 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class QueueManager : IQueueManager, IDependency<IServiceBus>, IDisposable
+	public class QueueManager : IQueueManager, IDisposable
 	{
 		private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
 		private readonly List<IQueue> _queues = new List<IQueue>();
 
 		private readonly ILog _log;
 		private static readonly object Padlock = new object();
-		private IUriResolver _uriResolver;
+		private readonly IUriResolver _uriResolver;
 
-		public QueueManager()
+		public QueueManager(IServiceBusConfiguration configuration)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(configuration, "configuration");
+
+            _uriResolver = configuration.UriResolver;
+
+            _log = Log.For(this);
 		}
 
 		public void Dispose()
@@ -244,13 +248,6 @@ namespace Shuttle.Esb
 			{
 				errorQueueConfiguration.ErrorQueue.AttemptCreate();
 			}
-		}
-
-		public void Assign(IServiceBus dependency)
-		{
-            Guard.AgainstNull(dependency, "dependency");
-
-            _uriResolver = dependency.Configuration.UriResolver;
 		}
 	}
 }
