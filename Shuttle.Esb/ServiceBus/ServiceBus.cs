@@ -19,7 +19,17 @@ namespace Shuttle.Esb
 
 			Configuration = configuration;
 
-			Events = new ServiceBusEvents();
+            Configuration.Container.Register(typeof(IServiceBus), this);
+            Configuration.Container.Register(typeof(StartupPipeline), typeof(StartupPipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(InboxMessagePipeline), typeof(InboxMessagePipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(DistributorPipeline), typeof(DistributorPipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(DispatchTransportMessagePipeline), typeof(DispatchTransportMessagePipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(DeferredMessagePipeline), typeof(DeferredMessagePipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(OutboxPipeline), typeof(OutboxPipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(TransportMessagePipeline), typeof(TransportMessagePipeline), Lifestyle.Thread);
+            Configuration.Container.Register(typeof(ControlInboxMessagePipeline), typeof(ControlInboxMessagePipeline), Lifestyle.Thread);
+
+            Events = new ServiceBusEvents();
 
 			_messageSender = new MessageSender(this);
 		}
@@ -41,16 +51,6 @@ namespace Shuttle.Esb
 			{
 				module.Start(Configuration.PipelineFactory);
 			}
-
-		    Configuration.Container.Register(typeof (IServiceBus), this);
-		    Configuration.Container.Register(typeof (StartupPipeline), typeof (StartupPipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (InboxMessagePipeline), typeof (InboxMessagePipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (DistributorPipeline), typeof (DistributorPipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (DispatchTransportMessagePipeline), typeof (DispatchTransportMessagePipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (DeferredMessagePipeline), typeof (DeferredMessagePipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (OutboxPipeline), typeof (OutboxPipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (TransportMessagePipeline), typeof (TransportMessagePipeline), Lifestyle.Thread);
-		    Configuration.Container.Register(typeof (ControlInboxMessagePipeline), typeof (ControlInboxMessagePipeline), Lifestyle.Thread);
 
             var startupPipeline = Configuration.PipelineFactory.GetPipeline<StartupPipeline>();
 

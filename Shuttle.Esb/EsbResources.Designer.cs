@@ -88,6 +88,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot set container as there is an existing container already set.  Changing the container may result in unexpected behaviour..
+        /// </summary>
+        public static string ContainerAlreadySetException {
+            get {
+                return ResourceManager.GetString("ContainerAlreadySetException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [worker available ({0})] worker inbox = {1} / distributor control inbox = {2}.
         /// </summary>
         public static string DebugWorkerAvailable {

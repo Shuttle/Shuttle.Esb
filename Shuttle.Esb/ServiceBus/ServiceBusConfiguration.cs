@@ -112,7 +112,15 @@ namespace Shuttle.Esb
             {
                 return _container ?? Synchronised(() => _container = new DefaultComponentContainer());
             }
-            set { _container = value; }
+            set
+            {
+                if (_container != null)
+                {
+                    throw new InvalidOperationException(EsbResources.ContainerAlreadySetException);
+                }
+
+                _container = value;
+            }
         }
 
         public IMessageHandlerInvoker MessageHandlerInvoker

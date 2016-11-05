@@ -1,35 +1,38 @@
-﻿using System;
-using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class TransportMessagePipeline : Pipeline
-	{
-		public TransportMessagePipeline()
-		{
-			RegisterStage("Create")
-				.WithEvent<OnAssembleMessage>()
-				.WithEvent<OnAfterAssembleMessage>()
-				.WithEvent<OnSerializeMessage>()
-				.WithEvent<OnAfterSerializeMessage>()
-				.WithEvent<OnEncryptMessage>()
-				.WithEvent<OnAfterEncryptMessage>()
-				.WithEvent<OnCompressMessage>()
-				.WithEvent<OnAfterCompressMessage>();
+    public class TransportMessagePipeline : Pipeline
+    {
+        public TransportMessagePipeline(IServiceBus bus)
+        {
+            Guard.AgainstNull(bus, "bus");
 
-			RegisterObserver(new AssembleMessageObserver());
-			RegisterObserver(new SerializeMessageObserver());
-			RegisterObserver(new CompressMessageObserver());
-			RegisterObserver(new EncryptMessageObserver());
-		}
+            State.SetServiceBus(bus);
 
-		public bool Execute(TransportMessageConfigurator configurator)
-		{
-			Guard.AgainstNull(configurator, "options");
+            RegisterStage("Create")
+                .WithEvent<OnAssembleMessage>()
+                .WithEvent<OnAfterAssembleMessage>()
+                .WithEvent<OnSerializeMessage>()
+                .WithEvent<OnAfterSerializeMessage>()
+                .WithEvent<OnEncryptMessage>()
+                .WithEvent<OnAfterEncryptMessage>()
+                .WithEvent<OnCompressMessage>()
+                .WithEvent<OnAfterCompressMessage>();
 
-			State.SetTransportMessageContext(configurator);
+            RegisterObserver(new AssembleMessageObserver());
+            RegisterObserver(new SerializeMessageObserver());
+            RegisterObserver(new CompressMessageObserver());
+            RegisterObserver(new EncryptMessageObserver());
+        }
 
-			return base.Execute();
-		}
-	}
+        public bool Execute(TransportMessageConfigurator configurator)
+        {
+            Guard.AgainstNull(configurator, "options");
+
+            State.SetTransportMessageContext(configurator);
+
+            return base.Execute();
+        }
+    }
 }

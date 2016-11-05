@@ -339,4 +339,7 @@
   <data name="NoSubscriptionManagerException" xml:space="preserve">
     <value>No subscription manager has been registered.</value>
   </data>
+  <data name="ContainerAlreadySetException" xml:space="preserve">
+    <value>Cannot set container as there is an existing container already set.  Changing the container may result in unexpected behaviour.</value>
+  </data>
 </root>
