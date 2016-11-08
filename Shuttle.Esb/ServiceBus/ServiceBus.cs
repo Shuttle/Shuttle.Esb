@@ -46,12 +46,6 @@ namespace Shuttle.Esb
 
 			GuardAgainstInvalidConfiguration();
 
-			// cannot be in startup pipeline as some modules may need to observe the startup pipeline
-			foreach (var module in Configuration.Modules)
-			{
-				module.Start(Configuration.PipelineFactory);
-			}
-
             var startupPipeline = Configuration.PipelineFactory.GetPipeline<StartupPipeline>();
 
             startupPipeline.Execute();
@@ -111,8 +105,6 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			Configuration.Modules.AttemptDispose();
-
 			if (Configuration.HasInbox)
 			{
 				if (Configuration.Inbox.HasDeferredQueue)
@@ -134,6 +126,8 @@ namespace Shuttle.Esb
 			}
 
 			Configuration.QueueManager.AttemptDispose();
+
+            Configuration.Container.AttemptDispose();
 
 			Started = false;
 		}

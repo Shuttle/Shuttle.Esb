@@ -15,11 +15,11 @@ namespace Shuttle.Esb
 		private static readonly object Padlock = new object();
 		private readonly IUriResolver _uriResolver;
 
-		public QueueManager(IServiceBusConfiguration configuration)
+		public QueueManager(IUriResolver uriResolver)
 		{
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(uriResolver, "uriResolver");
 
-            _uriResolver = configuration.UriResolver;
+            _uriResolver = uriResolver;
 
             _log = Log.For(this);
 		}

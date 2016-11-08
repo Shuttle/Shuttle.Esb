@@ -69,15 +69,6 @@ namespace Shuttle.Esb
 			return this;
 		}
 
-		public DefaultConfigurator AddModule(IPipelineModule module)
-		{
-			Guard.AgainstNull(module, "module");
-
-			_configuration.Modules.Add(module);
-
-			return this;
-		}
-
 		public DefaultConfigurator Policy(IServiceBusPolicy policy)
 		{
 			Guard.AgainstNull(policy, "policy");
@@ -159,7 +150,6 @@ namespace Shuttle.Esb
 			new InboxConfigurator().Apply(_configuration);
 			new OutboxConfigurator().Apply(_configuration);
 			new WorkerConfigurator().Apply(_configuration);
-			new ModuleConfigurator().Apply(_configuration);
 			new MessageRouteProviderConfigurator().Apply(_configuration);
 			new UriResolverConfigurator().Apply(_configuration);
 

@@ -4,7 +4,6 @@ using Shuttle.Core.Infrastructure;
 namespace Shuttle.Esb.Tests
 {
 	public class ServiceBusRoutingModule :
-		IPipelineModule,
 		IPipelineObserver<OnAfterDeserializeMessage>
 	{
 		public SimpleCommand SimpleCommand { get; private set; }

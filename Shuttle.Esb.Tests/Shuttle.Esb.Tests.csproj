@@ -46,8 +46,8 @@
       <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.17\lib\net45-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.19\lib\net45-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,7 +68,6 @@
     <Compile Include="RouteSpecificationTest.cs" />
     <Compile Include="ServiceBusRoutingModule.cs" />
     <Compile Include="ServiceBusSection\ControlInboxServiceBusSection.cs" />
-    <Compile Include="ServiceBusSection\ModulesServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\InboxServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\MessageRoutesServiceBusSection.cs" />
     <Compile Include="ServiceBusSection\OutboxServiceBusSection.cs" />
@@ -95,12 +94,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\Control-Full.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ServiceBusSection\files\Modules-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ServiceBusSection\files\Modules.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ServiceBusSection\files\Empty.config">

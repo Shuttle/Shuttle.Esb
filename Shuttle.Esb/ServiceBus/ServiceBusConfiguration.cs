@@ -44,8 +44,6 @@ namespace Shuttle.Esb
 
         public ServiceBusConfiguration()
         {
-            Modules = new ModuleCollection();
-
             RegisterHandlers = true;
         }
 
@@ -98,13 +96,11 @@ namespace Shuttle.Esb
 
         public IQueueManager QueueManager
         {
-            get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager(this)); }
+            get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager(UriResolver)); }
             set { _queueManager = value; }
         }
 
         public IIdempotenceService IdempotenceService { get; set; }
-
-        public ModuleCollection Modules { get; private set; }
 
         public IComponentContainer Container
         {
@@ -127,7 +123,7 @@ namespace Shuttle.Esb
         {
             get
             {
-                return _messageHandlerInvoker ?? (_messageHandlerInvoker = Container.Resolve<IMessageHandlerInvoker>()) ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
+                return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
             }
             set { _messageHandlerInvoker = value; }
         }

@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.17\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.19.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.19\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -98,8 +98,6 @@
     <Compile Include="Configuration\IMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\DefaultMessageHandlingAssessor.cs" />
     <Compile Include="Configuration\IThreadCount.cs" />
-    <Compile Include="Configuration\Section\ModuleElement.cs" />
-    <Compile Include="Configuration\Section\ModulesElement.cs" />
     <Compile Include="Configuration\Section\UriResolverItemElement.cs" />
     <Compile Include="Configuration\Section\UriResolverElement.cs" />
     <Compile Include="Configuration\Section\QueueFactoryElement.cs" />
@@ -108,7 +106,6 @@
     <Compile Include="Configurator\CoreConfigurator.cs" />
     <Compile Include="Configurator\InboxConfigurator.cs" />
     <Compile Include="Configurator\MessageRouteProviderConfigurator.cs" />
-    <Compile Include="Configurator\ModuleConfigurator.cs" />
     <Compile Include="Configurator\OutboxConfigurator.cs" />
     <Compile Include="Configurator\QueueManagerConfigurator.cs" />
     <Compile Include="Configurator\UriResolverConfigurator.cs" />
@@ -131,7 +128,6 @@
     <Compile Include="Configuration\IControlInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IOutboxQueueConfiguration.cs" />
     <Compile Include="Configuration\ITransactionScopeConfiguration.cs" />
-    <Compile Include="Configuration\ModuleCollection.cs" />
     <Compile Include="Configuration\Section\TransactionScopeElement.cs" />
     <Compile Include="Configuration\TransactionScopeConfiguration.cs" />
     <Compile Include="Exceptions\IdempotenceServiceException.cs" />
@@ -170,7 +166,6 @@
     <Compile Include="ServiceBusEvents\ThreadWorkingEventArgs.cs" />
     <Compile Include="ServiceBus\IMessageSender.cs" />
     <Compile Include="ServiceBus\MessageSender.cs" />
-    <Compile Include="MessageHandling\MessageHandlerFactory.cs" />
     <Compile Include="MessageHandling\HandlerContext.cs" />
     <Compile Include="MessageRoute\DefaultMessageRouteProvider.cs" />
     <Compile Include="MessageRoute\IMessageRouteProvider.cs" />
@@ -227,8 +222,6 @@
     <Compile Include="ServiceBusEvents\DeserializationExceptionEventArgs.cs" />
     <Compile Include="ServiceBusEvents\QueueEmptyEventArgs.cs" />
     <Compile Include="Exceptions\WorkerException.cs" />
-    <Compile Include="MessageHandling\DefaultMessageHandlerFactory.cs" />
-    <Compile Include="MessageHandling\IMessageHandlerFactory.cs" />
     <Compile Include="Messages\TransportMessage.cs" />
     <Compile Include="Configuration\IWorkerConfiguration.cs" />
     <Compile Include="Configuration\Section\ControlInboxElement.cs" />

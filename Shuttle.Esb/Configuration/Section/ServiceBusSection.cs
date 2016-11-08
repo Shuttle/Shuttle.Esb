@@ -16,12 +16,6 @@ namespace Shuttle.Esb
 			get { return (QueueFactoriesElement) this["queueFactories"]; }
 		}
 
-		[ConfigurationProperty("modules", IsRequired = false, DefaultValue = null)]
-		public ModulesElement Modules
-		{
-			get { return (ModulesElement) this["modules"]; }
-		}
-
 		[ConfigurationProperty("inbox", IsRequired = false, DefaultValue = null)]
 		public InboxElement Inbox
 		{

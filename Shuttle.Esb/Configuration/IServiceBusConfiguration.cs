@@ -35,8 +35,7 @@ namespace Shuttle.Esb
 		IUriResolver UriResolver { get; set; }
 
 		IQueueManager QueueManager { get; set; }
-		ModuleCollection Modules { get; }
-		ITransactionScopeFactory TransactionScopeFactory { get; set; }
+	    ITransactionScopeFactory TransactionScopeFactory { get; set; }
 		string EncryptionAlgorithm { get; set; }
 		string CompressionAlgorithm { get; set; }
 		ITransactionScopeConfiguration TransactionScope { get; set; }
