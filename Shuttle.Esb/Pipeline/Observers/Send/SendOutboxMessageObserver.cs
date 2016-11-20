@@ -4,14 +4,18 @@ namespace Shuttle.Esb
 {
 	public class SendOutboxMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
 	{
-		private readonly ILog _log;
+	    private readonly IQueueManager _queueManager;
+	    private readonly ILog _log;
 
-		public SendOutboxMessageObserver()
+		public SendOutboxMessageObserver(IQueueManager queueManager)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(queueManager, "queueManager");
+
+		    _queueManager = queueManager;
+		    _log = Log.For(this);
 		}
 
-		public void Execute(OnDispatchTransportMessage pipelineEvent)
+	    public void Execute(OnDispatchTransportMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
@@ -21,8 +25,7 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(receivedMessage, "receivedMessage");
 			Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-			var queue =
-				state.GetServiceBus().Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
+			var queue = _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
 
 			using (var stream = receivedMessage.Stream.Copy())
 			{

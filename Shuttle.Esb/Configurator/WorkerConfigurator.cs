@@ -17,10 +17,12 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			configuration.Worker =
-				new WorkerConfiguration(configuration.QueueManager.CreateQueue(
-					ServiceBusConfiguration.ServiceBusSection.Worker.DistributorControlWorkQueueUri),
-					ServiceBusConfiguration.ServiceBusSection.Worker.ThreadAvailableNotificationIntervalSeconds);
+		    configuration.Worker = new WorkerConfiguration
+		    {
+		        DistributorControlInboxWorkQueueUri =
+		            ServiceBusConfiguration.ServiceBusSection.Worker.DistributorControlWorkQueueUri,
+                ThreadAvailableNotificationIntervalSeconds = ServiceBusConfiguration.ServiceBusSection.Worker.ThreadAvailableNotificationIntervalSeconds
+            };
 		}
 	}
 }

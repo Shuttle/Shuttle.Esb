@@ -20,7 +20,37 @@ namespace Shuttle.Esb
 					: new List<string> {uri};
 		}
 
-		public void Add(IMessageRoute messageRoute)
+	    public DefaultMessageRouteProvider(IQueueManager queueManager)
+	    {
+            Guard.AgainstNull(queueManager, "queueManager");
+
+            if (ServiceBusConfiguration.ServiceBusSection == null ||
+                ServiceBusConfiguration.ServiceBusSection.MessageRoutes == null)
+            {
+                return;
+            }
+
+            var specificationFactory = new MessageRouteSpecificationFactory();
+
+            foreach (MessageRouteElement mapElement in ServiceBusConfiguration.ServiceBusSection.MessageRoutes)
+            {
+                var messageRoute = Find(mapElement.Uri);
+
+                if (messageRoute == null)
+                {
+                    messageRoute = new MessageRoute(queueManager.GetQueue(mapElement.Uri));
+
+                    Add(messageRoute);
+                }
+
+                foreach (SpecificationElement specificationElement in mapElement)
+                {
+                    messageRoute.AddSpecification(specificationFactory.Create(specificationElement.Name, specificationElement.Value));
+                }
+            }
+        }
+
+        public void Add(IMessageRoute messageRoute)
 		{
 			Guard.AgainstNull(messageRoute, "messageRoute");
 

@@ -1,159 +1,126 @@
+using System;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class DefaultConfigurator
-	{
-		private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
-
-		public DefaultConfigurator MessageSerializer(ISerializer serializer)
-		{
-			Guard.AgainstNull(serializer, "serializer");
-
-			_configuration.Serializer = serializer;
-
-			return this;
-		}
+    public class DefaultConfigurator
+    {
+        private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
 
         public DefaultConfigurator ComponentContainer(IComponentContainer container)
         {
             Guard.AgainstNull(container, "container");
 
-            _configuration.Container = container;
+            Container = container;
 
             return this;
         }
 
-		public DefaultConfigurator MessageHandlerInvoker(IMessageHandlerInvoker messageHandlerInvoker)
-		{
-			Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
+        public DefaultConfigurator AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
+        {
+            Guard.AgainstNull(algorithm, "algorithm");
 
-			_configuration.MessageHandlerInvoker = messageHandlerInvoker;
+            _configuration.AddCompressionAlgorithm(algorithm);
 
-			return this;
-		}
+            return this;
+        }
 
-		public DefaultConfigurator MessageHandlingAssessor(IMessageHandlingAssessor messageHandlingAssessor)
-		{
-			Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
+        public DefaultConfigurator AddEnryptionAlgorithm(IEncryptionAlgorithm algorithm)
+        {
+            Guard.AgainstNull(algorithm, "algorithm");
 
-			_configuration.MessageHandlingAssessor = messageHandlingAssessor;
+            _configuration.AddEncryptionAlgorithm(algorithm);
 
-			return this;
-		}
+            return this;
+        }
 
-		public DefaultConfigurator AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
-		{
-			Guard.AgainstNull(algorithm, "algorithm");
+        public IComponentContainer Container { get; private set; }
 
-			_configuration.AddCompressionAlgorithm(algorithm);
+        public IServiceBusConfiguration Configuration()
+        {
+            if (Container == null)
+            {
+                Container = new DefaultComponentContainer();
+            }
 
-			return this;
-		}
+            new CoreConfigurator().Apply(_configuration);
+            new ControlInboxConfigurator().Apply(_configuration);
+            new InboxConfigurator().Apply(_configuration);
+            new OutboxConfigurator().Apply(_configuration);
+            new WorkerConfigurator().Apply(_configuration);
 
-		public DefaultConfigurator AddEnryptionAlgorithm(IEncryptionAlgorithm algorithm)
-		{
-			Guard.AgainstNull(algorithm, "algorithm");
+            RegisterComponents(Container);
 
-			_configuration.AddEncryptionAlgorithm(algorithm);
+            return _configuration;
+        }
 
-			return this;
-		}
+        public void RegisterComponents(IComponentContainer container)
+        {
+            Guard.AgainstNull(container, "container");
 
-		public DefaultConfigurator SubscriptionManager(ISubscriptionManager manager)
-		{
-			Guard.AgainstNull(manager, "manager");
+            ApplyDefault<ISerializer, DefaultSerializer>(container);
+            ApplyDefault<IServiceBusPolicy, DefaultServiceBusPolicy>(container);
+            ApplyDefault<IMessageRouteProvider, DefaultMessageRouteProvider>(container);
+            ApplyDefault<IIdentityProvider, DefaultIdentityProvider>(container);
+            ApplyDefault<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>(container);
+            ApplyDefault<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>(container);
+            ApplyDefault<IThreadActivityFactory, DefaultThreadActivityFactory>(container);
+            ApplyDefault<IUriResolver, DefaultUriResolver>(container);
+            ApplyDefault<IQueueManager, QueueManager>(container);
+            ApplyDefault<IWorkerAvailabilityManager, WorkerAvailabilityManager>(container);
+            ApplyDefault<ISubscriptionService, NullSubscriptionService>(container);
+            ApplyDefault<IIdempotenceService, NullIdempotenceService>(container);
 
-			_configuration.SubscriptionManager = manager;
+            container.Register<IServiceBusConfiguration>(_configuration);
 
-			return this;
-		}
+            if (!container.IsRegistered(typeof(IPipelineFactory)))
+            {
+                container.Register<ITransactionScopeFactory>(new DefaultTransactionScopeFactory(_configuration.TransactionScope.Enabled, _configuration.TransactionScope.IsolationLevel, TimeSpan.FromSeconds(_configuration.TransactionScope.TimeoutSeconds)));
+            }
 
-		public DefaultConfigurator Policy(IServiceBusPolicy policy)
-		{
-			Guard.AgainstNull(policy, "policy");
+            if (!container.IsRegistered(typeof(IPipelineFactory)))
+            {
+                container.Register<IPipelineFactory>(new DefaultPipelineFactory(container));
+            }
 
-			_configuration.Policy = policy;
+            container.Register(typeof(StartupPipeline), typeof(StartupPipeline), Lifestyle.Transient);
+            container.Register(typeof(InboxMessagePipeline), typeof(InboxMessagePipeline), Lifestyle.Transient);
+            container.Register(typeof(DistributorPipeline), typeof(DistributorPipeline), Lifestyle.Transient);
+            container.Register(typeof(DispatchTransportMessagePipeline),
+                typeof(DispatchTransportMessagePipeline), Lifestyle.Transient);
+            container.Register(typeof(DeferredMessagePipeline), typeof(DeferredMessagePipeline),
+                Lifestyle.Transient);
+            container.Register(typeof(OutboxPipeline), typeof(OutboxPipeline), Lifestyle.Transient);
+            container.Register(typeof(TransportMessagePipeline), typeof(TransportMessagePipeline),
+                Lifestyle.Transient);
+            container.Register(typeof(ControlInboxMessagePipeline), typeof(ControlInboxMessagePipeline),
+                Lifestyle.Transient);
 
-			return this;
-		}
+            var reflectionService = new ReflectionService();
 
-		public DefaultConfigurator ThreadActivityFactory(IThreadActivityFactory factory)
-		{
-			Guard.AgainstNull(factory, "factory");
+            foreach (var type in reflectionService.GetTypes<IPipelineObserver>())
+            {
+                if (type.IsInterface || container.IsRegistered(type))
+                {
+                    continue;
+                }
 
-			_configuration.ThreadActivityFactory = factory;
+                container.Register(type, type, Lifestyle.Singleton);
+            }
 
-			return this;
-		}
+            if (_configuration.RegisterHandlers)
+            {
+                container.RegisterMessageHandlers();
+            }
+        }
 
-		public DefaultConfigurator PipelineFactory(IPipelineFactory pipelineFactory)
-		{
-			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+        private void ApplyDefault<TService, TImplementation>(IComponentContainer container) where TImplementation : class where TService : class
+        {
+            if (!container.IsRegistered(typeof(TService)))
+            {
+                container.Register<TService, TImplementation>();
+            }
+        }
 
-			_configuration.PipelineFactory = pipelineFactory;
-
-			return this;
-		}
-
-		public DefaultConfigurator TransactionScopeFactory(ITransactionScopeFactory transactionScopeFactory)
-		{
-			Guard.AgainstNull(transactionScopeFactory, "transactionScopeFactory");
-
-			_configuration.TransactionScopeFactory = transactionScopeFactory;
-
-			return this;
-		}
-
-		public DefaultConfigurator MessageRouteProvider(IMessageRouteProvider messageRouteProvider)
-		{
-			Guard.AgainstNull(messageRouteProvider, "messageRouteProvider");
-
-			_configuration.MessageRouteProvider = messageRouteProvider;
-
-			return this;
-		}
-
-		public DefaultConfigurator IdentityProvider(IIdentityProvider identityProvider)
-		{
-			Guard.AgainstNull(identityProvider, "identityProvider");
-
-			_configuration.IdentityProvider = identityProvider;
-
-			return this;
-		}
-
-		public DefaultConfigurator IdempotenceService(IIdempotenceService idempotenceService)
-		{
-			Guard.AgainstNull(idempotenceService, "idempotenceService");
-
-			_configuration.IdempotenceService = idempotenceService;
-
-			return this;
-		}
-
-		public DefaultConfigurator UriResolver(IUriResolver uriResolver)
-		{
-			Guard.AgainstNull(uriResolver, "uriResolver");
-
-			_configuration.UriResolver = uriResolver;
-
-			return this;
-		}
-
-		public IServiceBusConfiguration Configuration()
-		{
-			new QueueManagerConfigurator().Apply(_configuration);
-
-			new CoreConfigurator().Apply(_configuration);
-			new ControlInboxConfigurator().Apply(_configuration);
-			new InboxConfigurator().Apply(_configuration);
-			new OutboxConfigurator().Apply(_configuration);
-			new WorkerConfigurator().Apply(_configuration);
-			new MessageRouteProviderConfigurator().Apply(_configuration);
-			new UriResolverConfigurator().Apply(_configuration);
-
-			return _configuration;
-		}
-	}
+    }
 }

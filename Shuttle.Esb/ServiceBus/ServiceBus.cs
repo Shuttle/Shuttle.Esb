@@ -1,189 +1,145 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class ServiceBus : IServiceBus
-	{
-		private readonly IMessageSender _messageSender;
+    public class ServiceBus : IServiceBus
+    {
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly ISubscriptionService _subscriptionService;
+        private IMessageSender _messageSender;
 
-		private IProcessorThreadPool _controlThreadPool;
-		private IProcessorThreadPool _inboxThreadPool;
-		private IProcessorThreadPool _outboxThreadPool;
-		private IProcessorThreadPool _deferredMessageThreadPool;
+        private IProcessorThreadPool _controlThreadPool;
+        private IProcessorThreadPool _inboxThreadPool;
+        private IProcessorThreadPool _outboxThreadPool;
+        private IProcessorThreadPool _deferredMessageThreadPool;
 
-		public ServiceBus(IServiceBusConfiguration configuration)
-		{
-			Guard.AgainstNull(configuration, "configuration");
+        public ServiceBus(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
+        {
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+            Guard.AgainstNull(subscriptionService, "subscriptionService");
 
-			Configuration = configuration;
+            _pipelineFactory = pipelineFactory;
+            _subscriptionService = subscriptionService;
 
-            Configuration.Container.Register(typeof(IServiceBus), this);
-            Configuration.Container.Register(typeof(StartupPipeline), typeof(StartupPipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(InboxMessagePipeline), typeof(InboxMessagePipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(DistributorPipeline), typeof(DistributorPipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(DispatchTransportMessagePipeline), typeof(DispatchTransportMessagePipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(DeferredMessagePipeline), typeof(DeferredMessagePipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(OutboxPipeline), typeof(OutboxPipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(TransportMessagePipeline), typeof(TransportMessagePipeline), Lifestyle.Thread);
-            Configuration.Container.Register(typeof(ControlInboxMessagePipeline), typeof(ControlInboxMessagePipeline), Lifestyle.Thread);
+            Configuration = configuration;
 
             Events = new ServiceBusEvents();
+        }
 
-			_messageSender = new MessageSender(this);
-		}
+        public IServiceBusConfiguration Configuration { get; private set; }
+        public IServiceBusEvents Events { get; private set; }
 
-		public IServiceBusConfiguration Configuration { get; private set; }
-		public IServiceBusEvents Events { get; private set; }
+        public IServiceBus Start()
+        {
+            if (Started)
+            {
+                throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
+            }
 
-		public IServiceBus Start()
-		{
-			if (Started)
-			{
-				throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
-			}
+            Configuration.Invariant();
 
-			GuardAgainstInvalidConfiguration();
-
-            var startupPipeline = Configuration.PipelineFactory.GetPipeline<StartupPipeline>();
+            var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
             startupPipeline.Execute();
 
-			_inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
-			_controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
-			_outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
-			_deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+            _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
+            _controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
+            _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
+            _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
 
-			Started = true;
+            _messageSender = new MessageSender(_pipelineFactory, _subscriptionService);
 
-			return this;
-		}
+            Started = true;
 
-		private void GuardAgainstInvalidConfiguration()
-		{
-			Guard.Against<EsbConfigurationException>(Configuration.Serializer == null, EsbResources.NoSerializerException);
+            return this;
+        }
 
-			Guard.Against<EsbConfigurationException>(Configuration.Container == null,
-				EsbResources.NoMessageHandlerFactoryException);
+        public void Stop()
+        {
+            if (!Started)
+            {
+                return;
+            }
 
-			Guard.Against<WorkerException>(Configuration.IsWorker && !Configuration.HasInbox,
-				EsbResources.WorkerRequiresInboxException);
+            if (Configuration.HasInbox)
+            {
+                if (Configuration.Inbox.HasDeferredQueue)
+                {
+                    _deferredMessageThreadPool.Dispose();
+                }
 
-			if (Configuration.HasInbox)
-			{
-				Guard.Against<EsbConfigurationException>(Configuration.Inbox.WorkQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "Inbox.WorkQueue"));
+                _inboxThreadPool.Dispose();
+            }
 
-				Guard.Against<EsbConfigurationException>(Configuration.Inbox.ErrorQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "Inbox.ErrorQueue"));
-			}
+            if (Configuration.HasControlInbox)
+            {
+                _controlThreadPool.Dispose();
+            }
 
-			if (Configuration.HasOutbox)
-			{
-				Guard.Against<EsbConfigurationException>(Configuration.Outbox.WorkQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "Outbox.WorkQueue"));
+            if (Configuration.HasOutbox)
+            {
+                _outboxThreadPool.Dispose();
+            }
 
-				Guard.Against<EsbConfigurationException>(Configuration.Outbox.ErrorQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "Outbox.ErrorQueue"));
-			}
+            Started = false;
+        }
 
-			if (Configuration.HasControlInbox)
-			{
-				Guard.Against<EsbConfigurationException>(Configuration.ControlInbox.WorkQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "ControlInbox.WorkQueue"));
+        public bool Started { get; private set; }
 
-				Guard.Against<EsbConfigurationException>(Configuration.ControlInbox.ErrorQueue == null,
-					string.Format(EsbResources.RequiredQueueMissing, "ControlInbox.ErrorQueue"));
-			}
-		}
+        public void Dispose()
+        {
+            Stop();
+        }
 
-		public void Stop()
-		{
-			if (!Started)
-			{
-				return;
-			}
+        public static IServiceBus Create()
+        {
+            return Create(null);
+        }
 
-			if (Configuration.HasInbox)
-			{
-				if (Configuration.Inbox.HasDeferredQueue)
-				{
-					_deferredMessageThreadPool.Dispose();
-				}
+        public static IServiceBus Create(Action<DefaultConfigurator> configure)
+        {
+            var configurator = new DefaultConfigurator();
 
-				_inboxThreadPool.Dispose();
-			}
+            if (configure != null)
+            {
+                configure.Invoke(configurator);
+            }
 
-			if (Configuration.HasControlInbox)
-			{
-				_controlThreadPool.Dispose();
-			}
+            return new ServiceBus(configurator.Configuration(), configurator.Container.Resolve<IPipelineFactory>(), configurator.Container.Resolve<ISubscriptionService>());
+        }
 
-			if (Configuration.HasOutbox)
-			{
-				_outboxThreadPool.Dispose();
-			}
+        public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
+        {
+            return _messageSender.CreateTransportMessage(message, configure);
+        }
 
-			Configuration.QueueManager.AttemptDispose();
+        public void Dispatch(TransportMessage transportMessage)
+        {
+            _messageSender.Dispatch(transportMessage);
+        }
 
-            Configuration.Container.AttemptDispose();
+        public TransportMessage Send(object message)
+        {
+            return _messageSender.Send(message);
+        }
 
-			Started = false;
-		}
+        public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
+        {
+            return _messageSender.Send(message, configure);
+        }
 
-		public bool Started { get; private set; }
+        public IEnumerable<TransportMessage> Publish(object message)
+        {
+            return _messageSender.Publish(message);
+        }
 
-		public void Dispose()
-		{
-			Stop();
-		}
-
-		public static IServiceBus Create()
-		{
-			return Create(null);
-		}
-
-		public static IServiceBus Create(Action<DefaultConfigurator> configure)
-		{
-			var configurator = new DefaultConfigurator();
-
-			if (configure != null)
-			{
-				configure.Invoke(configurator);
-			}
-
-			return new ServiceBus(configurator.Configuration());
-		}
-
-		public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-		{
-			return _messageSender.CreateTransportMessage(message, configure);
-		}
-
-		public void Dispatch(TransportMessage transportMessage)
-		{
-			_messageSender.Dispatch(transportMessage);
-		}
-
-		public TransportMessage Send(object message)
-		{
-			return _messageSender.Send(message);
-		}
-
-		public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
-		{
-			return _messageSender.Send(message, configure);
-		}
-
-		public IEnumerable<TransportMessage> Publish(object message)
-		{
-			return _messageSender.Publish(message);
-		}
-
-		public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
-		{
-			return _messageSender.Publish(message, configure);
-		}
-	}
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
+        {
+            return _messageSender.Publish(message, configure);
+        }
+    }
 }

@@ -2,107 +2,115 @@
 
 namespace Shuttle.Esb
 {
-	public class ReceiveExceptionObserver :
-		IPipelineObserver<OnPipelineException>
-	{
-		private readonly ILog _log;
+    public class ReceiveExceptionObserver :
+        IPipelineObserver<OnPipelineException>
+    {
+        private readonly ILog _log;
 
-		public ReceiveExceptionObserver()
-		{
-			_log = Log.For(this);
-		}
+        private readonly IServiceBusPolicy _policy;
+        private readonly ISerializer _serializer;
 
-		public void Execute(OnPipelineException pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var bus = state.GetServiceBus();
+        public ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        {
+            Guard.AgainstNull(policy, "policy");
+            Guard.AgainstNull(serializer, "serializer");
 
-			bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+            _policy = policy;
+            _serializer = serializer;
+            _log = Log.For(this);
+        }
 
-			try
-			{
-				if (pipelineEvent.Pipeline.ExceptionHandled)
-				{
-					return;
-				}
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var bus = state.GetServiceBus();
 
-				try
-				{
-					var transportMessage = state.GetTransportMessage();
-					var receivedMessage = state.GetReceivedMessage();
+            bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
-					if (transportMessage == null)
-					{
-						if (receivedMessage != null)
-						{
-							state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+            try
+            {
+                if (pipelineEvent.Pipeline.ExceptionHandled)
+                {
+                    return;
+                }
 
-							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased,
-								pipelineEvent.Pipeline.Exception.AllMessages()));
-						}
-						else
-						{
-							_log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived,
-								pipelineEvent.Pipeline.Exception.AllMessages()));
-						}
+                try
+                {
+                    var transportMessage = state.GetTransportMessage();
+                    var receivedMessage = state.GetReceivedMessage();
 
-						return;
-					}
+                    if (transportMessage == null)
+                    {
+                        if (receivedMessage != null)
+                        {
+                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
 
-					var action = bus.Configuration.Policy.EvaluateMessageHandlingFailure(pipelineEvent);
+                            _log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased,
+                                pipelineEvent.Pipeline.Exception.AllMessages()));
+                        }
+                        else
+                        {
+                            _log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived,
+                                pipelineEvent.Pipeline.Exception.AllMessages()));
+                        }
 
-					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-						action.TimeSpanToIgnoreRetriedMessage);
+                        return;
+                    }
 
-					using (var stream = bus.Configuration.Serializer.Serialize(transportMessage))
-					{
-						var handler = state.GetMessageHandler();
-						var handlerFullTypeName = handler != null ? handler.GetType().FullName : "(handler is null)";
-						var currentRetryCount = transportMessage.FailureMessages.Count;
+                    var action = _policy.EvaluateMessageHandlingFailure(pipelineEvent);
 
-						var retry = !(pipelineEvent.Pipeline.Exception is UnrecoverableHandlerException)
-						            &&
-						            action.Retry;
+                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                        action.TimeSpanToIgnoreRetriedMessage);
 
-						if (retry)
-						{
-							_log.Warning(string.Format(EsbResources.MessageHandlerExceptionWillRetry,
-								handlerFullTypeName,
-								pipelineEvent.Pipeline.Exception.AllMessages(),
-								transportMessage.MessageType,
-								transportMessage.MessageId,
-								currentRetryCount,
-								state.GetMaximumFailureCount()));
+                    using (var stream = _serializer.Serialize(transportMessage))
+                    {
+                        var handler = state.GetMessageHandler();
+                        var handlerFullTypeName = handler != null ? handler.GetType().FullName : "(handler is null)";
+                        var currentRetryCount = transportMessage.FailureMessages.Count;
 
-							state.GetWorkQueue().Enqueue(transportMessage, stream);
-						}
-						else
-						{
-							_log.Error(string.Format(EsbResources.MessageHandlerExceptionFailure,
-								handlerFullTypeName,
-								pipelineEvent.Pipeline.Exception.AllMessages(),
-								transportMessage.MessageType,
-								transportMessage.MessageId,
-								state.GetMaximumFailureCount(),
-								state.GetErrorQueue().Uri));
+                        var retry = !(pipelineEvent.Pipeline.Exception is UnrecoverableHandlerException)
+                                    &&
+                                    action.Retry;
 
-							state.GetErrorQueue().Enqueue(transportMessage, stream);
-						}
-					}
+                        if (retry)
+                        {
+                            _log.Warning(string.Format(EsbResources.MessageHandlerExceptionWillRetry,
+                                handlerFullTypeName,
+                                pipelineEvent.Pipeline.Exception.AllMessages(),
+                                transportMessage.MessageType,
+                                transportMessage.MessageId,
+                                currentRetryCount,
+                                state.GetMaximumFailureCount()));
 
-					state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
-				}
-				finally
-				{
-					pipelineEvent.Pipeline.MarkExceptionHandled();
-					bus.Events.OnAfterPipelineExceptionHandled(this,
-						new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
-				}
-			}
-			finally
-			{
-				pipelineEvent.Pipeline.Abort();
-			}
-		}
-	}
+                            state.GetWorkQueue().Enqueue(transportMessage, stream);
+                        }
+                        else
+                        {
+                            _log.Error(string.Format(EsbResources.MessageHandlerExceptionFailure,
+                                handlerFullTypeName,
+                                pipelineEvent.Pipeline.Exception.AllMessages(),
+                                transportMessage.MessageType,
+                                transportMessage.MessageId,
+                                state.GetMaximumFailureCount(),
+                                state.GetErrorQueue().Uri));
+
+                            state.GetErrorQueue().Enqueue(transportMessage, stream);
+                        }
+                    }
+
+                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
+                }
+                finally
+                {
+                    pipelineEvent.Pipeline.MarkExceptionHandled();
+                    bus.Events.OnAfterPipelineExceptionHandled(this,
+                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+                }
+            }
+            finally
+            {
+                pipelineEvent.Pipeline.Abort();
+            }
+        }
+    }
 }

@@ -2,67 +2,75 @@
 
 namespace Shuttle.Esb
 {
-	public class OutboxExceptionObserver : IPipelineObserver<OnPipelineException>
-	{
-		public void Execute(OnPipelineException pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var bus = state.GetServiceBus();
+    public class OutboxExceptionObserver : IPipelineObserver<OnPipelineException>
+    {
+        private readonly IServiceBusPolicy _policy;
+        private readonly ISerializer _serializer;
 
-			bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+        public OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        {
+            Guard.AgainstNull(policy, "policy");
+            Guard.AgainstNull(serializer, "serializer");
 
-			try
-			{
-				if (pipelineEvent.Pipeline.ExceptionHandled)
-				{
-					return;
-				}
+            _policy = policy;
+            _serializer = serializer;
+        }
 
-				try
-				{
-					var receivedMessage = state.GetReceivedMessage();
-					var transportMessage = state.GetTransportMessage();
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var bus = state.GetServiceBus();
 
-					if (transportMessage == null)
-					{
-						if (receivedMessage != null)
-						{
-							state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
-						}
+            bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
-						return;
-					}
+            try
+            {
+                if (pipelineEvent.Pipeline.ExceptionHandled)
+                {
+                    return;
+                }
 
-					var action = bus.Configuration.Policy.EvaluateOutboxFailure(pipelineEvent);
+                try
+                {
+                    var receivedMessage = state.GetReceivedMessage();
+                    var transportMessage = state.GetTransportMessage();
 
-					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-						action.TimeSpanToIgnoreRetriedMessage);
+                    if (transportMessage == null)
+                    {
+                        if (receivedMessage != null)
+                        {
+                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+                        }
 
-					if (action.Retry)
-					{
-						state.GetWorkQueue().Enqueue(
-							transportMessage,
-							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
-					}
-					else
-					{
-						state.GetErrorQueue().Enqueue(
-							transportMessage,
-							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
-					}
+                        return;
+                    }
 
-					state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
-				}
-				finally
-				{
-					pipelineEvent.Pipeline.MarkExceptionHandled();
-					bus.Events.OnAfterPipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
-				}
-			}
-			finally
-			{
-				pipelineEvent.Pipeline.Abort();
-			}
-		}
-	}
+                    var action = _policy.EvaluateOutboxFailure(pipelineEvent);
+
+                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                        action.TimeSpanToIgnoreRetriedMessage);
+
+                    if (action.Retry)
+                    {
+                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                    }
+                    else
+                    {
+                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                    }
+
+                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
+                }
+                finally
+                {
+                    pipelineEvent.Pipeline.MarkExceptionHandled();
+                    bus.Events.OnAfterPipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+                }
+            }
+            finally
+            {
+                pipelineEvent.Pipeline.Abort();
+            }
+        }
+    }
 }

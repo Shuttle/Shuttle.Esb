@@ -6,7 +6,16 @@ namespace Shuttle.Esb
 		IPipelineObserver<OnHandleDistributeMessage>,
 		IPipelineObserver<OnAbortPipeline>
 	{
-		public void Execute(OnHandleDistributeMessage pipelineEvent)
+	    private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+
+	    public DistributorMessageObserver(IWorkerAvailabilityManager workerAvailabilityManager)
+	    {
+            Guard.AgainstNull(workerAvailabilityManager, "workerAvailabilityManager");
+
+	        _workerAvailabilityManager = workerAvailabilityManager;
+	    }
+
+	    public void Execute(OnHandleDistributeMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
@@ -21,8 +30,7 @@ namespace Shuttle.Esb
 		{
 			var state = pipelineEvent.Pipeline.State;
 
-			state.GetServiceBus().Configuration
-				.WorkerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
+			_workerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
 		}
 	}
 }

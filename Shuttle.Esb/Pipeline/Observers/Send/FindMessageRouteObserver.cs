@@ -3,41 +3,44 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class FindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
-	{
-		public void Execute(OnFindRouteForMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var transportMessage = state.GetTransportMessage();
+    public class FindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
+    {
+        private readonly IMessageRouteProvider _messageRouteProvider;
 
-			if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
-			{
-				transportMessage.RecipientInboxWorkQueueUri = FindRoute(state.GetServiceBus().Configuration.MessageRouteProvider,
-					transportMessage.MessageType);
-			}
-		}
+        public FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider)
+        {
+            Guard.AgainstNull(messageRouteProvider, "messageRouteProvider");
 
-		private static string FindRoute(IMessageRouteProvider routeProvider, string messageType)
-		{
-			if (routeProvider == null)
-			{
-				throw new EsbConfigurationException(EsbResources.NoMessageRouteProviderException);
-			}
+            _messageRouteProvider = messageRouteProvider;
+        }
 
-			var routeUris = routeProvider.GetRouteUris(messageType).ToList();
+        public void Execute(OnFindRouteForMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var transportMessage = state.GetTransportMessage();
 
-			if (!routeUris.Any())
-			{
-				throw new SendMessageException(string.Format(EsbResources.MessageRouteNotFound, messageType));
-			}
+            if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
+            {
+                transportMessage.RecipientInboxWorkQueueUri = FindRoute(_messageRouteProvider, transportMessage.MessageType);
+            }
+        }
 
-			if (routeUris.Count() > 1)
-			{
-				throw new SendMessageException(string.Format(EsbResources.MessageRoutedToMoreThanOneEndpoint,
-					messageType, string.Join(",", routeUris.ToArray())));
-			}
+        private static string FindRoute(IMessageRouteProvider routeProvider, string messageType)
+        {
+            var routeUris = routeProvider.GetRouteUris(messageType).ToList();
 
-			return routeUris.ElementAt(0);
-		}
-	}
+            if (!routeUris.Any())
+            {
+                throw new SendMessageException(string.Format(EsbResources.MessageRouteNotFound, messageType));
+            }
+
+            if (routeUris.Count() > 1)
+            {
+                throw new SendMessageException(string.Format(EsbResources.MessageRoutedToMoreThanOneEndpoint,
+                    messageType, string.Join(",", routeUris.ToArray())));
+            }
+
+            return routeUris.ElementAt(0);
+        }
+    }
 }

@@ -4,7 +4,9 @@ namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBus bus)
+        public OutboxPipeline(IServiceBus bus, GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            DeferTransportMessageObserver deferTransportMessageObserver, SendOutboxMessageObserver sendOutboxMessageObserver,
+            AcknowledgeMessageObserver acknowledgeMessageObserver, OutboxExceptionObserver outboxExceptionObserver)
         {
             Guard.AgainstNull(bus, "bus");
 
@@ -28,14 +30,14 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(new GetWorkMessageObserver());
-            RegisterObserver(new DeserializeTransportMessageObserver());
-            RegisterObserver(new DeferTransportMessageObserver());
-            RegisterObserver(new SendOutboxMessageObserver());
+            RegisterObserver(getWorkMessageObserver);
+            RegisterObserver(deserializeTransportMessageObserver);
+            RegisterObserver(deferTransportMessageObserver);
+            RegisterObserver(sendOutboxMessageObserver);
 
-            RegisterObserver(new AcknowledgeMessageObserver());
+            RegisterObserver(acknowledgeMessageObserver);
 
-            RegisterObserver(new OutboxExceptionObserver()); // must be last
+            RegisterObserver(outboxExceptionObserver); // must be last
         }
     }
 }

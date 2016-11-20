@@ -6,137 +6,133 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class MessageSender : IMessageSender
-	{
-		private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
-			new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
+    public class MessageSender : IMessageSender
+    {
+        private readonly ISubscriptionService _subscriptionService;
 
-		private readonly IServiceBus _bus;
-		private readonly TransportMessage _transportMessageReceived;
+        private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
+            new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
 
-		private readonly ILog _log;
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly TransportMessage _transportMessageReceived;
 
-		public MessageSender(IServiceBus bus)
-			: this(bus, null)
-		{
-		}
+        private readonly ILog _log;
 
-		public MessageSender(IServiceBus bus, TransportMessage transportMessageReceived)
-		{
-			Guard.AgainstNull(bus, "bus");
+        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
+            : this(pipelineFactory, subscriptionService, null)
+        {
+        }
 
-			_bus = bus;
-			_transportMessageReceived = transportMessageReceived;
+        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, TransportMessage transportMessageReceived)
+        {
+            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+            Guard.AgainstNull(subscriptionService, "subscriptionService");
 
-			_log = Log.For(this);
-		}
+            _pipelineFactory = pipelineFactory;
+            _subscriptionService = subscriptionService;
+            _transportMessageReceived = transportMessageReceived;
 
-		public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-		{
-			Guard.AgainstNull(message, "message");
+            _log = Log.For(this);
+        }
 
-			var transportMessagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<TransportMessagePipeline>();
+        public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
+        {
+            Guard.AgainstNull(message, "message");
 
-			try
-			{
-				var transportMessageConfigurator = new TransportMessageConfigurator(message);
+            var transportMessagePipeline = _pipelineFactory.GetPipeline<TransportMessagePipeline>();
 
-				if (_transportMessageReceived != null)
-				{
-					transportMessageConfigurator.TransportMessageReceived(_transportMessageReceived);
-				}
+            try
+            {
+                var transportMessageConfigurator = new TransportMessageConfigurator(message);
 
-				if (configure != null)
-				{
-					configure(transportMessageConfigurator);
-				}
+                if (_transportMessageReceived != null)
+                {
+                    transportMessageConfigurator.TransportMessageReceived(_transportMessageReceived);
+                }
 
-				if (!transportMessagePipeline.Execute(transportMessageConfigurator))
-				{
-					throw new PipelineException(string.Format(EsbResources.PipelineExecutionException, 
-						"TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()));
-				}
+                if (configure != null)
+                {
+                    configure(transportMessageConfigurator);
+                }
 
-				return transportMessagePipeline.State.GetTransportMessage();
-			}
-			finally
-			{
-				_bus.Configuration.PipelineFactory.ReleasePipeline(transportMessagePipeline);
-			}
-		}
+                if (!transportMessagePipeline.Execute(transportMessageConfigurator))
+                {
+                    throw new PipelineException(string.Format(EsbResources.PipelineExecutionException,
+                        "TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()));
+                }
 
-		public void Dispatch(TransportMessage transportMessage)
-		{
-			Guard.AgainstNull(transportMessage, "transportMessage");
+                return transportMessagePipeline.State.GetTransportMessage();
+            }
+            finally
+            {
+                _pipelineFactory.ReleasePipeline(transportMessagePipeline);
+            }
+        }
 
-			var messagePipeline = _bus.Configuration.PipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
+        public void Dispatch(TransportMessage transportMessage)
+        {
+            Guard.AgainstNull(transportMessage, "transportMessage");
 
-			try
-			{
-				messagePipeline.Execute(transportMessage, _transportMessageReceived);
-			}
-			finally
-			{
-				_bus.Configuration.PipelineFactory.ReleasePipeline(messagePipeline);
-			}
-		}
+            var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 
-		public TransportMessage Send(object message)
-		{
-			return Send(message, null);
-		}
+            try
+            {
+                messagePipeline.Execute(transportMessage, _transportMessageReceived);
+            }
+            finally
+            {
+                _pipelineFactory.ReleasePipeline(messagePipeline);
+            }
+        }
 
-		public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
-		{
-			Guard.AgainstNull(message, "message");
+        public TransportMessage Send(object message)
+        {
+            return Send(message, null);
+        }
 
-			var result = CreateTransportMessage(message, configure);
+        public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
+        {
+            Guard.AgainstNull(message, "message");
 
-			Dispatch(result);
+            var result = CreateTransportMessage(message, configure);
 
-			return result;
-		}
+            Dispatch(result);
 
-		public IEnumerable<TransportMessage> Publish(object message)
-		{
-			return Publish(message, null);
-		}
+            return result;
+        }
 
-		public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
-		{
-			Guard.AgainstNull(message, "message");
+        public IEnumerable<TransportMessage> Publish(object message)
+        {
+            return Publish(message, null);
+        }
 
-			if (_bus.Configuration.HasSubscriptionManager)
-			{
-				var subscribers = _bus.Configuration.SubscriptionManager.GetSubscribedUris(message).ToList();
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
+        {
+            Guard.AgainstNull(message, "message");
 
-				if (subscribers.Count > 0)
-				{
-					var result = new List<TransportMessage>();
+            var subscribers = _subscriptionService.GetSubscribedUris(message).ToList();
 
-					foreach (var subscriber in subscribers)
-					{
-						var transportMessage = CreateTransportMessage(message, configure);
+            if (subscribers.Count > 0)
+            {
+                var result = new List<TransportMessage>();
 
-						transportMessage.RecipientInboxWorkQueueUri = subscriber;
+                foreach (var subscriber in subscribers)
+                {
+                    var transportMessage = CreateTransportMessage(message, configure);
 
-						Dispatch(transportMessage);
+                    transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
-						result.Add(transportMessage);
-					}
+                    Dispatch(transportMessage);
 
-					return result;
-				}
+                    result.Add(transportMessage);
+                }
 
-				_log.Warning(string.Format(EsbResources.WarningPublishWithoutSubscribers, message.GetType().FullName));
-			}
-			else
-			{
-				throw new InvalidOperationException(string.Format(EsbResources.PublishWithoutSubscriptionManagerException,
-					message.GetType().FullName));
-			}
+                return result;
+            }
 
-			return EmptyPublishFlyweight;
-		}
-	}
+            _log.Warning(string.Format(EsbResources.WarningPublishWithoutSubscribers, message.GetType().FullName));
+
+            return EmptyPublishFlyweight;
+        }
+    }
 }

@@ -4,20 +4,16 @@ namespace Shuttle.Esb
 {
 	public class StartupPipeline : Pipeline
 	{
-		public StartupPipeline(IServiceBus bus)
+		public StartupPipeline(StartupObserver startupObserver)
 		{
-            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(startupObserver, "startupObserver");
 
-            State.SetServiceBus(bus);
-
-            RegisterObserver(new ServiceBusStartupObserver(bus));
+            RegisterObserver(startupObserver);
 
             RegisterStage("Initializing")
 				.WithEvent<OnInitializing>()
 				.WithEvent<OnCreateQueues>()
-				.WithEvent<OnAfterCreateQueues>()
-				.WithEvent<OnRegisterMessageHandlers>()
-				.WithEvent<OnAfterInitializeMessageHandlerFactory>();
+				.WithEvent<OnAfterCreateQueues>();
 
 			RegisterStage("Start")
 				.WithEvent<OnStarting>()

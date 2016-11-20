@@ -88,11 +88,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot set container as there is an existing container already set.  Changing the container may result in unexpected behaviour..
+        ///   Looks up a localized string similar to Cannot assign container as there is an existing container already set.  Changing the container may result in unexpected behaviour.  Keep in mind that you will need to set the container first if you have a specific container that you would like to use..
         /// </summary>
-        public static string ContainerAlreadySetException {
+        public static string ContainerAlreadyAssignedException {
             get {
-                return ResourceManager.GetString("ContainerAlreadySetException", resourceCulture);
+                return ResourceManager.GetString("ContainerAlreadyAssignedException", resourceCulture);
             }
         }
         
@@ -133,7 +133,7 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue factory type &apos;{1}&apos; to register queue factory type &apos;{2}&apos;..
+        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue threadActivityFactory type &apos;{1}&apos; to register queue threadActivityFactory type &apos;{2}&apos;..
         /// </summary>
         public static string DuplicateQueueFactoryReplaced {
             get {
@@ -250,56 +250,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No IMessageHandlerFactory implementation has been configured..
-        /// </summary>
-        public static string NoMessageHandlerFactoryException {
-            get {
-                return ResourceManager.GetString("NoMessageHandlerFactoryException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No IMessageRouteProvider (message routing) has been configured..
-        /// </summary>
-        public static string NoMessageRouteProviderException {
-            get {
-                return ResourceManager.GetString("NoMessageRouteProviderException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No ISerializer implementation has been configured..
-        /// </summary>
-        public static string NoSerializerException {
-            get {
-                return ResourceManager.GetString("NoSerializerException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No subscription manager has been registered..
-        /// </summary>
-        public static string NoSubscriptionManagerException {
-            get {
-                return ResourceManager.GetString("NoSubscriptionManagerException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Queue &apos;{0}&apos; does not implement interface &apos;{1}&apos;..
         /// </summary>
         public static string NotImplementedOnQueue {
             get {
                 return ResourceManager.GetString("NotImplementedOnQueue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No IUriResolver implementation has been configured.  Cannot resolve uri name &apos;{0}&apos;..
-        /// </summary>
-        public static string NoUriResolverException {
-            get {
-                return ResourceManager.GetString("NoUriResolverException", resourceCulture);
             }
         }
         
@@ -327,15 +282,6 @@ namespace Shuttle.Esb {
         public static string ProcessMessageMethodMissingException {
             get {
                 return ResourceManager.GetString("ProcessMessageMethodMissingException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [publishing] : no subscription manager registered / event message type = &apos;{0}&apos;.
-        /// </summary>
-        public static string PublishWithoutSubscriptionManagerException {
-            get {
-                return ResourceManager.GetString("PublishWithoutSubscriptionManagerException", resourceCulture);
             }
         }
         
@@ -421,11 +367,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required queue &apos;{0}&apos; has not been configured.  Please check your  application configuration or your code if you implemented it explicitly..
+        ///   Looks up a localized string similar to Required queue uri &apos;{0}&apos; has not been configured.  Please check your  application configuration or your code if you implemented it explicitly..
         /// </summary>
-        public static string RequiredQueueMissing {
+        public static string RequiredQueueUriMissing {
             get {
-                return ResourceManager.GetString("RequiredQueueMissing", resourceCulture);
+                return ResourceManager.GetString("RequiredQueueUriMissing", resourceCulture);
             }
         }
         

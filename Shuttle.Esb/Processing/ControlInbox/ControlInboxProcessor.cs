@@ -1,10 +1,12 @@
+using Shuttle.Core.Infrastructure;
+
 namespace Shuttle.Esb
 {
-	public class ControlInboxProcessor : QueueProcessor<ControlInboxMessagePipeline>
-	{
-		public ControlInboxProcessor(IServiceBus bus) :
-			base(bus, bus.Configuration.ThreadActivityFactory.CreateControlInboxThreadActivity(bus))
-		{
-		}
-	}
+    public class ControlInboxProcessor : QueueProcessor<ControlInboxMessagePipeline>
+    {
+        public ControlInboxProcessor(IServiceBus bus, IThreadActivity threadActivity, IPipelineFactory pipelineFactory) :
+            base(bus, threadActivity, pipelineFactory)
+        {
+        }
+    }
 }

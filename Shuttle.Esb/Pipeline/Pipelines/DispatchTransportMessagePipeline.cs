@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
     public class DispatchTransportMessagePipeline : Pipeline
     {
-        public DispatchTransportMessagePipeline()
+        public DispatchTransportMessagePipeline(FindMessageRouteObserver findMessageRouteObserver, SerializeTransportMessageObserver serializeTransportMessageObserver,
+            DispatchTransportMessageObserver dispatchTransportMessageObserver)
         {
             RegisterStage("Send")
                 .WithEvent<OnFindRouteForMessage>()
@@ -14,9 +15,9 @@ namespace Shuttle.Esb
                 .WithEvent<OnDispatchTransportMessage>()
                 .WithEvent<OnAfterDispatchTransportMessage>();
 
-            RegisterObserver(new FindMessageRouteObserver());
-            RegisterObserver(new SerializeTransportMessageObserver());
-            RegisterObserver(new DispatchTransportMessageObserver());
+            RegisterObserver(findMessageRouteObserver);
+            RegisterObserver(serializeTransportMessageObserver);
+            RegisterObserver(dispatchTransportMessageObserver);
         }
 
         public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)

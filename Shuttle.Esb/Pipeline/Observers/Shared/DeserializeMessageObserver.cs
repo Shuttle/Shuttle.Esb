@@ -4,57 +4,60 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class DeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
-	{
-		private readonly ILog _log;
+    public class DeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
+    {
+        private readonly ISerializer _serializer;
+        private readonly ILog _log;
 
-		public DeserializeMessageObserver()
-		{
-			_log = Log.For(this);
-		}
+        public DeserializeMessageObserver(ISerializer serializer)
+        {
+            Guard.AgainstNull(serializer, "serializer");
 
-		public void Execute(OnDeserializeMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
-			Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
-			Guard.AgainstNull(state.GetErrorQueue(), "errorQueue");
+            _serializer = serializer;
+            _log = Log.For(this);
+        }
 
-			var transportMessage = state.GetTransportMessage();
+        public void Execute(OnDeserializeMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var bus = state.GetServiceBus();
 
-			object message;
+            Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
+            Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
+            Guard.AgainstNull(state.GetErrorQueue(), "errorQueue");
 
-			try
-			{
-				using (var stream = new MemoryStream(transportMessage.Message))
-				{
-					message =
-						state.GetServiceBus()
-							.Configuration.Serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream);
-				}
-			}
-			catch (Exception ex)
-			{
-				transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
+            var transportMessage = state.GetTransportMessage();
 
-				state.GetErrorQueue()
-					.Enqueue(transportMessage, state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
-				state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+            object message;
 
-				state.SetTransactionComplete();
-				pipelineEvent.Pipeline.Abort();
+            try
+            {
+                using (var stream = new MemoryStream(transportMessage.Message))
+                {
+                    message = _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-				state.GetServiceBus().Events.OnMessageDeserializationException(this,
-					new DeserializationExceptionEventArgs(
-						pipelineEvent,
-						state.GetWorkQueue(),
-						state.GetErrorQueue(),
-						ex));
+                state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
 
-				return;
-			}
+                state.SetTransactionComplete();
+                pipelineEvent.Pipeline.Abort();
 
-			state.SetMessage(message);
-		}
-	}
+                bus.Events.OnMessageDeserializationException(this,
+                    new DeserializationExceptionEventArgs(
+                        pipelineEvent,
+                        state.GetWorkQueue(),
+                        state.GetErrorQueue(),
+                        ex));
+
+                return;
+            }
+
+            state.SetMessage(message);
+        }
+    }
 }

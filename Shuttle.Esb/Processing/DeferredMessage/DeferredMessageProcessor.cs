@@ -11,14 +11,17 @@ namespace Shuttle.Esb
 		private Guid _checkpointMessageId = Guid.Empty;
 
 		private readonly IServiceBus _bus;
-		private readonly ILog _log;
+	    private readonly IPipelineFactory _pipelineFactory;
+	    private readonly ILog _log;
 
-		public DeferredMessageProcessor(IServiceBus bus)
+		public DeferredMessageProcessor(IServiceBus bus, IPipelineFactory pipelineFactory)
 		{
 			Guard.AgainstNull(bus, "bus");
+			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
 			_bus = bus;
-			_log = Log.For(this);
+		    _pipelineFactory = pipelineFactory;
+		    _log = Log.For(this);
 		}
 
 		public void Execute(IThreadState state)
@@ -30,7 +33,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			var pipeline = _bus.Configuration.PipelineFactory.GetPipeline<DeferredMessagePipeline>();
+			var pipeline = _pipelineFactory.GetPipeline<DeferredMessagePipeline>();
 
 			try
 			{
@@ -72,7 +75,7 @@ namespace Shuttle.Esb
 			}
 			finally
 			{
-				_bus.Configuration.PipelineFactory.ReleasePipeline(pipeline);
+				_pipelineFactory.ReleasePipeline(pipeline);
 			}
 		}
 

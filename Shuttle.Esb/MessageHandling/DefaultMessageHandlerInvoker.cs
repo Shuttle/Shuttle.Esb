@@ -8,18 +8,31 @@ namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
+        private readonly IComponentContainer _container;
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly ISubscriptionService _subscriptionService;
+        private readonly IServiceBusConfiguration _configuration;
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object _lock = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
+
+        public DefaultMessageHandlerInvoker(IComponentContainer container)
+        {
+            Guard.AgainstNull(container, "container");
+
+            _container = container;
+            _configuration = container.Resolve<IServiceBusConfiguration>();
+            _pipelineFactory = container.Resolve<IPipelineFactory>();
+            _subscriptionService = container.Resolve<ISubscriptionService>();
+        }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
         {
             Guard.AgainstNull(pipelineEvent, "pipelineEvent");
 
             var state = pipelineEvent.Pipeline.State;
-            var bus = state.GetServiceBus();
             var message = state.GetMessage();
-            var handler = bus.Configuration.Container.Resolve(MessageHandlerType.MakeGenericType(message.GetType()));
+            var handler = _container.Resolve(MessageHandlerType.MakeGenericType(message.GetType()));
 
             if (handler == null)
             {
@@ -54,7 +67,7 @@ namespace Shuttle.Esb
 
                 var contextMethod = _cache[messageType];
 
-                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, bus, transportMessage, message,
+                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionService, transportMessage, message,
                     state.GetActiveState());
 
                 contextMethod.Method.Invoke(handler, new[] { handlerContext });

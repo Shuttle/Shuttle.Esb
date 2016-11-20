@@ -29,11 +29,14 @@ namespace Shuttle.Esb
 		}
 
 		public IQueue WorkQueue { get; set; }
-		public IQueue ErrorQueue { get; set; }
-		public bool Distribute { get; set; }
+	    public string WorkQueueUri { get; set; }
+	    public IQueue ErrorQueue { get; set; }
+	    public string ErrorQueueUri { get; set; }
+	    public bool Distribute { get; set; }
 		public int DistributeSendCount { get; set; }
 		public IQueue DeferredQueue { get; set; }
-		public DeferredMessageProcessor DeferredMessageProcessor { get; set; }
+	    public string DeferredQueueUri { get; set; }
+	    public DeferredMessageProcessor DeferredMessageProcessor { get; set; }
 
 		public int ThreadCount
 		{

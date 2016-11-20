@@ -22,5 +22,6 @@ namespace Shuttle.Esb
 		IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage);
 		void DeferredMessageSent(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage);
 		void MessageHandled(TransportMessage transportMessage);
+	    bool CanDeferMessage { get; }
 	}
 }

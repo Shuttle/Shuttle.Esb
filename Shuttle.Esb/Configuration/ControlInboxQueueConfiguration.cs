@@ -28,9 +28,11 @@ namespace Shuttle.Esb
 		}
 
 		public IQueue WorkQueue { get; set; }
-		public IQueue ErrorQueue { get; set; }
+	    public string WorkQueueUri { get; set; }
+	    public IQueue ErrorQueue { get; set; }
+	    public string ErrorQueueUri { get; set; }
 
-		public int ThreadCount
+	    public int ThreadCount
 		{
 			get { return threadCount; }
 			set

@@ -22,25 +22,10 @@ namespace Shuttle.Esb
 
 
         private static ServiceBusSection _serviceBusSection;
+        private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
-        private IComponentContainer _container;
-        private IMessageHandlerInvoker _messageHandlerInvoker;
-        private IMessageHandlingAssessor _messageHandlingAssessor;
-        private IMessageRouteProvider _messageRouteProvider;
-        private IIdentityProvider _identityProvider;
-        private IPipelineFactory _pipelineFactory;
-        private IServiceBusPolicy _policy;
-        private IQueueManager _queueManager;
-
-        private ISerializer _serializer;
-        private ISubscriptionManager _subscriptionManager;
-        private IThreadActivityFactory _threadActivityFactory;
         private ITransactionScopeConfiguration _transactionScope;
-        private ITransactionScopeFactory _transactionScopeFactory;
-        private IWorkerAvailabilityManager _workerAvailabilityManager;
-        private IUriResolver _uriResolver;
-        private static readonly object Padlock = new object();
 
         public ServiceBusConfiguration()
         {
@@ -53,23 +38,9 @@ namespace Shuttle.Esb
             {
                 return _serviceBusSection ??
                        Synchronised(
-                           () => _serviceBusSection = ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus"));
-            }
-        }
-
-        public ISerializer Serializer
-        {
-            get { return _serializer ?? Synchronised(() => _serializer =  new DefaultSerializer()); }
-            set
-            {
-                Guard.AgainstNull(value, "serializer");
-
-                if (value.Equals(Serializer))
-                {
-                    return;
-                }
-
-                _serializer = value;
+                           () =>
+                               _serviceBusSection =
+                                   ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus"));
             }
         }
 
@@ -80,120 +51,16 @@ namespace Shuttle.Esb
 
         public ITransactionScopeConfiguration TransactionScope
         {
-            get { return _transactionScope ?? Synchronised(() => _transactionScope = new TransactionScopeConfiguration()); }
+            get
+            {
+                return _transactionScope ?? Synchronised(() => _transactionScope = new TransactionScopeConfiguration());
+            }
             set { _transactionScope = value; }
         }
 
         public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
         public bool RegisterHandlers { get; set; }
-
-        public IUriResolver UriResolver
-        {
-            get { return _uriResolver ?? Synchronised(() => _uriResolver = new DefaultUriResolver()); }
-            set { _uriResolver = value; }
-        }
-
-        public IQueueManager QueueManager
-        {
-            get { return _queueManager ?? Synchronised(() => _queueManager = new QueueManager(UriResolver)); }
-            set { _queueManager = value; }
-        }
-
-        public IIdempotenceService IdempotenceService { get; set; }
-
-        public IComponentContainer Container
-        {
-            get
-            {
-                return _container ?? Synchronised(() => _container = new DefaultComponentContainer());
-            }
-            set
-            {
-                if (_container != null)
-                {
-                    throw new InvalidOperationException(EsbResources.ContainerAlreadySetException);
-                }
-
-                _container = value;
-            }
-        }
-
-        public IMessageHandlerInvoker MessageHandlerInvoker
-        {
-            get
-            {
-                return _messageHandlerInvoker ?? Synchronised(() => _messageHandlerInvoker = new DefaultMessageHandlerInvoker());
-            }
-            set { _messageHandlerInvoker = value; }
-        }
-
-        public IMessageHandlingAssessor MessageHandlingAssessor
-        {
-            get
-            {
-                return _messageHandlingAssessor ??
-                       Synchronised(() => _messageHandlingAssessor = new DefaultMessageHandlingAssessor());
-            }
-            set { _messageHandlingAssessor = value; }
-        }
-
-        public IMessageRouteProvider MessageRouteProvider
-        {
-            get
-            {
-                return _messageRouteProvider ?? Synchronised(() => _messageRouteProvider = new DefaultMessageRouteProvider());
-            }
-            set { _messageRouteProvider = value; }
-        }
-
-        public IIdentityProvider IdentityProvider
-        {
-            get
-            {
-                return _identityProvider ?? Synchronised(() => _identityProvider = new DefaultIdentityProvider(this));
-            }
-            set { _identityProvider = value; }
-        }
-
-        public IServiceBusPolicy Policy
-        {
-            get { return _policy ?? Synchronised(() => _policy = new DefaultServiceBusPolicy()); }
-            set { _policy = value; }
-        }
-
-        public IThreadActivityFactory ThreadActivityFactory
-        {
-            get
-            {
-                return _threadActivityFactory ?? Synchronised(() => _threadActivityFactory = new DefaultThreadActivityFactory());
-            }
-            set { _threadActivityFactory = value; }
-        }
-
-        public bool HasIdempotenceService
-        {
-            get { return IdempotenceService != null; }
-        }
-
-        public bool HasSubscriptionManager
-        {
-            get { return _subscriptionManager != null; }
-        }
-
-        public ISubscriptionManager SubscriptionManager
-        {
-            get
-            {
-                if (!HasSubscriptionManager)
-                {
-                    throw new SubscriptionManagerException(EsbResources.NoSubscriptionManagerException);
-                }
-
-                return _subscriptionManager;
-            }
-            set { _subscriptionManager = value; }
-        }
 
         public bool HasInbox
         {
@@ -214,36 +81,11 @@ namespace Shuttle.Esb
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 
-        public IWorkerAvailabilityManager WorkerAvailabilityManager
-        {
-            get
-            {
-                return _workerAvailabilityManager ??
-                       Synchronised(() => _workerAvailabilityManager = new WorkerAvailabilityManager());
-            }
-            set { _workerAvailabilityManager = value; }
-        }
-
-        public IPipelineFactory PipelineFactory
-        {
-            get { return _pipelineFactory ?? Synchronised(() => _pipelineFactory = new DefaultPipelineFactory(Container)); }
-            set { _pipelineFactory = value; }
-        }
-
-        public ITransactionScopeFactory TransactionScopeFactory
-        {
-            get
-            {
-                return _transactionScopeFactory ??
-                       Synchronised(() => _transactionScopeFactory = new DefaultTransactionScopeFactory(TransactionScope.Enabled, TransactionScope.IsolationLevel, TimeSpan.FromSeconds(TransactionScope.TimeoutSeconds)));
-            }
-            set { _transactionScopeFactory = value; }
-        }
-
         public IEncryptionAlgorithm FindEncryptionAlgorithm(string name)
         {
             return
-                _encryptionAlgorithms.Find(algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+                _encryptionAlgorithms.Find(
+                    algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm)
@@ -256,7 +98,8 @@ namespace Shuttle.Esb
         public ICompressionAlgorithm FindCompressionAlgorithm(string name)
         {
             return
-                _compressionAlgorithms.Find(algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+                _compressionAlgorithms.Find(
+                    algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         public void AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
@@ -269,6 +112,39 @@ namespace Shuttle.Esb
         public bool IsWorker
         {
             get { return Worker != null; }
+        }
+
+        public void Invariant()
+        {
+            Guard.Against<WorkerException>(IsWorker && !HasInbox,
+                EsbResources.WorkerRequiresInboxException);
+
+            if (HasInbox)
+            {
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Inbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Inbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+            }
+
+            if (HasOutbox)
+            {
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Outbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Outbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+            }
+
+            if (HasControlInbox)
+            {
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(ControlInbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(ControlInbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+            }
         }
 
         private static T Synchronised<T>(Func<T> f)

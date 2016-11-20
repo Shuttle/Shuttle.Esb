@@ -8,7 +8,21 @@ namespace Shuttle.Esb
 	{
 		private readonly Dictionary<string, Uri> _uris = new Dictionary<string, Uri>();
 
-		public Uri Get(string name)
+	    public DefaultUriResolver()
+	    {
+            if (ServiceBusConfiguration.ServiceBusSection == null ||
+                ServiceBusConfiguration.ServiceBusSection.UriResolver == null)
+            {
+                return;
+            }
+
+            foreach (UriResolverItemElement uriRepositoryItemElement in ServiceBusConfiguration.ServiceBusSection.UriResolver)
+            {
+                Add(uriRepositoryItemElement.Name.ToLower(), new Uri(uriRepositoryItemElement.Uri));
+            }
+        }
+
+        public Uri Get(string name)
 		{
 			var key = name.ToLower();
 

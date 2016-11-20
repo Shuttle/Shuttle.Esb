@@ -8,19 +8,19 @@ namespace Shuttle.Esb
 	{
 		private readonly IMessageSender _messageSender;
 
-		public HandlerContext(IServiceBus bus, TransportMessage transportMessage, T message, IThreadState activeState)
+		public HandlerContext(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, TransportMessage transportMessage, T message, IThreadState activeState)
 		{
-			Guard.AgainstNull(bus, "bus");
+			Guard.AgainstNull(configuration, "configuration");
 			Guard.AgainstNull(transportMessage, "transportMessage");
 			Guard.AgainstNull(message, "message");
 			Guard.AgainstNull(activeState, "activeState");
 
-			_messageSender = new MessageSender(bus, transportMessage);
+			_messageSender = new MessageSender(pipelineFactory, subscriptionService, transportMessage);
 
 			TransportMessage = transportMessage;
 			Message = message;
 			ActiveState = activeState;
-			Configuration = bus.Configuration;
+			Configuration = configuration;
 		}
 
 		public TransportMessage TransportMessage { get; private set; }

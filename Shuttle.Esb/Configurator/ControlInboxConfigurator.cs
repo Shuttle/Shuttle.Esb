@@ -27,8 +27,8 @@ namespace Shuttle.Esb
 			configuration.ControlInbox =
 				new ControlInboxQueueConfiguration
 				{
-					WorkQueue = configuration.QueueManager.GetQueue(controlInboxElement.WorkQueueUri),
-					ErrorQueue = configuration.QueueManager.GetQueue(controlInboxElement.ErrorQueueUri),
+					WorkQueueUri = controlInboxElement.WorkQueueUri,
+					ErrorQueueUri = controlInboxElement.ErrorQueueUri,
 					ThreadCount = controlInboxElement.ThreadCount,
 					MaximumFailureCount = controlInboxElement.MaximumFailureCount,
 					DurationToIgnoreOnFailure =

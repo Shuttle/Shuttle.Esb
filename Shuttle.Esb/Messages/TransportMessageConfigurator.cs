@@ -33,14 +33,16 @@ namespace Shuttle.Esb
 			_local = false;
 		}
 
-		public TransportMessage TransportMessage(IServiceBusConfiguration configuration)
+		public TransportMessage TransportMessage(IServiceBusConfiguration configuration, IIdentityProvider identityProvider)
 		{
+            Guard.AgainstNull(identityProvider, "identityProvider");
+
 			if (_local && !configuration.HasInbox)
 			{
 				throw new InvalidOperationException(EsbResources.SendToSelfException);
 			}
 
-		    var identity = configuration.IdentityProvider.Get(); 
+		    var identity = identityProvider.Get(); 
 
 			var result = new TransportMessage
 			{

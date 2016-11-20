@@ -22,6 +22,27 @@ namespace Shuttle.Esb
             _uriResolver = uriResolver;
 
             _log = Log.For(this);
+
+            if (ServiceBusConfiguration.ServiceBusSection == null ||
+                ServiceBusConfiguration.ServiceBusSection.QueueFactories == null)
+            {
+                return;
+            }
+
+            foreach (QueueFactoryElement queueFactoryElement in ServiceBusConfiguration.ServiceBusSection.QueueFactories)
+            {
+                var type = Type.GetType(queueFactoryElement.Type);
+
+                Guard.Against<EsbConfigurationException>(type == null,
+                    string.Format(EsbResources.UnknownTypeException, queueFactoryElement.Type));
+
+                RegisterQueueFactory(type);
+            }
+
+            if (ServiceBusConfiguration.ServiceBusSection.QueueFactories.Scan)
+            {
+                ScanForQueueFactories();
+            }
 		}
 
 		public void Dispose()
@@ -87,11 +108,6 @@ namespace Shuttle.Esb
 
 				if (queueUri.Scheme.Equals("resolver"))
 				{
-					if (_uriResolver == null)
-					{
-						throw new InvalidOperationException(string.Format(EsbResources.NoUriResolverException, uri));
-					}
-
 					var resolvedQueueUri = _uriResolver.Get(uri);
 
 					if (resolvedQueueUri == null)

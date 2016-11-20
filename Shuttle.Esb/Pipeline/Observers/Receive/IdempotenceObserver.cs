@@ -7,33 +7,35 @@ namespace Shuttle.Esb
 		IPipelineObserver<OnProcessIdempotenceMessage>,
 		IPipelineObserver<OnIdempotenceMessageHandled>
 	{
-		private readonly ILog _log;
+	    private readonly IIdempotenceService _idempotenceService;
+	    private readonly ILog _log;
 
-		public IdempotenceObserver()
+		public IdempotenceObserver(IIdempotenceService idempotenceService)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(idempotenceService, "idempotenceService");
+
+		    _idempotenceService = idempotenceService;
+		    _log = Log.For(this);
 		}
 
-		public void Execute(OnIdempotenceMessageHandled pipelineEvent)
+	    public void Execute(OnIdempotenceMessageHandled pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
-			var bus = state.GetServiceBus();
 			var transportMessage = state.GetTransportMessage();
 
-			if (!bus.Configuration.HasIdempotenceService || state.GetProcessingStatus() == ProcessingStatus.Ignore)
+			if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
 			{
 				return;
 			}
 
-			bus.Configuration.IdempotenceService.MessageHandled(transportMessage);
+			_idempotenceService.MessageHandled(transportMessage);
 		}
 
 		public void Execute(OnProcessIdempotenceMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
-			var bus = state.GetServiceBus();
 
-			if (!bus.Configuration.HasIdempotenceService || state.GetProcessingStatus() == ProcessingStatus.Ignore)
+			if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
 			{
 				return;
 			}
@@ -42,11 +44,11 @@ namespace Shuttle.Esb
 
 			try
 			{
-				state.SetProcessingStatus(bus.Configuration.IdempotenceService.ProcessingStatus(transportMessage));
+				state.SetProcessingStatus(_idempotenceService.ProcessingStatus(transportMessage));
 			}
 			catch (Exception ex)
 			{
-				bus.Configuration.IdempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
+				_idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
 			}
 		}
 	}

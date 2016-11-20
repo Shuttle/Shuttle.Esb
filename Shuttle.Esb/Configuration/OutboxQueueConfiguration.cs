@@ -44,5 +44,7 @@ namespace Shuttle.Esb
 		public int MaximumFailureCount { get; set; }
 		public TimeSpan[] DurationToIgnoreOnFailure { get; set; }
 		public TimeSpan[] DurationToSleepWhenIdle { get; set; }
+	    public string WorkQueueUri { get; set; }
+	    public string ErrorQueueUri { get; set; }
 	}
 }

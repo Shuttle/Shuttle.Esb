@@ -4,16 +4,27 @@ namespace Shuttle.Esb
 {
 	public class AssembleMessageObserver : IPipelineObserver<OnAssembleMessage>
 	{
-		public void Execute(OnAssembleMessage pipelineEvent)
+	    private readonly IServiceBusConfiguration _configuration;
+	    private readonly IIdentityProvider _identityProvider;
+
+	    public AssembleMessageObserver(IServiceBusConfiguration configuration, IIdentityProvider identityProvider)
+	    {
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(identityProvider, "identityProvider");
+
+	        _configuration = configuration;
+	        _identityProvider = identityProvider;
+	    }
+
+	    public void Execute(OnAssembleMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessageConfigurator = state.Get<TransportMessageConfigurator>(StateKeys.TransportMessageConfigurator);
-			var bus = state.GetServiceBus();
 
 			Guard.AgainstNull(transportMessageConfigurator, "transportMessageConfigurator");
 			Guard.AgainstNull(transportMessageConfigurator.Message, "transportMessageConfigurator.Message");
 
-			state.SetTransportMessage(transportMessageConfigurator.TransportMessage(bus.Configuration));
+			state.SetTransportMessage(transportMessageConfigurator.TransportMessage(_configuration, _identityProvider));
 			state.SetMessage(transportMessageConfigurator.Message);
 		}
 	}

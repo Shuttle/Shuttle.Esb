@@ -118,8 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DuplicateQueueFactoryReplaced" xml:space="preserve">
-    <value>A queue factory for scheme '{0}' already existed.  Removed queue factory type '{1}' to register queue factory type '{2}'.</value>
-    <comment>{0} = scheme, {1} = full factory type name removed, {2} full factory type name registered</comment>
+    <value>A queue factory for scheme '{0}' already existed.  Removed queue threadActivityFactory type '{1}' to register queue threadActivityFactory type '{2}'.</value>
+    <comment>{0} = scheme, {1} = full factory type name removed, {2} full threadActivityFactory type name registered</comment>
   </data>
   <data name="InvalidSchemeException" xml:space="preserve">
     <value>Only scheme '{0}' is supported.  The given uri '{1}' is not supported.</value>
@@ -168,9 +168,9 @@
     <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
     <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
   </data>
-  <data name="RequiredQueueMissing" xml:space="preserve">
-    <value>Required queue '{0}' has not been configured.  Please check your  application configuration or your code if you implemented it explicitly.</value>
-    <comment>{0} = name of the required queue</comment>
+  <data name="RequiredQueueUriMissing" xml:space="preserve">
+    <value>Required queue uri '{0}' has not been configured.  Please check your  application configuration or your code if you implemented it explicitly.</value>
+    <comment>{0} = name of the required queue uri</comment>
   </data>
   <data name="ReplyWithoutCurrentMessage" xml:space="preserve">
     <value>There is no current message.  Cannot reply.</value>
@@ -220,10 +220,6 @@
     <value>[publishing] : no subscribers / event message type = '{0}'</value>
     <comment>{0} = full type name of event message</comment>
   </data>
-  <data name="PublishWithoutSubscriptionManagerException" xml:space="preserve">
-    <value>[publishing] : no subscription manager registered / event message type = '{0}'</value>
-    <comment>{0} = full type name of event message</comment>
-  </data>
   <data name="DebugWorkerAvailable" xml:space="preserve">
     <value>[worker available ({0})] worker inbox = {1} / distributor control inbox = {2}</value>
     <comment>{0} = worker thread identifier, {1} = worker available on queue uri, {2} = distributor control inbox uri</comment>
@@ -255,15 +251,6 @@
     <value>Handler type '{0}' has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you.</value>
     <comment>{0} = full type name of message handler</comment>
   </data>
-  <data name="NoMessageHandlerFactoryException" xml:space="preserve">
-    <value>No IMessageHandlerFactory implementation has been configured.</value>
-  </data>
-  <data name="NoMessageRouteProviderException" xml:space="preserve">
-    <value>No IMessageRouteProvider (message routing) has been configured.</value>
-  </data>
-  <data name="NoSerializerException" xml:space="preserve">
-    <value>No ISerializer implementation has been configured.</value>
-  </data>
   <data name="SendToSelfException" xml:space="preserve">
     <value>You cannot send a message to this endpoint (Local) since this endpoint has no inbox.</value>
   </data>
@@ -277,10 +264,6 @@
   <data name="UriNameNotFoundException" xml:space="preserve">
     <value>The IUriResolver type '{0}' could not resolve name '{1}'.</value>
     <comment>{0} = full type name of the IUriResolver implementation, {1} = the required name</comment>
-  </data>
-  <data name="NoUriResolverException" xml:space="preserve">
-    <value>No IUriResolver implementation has been configured.  Cannot resolve uri name '{0}'.</value>
-    <comment>{0} = the uri name to resolve</comment>
   </data>
   <data name="MessageHandlerFactoryHandlerRegistered" xml:space="preserve">
     <value>[message handler registered] : message type = '{0}' / handler type = '{1}'</value>
@@ -304,7 +287,7 @@
   </data>
   <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
     <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
-    <comment>{0} = the queue factory type name, {1} = the uri that the factory was requested to create the queue for</comment>
+    <comment>{0} = the queue factory type name, {1} = the uri that the threadActivityFactory was requested to create the queue for</comment>
   </data>
   <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">
     <value>A configurator wih type name '{0}' has already been registered.</value>
@@ -336,10 +319,7 @@
     <value>Message handler type '{0}' has already been registered as the handler for message type '{1}'.  Message handler type '{2}' also handles the message type.</value>
     <comment>{0} = message handler type already registered, {1} = message type, {2} = {2} = duplicate message handler type</comment>
   </data>
-  <data name="NoSubscriptionManagerException" xml:space="preserve">
-    <value>No subscription manager has been registered.</value>
-  </data>
-  <data name="ContainerAlreadySetException" xml:space="preserve">
-    <value>Cannot set container as there is an existing container already set.  Changing the container may result in unexpected behaviour.</value>
+  <data name="ContainerAlreadyAssignedException" xml:space="preserve">
+    <value>Cannot assign container as there is an existing container already set.  Changing the container may result in unexpected behaviour.  Keep in mind that you will need to set the container first if you have a specific container that you would like to use.</value>
   </data>
 </root>

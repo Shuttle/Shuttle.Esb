@@ -4,7 +4,10 @@ namespace Shuttle.Esb
 {
 	public class DistributorPipeline : Pipeline
 	{
-		public DistributorPipeline(IServiceBus bus)
+		public DistributorPipeline(IServiceBus bus, GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            DistributorMessageObserver distributorMessageObserver, SerializeTransportMessageObserver serializeTransportMessageObserver, 
+            DispatchTransportMessageObserver dispatchTransportMessageObserver, AcknowledgeMessageObserver acknowledgeMessageObserver,
+            DistributorExceptionObserver distributorExceptionObserver)
 		{
             Guard.AgainstNull(bus, "bus");
 
@@ -26,14 +29,14 @@ namespace Shuttle.Esb
 				.WithEvent<OnAcknowledgeMessage>()
 				.WithEvent<OnAfterAcknowledgeMessage>();
 
-			RegisterObserver(new GetWorkMessageObserver());
-			RegisterObserver(new DeserializeTransportMessageObserver());
-			RegisterObserver(new DistributorMessageObserver());
-			RegisterObserver(new SerializeTransportMessageObserver());
-			RegisterObserver(new DispatchTransportMessageObserver());
-			RegisterObserver(new AcknowledgeMessageObserver());
+			RegisterObserver(getWorkMessageObserver);
+			RegisterObserver(deserializeTransportMessageObserver);
+			RegisterObserver(distributorMessageObserver);
+			RegisterObserver(serializeTransportMessageObserver);
+			RegisterObserver(dispatchTransportMessageObserver);
+			RegisterObserver(acknowledgeMessageObserver);
 
-			RegisterObserver(new DistributorExceptionObserver()); // must be last
+			RegisterObserver(distributorExceptionObserver); // must be last
 		}
     }
 }

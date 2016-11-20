@@ -20,8 +20,8 @@ namespace Shuttle.Esb
 			configuration.Outbox =
 				new OutboxQueueConfiguration
 				{
-					WorkQueue = configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Outbox.WorkQueueUri),
-					ErrorQueue = configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Outbox.ErrorQueueUri),
+					WorkQueueUri = ServiceBusConfiguration.ServiceBusSection.Outbox.WorkQueueUri,
+					ErrorQueueUri = ServiceBusConfiguration.ServiceBusSection.Outbox.ErrorQueueUri,
 					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Outbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
 						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToIgnoreOnFailure ??

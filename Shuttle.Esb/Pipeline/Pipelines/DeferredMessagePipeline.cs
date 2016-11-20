@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
 	public class DeferredMessagePipeline : Pipeline
 	{
-	    public DeferredMessagePipeline(IServiceBus bus)
+	    public DeferredMessagePipeline(IServiceBus bus, GetDeferredMessageObserver getDeferredMessageObserver, 
+            DeserializeTransportMessageObserver deserializeTransportMessageObserver, ProcessDeferredMessageObserver processDeferredMessageObserver)
 	    {
 	        Guard.AgainstNull(bus, "bus");
 
@@ -21,9 +22,9 @@ namespace Shuttle.Esb
 				.WithEvent<OnProcessDeferredMessage>()
 				.WithEvent<OnAfterProcessDeferredMessage>();
 
-			RegisterObserver(new GetDeferredMessageObserver());
-			RegisterObserver(new DeserializeTransportMessageObserver());
-			RegisterObserver(new ProcessDeferredMessageObserver());
+			RegisterObserver(getDeferredMessageObserver);
+			RegisterObserver(deserializeTransportMessageObserver);
+			RegisterObserver(processDeferredMessageObserver);
 		}
     }
 }

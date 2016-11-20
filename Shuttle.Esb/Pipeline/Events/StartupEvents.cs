@@ -14,14 +14,6 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnRegisterMessageHandlers : PipelineEvent
-	{
-	}
-
-	public class OnAfterInitializeMessageHandlerFactory : PipelineEvent
-	{
-	}
-
 	public class OnStartInboxProcessing : PipelineEvent
 	{
 	}

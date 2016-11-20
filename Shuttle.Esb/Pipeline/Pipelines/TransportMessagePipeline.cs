@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
     public class TransportMessagePipeline : Pipeline
     {
-        public TransportMessagePipeline(IServiceBus bus)
+        public TransportMessagePipeline(IServiceBus bus, AssembleMessageObserver assembleMessageObserver, SerializeMessageObserver serializeMessageObserver, 
+            CompressMessageObserver compressMessageObserver, EncryptMessageObserver encryptMessageObserver)
         {
             Guard.AgainstNull(bus, "bus");
 
@@ -20,10 +21,10 @@ namespace Shuttle.Esb
                 .WithEvent<OnCompressMessage>()
                 .WithEvent<OnAfterCompressMessage>();
 
-            RegisterObserver(new AssembleMessageObserver());
-            RegisterObserver(new SerializeMessageObserver());
-            RegisterObserver(new CompressMessageObserver());
-            RegisterObserver(new EncryptMessageObserver());
+            RegisterObserver(assembleMessageObserver);
+            RegisterObserver(serializeMessageObserver);
+            RegisterObserver(compressMessageObserver);
+            RegisterObserver(encryptMessageObserver);
         }
 
         public bool Execute(TransportMessageConfigurator configurator)

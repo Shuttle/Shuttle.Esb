@@ -2,13 +2,8 @@ namespace Shuttle.Esb
 {
 	public class WorkerConfiguration : IWorkerConfiguration
 	{
-		public WorkerConfiguration(IQueue distributorControlInboxWorkQueue, int threadAvailableNotificationIntervalSeconds)
-		{
-			DistributorControlInboxWorkQueue = distributorControlInboxWorkQueue;
-			ThreadAvailableNotificationIntervalSeconds = threadAvailableNotificationIntervalSeconds;
-		}
-
-		public IQueue DistributorControlInboxWorkQueue { get; private set; }
-		public int ThreadAvailableNotificationIntervalSeconds { get; private set; }
+		public IQueue DistributorControlInboxWorkQueue { get; set; }
+		public string DistributorControlInboxWorkQueueUri { get; set; }
+		public int ThreadAvailableNotificationIntervalSeconds { get; set; }
 	}
 }

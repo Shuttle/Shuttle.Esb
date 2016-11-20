@@ -4,7 +4,11 @@ namespace Shuttle.Esb
 {
 	public abstract class ReceiveMessagePipeline : Pipeline
 	{
-		protected ReceiveMessagePipeline()
+		protected ReceiveMessagePipeline(GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            DeferTransportMessageObserver deferTransportMessageObserver, DeserializeMessageObserver deserializeMessageObserver, DecryptMessageObserver decryptMessageObserver,
+            DecompressMessageObserver decompressMessageObserver, AssessMessageHandlingObserver assessMessageHandlingObserver, IdempotenceObserver idempotenceObserver,
+            HandleMessageObserver handleMessageObserver, TransactionScopeObserver transactionScopeObserver, AcknowledgeMessageObserver acknowledgeMessageObserver,
+            SendDeferredObserver sendDeferredObserver, ReceiveExceptionObserver receiveExceptionObserver)
 		{
 			RegisterStage("Read")
 				.WithEvent<OnGetMessage>()
@@ -32,20 +36,20 @@ namespace Shuttle.Esb
 				.WithEvent<OnAcknowledgeMessage>()
 				.WithEvent<OnAfterAcknowledgeMessage>();
 
-			RegisterObserver(new GetWorkMessageObserver());
-			RegisterObserver(new DeserializeTransportMessageObserver());
-			RegisterObserver(new DeferTransportMessageObserver());
-			RegisterObserver(new DeserializeMessageObserver());
-			RegisterObserver(new DecryptMessageObserver());
-			RegisterObserver(new DecompressMessageObserver());
-			RegisterObserver(new AssessMessageHandlingObserver());
-			RegisterObserver(new IdempotenceObserver());
-			RegisterObserver(new HandleMessageObserver());
-			RegisterObserver(new TransactionScopeObserver());
-			RegisterObserver(new AcknowledgeMessageObserver());
-			RegisterObserver(new SendDeferredObserver());
+			RegisterObserver(getWorkMessageObserver);
+			RegisterObserver(deserializeTransportMessageObserver);
+			RegisterObserver(deferTransportMessageObserver);
+			RegisterObserver(deserializeMessageObserver);
+			RegisterObserver(decryptMessageObserver);
+			RegisterObserver(decompressMessageObserver);
+			RegisterObserver(assessMessageHandlingObserver);
+			RegisterObserver(idempotenceObserver);
+			RegisterObserver(handleMessageObserver);
+			RegisterObserver(transactionScopeObserver);
+			RegisterObserver(acknowledgeMessageObserver);
+			RegisterObserver(sendDeferredObserver);
 
-			RegisterObserver(new ReceiveExceptionObserver()); // must be last
+			RegisterObserver(receiveExceptionObserver); // must be last
 		}
 	}
 }

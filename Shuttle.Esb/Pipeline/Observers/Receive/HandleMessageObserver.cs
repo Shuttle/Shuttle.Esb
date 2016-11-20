@@ -7,14 +7,22 @@ namespace Shuttle.Esb
 	public class HandleMessageObserver :
 		IPipelineObserver<OnHandleMessage>
 	{
-		private readonly ILog _log;
+	    private readonly IMessageHandlerInvoker _messageHandlerInvoker;
+	    private readonly ISerializer _serializer;
+	    private readonly ILog _log;
 
-		public HandleMessageObserver()
+		public HandleMessageObserver(IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
+            Guard.AgainstNull(serializer, "serializer");
+
+		    _messageHandlerInvoker = messageHandlerInvoker;
+		    _serializer = serializer;
+
+		    _log = Log.For(this);
 		}
 
-		public void Execute(OnHandleMessage pipelineEvent)
+	    public void Execute(OnHandleMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var processingStatus = state.GetProcessingStatus();
@@ -35,7 +43,7 @@ namespace Shuttle.Esb
 
 			try
 			{
-				var messageHandlerInvokeResult = bus.Configuration.MessageHandlerInvoker.Invoke(pipelineEvent);
+				var messageHandlerInvokeResult = _messageHandlerInvoker.Invoke(pipelineEvent);
 
 				if (messageHandlerInvokeResult.Invoked)
 				{
@@ -60,7 +68,7 @@ namespace Shuttle.Esb
 
 						transportMessage.RegisterFailure(error);
 
-						using (var stream = bus.Configuration.Serializer.Serialize(transportMessage))
+						using (var stream = _serializer.Serialize(transportMessage))
 						{
 							state.GetErrorQueue().Enqueue(transportMessage, stream);
 						}

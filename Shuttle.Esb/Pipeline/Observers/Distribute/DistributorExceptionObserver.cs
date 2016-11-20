@@ -2,62 +2,70 @@
 
 namespace Shuttle.Esb
 {
-	public class DistributorExceptionObserver :
-		IPipelineObserver<OnPipelineException>
-	{
-		public void Execute(OnPipelineException pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var bus = state.GetServiceBus();
+    public class DistributorExceptionObserver :
+        IPipelineObserver<OnPipelineException>
+    {
+        private readonly IServiceBusPolicy _policy;
+        private readonly ISerializer _serializer;
 
-			bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+        public DistributorExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        {
+            Guard.AgainstNull(policy, "policy");
+            Guard.AgainstNull(serializer, "serializer");
 
-			try
-			{
-				if (pipelineEvent.Pipeline.ExceptionHandled)
-				{
-					return;
-				}
+            _policy = policy;
+            _serializer = serializer;
+        }
 
-				try
-				{
-					var transportMessage = state.GetTransportMessage();
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var bus = state.GetServiceBus();
 
-					if (transportMessage == null)
-					{
-						return;
-					}
+            bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
-					var action = bus.Configuration.Policy.EvaluateMessageDistributionFailure(pipelineEvent);
+            try
+            {
+                if (pipelineEvent.Pipeline.ExceptionHandled)
+                {
+                    return;
+                }
 
-					transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-						action.TimeSpanToIgnoreRetriedMessage);
+                try
+                {
+                    var transportMessage = state.GetTransportMessage();
 
-					if (action.Retry)
-					{
-						state.GetWorkQueue().Enqueue(
-							transportMessage,
-							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
-					}
-					else
-					{
-						state.GetErrorQueue().Enqueue(
-							transportMessage,
-							state.GetServiceBus().Configuration.Serializer.Serialize(transportMessage));
-					}
+                    if (transportMessage == null)
+                    {
+                        return;
+                    }
 
-					state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
-				}
-				finally
-				{
-					pipelineEvent.Pipeline.MarkExceptionHandled();
-					bus.Events.OnAfterPipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
-				}
-			}
-			finally
-			{
-				pipelineEvent.Pipeline.Abort();
-			}
-		}
-	}
+                    var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
+
+                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                        action.TimeSpanToIgnoreRetriedMessage);
+
+                    if (action.Retry)
+                    {
+                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                    }
+                    else
+                    {
+                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                    }
+
+                    state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                }
+                finally
+                {
+                    pipelineEvent.Pipeline.MarkExceptionHandled();
+                    bus.Events.OnAfterPipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+                }
+            }
+            finally
+            {
+                pipelineEvent.Pipeline.Abort();
+            }
+        }
+    }
 }

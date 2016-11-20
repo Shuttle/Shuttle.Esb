@@ -11,7 +11,16 @@ namespace Shuttle.Esb
 		IPipelineObserver<OnAbortPipeline>,
 		IPipelineObserver<OnPipelineException>
 	{
-		public void Execute(OnAbortPipeline pipelineEvent)
+	    private readonly ITransactionScopeFactory _transactionScopeFactory;
+
+	    public TransactionScopeObserver(ITransactionScopeFactory transactionScopeFactory)
+	    {
+            Guard.AgainstNull(transactionScopeFactory, "transactionScopeFactory");
+
+	        _transactionScopeFactory = transactionScopeFactory;
+	    }
+
+	    public void Execute(OnAbortPipeline pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var scope = state.GetTransactionScope();
@@ -74,7 +83,7 @@ namespace Shuttle.Esb
 						MethodBase.GetCurrentMethod().Name)));
 			}
 
-			scope = state.GetServiceBus().Configuration.TransactionScopeFactory.Create();
+			scope = _transactionScopeFactory.Create();
 
 			state.SetTransactionScope(scope);
 		}

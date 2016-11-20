@@ -5,30 +5,37 @@ namespace Shuttle.Esb
 {
 	public class DispatchTransportMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
 	{
-		private readonly ILog _log;
+	    private readonly IQueueManager _queueManager;
+	    private readonly IIdempotenceService _idempotenceService;
+	    private readonly ILog _log;
 
-		public DispatchTransportMessageObserver()
+		public DispatchTransportMessageObserver(IQueueManager queueManager, IIdempotenceService idempotenceService)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(queueManager, "queueManager");
+            Guard.AgainstNull(idempotenceService, "idempotenceService");
+
+		    _queueManager = queueManager;
+		    _idempotenceService = idempotenceService;
+		    _log = Log.For(this);
 		}
 
-		public void Execute(OnDispatchTransportMessage pipelineEvent)
+	    public void Execute(OnDispatchTransportMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
 			var transportMessageReceived = state.GetTransportMessageReceived();
 			var bus = state.GetServiceBus();
 
-			if (transportMessageReceived != null && bus.Configuration.HasIdempotenceService)
+			if (transportMessageReceived != null && _idempotenceService.CanDeferMessage)
 			{
 				try
 				{
-					bus.Configuration.IdempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
+					_idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
 						state.GetTransportMessageStream());
 				}
 				catch (Exception ex)
 				{
-					bus.Configuration.IdempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
+					_idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
 				}
 
 				return;
@@ -46,7 +53,7 @@ namespace Shuttle.Esb
 			}
 
 			var queue = !bus.Configuration.HasOutbox
-				? bus.Configuration.QueueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
+				? _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
 				: bus.Configuration.Outbox.WorkQueue;
 
 			using (var stream = state.GetTransportMessageStream().Copy())

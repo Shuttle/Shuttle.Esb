@@ -6,13 +6,17 @@ namespace Shuttle.Esb
 	public class DeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
 	{
 		private readonly ILog _log;
+	    private readonly ISerializer _serializer;
 
-		public DeserializeTransportMessageObserver()
-		{
-			_log = Log.For(this);
-		}
+	    public DeserializeTransportMessageObserver(ISerializer serializer)
+	    {
+            Guard.AgainstNull(serializer, "serializer");
 
-		public void Execute(OnDeserializeTransportMessage pipelineEvent)
+	        _serializer = serializer;
+	        _log = Log.For(this);
+	    }
+
+	    public void Execute(OnDeserializeTransportMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var receivedMessage = state.GetReceivedMessage();
@@ -30,7 +34,7 @@ namespace Shuttle.Esb
 				using (var stream = receivedMessage.Stream.Copy())
 				{
 					transportMessage =
-						(TransportMessage) state.GetServiceBus().Configuration.Serializer.Deserialize(typeof (TransportMessage), stream);
+						(TransportMessage) _serializer.Deserialize(typeof (TransportMessage), stream);
 				}
 			}
 			catch (Exception ex)

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Security.Principal;
+using Moq;
+using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
 {
@@ -8,6 +10,7 @@ namespace Shuttle.Esb.Tests
 		[Test]
 		public void Should_be_able_to_set_sender()
 		{
+            var identityProvider = new Mock<IIdentityProvider>();
 			var configurator = new TransportMessageConfigurator(this);
 			var configuration = new ServiceBusConfiguration
 			{
@@ -17,11 +20,14 @@ namespace Shuttle.Esb.Tests
 				}
 			};
 
-			Assert.AreEqual("null-queue://./work-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
+		    identityProvider.Setup(m => m.Get()).Returns(WindowsIdentity.GetCurrent());
+
+
+            Assert.AreEqual("null-queue://./work-queue", configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
 
 			configurator.WithSender("null-queue://./another-queue");
 
-			Assert.AreEqual("null-queue://./another-queue", configurator.TransportMessage(configuration).SenderInboxWorkQueueUri);
+			Assert.AreEqual("null-queue://./another-queue", configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
 		}
 	}
 }

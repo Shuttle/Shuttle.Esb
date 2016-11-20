@@ -8,19 +8,22 @@ namespace Shuttle.Esb
 	{
 		protected readonly IServiceBus Bus;
 		protected readonly IThreadActivity ThreadActivity;
+	    private readonly IPipelineFactory _pipelineFactory;
 
-		protected QueueProcessor(IServiceBus bus, IThreadActivity threadActivity)
+	    protected QueueProcessor(IServiceBus bus, IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
 		{
 			Guard.AgainstNull(bus, "bus");
 			Guard.AgainstNull(threadActivity, "threadActivity");
+			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
 			Bus = bus;
 			ThreadActivity = threadActivity;
+	        _pipelineFactory = pipelineFactory;
 		}
 
 		public virtual void Execute(IThreadState state)
 		{
-			var messagePipeline = Bus.Configuration.PipelineFactory.GetPipeline<TPipeline>();
+			var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 
 			try
 			{
@@ -44,7 +47,7 @@ namespace Shuttle.Esb
 			}
 			finally
 			{
-				Bus.Configuration.PipelineFactory.ReleasePipeline(messagePipeline);
+				_pipelineFactory.ReleasePipeline(messagePipeline);
 			}
 		}
 

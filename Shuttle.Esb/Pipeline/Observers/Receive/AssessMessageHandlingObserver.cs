@@ -2,19 +2,27 @@
 
 namespace Shuttle.Esb
 {
-	public class AssessMessageHandlingObserver : IPipelineObserver<OnAssessMessageHandling>
-	{
-		public void Execute(OnAssessMessageHandling pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var configuration = state.GetServiceBus().Configuration;
+    public class AssessMessageHandlingObserver : IPipelineObserver<OnAssessMessageHandling>
+    {
+        private readonly IMessageHandlingAssessor _messageHandlingAssessor;
 
-			if (configuration.MessageHandlingAssessor.IsSatisfiedBy(pipelineEvent))
-			{
-				return;
-			}
+        public AssessMessageHandlingObserver(IMessageHandlingAssessor messageHandlingAssessor)
+        {
+            Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
 
-			state.SetProcessingStatus(ProcessingStatus.Ignore);
-		}
-	}
+            _messageHandlingAssessor = messageHandlingAssessor;
+        }
+
+        public void Execute(OnAssessMessageHandling pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+
+            if (_messageHandlingAssessor.IsSatisfiedBy(pipelineEvent))
+            {
+                return;
+            }
+
+            state.SetProcessingStatus(ProcessingStatus.Ignore);
+        }
+    }
 }

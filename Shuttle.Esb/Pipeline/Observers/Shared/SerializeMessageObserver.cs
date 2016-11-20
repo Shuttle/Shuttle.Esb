@@ -2,20 +2,27 @@
 
 namespace Shuttle.Esb
 {
-	public class SerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
-	{
-		public void Execute(OnSerializeMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var message = state.GetMessage();
-			var transportMessage = state.GetTransportMessage();
-			var bytes = state.GetServiceBus()
-				.Configuration.Serializer
-				.Serialize(message).ToBytes();
+    public class SerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
+    {
+        private readonly ISerializer _serializer;
 
-			state.SetMessageBytes(bytes);
+        public SerializeMessageObserver(ISerializer serializer)
+        {
+            Guard.AgainstNull(serializer, "serializer");
 
-			transportMessage.Message = bytes;
-		}
-	}
+            _serializer = serializer;
+        }
+
+        public void Execute(OnSerializeMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var message = state.GetMessage();
+            var transportMessage = state.GetTransportMessage();
+            var bytes = _serializer.Serialize(message).ToBytes();
+
+            state.SetMessageBytes(bytes);
+
+            transportMessage.Message = bytes;
+        }
+    }
 }

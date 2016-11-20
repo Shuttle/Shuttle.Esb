@@ -20,8 +20,9 @@ namespace Shuttle.Esb
 			configuration.Inbox =
 				new InboxQueueConfiguration
 				{
-					WorkQueue = configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Inbox.WorkQueueUri),
-					ErrorQueue = configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Inbox.ErrorQueueUri),
+					WorkQueueUri = ServiceBusConfiguration.ServiceBusSection.Inbox.WorkQueueUri,
+                    DeferredQueueUri =ServiceBusConfiguration.ServiceBusSection.Inbox.DeferredQueueUri,
+                    ErrorQueueUri = ServiceBusConfiguration.ServiceBusSection.Inbox.ErrorQueueUri,
 					ThreadCount = ServiceBusConfiguration.ServiceBusSection.Inbox.ThreadCount,
 					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Inbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
@@ -31,11 +32,7 @@ namespace Shuttle.Esb
 						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToSleepWhenIdle ??
 						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
 					Distribute = ServiceBusConfiguration.ServiceBusSection.Inbox.Distribute,
-					DistributeSendCount = ServiceBusConfiguration.ServiceBusSection.Inbox.DistributeSendCount,
-					DeferredQueue =
-						string.IsNullOrEmpty(ServiceBusConfiguration.ServiceBusSection.Inbox.DeferredQueueUri)
-							? null
-							: configuration.QueueManager.GetQueue(ServiceBusConfiguration.ServiceBusSection.Inbox.DeferredQueueUri)
+					DistributeSendCount = ServiceBusConfiguration.ServiceBusSection.Inbox.DistributeSendCount
 				};
 		}
 	}
