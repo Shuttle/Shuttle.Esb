@@ -4,7 +4,16 @@ namespace Shuttle.Esb
 {
 	public class GetWorkMessageObserver : IPipelineObserver<OnGetMessage>
 	{
-		public void Execute(OnGetMessage pipelineEvent)
+        private readonly IServiceBusEvents _events;
+
+	    public GetWorkMessageObserver(IServiceBusEvents events)
+	    {
+            Guard.AgainstNull(events,"events");
+
+	        _events = events;
+	    }
+
+	    public void Execute(OnGetMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var queue = state.GetWorkQueue();
@@ -16,7 +25,7 @@ namespace Shuttle.Esb
 			// Abort the pipeline if there is no message on the queue
 			if (receivedMessage == null)
 			{
-				state.GetServiceBus().Events.OnQueueEmpty(this, new QueueEmptyEventArgs(pipelineEvent, queue));
+				_events.OnQueueEmpty(this, new QueueEmptyEventArgs(pipelineEvent, queue));
 				pipelineEvent.Pipeline.Abort();
 			}
 			else

@@ -5,7 +5,16 @@ namespace Shuttle.Esb
 {
 	public class CompressMessageObserver : IPipelineObserver<OnCompressMessage>
 	{
-		public void Execute(OnCompressMessage pipelineEvent)
+	    private readonly IServiceBusConfiguration _configuration;
+
+	    public CompressMessageObserver(IServiceBusConfiguration configuration)
+	    {
+            Guard.AgainstNull(configuration, "configuration");
+
+	        _configuration = configuration;
+	    }
+
+	    public void Execute(OnCompressMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
@@ -15,8 +24,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			var algorithm =
-				state.GetServiceBus().Configuration.FindCompressionAlgorithm(transportMessage.CompressionAlgorithm);
+			var algorithm = _configuration.FindCompressionAlgorithm(transportMessage.CompressionAlgorithm);
 
 			Guard.Against<InvalidOperationException>(algorithm == null,
 				string.Format(EsbResources.CompressionAlgorithmException, transportMessage.CompressionAlgorithm));

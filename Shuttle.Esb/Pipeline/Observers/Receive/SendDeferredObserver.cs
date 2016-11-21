@@ -7,22 +7,49 @@ namespace Shuttle.Esb
         IPipelineObserver<OnSendDeferred>,
         IPipelineObserver<OnAfterSendDeferred>
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly ISerializer _serializer;
         private readonly IIdempotenceService _idempotenceService;
         private readonly ILog _log;
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly ISerializer _serializer;
 
-        public SendDeferredObserver(IServiceBusConfiguration configuration, ISerializer serializer, IIdempotenceService idempotenceService)
+        public SendDeferredObserver(IPipelineFactory pipelineFactory, ISerializer serializer,
+            IIdempotenceService idempotenceService)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
             Guard.AgainstNull(serializer, "serializer");
             Guard.AgainstNull(idempotenceService, "idempotenceService");
 
-            _configuration = configuration;
+            _pipelineFactory = pipelineFactory;
             _serializer = serializer;
             _idempotenceService = idempotenceService;
 
             _log = Log.For(this);
+        }
+
+        public void Execute(OnAfterSendDeferred pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+
+            if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionComplete())
+            {
+                return;
+            }
+
+            var transportMessage = state.GetTransportMessage();
+
+            if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
+            {
+                return;
+            }
+
+            try
+            {
+                _idempotenceService.ProcessingCompleted(transportMessage);
+            }
+            catch (Exception ex)
+            {
+                _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
+            }
         }
 
         public void Execute(OnSendDeferred pipelineEvent)
@@ -41,39 +68,21 @@ namespace Shuttle.Esb
                 foreach (var stream in _idempotenceService.GetDeferredMessages(transportMessage))
                 {
                     var deferredTransportMessage =
-                        (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream);
+                        (TransportMessage) _serializer.Deserialize(typeof (TransportMessage), stream);
 
-                    state.GetServiceBus().Dispatch(deferredTransportMessage);
+                    var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
+
+                    try
+                    {
+                        messagePipeline.Execute(deferredTransportMessage, null);
+                    }
+                    finally
+                    {
+                        _pipelineFactory.ReleasePipeline(messagePipeline);
+                    }
 
                     _idempotenceService.DeferredMessageSent(transportMessage, deferredTransportMessage);
                 }
-            }
-            catch (Exception ex)
-            {
-                _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-            }
-        }
-
-        public void Execute(OnAfterSendDeferred pipelineEvent)
-        {
-            var state = pipelineEvent.Pipeline.State;
-
-            if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionComplete())
-            {
-                return;
-            }
-
-            var bus = state.GetServiceBus();
-            var transportMessage = state.GetTransportMessage();
-
-            if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
-            {
-                return;
-            }
-
-            try
-            {
-                _idempotenceService.ProcessingCompleted(transportMessage);
             }
             catch (Exception ex)
             {

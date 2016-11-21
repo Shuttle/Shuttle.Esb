@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public class ControlInboxMessagePipeline : ReceiveMessagePipeline
     {
-        public ControlInboxMessagePipeline(IServiceBus bus, GetWorkMessageObserver getWorkMessageObserver,
+        public ControlInboxMessagePipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver,
             DeserializeTransportMessageObserver deserializeTransportMessageObserver,
             DeferTransportMessageObserver deferTransportMessageObserver,
             DeserializeMessageObserver deserializeMessageObserver, DecryptMessageObserver decryptMessageObserver,
@@ -19,14 +19,12 @@ namespace Shuttle.Esb
                 assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, transactionScopeObserver,
                 acknowledgeMessageObserver, sendDeferredObserver, receiveExceptionObserver)
         {
-            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(configuration, "configuration");
 
-            State.SetServiceBus(bus);
-
-            State.SetWorkQueue(bus.Configuration.ControlInbox.WorkQueue);
-            State.SetErrorQueue(bus.Configuration.ControlInbox.ErrorQueue);
-            State.SetDurationToIgnoreOnFailure(bus.Configuration.ControlInbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(bus.Configuration.ControlInbox.MaximumFailureCount);
+            State.SetWorkQueue(configuration.ControlInbox.WorkQueue);
+            State.SetErrorQueue(configuration.ControlInbox.ErrorQueue);
+            State.SetDurationToIgnoreOnFailure(configuration.ControlInbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(configuration.ControlInbox.MaximumFailureCount);
         }
     }
 }

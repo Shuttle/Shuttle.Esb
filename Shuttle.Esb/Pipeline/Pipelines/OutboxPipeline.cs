@@ -4,19 +4,17 @@ namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBus bus, GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
+        public OutboxPipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
             DeferTransportMessageObserver deferTransportMessageObserver, SendOutboxMessageObserver sendOutboxMessageObserver,
             AcknowledgeMessageObserver acknowledgeMessageObserver, OutboxExceptionObserver outboxExceptionObserver)
         {
-            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(configuration, "configuration");
 
-            State.SetServiceBus(bus);
+            State.SetWorkQueue(configuration.Outbox.WorkQueue);
+            State.SetErrorQueue(configuration.Outbox.ErrorQueue);
 
-            State.SetWorkQueue(bus.Configuration.Outbox.WorkQueue);
-            State.SetErrorQueue(bus.Configuration.Outbox.ErrorQueue);
-
-            State.SetDurationToIgnoreOnFailure(bus.Configuration.Outbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(bus.Configuration.Outbox.MaximumFailureCount);
+            State.SetDurationToIgnoreOnFailure(configuration.Outbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(configuration.Outbox.MaximumFailureCount);
 
             RegisterStage("Read")
                 .WithEvent<OnGetMessage>()

@@ -10,13 +10,19 @@ namespace Shuttle.Esb
 	    private readonly IMessageHandlerInvoker _messageHandlerInvoker;
 	    private readonly ISerializer _serializer;
 	    private readonly ILog _log;
+	    private readonly IServiceBusConfiguration _configuration;
+	    private readonly IServiceBusEvents _events;
 
-		public HandleMessageObserver(IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
+	    public HandleMessageObserver(IServiceBusConfiguration configuration, IServiceBusEvents events, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
 		{
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(events, "events");
             Guard.AgainstNull(messageHandlerInvoker, "messageHandlerInvoker");
             Guard.AgainstNull(serializer, "serializer");
 
-		    _messageHandlerInvoker = messageHandlerInvoker;
+	        _configuration = configuration;
+	        _events = events;
+	        _messageHandlerInvoker = messageHandlerInvoker;
 		    _serializer = serializer;
 
 		    _log = Log.For(this);
@@ -32,7 +38,6 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			var bus = state.GetServiceBus();
 			var transportMessage = state.GetTransportMessage();
 			var message = state.GetMessage();
 
@@ -51,7 +56,7 @@ namespace Shuttle.Esb
 				}
 				else
 				{
-					bus.Events.OnMessageNotHandled(this,
+					_events.OnMessageNotHandled(this,
 						new MessageNotHandledEventArgs(
 							pipelineEvent,
 							state.GetWorkQueue(),
@@ -59,7 +64,7 @@ namespace Shuttle.Esb
 							transportMessage,
 							message));
 
-					if (!bus.Configuration.RemoveMessagesNotHandled)
+					if (!_configuration.RemoveMessagesNotHandled)
 					{
 						var error = string.Format(EsbResources.MessageNotHandledFailure, message.GetType().FullName,
 							transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
@@ -85,7 +90,7 @@ namespace Shuttle.Esb
 			{
 				var exception = ex.TrimLeading<TargetInvocationException>();
 
-				bus.Events.OnHandlerException(
+				_events.OnHandlerException(
 					this,
 					new HandlerExceptionEventArgs(
 						pipelineEvent,

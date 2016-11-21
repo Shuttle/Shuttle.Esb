@@ -7,12 +7,15 @@ namespace Shuttle.Esb
 	{
 		private readonly ILog _log;
 	    private readonly ISerializer _serializer;
+        private readonly IServiceBusEvents _events;
 
-	    public DeserializeTransportMessageObserver(ISerializer serializer)
+        public DeserializeTransportMessageObserver(IServiceBusEvents events, ISerializer serializer)
 	    {
+            Guard.AgainstNull(events, "events");
             Guard.AgainstNull(serializer, "serializer");
 
-	        _serializer = serializer;
+            _events = events;
+            _serializer = serializer;
 	        _log = Log.For(this);
 	    }
 
@@ -44,7 +47,7 @@ namespace Shuttle.Esb
 
 				pipelineEvent.Pipeline.Abort();
 
-				state.GetServiceBus().Events.OnTransportMessageDeserializationException(this,
+				_events.OnTransportMessageDeserializationException(this,
 					new DeserializationExceptionEventArgs(
 						pipelineEvent,
 						workQueue,

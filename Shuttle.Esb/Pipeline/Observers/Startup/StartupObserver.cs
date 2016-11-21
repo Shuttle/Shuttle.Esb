@@ -11,28 +11,28 @@ namespace Shuttle.Esb
         IPipelineObserver<OnStartDeferredMessageProcessing>,
         IPipelineObserver<OnStartWorker>
     {
-        private readonly IServiceBus _bus;
         private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IServiceBus _bus;
         private readonly IQueueManager _queueManager;
-        private readonly IThreadActivityFactory _threadActivityFactory;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
-        public StartupObserver(IServiceBus bus, IQueueManager queueManager, IThreadActivityFactory threadActivityFactory,
-            IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
+        public StartupObserver(IServiceBus bus, IServiceBusConfiguration configuration, IServiceBusEvents events, IQueueManager queueManager, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(events, "events");
             Guard.AgainstNull(queueManager, "queueManager");
-            Guard.AgainstNull(threadActivityFactory, "threadActivityFactory");
             Guard.AgainstNull(workerAvailabilityManager, "workerAvailabilityManager");
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
             _bus = bus;
             _queueManager = queueManager;
-            _threadActivityFactory = threadActivityFactory;
             _workerAvailabilityManager = workerAvailabilityManager;
             _pipelineFactory = pipelineFactory;
-            _configuration = _bus.Configuration;
+            _configuration = configuration;
+            _events = events;
         }
 
         public void Execute(OnCreateQueues pipelineEvent)
@@ -63,7 +63,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
                     _configuration.ControlInbox.ThreadCount,
-                    new ControlInboxProcessorFactory(_bus, _threadActivityFactory, _pipelineFactory)).Start());
+                    new ControlInboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
@@ -73,14 +73,14 @@ namespace Shuttle.Esb
                 return;
             }
 
-            _configuration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_bus, _pipelineFactory);
+            _configuration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_pipelineFactory);
 
             pipelineEvent.Pipeline.State.Add(
                 "DeferredMessageThreadPool",
                 new ProcessorThreadPool(
                     "DeferredMessageProcessor",
                     1,
-                    new DeferredMessageProcessorFactory(_bus)).Start());
+                    new DeferredMessageProcessorFactory(_configuration)).Start());
         }
 
         public void Execute(OnStartInboxProcessing pipelineEvent)
@@ -107,7 +107,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "InboxProcessor",
                     _configuration.Inbox.ThreadCount,
-                    new InboxProcessorFactory(_bus, _threadActivityFactory, _workerAvailabilityManager, _pipelineFactory))
+                    new InboxProcessorFactory(_bus, _configuration, _events, _workerAvailabilityManager, _pipelineFactory))
                     .Start());
         }
 
@@ -129,7 +129,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "OutboxProcessor",
                     _configuration.Outbox.ThreadCount,
-                    new OutboxProcessorFactory(_bus, _threadActivityFactory, _pipelineFactory)).Start());
+                    new OutboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
 
         public void Execute(OnStartWorker pipelineEvent)

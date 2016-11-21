@@ -5,7 +5,16 @@ namespace Shuttle.Esb
 {
 	public class DecryptMessageObserver : IPipelineObserver<OnDecryptMessage>
 	{
-		public void Execute(OnDecryptMessage pipelineEvent)
+        private readonly IServiceBusConfiguration _configuration;
+
+        public DecryptMessageObserver(IServiceBusConfiguration configuration)
+        {
+            Guard.AgainstNull(configuration, "configuration");
+
+            _configuration = configuration;
+        }
+
+        public void Execute(OnDecryptMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var transportMessage = state.GetTransportMessage();
@@ -15,8 +24,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			var algorithm =
-				state.GetServiceBus().Configuration.FindEncryptionAlgorithm(transportMessage.EncryptionAlgorithm);
+			var algorithm = _configuration.FindEncryptionAlgorithm(transportMessage.EncryptionAlgorithm);
 
 			Guard.Against<InvalidOperationException>(algorithm == null,
 				string.Format(EsbResources.EncryptionAlgorithmException, transportMessage.CompressionAlgorithm));

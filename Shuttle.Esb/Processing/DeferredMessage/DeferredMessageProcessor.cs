@@ -10,16 +10,13 @@ namespace Shuttle.Esb
 		private DateTime _ignoreTillDate = DateTime.MaxValue;
 		private Guid _checkpointMessageId = Guid.Empty;
 
-		private readonly IServiceBus _bus;
 	    private readonly IPipelineFactory _pipelineFactory;
 	    private readonly ILog _log;
 
-		public DeferredMessageProcessor(IServiceBus bus, IPipelineFactory pipelineFactory)
+		public DeferredMessageProcessor(IPipelineFactory pipelineFactory)
 		{
-			Guard.AgainstNull(bus, "bus");
 			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
-			_bus = bus;
 		    _pipelineFactory = pipelineFactory;
 		    _log = Log.For(this);
 		}

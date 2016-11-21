@@ -148,10 +148,8 @@
     <Compile Include="Exceptions\UnrecoverableHandlerException.cs" />
     <Compile Include="Pipeline\Observers\Distribute\DistributorExceptionObserver.cs" />
     <Compile Include="Pipeline\Observers\Send\OutboxExceptionObserver.cs" />
-    <Compile Include="Processing\DefaultThreadActivityFactory.cs" />
     <Compile Include="Processing\Inbox\InboxProcessorFactory.cs" />
     <Compile Include="Processing\Inbox\InboxProcessor.cs" />
-    <Compile Include="Processing\IThreadActivityFactory.cs" />
     <Compile Include="Processing\Outbox\OutboxProcessor.cs" />
     <Compile Include="Processing\Outbox\OutboxProcessorFactory.cs" />
     <Compile Include="Processing\Policies\IServiceBusPolicy.cs" />

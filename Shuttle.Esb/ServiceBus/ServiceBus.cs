@@ -15,6 +15,7 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
+        private readonly IServiceBusConfiguration _configuration;
 
         public ServiceBus(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
         {
@@ -25,13 +26,8 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
             _subscriptionService = subscriptionService;
 
-            Configuration = configuration;
-
-            Events = new ServiceBusEvents();
+            _configuration = configuration;
         }
-
-        public IServiceBusConfiguration Configuration { get; private set; }
-        public IServiceBusEvents Events { get; private set; }
 
         public IServiceBus Start()
         {
@@ -40,7 +36,7 @@ namespace Shuttle.Esb
                 throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
             }
 
-            Configuration.Invariant();
+            _configuration.Invariant();
 
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
@@ -65,9 +61,9 @@ namespace Shuttle.Esb
                 return;
             }
 
-            if (Configuration.HasInbox)
+            if (_configuration.HasInbox)
             {
-                if (Configuration.Inbox.HasDeferredQueue)
+                if (_configuration.Inbox.HasDeferredQueue)
                 {
                     _deferredMessageThreadPool.Dispose();
                 }
@@ -75,12 +71,12 @@ namespace Shuttle.Esb
                 _inboxThreadPool.Dispose();
             }
 
-            if (Configuration.HasControlInbox)
+            if (_configuration.HasControlInbox)
             {
                 _controlThreadPool.Dispose();
             }
 
-            if (Configuration.HasOutbox)
+            if (_configuration.HasOutbox)
             {
                 _outboxThreadPool.Dispose();
             }

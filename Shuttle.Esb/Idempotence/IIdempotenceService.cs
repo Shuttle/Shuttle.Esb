@@ -16,12 +16,11 @@ namespace Shuttle.Esb
 		ProcessingStatus ProcessingStatus(TransportMessage transportMessage);
 		void ProcessingCompleted(TransportMessage transportMessage);
 
-		void AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
+        bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
 			Stream deferredTransportMessageStream);
 
 		IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage);
 		void DeferredMessageSent(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage);
 		void MessageHandled(TransportMessage transportMessage);
-	    bool CanDeferMessage { get; }
 	}
 }

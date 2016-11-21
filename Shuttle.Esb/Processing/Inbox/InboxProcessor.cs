@@ -5,19 +5,22 @@ namespace Shuttle.Esb
 {
     public class InboxProcessor : IProcessor
     {
-        protected readonly IServiceBus _bus;
+        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusEvents _events;
         protected readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
         private readonly IPipelineFactory _pipelineFactory;
 
-        public InboxProcessor(IServiceBus bus, IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
+        public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events, IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
         {
-            Guard.AgainstNull(bus, "bus");
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(events, "events");
             Guard.AgainstNull(threadActivity, "threadActivity");
             Guard.AgainstNull(workerAvailabilityManager, "workerAvailabilityManager");
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
-            _bus = bus;
+            _configuration = configuration;
+            _events = events;
             _threadActivity = threadActivity;
             _workerAvailabilityManager = workerAvailabilityManager;
             _pipelineFactory = pipelineFactory;
@@ -33,7 +36,7 @@ namespace Shuttle.Esb
         {
             var availableWorker = _workerAvailabilityManager.GetAvailableWorker();
 
-            if (_bus.Configuration.Inbox.Distribute && availableWorker == null)
+            if (_configuration.Inbox.Distribute && availableWorker == null)
             {
                 _threadActivity.Waiting(state);
 
@@ -59,13 +62,13 @@ namespace Shuttle.Esb
 
                 if (messagePipeline.State.GetWorking())
                 {
-                    _bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
+                    _events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
 
                     _threadActivity.Working();
                 }
                 else
                 {
-                    _bus.Events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
+                    _events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
 
                     _threadActivity.Waiting(state);
                 }

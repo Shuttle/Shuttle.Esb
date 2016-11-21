@@ -14,10 +14,10 @@ namespace Shuttle.Esb
         {
         }
 
-        public void AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
+        public bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
             Stream deferredTransportMessageStream)
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage)
@@ -32,10 +32,6 @@ namespace Shuttle.Esb
 
         public void MessageHandled(TransportMessage transportMessage)
         {
-        }
-
-        public bool CanDeferMessage {
-            get { return false; }
         }
     }
 }

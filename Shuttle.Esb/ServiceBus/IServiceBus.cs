@@ -1,5 +1,4 @@
 using System;
-using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
@@ -7,12 +6,9 @@ namespace Shuttle.Esb
 		IMessageSender,
 		IDisposable
 	{
-		IServiceBus Start();
+        bool Started { get; }
+
+        IServiceBus Start();
 		void Stop();
-
-		bool Started { get; }
-
-		IServiceBusConfiguration Configuration { get; }
-		IServiceBusEvents Events { get; }
 	}
 }

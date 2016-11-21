@@ -4,14 +4,18 @@ namespace Shuttle.Esb
 {
 	public class DeferTransportMessageObserver : IPipelineObserver<OnAfterDeserializeTransportMessage>
 	{
-		private readonly ILog _log;
+	    private readonly IServiceBusConfiguration _configuration;
+	    private readonly ILog _log;
 
-		public DeferTransportMessageObserver()
+		public DeferTransportMessageObserver(IServiceBusConfiguration configuration)
 		{
-			_log = Log.For(this);
+            Guard.AgainstNull(configuration, "configuration");
+
+		    _configuration = configuration;
+		    _log = Log.For(this);
 		}
 
-		public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
+	    public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
 		{
 			var state = pipelineEvent.Pipeline.State;
 			var receivedMessage = state.GetReceivedMessage();
@@ -37,7 +41,7 @@ namespace Shuttle.Esb
 				{
 					state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
-					state.GetServiceBus().Configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+					_configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
 				}
 			}
 

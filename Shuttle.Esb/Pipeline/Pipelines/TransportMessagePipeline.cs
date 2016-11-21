@@ -4,13 +4,9 @@ namespace Shuttle.Esb
 {
     public class TransportMessagePipeline : Pipeline
     {
-        public TransportMessagePipeline(IServiceBus bus, AssembleMessageObserver assembleMessageObserver, SerializeMessageObserver serializeMessageObserver, 
+        public TransportMessagePipeline(AssembleMessageObserver assembleMessageObserver, SerializeMessageObserver serializeMessageObserver, 
             CompressMessageObserver compressMessageObserver, EncryptMessageObserver encryptMessageObserver)
         {
-            Guard.AgainstNull(bus, "bus");
-
-            State.SetServiceBus(bus);
-
             RegisterStage("Create")
                 .WithEvent<OnAssembleMessage>()
                 .WithEvent<OnAfterAssembleMessage>()

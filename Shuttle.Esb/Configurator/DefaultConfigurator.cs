@@ -58,13 +58,13 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(container, "container");
 
+            ApplyDefault<IServiceBusEvents, ServiceBusEvents>(container);
             ApplyDefault<ISerializer, DefaultSerializer>(container);
             ApplyDefault<IServiceBusPolicy, DefaultServiceBusPolicy>(container);
             ApplyDefault<IMessageRouteProvider, DefaultMessageRouteProvider>(container);
             ApplyDefault<IIdentityProvider, DefaultIdentityProvider>(container);
             ApplyDefault<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>(container);
             ApplyDefault<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>(container);
-            ApplyDefault<IThreadActivityFactory, DefaultThreadActivityFactory>(container);
             ApplyDefault<IUriResolver, DefaultUriResolver>(container);
             ApplyDefault<IQueueManager, QueueManager>(container);
             ApplyDefault<IWorkerAvailabilityManager, WorkerAvailabilityManager>(container);

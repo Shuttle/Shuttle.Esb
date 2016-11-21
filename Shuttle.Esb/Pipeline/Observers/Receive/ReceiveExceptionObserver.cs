@@ -9,12 +9,15 @@ namespace Shuttle.Esb
 
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
+        private readonly IServiceBusEvents _events;
 
-        public ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        public ReceiveExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
         {
+            Guard.AgainstNull(events, "events");
             Guard.AgainstNull(policy, "policy");
             Guard.AgainstNull(serializer, "serializer");
 
+            _events = events;
             _policy = policy;
             _serializer = serializer;
             _log = Log.For(this);
@@ -23,9 +26,8 @@ namespace Shuttle.Esb
         public void Execute(OnPipelineException pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-            var bus = state.GetServiceBus();
 
-            bus.Events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+            _events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
             try
             {
@@ -103,7 +105,7 @@ namespace Shuttle.Esb
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    bus.Events.OnAfterPipelineExceptionHandled(this,
+                    _events.OnAfterPipelineExceptionHandled(this,
                         new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }

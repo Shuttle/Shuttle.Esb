@@ -6,21 +6,23 @@ namespace Shuttle.Esb
 {
 	public class WorkerThreadActivity : IThreadActivity
 	{
-		private readonly IServiceBus _bus;
 		private readonly Guid _identifier = Guid.NewGuid();
-		private readonly ThreadActivity _threadActivity;
+	    private readonly IServiceBus _bus;
+	    private readonly IServiceBusConfiguration _configuration;
+	    private readonly ThreadActivity _threadActivity;
 
 		private readonly ILog _log;
 
 		private DateTime _nextNotificationDate = DateTime.Now;
 
-		public WorkerThreadActivity(IServiceBus bus, ThreadActivity threadActivity)
+		public WorkerThreadActivity(IServiceBus bus, IServiceBusConfiguration configuration, ThreadActivity threadActivity)
 		{
-			Guard.AgainstNull(bus, "bus");
+			Guard.AgainstNull(configuration, "configuration");
 			Guard.AgainstNull(threadActivity, "threadActivity");
 
-			_bus = bus;
-			_threadActivity = threadActivity;
+		    _bus = bus;
+		    _configuration = configuration;
+		    _threadActivity = threadActivity;
 
 			_log = Log.For(this);
 		}
@@ -32,21 +34,21 @@ namespace Shuttle.Esb
 				_bus.Send(new WorkerThreadAvailableCommand
 				{
 					Identifier = _identifier,
-					InboxWorkQueueUri = _bus.Configuration.Inbox.WorkQueue.Uri.ToString(),
+					InboxWorkQueueUri = _configuration.Inbox.WorkQueue.Uri.ToString(),
 					ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
 					DateSent = DateTime.Now
 				},
-					c => c.WithRecipient(_bus.Configuration.Worker.DistributorControlInboxWorkQueue));
+					c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
 
 				if (_log.IsVerboseEnabled)
 				{
 					_log.Verbose(string.Format(EsbResources.DebugWorkerAvailable,
 						_identifier,
-						_bus.Configuration.Inbox.WorkQueue.Uri,
-						_bus.Configuration.Worker.DistributorControlInboxWorkQueue.Uri));
+						_configuration.Inbox.WorkQueue.Uri,
+						_configuration.Worker.DistributorControlInboxWorkQueue.Uri));
 				}
 
-				_nextNotificationDate = DateTime.Now.AddSeconds(_bus.Configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
+				_nextNotificationDate = DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
 			}
 
 			_threadActivity.Waiting(state);

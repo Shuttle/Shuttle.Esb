@@ -6,16 +6,6 @@ namespace Shuttle.Esb
 {
 	public static class PipelineStateExtensions
 	{
-		public static IServiceBus GetServiceBus(this IState state)
-		{
-			return state.Get<IServiceBus>();
-		}
-
-	    public static void SetServiceBus(this IState state, IServiceBus bus)
-	    {
-	        state.Add(bus);
-	    }
-
 	    public static IThreadState GetActiveState(this IState state)
 		{
 			return state.Get<IThreadState>(StateKeys.ActiveState);

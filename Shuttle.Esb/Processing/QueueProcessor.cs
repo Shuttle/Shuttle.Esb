@@ -6,18 +6,18 @@ namespace Shuttle.Esb
 	public abstract class QueueProcessor<TPipeline> : IProcessor
 		where TPipeline : IPipeline
 	{
-		protected readonly IServiceBus Bus;
-		protected readonly IThreadActivity ThreadActivity;
+	    private readonly IServiceBusEvents _events;
+	    private readonly IThreadActivity _threadActivity;
 	    private readonly IPipelineFactory _pipelineFactory;
 
-	    protected QueueProcessor(IServiceBus bus, IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
+	    protected QueueProcessor(IServiceBusEvents events, IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
 		{
-			Guard.AgainstNull(bus, "bus");
+			Guard.AgainstNull(events, "events");
 			Guard.AgainstNull(threadActivity, "threadActivity");
 			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
 
-			Bus = bus;
-			ThreadActivity = threadActivity;
+	        _events = events;
+	        _threadActivity = threadActivity;
 	        _pipelineFactory = pipelineFactory;
 		}
 
@@ -34,15 +34,15 @@ namespace Shuttle.Esb
 
 				if (messagePipeline.State.GetWorking())
 				{
-					Bus.Events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (TPipeline)));
+					_events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (TPipeline)));
 
-					ThreadActivity.Working();
+					_threadActivity.Working();
 				}
 				else
 				{
-					Bus.Events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof (TPipeline)));
+					_events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof (TPipeline)));
 
-					ThreadActivity.Waiting(state);
+					_threadActivity.Waiting(state);
 				}
 			}
 			finally
