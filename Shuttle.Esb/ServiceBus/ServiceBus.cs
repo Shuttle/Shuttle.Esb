@@ -8,7 +8,7 @@ namespace Shuttle.Esb
     public class ServiceBus : IServiceBus
     {
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly ISubscriptionManager _subscriptionManager;
         private IMessageSender _messageSender;
 
         private IProcessorThreadPool _controlThreadPool;
@@ -17,14 +17,14 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _deferredMessageThreadPool;
         private readonly IServiceBusConfiguration _configuration;
 
-        public ServiceBus(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
+        public ServiceBus(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
             Guard.AgainstNull(configuration, "configuration");
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(subscriptionService, "subscriptionService");
+            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
             _pipelineFactory = pipelineFactory;
-            _subscriptionService = subscriptionService;
+            _subscriptionManager = subscriptionManager;
 
             _configuration = configuration;
         }
@@ -47,7 +47,7 @@ namespace Shuttle.Esb
             _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
             _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
 
-            _messageSender = new MessageSender(_pipelineFactory, _subscriptionService);
+            _messageSender = new MessageSender(_pipelineFactory, _subscriptionManager);
 
             Started = true;
 
@@ -96,16 +96,18 @@ namespace Shuttle.Esb
             return Create(null);
         }
 
-        public static IServiceBus Create(Action<DefaultConfigurator> configure)
+        public static IServiceBus Create(Action<ServiceBusConfigurator> configure)
         {
-            var configurator = new DefaultConfigurator();
+            var configurator = new ServiceBusConfigurator();
 
             if (configure != null)
             {
                 configure.Invoke(configurator);
             }
 
-            return new ServiceBus(configurator.Configuration(), configurator.Container.Resolve<IPipelineFactory>(), configurator.Container.Resolve<ISubscriptionService>());
+            configurator.Configure();
+
+            return configurator.Container.Resolve<IServiceBus>();
         }
 
         public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)

@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 {
     public class MessageSender : IMessageSender
     {
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly ISubscriptionManager _subscriptionManager;
 
         private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
             new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
@@ -18,18 +18,18 @@ namespace Shuttle.Esb
 
         private readonly ILog _log;
 
-        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
-            : this(pipelineFactory, subscriptionService, null)
+        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+            : this(pipelineFactory, subscriptionManager, null)
         {
         }
 
-        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, TransportMessage transportMessageReceived)
+        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(subscriptionService, "subscriptionService");
+            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
             _pipelineFactory = pipelineFactory;
-            _subscriptionService = subscriptionService;
+            _subscriptionManager = subscriptionManager;
             _transportMessageReceived = transportMessageReceived;
 
             _log = Log.For(this);
@@ -110,7 +110,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(message, "message");
 
-            var subscribers = _subscriptionService.GetSubscribedUris(message).ToList();
+            var subscribers = _subscriptionManager.GetSubscribedUris(message).ToList();
 
             if (subscribers.Count > 0)
             {

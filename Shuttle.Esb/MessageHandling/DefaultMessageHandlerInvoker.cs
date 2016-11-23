@@ -10,20 +10,23 @@ namespace Shuttle.Esb
     {
         private readonly IComponentContainer _container;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly ISubscriptionManager _subscriptionManager;
         private readonly IServiceBusConfiguration _configuration;
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object _lock = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
 
-        public DefaultMessageHandlerInvoker(IComponentContainer container)
+        public DefaultMessageHandlerInvoker(IComponentContainer container, IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
             Guard.AgainstNull(container, "container");
+            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
             _container = container;
-            _configuration = container.Resolve<IServiceBusConfiguration>();
-            _pipelineFactory = container.Resolve<IPipelineFactory>();
-            _subscriptionService = container.Resolve<ISubscriptionService>();
+            _configuration = configuration;
+            _pipelineFactory = pipelineFactory;
+            _subscriptionManager = subscriptionManager;
         }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
@@ -67,7 +70,7 @@ namespace Shuttle.Esb
 
                 var contextMethod = _cache[messageType];
 
-                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionService, transportMessage, message,
+                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionManager, transportMessage, message,
                     state.GetActiveState());
 
                 contextMethod.Method.Invoke(handler, new[] { handlerContext });

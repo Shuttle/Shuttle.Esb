@@ -3,11 +3,14 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class DefaultConfigurator
+    public class ServiceBusConfigurator
     {
-        private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
+        public ServiceBusConfigurator()
+        {
+            Configuration = new ServiceBusConfiguration();
+        }
 
-        public DefaultConfigurator ComponentContainer(IComponentContainer container)
+        public ServiceBusConfigurator ComponentContainer(IComponentContainer container)
         {
             Guard.AgainstNull(container, "container");
 
@@ -16,47 +19,49 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public DefaultConfigurator AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
+        public ServiceBusConfigurator AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
         {
             Guard.AgainstNull(algorithm, "algorithm");
 
-            _configuration.AddCompressionAlgorithm(algorithm);
+            Configuration.AddCompressionAlgorithm(algorithm);
 
             return this;
         }
 
-        public DefaultConfigurator AddEnryptionAlgorithm(IEncryptionAlgorithm algorithm)
+        public ServiceBusConfigurator AddEnryptionAlgorithm(IEncryptionAlgorithm algorithm)
         {
             Guard.AgainstNull(algorithm, "algorithm");
 
-            _configuration.AddEncryptionAlgorithm(algorithm);
+            Configuration.AddEncryptionAlgorithm(algorithm);
 
             return this;
         }
 
         public IComponentContainer Container { get; private set; }
+        public IServiceBusConfiguration Configuration { get; private set; } 
 
-        public IServiceBusConfiguration Configuration()
+        public void Configure()
         {
             if (Container == null)
             {
                 Container = new DefaultComponentContainer();
             }
 
-            new CoreConfigurator().Apply(_configuration);
-            new ControlInboxConfigurator().Apply(_configuration);
-            new InboxConfigurator().Apply(_configuration);
-            new OutboxConfigurator().Apply(_configuration);
-            new WorkerConfigurator().Apply(_configuration);
+            new CoreConfigurator().Apply(Configuration);
+            new ControlInboxConfigurator().Apply(Configuration);
+            new InboxConfigurator().Apply(Configuration);
+            new OutboxConfigurator().Apply(Configuration);
+            new WorkerConfigurator().Apply(Configuration);
 
-            RegisterComponents(Container);
-
-            return _configuration;
+            RegisterComponents(Container, Configuration);
         }
 
-        public void RegisterComponents(IComponentContainer container)
+        public void RegisterComponents(IComponentContainer container, IServiceBusConfiguration configuration)
         {
             Guard.AgainstNull(container, "container");
+            Guard.AgainstNull(configuration, "configuration");
+
+            container.Register(container);
 
             ApplyDefault<IServiceBusEvents, ServiceBusEvents>(container);
             ApplyDefault<ISerializer, DefaultSerializer>(container);
@@ -68,14 +73,17 @@ namespace Shuttle.Esb
             ApplyDefault<IUriResolver, DefaultUriResolver>(container);
             ApplyDefault<IQueueManager, QueueManager>(container);
             ApplyDefault<IWorkerAvailabilityManager, WorkerAvailabilityManager>(container);
-            ApplyDefault<ISubscriptionService, NullSubscriptionService>(container);
+            ApplyDefault<ISubscriptionManager, NullSubscriptionManager>(container);
             ApplyDefault<IIdempotenceService, NullIdempotenceService>(container);
 
-            container.Register<IServiceBusConfiguration>(_configuration);
+            if (!container.IsRegistered(typeof(IServiceBusConfiguration)))
+            {
+                container.Register<IServiceBusConfiguration>(configuration);
+            }
 
             if (!container.IsRegistered(typeof(IPipelineFactory)))
             {
-                container.Register<ITransactionScopeFactory>(new DefaultTransactionScopeFactory(_configuration.TransactionScope.Enabled, _configuration.TransactionScope.IsolationLevel, TimeSpan.FromSeconds(_configuration.TransactionScope.TimeoutSeconds)));
+                container.Register<ITransactionScopeFactory>(new DefaultTransactionScopeFactory(Configuration.TransactionScope.Enabled, Configuration.TransactionScope.IsolationLevel, TimeSpan.FromSeconds(Configuration.TransactionScope.TimeoutSeconds)));
             }
 
             if (!container.IsRegistered(typeof(IPipelineFactory)))
@@ -108,10 +116,12 @@ namespace Shuttle.Esb
                 container.Register(type, type, Lifestyle.Singleton);
             }
 
-            if (_configuration.RegisterHandlers)
+            if (Configuration.RegisterHandlers)
             {
                 container.RegisterMessageHandlers();
             }
+
+            container.Register<IServiceBus, ServiceBus>();
         }
 
         private void ApplyDefault<TService, TImplementation>(IComponentContainer container) where TImplementation : class where TService : class

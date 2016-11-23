@@ -115,7 +115,7 @@
     <Compile Include="MessageHandling\MessageHandlerInvokeResult.cs" />
     <Compile Include="Messages\DefaultIdentityProvider.cs" />
     <Compile Include="Messages\IIdentityProvider.cs" />
-    <Compile Include="NullSubscriptionService.cs" />
+    <Compile Include="NullSubscriptionManager.cs" />
     <Compile Include="Pipeline\Observers\Receive\IdempotenceObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\AssessMessageHandlingObserver.cs" />
     <Compile Include="Queues\DefaultUriResolver.cs" />
@@ -123,7 +123,7 @@
     <Compile Include="Queues\ResolvedQueue.cs" />
     <Compile Include="ServiceBus\ConfiguratorCollection.cs" />
     <Compile Include="ServiceBus\IConfigurator.cs" />
-    <Compile Include="Configurator\DefaultConfigurator.cs" />
+    <Compile Include="Configurator\ServiceBusConfigurator.cs" />
     <Compile Include="Configuration\IControlInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IOutboxQueueConfiguration.cs" />
     <Compile Include="Configuration\ITransactionScopeConfiguration.cs" />
@@ -231,7 +231,7 @@
     <Compile Include="Configuration\Section\SpecificationElement.cs" />
     <Compile Include="Configuration\WorkerConfiguration.cs" />
     <Compile Include="Exceptions\SendMessageException.cs" />
-    <Compile Include="ISubscriptionService.cs" />
+    <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="Exceptions\MessageRouteSpecificationException.cs" />
     <Compile Include="Exceptions\EsbConfigurationException.cs" />
     <Compile Include="Configuration\IInboxQueueConfiguration.cs" />

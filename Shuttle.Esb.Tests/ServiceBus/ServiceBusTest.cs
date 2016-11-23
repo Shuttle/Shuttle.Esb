@@ -31,13 +31,13 @@ namespace Shuttle.Esb.Tests
 
             container.Register<IMessageHandlerInvoker>(handlerInvoker);
 
-            new DefaultConfigurator().RegisterComponents(container);
+            new ServiceBusConfigurator().RegisterComponents(container, configuration.Object);
 
-            using (var bus = new ServiceBus(configuration.Object, new DefaultPipelineFactory(container), new NullSubscriptionService()))
+            using (var bus = new ServiceBus(configuration.Object, new DefaultPipelineFactory(container), new NullSubscriptionManager()))
             {
 				bus.Start();
 
-				var timeout = DateTime.Now.AddMilliseconds(500);
+				var timeout = DateTime.Now.AddMilliseconds(1000);
 
 				while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
 				{

@@ -15,7 +15,7 @@ namespace Shuttle.Esb
 		private static readonly object Padlock = new object();
 		private readonly IUriResolver _uriResolver;
 
-		public QueueManager(IUriResolver uriResolver)
+		public QueueManager(IUriResolver uriResolver) 
 		{
             Guard.AgainstNull(uriResolver, "uriResolver");
 
