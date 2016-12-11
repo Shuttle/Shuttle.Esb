@@ -63,23 +63,11 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(message, "message");
 
-            var result = CreateTransportMessage(message, configure);
+            var result = _transportMessageFactory.Create(message, configure, _transportMessageReceived);
 
             Dispatch(result);
 
             return result;
-        }
-
-        private TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-        {
-            var transportMessage = _transportMessageFactory.Create(message, configure);
-
-            if (_transportMessageReceived != null)
-            {
-                transportMessage.TransportMessageReceived(_transportMessageReceived);
-            }
-
-            return transportMessage;
         }
 
         public IEnumerable<TransportMessage> Publish(object message)
@@ -99,7 +87,7 @@ namespace Shuttle.Esb
 
                 foreach (var subscriber in subscribers)
                 {
-                    var transportMessage = CreateTransportMessage(message, configure);
+                    var transportMessage = _transportMessageFactory.Create(message, configure, _transportMessageReceived);
 
                     transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
