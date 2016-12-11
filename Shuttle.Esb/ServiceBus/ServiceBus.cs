@@ -91,25 +91,6 @@ namespace Shuttle.Esb
             Stop();
         }
 
-        public static IServiceBus Create()
-        {
-            return Create(null);
-        }
-
-        public static IServiceBus Create(Action<ServiceBusConfigurator> configure)
-        {
-            var configurator = new ServiceBusConfigurator();
-
-            if (configure != null)
-            {
-                configure.Invoke(configurator);
-            }
-
-            configurator.Configure();
-
-            return configurator.Container.Resolve<IServiceBus>();
-        }
-
         public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
         {
             return _messageSender.CreateTransportMessage(message, configure);
@@ -138,6 +119,29 @@ namespace Shuttle.Esb
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
         {
             return _messageSender.Publish(message, configure);
+        }
+
+        public static IServiceBus Create(IComponentResolver resolver)
+        {
+            Guard.AgainstNull(resolver, "resolver");
+
+            var configuration = resolver.Resolve<IServiceBusConfiguration>();
+
+            if (configuration == null)
+            {
+                throw new InvalidOperationException(string.Format(InfrastructureResources.TypeNotRegisteredException, typeof(IServiceBusConfiguration).FullName));
+            }
+
+            configuration.Assign(resolver);
+
+            var defaultPipelineFactory = resolver.Resolve<IPipelineFactory>() as DefaultPipelineFactory;
+
+            if (defaultPipelineFactory  != null)
+            {
+                defaultPipelineFactory.Assign(resolver);
+            }
+
+            return resolver.Resolve<IServiceBus>();
         }
     }
 }

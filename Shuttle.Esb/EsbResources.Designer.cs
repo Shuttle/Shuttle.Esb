@@ -88,15 +88,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot assign container as there is an existing container already set.  Changing the container may result in unexpected behaviour.  Keep in mind that you will need to set the container first if you have a specific container that you would like to use..
-        /// </summary>
-        public static string ContainerAlreadyAssignedException {
-            get {
-                return ResourceManager.GetString("ContainerAlreadyAssignedException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [worker available ({0})] worker inbox = {1} / distributor control inbox = {2}.
         /// </summary>
         public static string DebugWorkerAvailable {
@@ -120,15 +111,6 @@ namespace Shuttle.Esb {
         public static string DeferredMessageProcessorInstanceException {
             get {
                 return ResourceManager.GetString("DeferredMessageProcessorInstanceException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Message handler type &apos;{0}&apos; has already been registered as the handler for message type &apos;{1}&apos;.  Message handler type &apos;{2}&apos; also handles the message type..
-        /// </summary>
-        public static string DuplicateMessageHandlerException {
-            get {
-                return ResourceManager.GetString("DuplicateMessageHandlerException", resourceCulture);
             }
         }
         
@@ -525,6 +507,15 @@ namespace Shuttle.Esb {
         public static string UriNameNotFoundException {
             get {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The TransactionScopeConfiguration is null.  The default values have been used..
+        /// </summary>
+        public static string WarningNullTransactionScopeConfiguration {
+            get {
+                return ResourceManager.GetString("WarningNullTransactionScopeConfiguration", resourceCulture);
             }
         }
         

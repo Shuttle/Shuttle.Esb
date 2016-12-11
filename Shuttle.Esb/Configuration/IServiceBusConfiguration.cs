@@ -4,6 +4,9 @@ namespace Shuttle.Esb
 {
 	public interface IServiceBusConfiguration
 	{
+	    IComponentResolver Resolver { get; }
+        IServiceBusConfiguration Assign(IComponentResolver resolver);
+
 		bool HasInbox { get; }
 		bool HasControlInbox { get; }
 		bool HasOutbox { get; }

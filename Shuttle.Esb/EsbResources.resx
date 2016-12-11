@@ -315,11 +315,7 @@
   <data name="SubscribeWithNoInboxException" xml:space="preserve">
     <value>You have attempted to subscribe to messages but there is no inbox configured.</value>
   </data>
-  <data name="DuplicateMessageHandlerException" xml:space="preserve">
-    <value>Message handler type '{0}' has already been registered as the handler for message type '{1}'.  Message handler type '{2}' also handles the message type.</value>
-    <comment>{0} = message handler type already registered, {1} = message type, {2} = {2} = duplicate message handler type</comment>
-  </data>
-  <data name="ContainerAlreadyAssignedException" xml:space="preserve">
-    <value>Cannot assign container as there is an existing container already set.  Changing the container may result in unexpected behaviour.  Keep in mind that you will need to set the container first if you have a specific container that you would like to use.</value>
+  <data name="WarningNullTransactionScopeConfiguration" xml:space="preserve">
+    <value>The TransactionScopeConfiguration is null.  The default values have been used.</value>
   </data>
 </root>

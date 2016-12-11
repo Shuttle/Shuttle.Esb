@@ -4,21 +4,21 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public static class ContainerExtensions
+    public static class RegistryExtensions
     {
-        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+        private static readonly Type MessageHandlerType = typeof (IMessageHandler<>);
 
-        public static void RegisterMessageHandlers(this IComponentContainer container)
+        public static void RegisterMessageHandlers(this IComponentRegistry registry)
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                RegisterMessageHandlers(container, assembly);
+                RegisterMessageHandlers(registry, assembly);
             }
         }
 
-        public static void RegisterMessageHandlers(this IComponentContainer container, Assembly assembly)
+        public static void RegisterMessageHandlers(this IComponentRegistry registry, Assembly assembly)
         {
-            Guard.AgainstNull(container, "container");
+            Guard.AgainstNull(registry, "registry");
 
             var reflectionService = new ReflectionService();
 
@@ -31,10 +31,10 @@ namespace Shuttle.Esb
                         continue;
                     }
 
-                    container.Register(MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]), type, Lifestyle.Thread);
+                    registry.Register(MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]), type,
+                        Lifestyle.Transient);
                 }
             }
-
         }
     }
 }

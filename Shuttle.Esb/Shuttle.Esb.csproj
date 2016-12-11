@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.28.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.28\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.38.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.38\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -107,7 +107,7 @@
     <Compile Include="Configurator\InboxConfigurator.cs" />
     <Compile Include="Configurator\OutboxConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
-    <Compile Include="ContainerExtensions.cs" />
+    <Compile Include="RegistryExtensions.cs" />
     <Compile Include="Idempotence\NullIdempotenceService.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IHandlerContext.cs" />
@@ -123,7 +123,7 @@
     <Compile Include="Queues\ResolvedQueue.cs" />
     <Compile Include="ServiceBus\ConfiguratorCollection.cs" />
     <Compile Include="ServiceBus\IConfigurator.cs" />
-    <Compile Include="Configurator\ServiceBusConfigurator.cs" />
+    <Compile Include="Configurator\DefaultConfigurator.cs" />
     <Compile Include="Configuration\IControlInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IOutboxQueueConfiguration.cs" />
     <Compile Include="Configuration\ITransactionScopeConfiguration.cs" />

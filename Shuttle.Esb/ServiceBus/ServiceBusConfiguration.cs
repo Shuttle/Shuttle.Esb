@@ -26,6 +26,7 @@ namespace Shuttle.Esb
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
         private ITransactionScopeConfiguration _transactionScope;
+        private IComponentResolver _resolver;
 
         public ServiceBusConfiguration()
         {
@@ -61,6 +62,28 @@ namespace Shuttle.Esb
         public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
         public bool RegisterHandlers { get; set; }
+
+        public IComponentResolver Resolver
+        {
+            get
+            {
+                if (_resolver == null)
+                {
+                    throw new InvalidOperationException(string.Format(InfrastructureResources.NullDependencyException, typeof(IComponentResolver).FullName));
+                }
+
+                return _resolver;
+            }
+        }
+
+        public IServiceBusConfiguration Assign(IComponentResolver resolver)
+        {
+            Guard.AgainstNull(resolver, "resolver");
+
+            _resolver = resolver;
+
+            return this;
+        }
 
         public bool HasInbox
         {

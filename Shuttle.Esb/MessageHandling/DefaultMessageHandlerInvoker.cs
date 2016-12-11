@@ -2,31 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
-        private readonly IComponentContainer _container;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
         private readonly IServiceBusConfiguration _configuration;
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-        private static readonly object _lock = new object();
+        private static readonly object _lockHandler = new object();
+        private static readonly object _lockInvoke = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
+        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new Dictionary<Type, Dictionary<int, object>>();
 
-        public DefaultMessageHandlerInvoker(IComponentContainer container, IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+        public DefaultMessageHandlerInvoker(IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(container, "container");
             Guard.AgainstNull(configuration, "configuration");
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
-            _container = container;
             _configuration = configuration;
-            _pipelineFactory = pipelineFactory;
-            _subscriptionManager = subscriptionManager;
+
+            _pipelineFactory = configuration.Resolver.Resolve<IPipelineFactory>();
+            _subscriptionManager = configuration.Resolver.Resolve<ISubscriptionManager>();
         }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
@@ -35,18 +34,20 @@ namespace Shuttle.Esb
 
             var state = pipelineEvent.Pipeline.State;
             var message = state.GetMessage();
-            var handler = _container.Resolve(MessageHandlerType.MakeGenericType(message.GetType()));
+            var handler = GetHandler(message.GetType());
 
             if (handler == null)
             {
                 return MessageHandlerInvokeResult.InvokeFailure();
             }
 
-            lock (_lock)
-            {
-                var transportMessage = state.GetTransportMessage();
-                var messageType = message.GetType();
+            var transportMessage = state.GetTransportMessage();
+            var messageType = message.GetType();
 
+            ContextMethod contextMethod;
+
+            lock (_lockInvoke)
+            {
                 if (!_cache.ContainsKey(messageType))
                 {
                     var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
@@ -68,15 +69,36 @@ namespace Shuttle.Esb
                     });
                 }
 
-                var contextMethod = _cache[messageType];
-
-                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionManager, transportMessage, message,
-                    state.GetActiveState());
-
-                contextMethod.Method.Invoke(handler, new[] { handlerContext });
+                contextMethod = _cache[messageType];
             }
 
+            var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionManager, transportMessage, message,
+                state.GetActiveState());
+
+            contextMethod.Method.Invoke(handler, new[] { handlerContext });
+
             return MessageHandlerInvokeResult.InvokedHandler(handler);
+        }
+
+        private object GetHandler(Type type)
+        {
+            lock (_lockHandler)
+            {
+                if (!_threadHandlers.ContainsKey(type))
+                {
+                    _threadHandlers.Add(type, new Dictionary<int, object>());
+                }
+
+                var instances = _threadHandlers[type];
+                var managedThreadId = Thread.CurrentThread.ManagedThreadId;
+
+                if (!instances.ContainsKey(managedThreadId))
+                {
+                    instances.Add(managedThreadId, _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(type)));
+                }
+
+                return instances[managedThreadId];
+            }
         }
     }
 

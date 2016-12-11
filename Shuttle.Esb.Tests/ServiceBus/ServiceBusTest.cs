@@ -31,9 +31,13 @@ namespace Shuttle.Esb.Tests
 
             container.Register<IMessageHandlerInvoker>(handlerInvoker);
 
-            new ServiceBusConfigurator().RegisterComponents(container, configuration.Object);
+		    var defaultConfigurator = new DefaultConfigurator(container);
 
-            using (var bus = new ServiceBus(configuration.Object, new DefaultPipelineFactory(container), new NullSubscriptionManager()))
+		    defaultConfigurator.DontRegister<IMessageHandlerInvoker>();
+
+            defaultConfigurator.RegisterComponents(configuration.Object);
+
+		    using (var bus = ServiceBus.Create(container))
             {
 				bus.Start();
 
