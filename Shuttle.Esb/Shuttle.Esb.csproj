@@ -107,6 +107,8 @@
     <Compile Include="Configurator\InboxConfigurator.cs" />
     <Compile Include="Configurator\OutboxConfigurator.cs" />
     <Compile Include="Configurator\WorkerConfigurator.cs" />
+    <Compile Include="Messages\DefaultTransportMessageFactory.cs" />
+    <Compile Include="Messages\ITransportMessageFactory.cs" />
     <Compile Include="RegistryExtensions.cs" />
     <Compile Include="Idempotence\NullIdempotenceService.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />

@@ -13,60 +13,29 @@ namespace Shuttle.Esb
         private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
             new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
 
+        private readonly ITransportMessageFactory _transportMessageFactory;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly TransportMessage _transportMessageReceived;
 
         private readonly ILog _log;
 
-        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
-            : this(pipelineFactory, subscriptionManager, null)
+        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+            : this(transportMessageFactory, pipelineFactory, subscriptionManager, null)
         {
         }
 
-        public MessageSender(IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
+        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
         {
+            Guard.AgainstNull(transportMessageFactory, "transportMessageFactory");
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
             Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
+            _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
             _subscriptionManager = subscriptionManager;
             _transportMessageReceived = transportMessageReceived;
 
             _log = Log.For(this);
-        }
-
-        public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-        {
-            Guard.AgainstNull(message, "message");
-
-            var transportMessagePipeline = _pipelineFactory.GetPipeline<TransportMessagePipeline>();
-
-            try
-            {
-                var transportMessageConfigurator = new TransportMessageConfigurator(message);
-
-                if (_transportMessageReceived != null)
-                {
-                    transportMessageConfigurator.TransportMessageReceived(_transportMessageReceived);
-                }
-
-                if (configure != null)
-                {
-                    configure(transportMessageConfigurator);
-                }
-
-                if (!transportMessagePipeline.Execute(transportMessageConfigurator))
-                {
-                    throw new PipelineException(string.Format(EsbResources.PipelineExecutionException,
-                        "TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()));
-                }
-
-                return transportMessagePipeline.State.GetTransportMessage();
-            }
-            finally
-            {
-                _pipelineFactory.ReleasePipeline(transportMessagePipeline);
-            }
         }
 
         public void Dispatch(TransportMessage transportMessage)
@@ -99,6 +68,18 @@ namespace Shuttle.Esb
             Dispatch(result);
 
             return result;
+        }
+
+        private TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
+        {
+            var transportMessage = _transportMessageFactory.Create(message, configure);
+
+            if (_transportMessageReceived != null)
+            {
+                transportMessage.TransportMessageReceived(_transportMessageReceived);
+            }
+
+            return transportMessage;
         }
 
         public IEnumerable<TransportMessage> Publish(object message)

@@ -16,17 +16,19 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _outboxThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
         private readonly IServiceBusConfiguration _configuration;
+        private readonly ITransportMessageFactory _transportMessageFactory;
 
-        public ServiceBus(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+        public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
             Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(transportMessageFactory, "transportMessageFactory");
             Guard.AgainstNull(pipelineFactory, "pipelineFactory");
             Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
+            _configuration = configuration;
+            _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
             _subscriptionManager = subscriptionManager;
-
-            _configuration = configuration;
         }
 
         public IServiceBus Start()
@@ -47,7 +49,7 @@ namespace Shuttle.Esb
             _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
             _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
 
-            _messageSender = new MessageSender(_pipelineFactory, _subscriptionManager);
+            _messageSender = new MessageSender(_transportMessageFactory, _pipelineFactory, _subscriptionManager);
 
             Started = true;
 
@@ -89,11 +91,6 @@ namespace Shuttle.Esb
         public void Dispose()
         {
             Stop();
-        }
-
-        public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-        {
-            return _messageSender.CreateTransportMessage(message, configure);
         }
 
         public void Dispatch(TransportMessage transportMessage)

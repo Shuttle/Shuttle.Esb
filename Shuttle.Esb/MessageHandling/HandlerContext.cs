@@ -6,16 +6,16 @@ namespace Shuttle.Esb
 {
 	public class HandlerContext<T> : IHandlerContext<T> where T : class
 	{
-		private readonly IMessageSender _messageSender;
+	    private readonly IMessageSender _messageSender;
 
-		public HandlerContext(IServiceBusConfiguration configuration, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessage, T message, IThreadState activeState)
+		public HandlerContext(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessage, T message, IThreadState activeState)
 		{
-			Guard.AgainstNull(configuration, "configuration");
+		    Guard.AgainstNull(configuration, "configuration");
 			Guard.AgainstNull(transportMessage, "transportMessage");
 			Guard.AgainstNull(message, "message");
 			Guard.AgainstNull(activeState, "activeState");
 
-			_messageSender = new MessageSender(pipelineFactory, subscriptionManager, transportMessage);
+			_messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionManager, transportMessage);
 
 			TransportMessage = transportMessage;
 			Message = message;
@@ -27,11 +27,6 @@ namespace Shuttle.Esb
 		public T Message { get; private set; }
 		public IThreadState ActiveState { get; private set; }
 		public IServiceBusConfiguration Configuration { get; private set; }
-
-		public TransportMessage CreateTransportMessage(object message, Action<TransportMessageConfigurator> configure)
-		{
-			return _messageSender.CreateTransportMessage(message, configure);
-		}
 
 		public void Dispatch(TransportMessage transportMessage)
 		{

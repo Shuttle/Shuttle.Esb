@@ -134,5 +134,15 @@ namespace Shuttle.Esb
 
 			return headers.Any(header => header.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
 		}
-	}
+
+        public static void TransportMessageReceived(this TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        {
+            Guard.AgainstNull(transportMessageReceived, "transportMessageReceived");
+
+            transportMessage.MessageReceivedId = transportMessageReceived.MessageId;
+
+            transportMessage.Headers.Merge(transportMessageReceived.Headers);
+            transportMessage.CorrelationId = transportMessageReceived.CorrelationId;
+        }
+    }
 }

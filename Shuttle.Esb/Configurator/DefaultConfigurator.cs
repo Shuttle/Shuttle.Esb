@@ -79,6 +79,7 @@ namespace Shuttle.Esb
                     transactionScopeConfiguration.IsolationLevel,
                     TimeSpan.FromSeconds(transactionScopeConfiguration.TimeoutSeconds)));
 
+            RegisterDefault<ITransportMessageFactory, DefaultTransportMessageFactory>(_registry);
             RegisterDefault<IPipelineFactory, DefaultPipelineFactory>(_registry);
 
             _registry.Register(typeof (StartupPipeline), typeof (StartupPipeline), Lifestyle.Transient);

@@ -61,7 +61,7 @@ namespace Shuttle.Esb
 				AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
 				EncryptionAlgorithm = configuration.EncryptionAlgorithm,
 				CompressionAlgorithm = configuration.CompressionAlgorithm,
-				MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
+				MessageReceivedId = Guid.Empty,
 				CorrelationId = _correlationId,
 				SendDate = DateTime.Now
 			};
@@ -74,16 +74,6 @@ namespace Shuttle.Esb
 		public bool HasTransportMessageReceived
 		{
 			get { return _transportMessageReceived != null; }
-		}
-
-		public void TransportMessageReceived(TransportMessage transportMessageReceived)
-		{
-			Guard.AgainstNull(transportMessageReceived, "transportMessageReceived");
-
-			_transportMessageReceived = transportMessageReceived;
-
-			Headers.Merge(transportMessageReceived.Headers);
-			_correlationId = transportMessageReceived.CorrelationId;
 		}
 
 		public TransportMessageConfigurator Defer(DateTime ignoreTillDate)
