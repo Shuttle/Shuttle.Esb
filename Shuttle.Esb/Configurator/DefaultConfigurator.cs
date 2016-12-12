@@ -29,7 +29,7 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public IServiceBusConfiguration GetConfiguration()
+        public IServiceBusConfiguration Configure()
         {
             var configuration = new ServiceBusConfiguration();
 
@@ -137,6 +137,11 @@ namespace Shuttle.Esb
             }
 
             registry.Register(instance);
+        }
+
+        public static IServiceBusConfiguration Configure(IComponentRegistry registry)
+        {
+            return new DefaultConfigurator(registry).Configure();
         }
     }
 }
