@@ -4,16 +4,16 @@ namespace Shuttle.Esb
 {
 	public class UriResolverItemElement : ConfigurationElement
 	{
-		[ConfigurationProperty("name", IsRequired = true)]
-		public string Name
+		[ConfigurationProperty("resolverUri", IsRequired = true)]
+		public string ResolverUri
 		{
-			get { return (string) this["name"]; }
+			get { return (string) this["resolverUri"]; }
 		}
 
-		[ConfigurationProperty("uri", IsRequired = true)]
-		public string Uri
+		[ConfigurationProperty("targetUri", IsRequired = true)]
+		public string TargetUri
 		{
-			get { return (string) this["uri"]; }
+			get { return (string) this["targetUri"]; }
 		}
 	}
 }

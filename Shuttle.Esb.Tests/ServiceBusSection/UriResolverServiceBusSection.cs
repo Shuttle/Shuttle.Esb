@@ -19,7 +19,7 @@ namespace Shuttle.Esb.Tests
 
 			foreach (UriResolverItemElement uriResolverItemElement in section.UriResolver)
 			{
-				Console.WriteLine("{0}: {1}", uriResolverItemElement.Name, uriResolverItemElement.Uri);
+				Console.WriteLine("{0}: {1}", uriResolverItemElement.ResolverUri, uriResolverItemElement.TargetUri);
 			}
 		}
 	}

@@ -11,9 +11,10 @@ namespace Shuttle.Esb
     {
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
+        private readonly ITransportMessageFactory _transportMessageFactory;
         private readonly IServiceBusConfiguration _configuration;
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-        private static readonly object _lockHandler = new object();
+        private static readonly object _lockGetHandler = new object();
         private static readonly object _lockInvoke = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
         private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new Dictionary<Type, Dictionary<int, object>>();
@@ -26,6 +27,7 @@ namespace Shuttle.Esb
 
             _pipelineFactory = configuration.Resolver.Resolve<IPipelineFactory>();
             _subscriptionManager = configuration.Resolver.Resolve<ISubscriptionManager>();
+            _transportMessageFactory = configuration.Resolver.Resolve<ITransportMessageFactory>();
         }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
@@ -72,7 +74,7 @@ namespace Shuttle.Esb
                 contextMethod = _cache[messageType];
             }
 
-            var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _pipelineFactory, _subscriptionManager, transportMessage, message,
+            var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration, _transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
                 state.GetActiveState());
 
             contextMethod.Method.Invoke(handler, new[] { handlerContext });
@@ -82,7 +84,7 @@ namespace Shuttle.Esb
 
         private object GetHandler(Type type)
         {
-            lock (_lockHandler)
+            lock (_lockGetHandler)
             {
                 if (!_threadHandlers.ContainsKey(type))
                 {

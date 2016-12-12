@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -33,6 +35,16 @@ namespace Shuttle.Esb
 
 		ICompressionAlgorithm FindCompressionAlgorithm(string name);
 		void AddCompressionAlgorithm(ICompressionAlgorithm algorithm);
-	    void Invariant();
+
+        IEnumerable<Type> QueueFactoryTypes { get; }
+	    void AddQueueFactoryType(Type type);
+
+        bool ScanForQueueFactories { get; set; }
+
+        IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
+        void AddMessageRoute(MessageRouteConfiguration messageRoute);
+
+        IEnumerable<UriMappingConfiguration> UriMapping { get; }
+        void AddUriMapping(Uri sourceUri, Uri targetUri);
 	}
 }

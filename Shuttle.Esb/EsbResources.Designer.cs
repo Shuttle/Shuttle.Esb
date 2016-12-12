@@ -160,6 +160,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The uri specified as the &apos;{0}&apos; is not a valid uri.  The value configured is &apos;{1}&apos;..
+        /// </summary>
+        public static string MappingInvalidUriException {
+            get {
+                return ResourceManager.GetString("MappingInvalidUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message handler type &apos;{0}&apos; raised exception &apos;{1}&apos;.  Message type &apos;{2}&apos; with id &apos;{3}&apos; has reached the maximum number of retries ({4}).  The message has been moved to error queue &apos;{5}&apos;.
         /// </summary>
         public static string MessageHandlerExceptionFailure {

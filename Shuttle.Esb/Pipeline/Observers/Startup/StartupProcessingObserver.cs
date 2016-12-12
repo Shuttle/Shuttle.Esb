@@ -1,10 +1,10 @@
 using System;
+using System.Runtime.CompilerServices;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class StartupObserver :
-        IPipelineObserver<OnCreateQueues>,
+    public class StartupProcessingObserver :
         IPipelineObserver<OnStartInboxProcessing>,
         IPipelineObserver<OnStartControlInboxProcessing>,
         IPipelineObserver<OnStartOutboxProcessing>,
@@ -18,7 +18,7 @@ namespace Shuttle.Esb
         private readonly IQueueManager _queueManager;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
-        public StartupObserver(IServiceBus bus, IServiceBusConfiguration configuration, IServiceBusEvents events, IQueueManager queueManager, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
+        public StartupProcessingObserver(IServiceBus bus, IServiceBusConfiguration configuration, IServiceBusEvents events, IQueueManager queueManager, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(bus, "bus");
             Guard.AgainstNull(configuration, "configuration");
@@ -35,16 +35,6 @@ namespace Shuttle.Esb
             _events = events;
         }
 
-        public void Execute(OnCreateQueues pipelineEvent)
-        {
-            if (!_configuration.CreateQueues)
-            {
-                return;
-            }
-
-            _queueManager.CreatePhysicalQueues(_configuration);
-        }
-
         public void Execute(OnStartControlInboxProcessing pipelineEvent)
         {
             if (!_configuration.HasControlInbox)
@@ -52,10 +42,10 @@ namespace Shuttle.Esb
                 return;
             }
 
-            _configuration.ControlInbox.WorkQueue =
+            _configuration.ControlInbox.WorkQueue = _configuration.ControlInbox.WorkQueue ??
                 _queueManager.CreateQueue(_configuration.ControlInbox.WorkQueueUri);
 
-            _configuration.ControlInbox.ErrorQueue =
+            _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ??
                 _queueManager.CreateQueue(_configuration.ControlInbox.ErrorQueueUri);
 
             pipelineEvent.Pipeline.State.Add(

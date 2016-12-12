@@ -8,41 +8,19 @@ namespace Shuttle.Esb
 	{
 		private readonly Dictionary<string, Uri> _uris = new Dictionary<string, Uri>();
 
-	    public DefaultUriResolver()
-	    {
-            if (ServiceBusConfiguration.ServiceBusSection == null ||
-                ServiceBusConfiguration.ServiceBusSection.UriResolver == null)
-            {
-                return;
-            }
-
-            foreach (UriResolverItemElement uriRepositoryItemElement in ServiceBusConfiguration.ServiceBusSection.UriResolver)
-            {
-                Add(uriRepositoryItemElement.Name.ToLower(), new Uri(uriRepositoryItemElement.Uri));
-            }
-        }
-
-        public Uri Get(string name)
+        public Uri GetTarget(Uri resolverUri)
 		{
-			var key = name.ToLower();
+			var key = resolverUri.OriginalString.ToLower();
 
 			return _uris.ContainsKey(key) ? _uris[key] : null;
 		}
 
-		public void Add(string sourceUri, string targetUri)
+	    public void Add(Uri resolverUri, Uri targetUri)
 		{
-			Guard.AgainstNullOrEmptyString(sourceUri, "sourceUri");
-			Guard.AgainstNullOrEmptyString(targetUri, "targetUri");
-
-			Add(sourceUri, new Uri(targetUri));
-		}
-
-		public void Add(string sourceUri, Uri targetUri)
-		{
-			Guard.AgainstNullOrEmptyString(sourceUri, "sourceUri");
+			Guard.AgainstNull(resolverUri, "resolverUri");
 			Guard.AgainstNull(targetUri, "targetUri");
 
-			_uris.Add(sourceUri, targetUri);
+			_uris.Add(resolverUri.OriginalString.ToLower(), targetUri);
 		}
 	}
 }

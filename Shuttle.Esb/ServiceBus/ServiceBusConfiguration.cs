@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -25,12 +26,16 @@ namespace Shuttle.Esb
         private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
-        private ITransactionScopeConfiguration _transactionScope;
+        private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
+        private readonly List<Type> _queueFactoryTypes = new List<Type>();
+        private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
         private IComponentResolver _resolver;
+        private ITransactionScopeConfiguration _transactionScope;
 
         public ServiceBusConfiguration()
         {
             RegisterHandlers = true;
+            ScanForQueueFactories = true;
         }
 
         public static ServiceBusSection ServiceBusSection
@@ -69,7 +74,8 @@ namespace Shuttle.Esb
             {
                 if (_resolver == null)
                 {
-                    throw new InvalidOperationException(string.Format(InfrastructureResources.NullDependencyException, typeof(IComponentResolver).FullName));
+                    throw new InvalidOperationException(string.Format(InfrastructureResources.NullDependencyException,
+                        typeof (IComponentResolver).FullName));
                 }
 
                 return _resolver;
@@ -132,42 +138,45 @@ namespace Shuttle.Esb
             _compressionAlgorithms.Add(algorithm);
         }
 
+        public IEnumerable<Type> QueueFactoryTypes
+        {
+            get { return new ReadOnlyCollection<Type>(_queueFactoryTypes); }
+        }
+
+        public void AddQueueFactoryType(Type type)
+        {
+            Guard.AgainstNull(type, "type");
+
+            _queueFactoryTypes.Add(type);
+        }
+
+        public bool ScanForQueueFactories { get; set; }
+
+        public IEnumerable<MessageRouteConfiguration> MessageRoutes
+        {
+            get { return new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes); }
+        }
+
+        public void AddMessageRoute(MessageRouteConfiguration messageRoute)
+        {
+            Guard.AgainstNull(messageRoute, "messageRoute");
+
+            _messageRoutes.Add(messageRoute);
+        }
+
+        public IEnumerable<UriMappingConfiguration> UriMapping
+        {
+            get { return new ReadOnlyCollection<UriMappingConfiguration>(_uriMapping); }
+        }
+
+        public void AddUriMapping(Uri sourceUri, Uri targetUri)
+        {
+            _uriMapping.Add(new UriMappingConfiguration(sourceUri, targetUri));
+        }
+
         public bool IsWorker
         {
             get { return Worker != null; }
-        }
-
-        public void Invariant()
-        {
-            Guard.Against<WorkerException>(IsWorker && !HasInbox,
-                EsbResources.WorkerRequiresInboxException);
-
-            if (HasInbox)
-            {
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Inbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Inbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
-            }
-
-            if (HasOutbox)
-            {
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Outbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(Outbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
-            }
-
-            if (HasControlInbox)
-            {
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(ControlInbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(string.IsNullOrEmpty(ControlInbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
-            }
         }
 
         private static T Synchronised<T>(Func<T> f)

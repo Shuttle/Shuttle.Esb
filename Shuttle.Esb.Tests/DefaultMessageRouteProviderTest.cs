@@ -14,7 +14,7 @@ namespace Shuttle.Esb.Tests
 			const string firstMessageType = "first-message-type";
 			const string secondMessageType = "second-message-type";
 
-			var provider = new DefaultMessageRouteProvider(new Mock<IQueueManager>().Object);
+			var provider = new DefaultMessageRouteProvider();
 
 			Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
 

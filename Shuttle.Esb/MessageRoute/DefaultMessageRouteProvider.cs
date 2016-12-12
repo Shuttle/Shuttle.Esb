@@ -5,82 +5,54 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
-	{
-		private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
+    public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
+    {
+        private readonly IEnumerable<string> _empty = new ReadOnlyCollection<string>(new List<string>());
+        private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
-		public IEnumerable<string> GetRouteUris(string messageType)
-		{
-			var uri =
-				_messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
+        public IEnumerable<string> GetRouteUris(string messageType)
+        {
+            var uri =
+                _messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Queue.Uri.ToString()).FirstOrDefault();
 
-			return
-				string.IsNullOrEmpty(uri)
-					? new List<string>()
-					: new List<string> {uri};
-		}
+            return
+                string.IsNullOrEmpty(uri)
+                    ? _empty
+                    : new List<string> { uri };
+        }
 
-	    public DefaultMessageRouteProvider(IQueueManager queueManager)
-	    {
-            Guard.AgainstNull(queueManager, "queueManager");
+        public void Add(IMessageRoute messageRoute)
+        {
+            Guard.AgainstNull(messageRoute, "messageRoute");
 
-            if (ServiceBusConfiguration.ServiceBusSection == null ||
-                ServiceBusConfiguration.ServiceBusSection.MessageRoutes == null)
+            var existing = _messageRoutes.Find(messageRoute.Queue.Uri);
+
+            if (existing == null)
             {
-                return;
+                _messageRoutes.Add(messageRoute);
             }
-
-            var specificationFactory = new MessageRouteSpecificationFactory();
-
-            foreach (MessageRouteElement mapElement in ServiceBusConfiguration.ServiceBusSection.MessageRoutes)
+            else
             {
-                var messageRoute = Find(mapElement.Uri);
-
-                if (messageRoute == null)
+                foreach (var specification in messageRoute.Specifications)
                 {
-                    messageRoute = new MessageRoute(queueManager.GetQueue(mapElement.Uri));
-
-                    Add(messageRoute);
-                }
-
-                foreach (SpecificationElement specificationElement in mapElement)
-                {
-                    messageRoute.AddSpecification(specificationFactory.Create(specificationElement.Name, specificationElement.Value));
+                    existing.AddSpecification(specification);
                 }
             }
         }
 
-        public void Add(IMessageRoute messageRoute)
-		{
-			Guard.AgainstNull(messageRoute, "messageRoute");
+        public IMessageRoute Find(string uri)
+        {
+            return _messageRoutes.Find(uri);
+        }
 
-			var existing = _messageRoutes.Find(messageRoute.Queue.Uri);
+        public bool Any()
+        {
+            return _messageRoutes.Any();
+        }
 
-			if (existing == null)
-			{
-				_messageRoutes.Add(messageRoute);
-			}
-			else
-			{
-				foreach (var specification in messageRoute.Specifications)
-				{
-					existing.AddSpecification(specification);
-				}
-			}
-		}
-
-		public IMessageRoute Find(string uri)
-		{
-			return _messageRoutes.Find(uri);
-		}
-
-		public bool Any()
-		{
-			return _messageRoutes.Any();
-		}
-
-	    public IEnumerable<IMessageRoute> MessageRoutes {
-	        get { return new ReadOnlyCollection<IMessageRoute>(new List<IMessageRoute>(_messageRoutes));} 
-	    }
-	}
+        public IEnumerable<IMessageRoute> MessageRoutes
+        {
+            get { return new ReadOnlyCollection<IMessageRoute>(new List<IMessageRoute>(_messageRoutes)); }
+        }
+    }
 }

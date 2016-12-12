@@ -34,6 +34,9 @@ namespace Shuttle.Esb
             var configuration = new ServiceBusConfiguration();
 
             new CoreConfigurator().Apply(configuration);
+            new UriResolverConfigurator().Apply(configuration);
+            new QueueManagerConfigurator().Apply(configuration);
+            new MessageRouteConfigurator().Apply(configuration);
             new ControlInboxConfigurator().Apply(configuration);
             new InboxConfigurator().Apply(configuration);
             new OutboxConfigurator().Apply(configuration);
@@ -47,8 +50,6 @@ namespace Shuttle.Esb
         public void RegisterComponents(IServiceBusConfiguration configuration)
         {
             Guard.AgainstNull(configuration, "configuration");
-
-            _registry.Register(_registry);
 
             RegisterDefault<IServiceBusEvents, ServiceBusEvents>(_registry);
             RegisterDefault<ISerializer, DefaultSerializer>(_registry);

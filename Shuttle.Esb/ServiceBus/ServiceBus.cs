@@ -16,7 +16,6 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _outboxThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
         private readonly IServiceBusConfiguration _configuration;
-        private readonly ITransportMessageFactory _transportMessageFactory;
 
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
@@ -26,9 +25,10 @@ namespace Shuttle.Esb
             Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
             _configuration = configuration;
-            _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
             _subscriptionManager = subscriptionManager;
+
+            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, _subscriptionManager);
         }
 
         public IServiceBus Start()
@@ -38,7 +38,7 @@ namespace Shuttle.Esb
                 throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
             }
 
-            _configuration.Invariant();
+            ConfigurationInvariant();
 
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
@@ -49,14 +49,45 @@ namespace Shuttle.Esb
             _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
             _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
 
-            _messageSender = new MessageSender(_transportMessageFactory, _pipelineFactory, _subscriptionManager);
-
             Started = true;
 
             return this;
         }
 
-        public void Stop()
+        private void ConfigurationInvariant()
+        {
+            Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
+                EsbResources.WorkerRequiresInboxException);
+
+            if (_configuration.HasInbox)
+            {
+                Guard.Against<EsbConfigurationException>(_configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(_configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+            }
+
+            if (_configuration.HasOutbox)
+            {
+                Guard.Against<EsbConfigurationException>(_configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(_configuration.Outbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+            }
+
+            if (_configuration.HasControlInbox)
+            {
+                Guard.Against<EsbConfigurationException>(_configuration.ControlInbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(_configuration.ControlInbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+            }
+    }
+
+    public void Stop()
         {
             if (!Started)
             {
