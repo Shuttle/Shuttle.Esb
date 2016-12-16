@@ -39,14 +39,9 @@ namespace Shuttle.Esb
 
         public void Execute(OnConfigureQueueManager pipelineEvent)
         {
-            foreach (var type in _configuration.QueueFactoryTypes)
+            foreach (var queueFactory in _configuration.Resolver.ResolveAll<IQueueFactory>())
             {
-                _queueManager.RegisterQueueFactory(type);
-            }
-
-            if (_configuration.ScanForQueueFactories)
-            {
-                _queueManager.ScanForQueueFactories();
+                _queueManager.RegisterQueueFactory(queueFactory);
             }
         }
 

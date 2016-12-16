@@ -14,7 +14,17 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
         }
 
-        public TransportMessage Create(object message, Action<TransportMessageConfigurator> configure, TransportMessage transportMessageReceived = null)
+        public TransportMessage Create(object message, Action<TransportMessageConfigurator> configure)
+        {
+            return Create(message, configure, null);
+        }
+
+        public TransportMessage Create(object message, TransportMessage transportMessageReceived)
+        {
+            return Create(message, null, transportMessageReceived);
+        }
+
+        public TransportMessage Create(object message, Action<TransportMessageConfigurator> configure, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(message, "message");
 

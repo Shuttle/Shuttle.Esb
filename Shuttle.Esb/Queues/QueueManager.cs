@@ -146,35 +146,7 @@ namespace Shuttle.Esb
 			return GetQueueFactory(scheme) != null;
 		}
 
-		public void ScanForQueueFactories()
-		{
-			foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
-			{
-				RegisterQueueFactory(type);
-			}
-		}
-
-		public void RegisterQueueFactory(Type type)
-		{
-			try
-			{
-				type.AssertDefaultConstructor(string.Format(InfrastructureResources.DefaultConstructorRequired, "IQueueFactory", type.FullName));
-
-				var instance = (IQueueFactory) Activator.CreateInstance(type);
-
-				if (!ContainsQueueFactory(instance.Scheme))
-				{
-					RegisterQueueFactory(instance);
-				}
-			}
-			catch (Exception ex)
-			{
-				throw new EsbConfigurationException(string.Format(EsbResources.QueueFactoryInstantiationException, type.FullName,
-					ex.AllMessages()));
-			}
-		}
-
-		private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
+	    private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
 		{
 			var result = queueFactory.Create(queueUri);
 

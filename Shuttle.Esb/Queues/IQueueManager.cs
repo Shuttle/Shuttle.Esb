@@ -13,8 +13,6 @@ namespace Shuttle.Esb
 		IEnumerable<IQueueFactory> QueueFactories();
 		void RegisterQueueFactory(IQueueFactory queueFactory);
 		bool ContainsQueueFactory(string scheme);
-		void ScanForQueueFactories();
-		void RegisterQueueFactory(Type type);
-		void CreatePhysicalQueues(IServiceBusConfiguration configuration);
+	    void CreatePhysicalQueues(IServiceBusConfiguration configuration);
 	}
 }

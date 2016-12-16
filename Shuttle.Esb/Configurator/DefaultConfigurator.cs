@@ -114,6 +114,33 @@ namespace Shuttle.Esb
                 _registry.RegisterMessageHandlers();
             }
 
+            var queueFactoryType = typeof(IQueueFactory);
+            var queueFactoryImplementationTypes = new List<Type>();
+            Action<Type> addQueueFactoryImplementationType = (Type type) =>
+            {
+                if (queueFactoryImplementationTypes.Contains(type))
+                {
+                    return;
+                }
+
+                queueFactoryImplementationTypes.Add(type);
+            };
+
+            if (configuration.ScanForQueueFactories)
+            {
+                foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
+                {
+                    addQueueFactoryImplementationType(type);
+                }
+            }
+
+            foreach (var type in configuration.QueueFactoryTypes)
+            {
+                addQueueFactoryImplementationType(type);
+            }
+
+            _registry.RegisterCollection(queueFactoryType, queueFactoryImplementationTypes, Lifestyle.Singleton);
+
             _registry.Register<IServiceBus, ServiceBus>();
         }
 
