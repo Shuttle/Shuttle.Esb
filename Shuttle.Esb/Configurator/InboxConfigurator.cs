@@ -8,11 +8,11 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			if (ServiceBusConfiguration.ServiceBusSection == null
+			if (ServiceBusSection.Get() == null
 			    ||
-			    ServiceBusConfiguration.ServiceBusSection.Inbox == null
+			    ServiceBusSection.Get().Inbox == null
 			    ||
-			    string.IsNullOrEmpty(ServiceBusConfiguration.ServiceBusSection.Inbox.WorkQueueUri))
+			    string.IsNullOrEmpty(ServiceBusSection.Get().Inbox.WorkQueueUri))
 			{
 				return;
 			}
@@ -20,19 +20,19 @@ namespace Shuttle.Esb
 			configuration.Inbox =
 				new InboxQueueConfiguration
 				{
-					WorkQueueUri = ServiceBusConfiguration.ServiceBusSection.Inbox.WorkQueueUri,
-                    DeferredQueueUri =ServiceBusConfiguration.ServiceBusSection.Inbox.DeferredQueueUri,
-                    ErrorQueueUri = ServiceBusConfiguration.ServiceBusSection.Inbox.ErrorQueueUri,
-					ThreadCount = ServiceBusConfiguration.ServiceBusSection.Inbox.ThreadCount,
-					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Inbox.MaximumFailureCount,
+					WorkQueueUri = ServiceBusSection.Get().Inbox.WorkQueueUri,
+                    DeferredQueueUri =ServiceBusSection.Get().Inbox.DeferredQueueUri,
+                    ErrorQueueUri = ServiceBusSection.Get().Inbox.ErrorQueueUri,
+					ThreadCount = ServiceBusSection.Get().Inbox.ThreadCount,
+					MaximumFailureCount = ServiceBusSection.Get().Inbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
-						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToIgnoreOnFailure ??
+						ServiceBusSection.Get().Inbox.DurationToIgnoreOnFailure ??
 						ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
 					DurationToSleepWhenIdle =
-						ServiceBusConfiguration.ServiceBusSection.Inbox.DurationToSleepWhenIdle ??
+						ServiceBusSection.Get().Inbox.DurationToSleepWhenIdle ??
 						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-					Distribute = ServiceBusConfiguration.ServiceBusSection.Inbox.Distribute,
-					DistributeSendCount = ServiceBusConfiguration.ServiceBusSection.Inbox.DistributeSendCount
+					Distribute = ServiceBusSection.Get().Inbox.Distribute,
+					DistributeSendCount = ServiceBusSection.Get().Inbox.DistributeSendCount
 				};
 		}
 	}

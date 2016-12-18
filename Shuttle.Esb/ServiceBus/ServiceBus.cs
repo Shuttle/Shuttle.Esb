@@ -1,23 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
     public class ServiceBus : IServiceBus
     {
+        private readonly IServiceBusConfiguration _configuration;
+        private readonly IMessageSender _messageSender;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionManager _subscriptionManager;
-        private IMessageSender _messageSender;
 
         private IProcessorThreadPool _controlThreadPool;
+        private IProcessorThreadPool _deferredMessageThreadPool;
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
-        private IProcessorThreadPool _deferredMessageThreadPool;
-        private readonly IServiceBusConfiguration _configuration;
 
-        public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+        public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
+            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
             Guard.AgainstNull(configuration, "configuration");
             Guard.AgainstNull(transportMessageFactory, "transportMessageFactory");
@@ -26,9 +25,8 @@ namespace Shuttle.Esb
 
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
-            _subscriptionManager = subscriptionManager;
 
-            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, _subscriptionManager);
+            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionManager);
         }
 
         public IServiceBus Start()
@@ -54,40 +52,7 @@ namespace Shuttle.Esb
             return this;
         }
 
-        private void ConfigurationInvariant()
-        {
-            Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
-                EsbResources.WorkerRequiresInboxException);
-
-            if (_configuration.HasInbox)
-            {
-                Guard.Against<EsbConfigurationException>(_configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(_configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
-            }
-
-            if (_configuration.HasOutbox)
-            {
-                Guard.Against<EsbConfigurationException>(_configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(_configuration.Outbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
-            }
-
-            if (_configuration.HasControlInbox)
-            {
-                Guard.Against<EsbConfigurationException>(_configuration.ControlInbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
-
-                Guard.Against<EsbConfigurationException>(_configuration.ControlInbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
-            }
-    }
-
-    public void Stop()
+        public void Stop()
         {
             if (!Started)
             {
@@ -149,6 +114,48 @@ namespace Shuttle.Esb
             return _messageSender.Publish(message, configure);
         }
 
+        private void ConfigurationInvariant()
+        {
+            Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
+                EsbResources.WorkerRequiresInboxException);
+
+            if (_configuration.HasInbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+            }
+
+            if (_configuration.HasOutbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Outbox.ErrorQueue == null &&
+                    string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+            }
+
+            if (_configuration.HasControlInbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.ControlInbox.WorkQueue == null &&
+                    string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.ControlInbox.ErrorQueue == null &&
+                    string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
+                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+            }
+        }
+
         public static IServiceBus Create(IComponentResolver resolver)
         {
             Guard.AgainstNull(resolver, "resolver");
@@ -157,14 +164,15 @@ namespace Shuttle.Esb
 
             if (configuration == null)
             {
-                throw new InvalidOperationException(string.Format(InfrastructureResources.TypeNotRegisteredException, typeof(IServiceBusConfiguration).FullName));
+                throw new InvalidOperationException(string.Format(InfrastructureResources.TypeNotRegisteredException,
+                    typeof (IServiceBusConfiguration).FullName));
             }
 
             configuration.Assign(resolver);
 
             var defaultPipelineFactory = resolver.Resolve<IPipelineFactory>() as DefaultPipelineFactory;
 
-            if (defaultPipelineFactory  != null)
+            if (defaultPipelineFactory != null)
             {
                 defaultPipelineFactory.Assign(resolver);
             }

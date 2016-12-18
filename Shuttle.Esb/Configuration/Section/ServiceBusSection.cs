@@ -1,10 +1,15 @@
 using System.Configuration;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
 	public class ServiceBusSection : ConfigurationSection
 	{
-		[ConfigurationProperty("messageRoutes", IsRequired = false, DefaultValue = null)]
+	    private static bool _initialized;
+        private static readonly object Padlock = new object();
+        private static ServiceBusSection _section;
+
+        [ConfigurationProperty("messageRoutes", IsRequired = false, DefaultValue = null)]
 		public MessageRouteElementCollection MessageRoutes
 		{
 			get { return (MessageRouteElementCollection) this["messageRoutes"]; }
@@ -58,12 +63,6 @@ namespace Shuttle.Esb
 			get { return (WorkerElement) this["worker"]; }
 		}
 
-		[ConfigurationProperty("transactionScope", IsRequired = false, DefaultValue = null)]
-		public TransactionScopeElement TransactionScope
-		{
-			get { return (TransactionScopeElement) this["transactionScope"]; }
-		}
-
 		[ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = false)]
 		public bool RemoveMessagesNotHandled
 		{
@@ -87,5 +86,21 @@ namespace Shuttle.Esb
 		{
 			get { return (UriResolverElement) this["uriResolver"]; }
 		}
-	}
+
+        public static ServiceBusSection Get()
+        {
+            lock (Padlock)
+            {
+                if (!_initialized)
+                {
+                    _section =
+                        ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus");
+
+                    _initialized = true;
+                }
+
+                return _section;
+            }
+        }
+    }
 }

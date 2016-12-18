@@ -8,12 +8,12 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			if (ServiceBusConfiguration.ServiceBusSection == null)
+			if (ServiceBusSection.Get() == null)
 			{
 				return;
 			}
 
-			var controlInboxElement = ServiceBusConfiguration.ServiceBusSection.ControlInbox;
+			var controlInboxElement = ServiceBusSection.Get().ControlInbox;
 
 			if (controlInboxElement == null
 			    ||

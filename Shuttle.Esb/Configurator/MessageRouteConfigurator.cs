@@ -9,13 +9,13 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, "configuration");
 
-            if (ServiceBusConfiguration.ServiceBusSection == null ||
-                ServiceBusConfiguration.ServiceBusSection.MessageRoutes == null)
+            if (ServiceBusSection.Get() == null ||
+                ServiceBusSection.Get().MessageRoutes == null)
             {
                 return;
             }
 
-            foreach (MessageRouteElement mapElement in ServiceBusConfiguration.ServiceBusSection.MessageRoutes)
+            foreach (MessageRouteElement mapElement in ServiceBusSection.Get().MessageRoutes)
             {
                 var messageRoute = new MessageRouteConfiguration(mapElement.Uri);
 

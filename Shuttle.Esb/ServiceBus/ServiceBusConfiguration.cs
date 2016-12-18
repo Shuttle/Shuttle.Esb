@@ -22,7 +22,6 @@ namespace Shuttle.Esb
                     .ConvertFrom("250ms*4,500ms*2,1s");
 
 
-        private static ServiceBusSection _serviceBusSection;
         private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
@@ -36,18 +35,6 @@ namespace Shuttle.Esb
         {
             RegisterHandlers = true;
             ScanForQueueFactories = true;
-        }
-
-        public static ServiceBusSection ServiceBusSection
-        {
-            get
-            {
-                return _serviceBusSection ??
-                       Synchronised(
-                           () =>
-                               _serviceBusSection =
-                                   ConfigurationSectionProvider.Open<ServiceBusSection>("shuttle", "serviceBus"));
-            }
         }
 
         public IInboxQueueConfiguration Inbox { get; set; }

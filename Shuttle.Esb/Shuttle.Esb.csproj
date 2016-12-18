@@ -79,8 +79,8 @@
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.45\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=4.2.48.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.4.2.48\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -135,9 +135,6 @@
     <Compile Include="Configurator\DefaultConfigurator.cs" />
     <Compile Include="Configuration\IControlInboxQueueConfiguration.cs" />
     <Compile Include="Configuration\IOutboxQueueConfiguration.cs" />
-    <Compile Include="Configuration\ITransactionScopeConfiguration.cs" />
-    <Compile Include="Configuration\Section\TransactionScopeElement.cs" />
-    <Compile Include="Configuration\TransactionScopeConfiguration.cs" />
     <Compile Include="Exceptions\MissingConfigurationAssignmentException.cs" />
     <Compile Include="Exceptions\PipelineException.cs" />
     <Compile Include="Exceptions\ProcessorException.cs" />

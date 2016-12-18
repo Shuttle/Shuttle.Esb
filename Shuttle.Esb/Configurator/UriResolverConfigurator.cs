@@ -7,13 +7,13 @@ namespace Shuttle.Esb
     {
         public void Apply(IServiceBusConfiguration configuration)
         {
-            if (ServiceBusConfiguration.ServiceBusSection == null ||
-                ServiceBusConfiguration.ServiceBusSection.UriResolver == null)
+            if (ServiceBusSection.Get() == null ||
+                ServiceBusSection.Get().UriResolver == null)
             {
                 return;
             }
 
-            foreach (UriResolverItemElement uriRepositoryItemElement in ServiceBusConfiguration.ServiceBusSection.UriResolver)
+            foreach (UriResolverItemElement uriRepositoryItemElement in ServiceBusSection.Get().UriResolver)
             {
                 configuration.AddUriMapping(Uri("ResolverUri", uriRepositoryItemElement.ResolverUri), Uri("TargetUri", uriRepositoryItemElement.TargetUri));
             }

@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			var section = ServiceBusConfiguration.ServiceBusSection;
+			var section = ServiceBusSection.Get();
 
 			if (section == null)
 			{
@@ -22,7 +22,7 @@ namespace Shuttle.Esb
 			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
 			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
 
-			var transactionScopeElement = section.TransactionScope;
+			var transactionScopeElement = TransactionScopeSection.Get();
 
 			configuration.TransactionScope = transactionScopeElement != null
 				? new TransactionScopeConfiguration

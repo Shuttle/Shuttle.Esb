@@ -7,10 +7,10 @@ namespace Shuttle.Esb
     {
         public void Apply(IServiceBusConfiguration configuration)
         {
-            if (ServiceBusConfiguration.ServiceBusSection != null &&
-                ServiceBusConfiguration.ServiceBusSection.QueueFactories != null)
+            if (ServiceBusSection.Get() != null &&
+                ServiceBusSection.Get().QueueFactories != null)
             {
-                foreach (QueueFactoryElement queueFactoryElement in ServiceBusConfiguration.ServiceBusSection.QueueFactories)
+                foreach (QueueFactoryElement queueFactoryElement in ServiceBusSection.Get().QueueFactories)
                 {
                     var type = Type.GetType(queueFactoryElement.Type);
 
@@ -20,7 +20,7 @@ namespace Shuttle.Esb
                     configuration.AddQueueFactoryType(type);
                 }
 
-                configuration.ScanForQueueFactories = ServiceBusConfiguration.ServiceBusSection.QueueFactories.Scan;
+                configuration.ScanForQueueFactories = ServiceBusSection.Get().QueueFactories.Scan;
             }
         }
     }

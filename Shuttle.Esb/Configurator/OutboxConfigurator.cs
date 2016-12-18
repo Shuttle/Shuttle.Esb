@@ -8,11 +8,11 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			if (ServiceBusConfiguration.ServiceBusSection == null
+			if (ServiceBusSection.Get() == null
 			    ||
-			    ServiceBusConfiguration.ServiceBusSection.Outbox == null
+			    ServiceBusSection.Get().Outbox == null
 			    ||
-			    string.IsNullOrEmpty(ServiceBusConfiguration.ServiceBusSection.Outbox.WorkQueueUri))
+			    string.IsNullOrEmpty(ServiceBusSection.Get().Outbox.WorkQueueUri))
 			{
 				return;
 			}
@@ -20,16 +20,16 @@ namespace Shuttle.Esb
 			configuration.Outbox =
 				new OutboxQueueConfiguration
 				{
-					WorkQueueUri = ServiceBusConfiguration.ServiceBusSection.Outbox.WorkQueueUri,
-					ErrorQueueUri = ServiceBusConfiguration.ServiceBusSection.Outbox.ErrorQueueUri,
-					MaximumFailureCount = ServiceBusConfiguration.ServiceBusSection.Outbox.MaximumFailureCount,
+					WorkQueueUri = ServiceBusSection.Get().Outbox.WorkQueueUri,
+					ErrorQueueUri = ServiceBusSection.Get().Outbox.ErrorQueueUri,
+					MaximumFailureCount = ServiceBusSection.Get().Outbox.MaximumFailureCount,
 					DurationToIgnoreOnFailure =
-						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToIgnoreOnFailure ??
+						ServiceBusSection.Get().Outbox.DurationToIgnoreOnFailure ??
 						ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
 					DurationToSleepWhenIdle =
-						ServiceBusConfiguration.ServiceBusSection.Outbox.DurationToSleepWhenIdle ??
+						ServiceBusSection.Get().Outbox.DurationToSleepWhenIdle ??
 						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-					ThreadCount = ServiceBusConfiguration.ServiceBusSection.Inbox.ThreadCount
+					ThreadCount = ServiceBusSection.Get().Inbox.ThreadCount
 				};
 		}
 	}

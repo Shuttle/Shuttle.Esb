@@ -8,11 +8,11 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			if (ServiceBusConfiguration.ServiceBusSection == null
+			if (ServiceBusSection.Get() == null
 			    ||
-			    ServiceBusConfiguration.ServiceBusSection.Worker == null
+			    ServiceBusSection.Get().Worker == null
 			    ||
-			    string.IsNullOrEmpty(ServiceBusConfiguration.ServiceBusSection.Worker.DistributorControlWorkQueueUri))
+			    string.IsNullOrEmpty(ServiceBusSection.Get().Worker.DistributorControlWorkQueueUri))
 			{
 				return;
 			}
@@ -20,8 +20,8 @@ namespace Shuttle.Esb
 		    configuration.Worker = new WorkerConfiguration
 		    {
 		        DistributorControlInboxWorkQueueUri =
-		            ServiceBusConfiguration.ServiceBusSection.Worker.DistributorControlWorkQueueUri,
-                ThreadAvailableNotificationIntervalSeconds = ServiceBusConfiguration.ServiceBusSection.Worker.ThreadAvailableNotificationIntervalSeconds
+		            ServiceBusSection.Get().Worker.DistributorControlWorkQueueUri,
+                ThreadAvailableNotificationIntervalSeconds = ServiceBusSection.Get().Worker.ThreadAvailableNotificationIntervalSeconds
             };
 		}
 	}
