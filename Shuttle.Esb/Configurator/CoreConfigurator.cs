@@ -8,7 +8,18 @@ namespace Shuttle.Esb
 		{
 			Guard.AgainstNull(configuration, "configuration");
 
-			var section = ServiceBusSection.Get();
+            var transactionScopeElement = TransactionScopeSection.Get();
+
+            configuration.TransactionScope = transactionScopeElement != null
+                ? new TransactionScopeConfiguration
+                {
+                    Enabled = transactionScopeElement.Enabled,
+                    IsolationLevel = transactionScopeElement.IsolationLevel,
+                    TimeoutSeconds = transactionScopeElement.TimeoutSeconds
+                }
+                : new TransactionScopeConfiguration();
+
+            var section = ServiceBusSection.Get();
 
 			if (section == null)
 			{
@@ -21,17 +32,6 @@ namespace Shuttle.Esb
 			configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
 			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
 			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
-
-			var transactionScopeElement = TransactionScopeSection.Get();
-
-			configuration.TransactionScope = transactionScopeElement != null
-				? new TransactionScopeConfiguration
-				{
-					Enabled = transactionScopeElement.Enabled,
-					IsolationLevel = transactionScopeElement.IsolationLevel,
-					TimeoutSeconds = transactionScopeElement.TimeoutSeconds
-				}
-				: new TransactionScopeConfiguration();
 		}
 	}
 }

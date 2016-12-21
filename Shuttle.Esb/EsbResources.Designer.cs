@@ -70,15 +70,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression algorithm &apos;{0}&apos; has not been registered..
-        /// </summary>
-        public static string CompressionAlgorithmException {
-            get {
-                return ResourceManager.GetString("CompressionAlgorithmException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A configurator wih type name &apos;{0}&apos; has already been registered..
         /// </summary>
         public static string ConfiguratorAlreadyRegisteredException {
@@ -120,15 +111,6 @@ namespace Shuttle.Esb {
         public static string DuplicateQueueFactoryReplaced {
             get {
                 return ResourceManager.GetString("DuplicateQueueFactoryReplaced", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Encryption algorithm &apos;{0}&apos; has not been registered..
-        /// </summary>
-        public static string EncryptionAlgorithmException {
-            get {
-                return ResourceManager.GetString("EncryptionAlgorithmException", resourceCulture);
             }
         }
         
@@ -453,15 +435,6 @@ namespace Shuttle.Esb {
         public static string TraceTransportMessageDeferred {
             get {
                 return ResourceManager.GetString("TraceTransportMessageDeferred", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Call to &apos;{0}.{1}&apos; already contains an active TransactionScope..
-        /// </summary>
-        public static string TransactionAlreadyStartedException {
-            get {
-                return ResourceManager.GetString("TransactionAlreadyStartedException", resourceCulture);
             }
         }
         

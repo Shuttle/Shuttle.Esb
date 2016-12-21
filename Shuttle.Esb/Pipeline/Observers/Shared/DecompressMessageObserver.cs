@@ -27,7 +27,7 @@ namespace Shuttle.Esb
 			var algorithm = _configuration.FindCompressionAlgorithm(transportMessage.CompressionAlgorithm);
 
 			Guard.Against<InvalidOperationException>(algorithm == null,
-				string.Format(EsbResources.CompressionAlgorithmException, transportMessage.CompressionAlgorithm));
+				string.Format(InfrastructureResources.MissingCompressionAlgorithmException, transportMessage.CompressionAlgorithm));
 
 			transportMessage.Message = algorithm.Decompress(transportMessage.Message);
 		}

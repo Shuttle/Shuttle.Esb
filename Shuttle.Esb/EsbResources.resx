@@ -190,18 +190,6 @@
     <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
     <comment>{0} = handler full type name, {1} = message full type name</comment>
   </data>
-  <data name="TransactionAlreadyStartedException" xml:space="preserve">
-    <value>Call to '{0}.{1}' already contains an active TransactionScope.</value>
-    <comment>{0} = full type name, {1} = method name</comment>
-  </data>
-  <data name="CompressionAlgorithmException" xml:space="preserve">
-    <value>Compression algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
-  <data name="EncryptionAlgorithmException" xml:space="preserve">
-    <value>Encryption algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
   <data name="ReplyWithoutSenderInboxWorkQueueUri" xml:space="preserve">
     <value>The current message has no SenderIndexWorkQueueUri.  Cannot reply.</value>
   </data>

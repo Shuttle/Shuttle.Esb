@@ -4,13 +4,13 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-    public class DefaultConfigurator
+    public class ServiceBusConfigurator
     {
         private readonly IComponentRegistry _registry;
         private readonly List<Type> _dontRegisterTypes = new List<Type>();
         private readonly ILog _log;
 
-        public DefaultConfigurator(IComponentRegistry registry)
+        public ServiceBusConfigurator(IComponentRegistry registry)
         {
             Guard.AgainstNull(registry, "registry");
 
@@ -19,11 +19,11 @@ namespace Shuttle.Esb
             _log = Log.For(this);
         }
 
-        public DefaultConfigurator DontRegister<TService>()
+        public ServiceBusConfigurator DontRegister<TDependency>()
         {
-            if (!_dontRegisterTypes.Contains(typeof (TService)))
+            if (!_dontRegisterTypes.Contains(typeof (TDependency)))
             {
-                _dontRegisterTypes.Add(typeof (TService));
+                _dontRegisterTypes.Add(typeof (TDependency));
             }
 
             return this;
@@ -51,6 +51,8 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, "configuration");
 
+            RegisterDefaultInstance(_registry, configuration);
+
             RegisterDefault<IServiceBusEvents, ServiceBusEvents>(_registry);
             RegisterDefault<ISerializer, DefaultSerializer>(_registry);
             RegisterDefault<IServiceBusPolicy, DefaultServiceBusPolicy>(_registry);
@@ -63,9 +65,7 @@ namespace Shuttle.Esb
             RegisterDefault<IWorkerAvailabilityManager, WorkerAvailabilityManager>(_registry);
             RegisterDefault<ISubscriptionManager, NullSubscriptionManager>(_registry);
             RegisterDefault<IIdempotenceService, NullIdempotenceService>(_registry);
-
-            RegisterDefaultInstance(_registry, configuration);
-
+            
             var transactionScopeConfiguration = configuration.TransactionScope;
 
             if (transactionScopeConfiguration == null)
@@ -144,31 +144,31 @@ namespace Shuttle.Esb
             _registry.Register<IServiceBus, ServiceBus>();
         }
 
-        private void RegisterDefault<TService, TImplementation>(IComponentRegistry registry)
-            where TImplementation : class where TService : class
+        public static IServiceBusConfiguration Configure(IComponentRegistry registry)
         {
-            if (_dontRegisterTypes.Contains(typeof (TService)))
+            return new ServiceBusConfigurator(registry).Configure();
+        }
+
+        private void RegisterDefault<TDependency, TImplementation>(IComponentRegistry registry)
+            where TImplementation : class where TDependency : class
+        {
+            if (_dontRegisterTypes.Contains(typeof(TDependency)))
             {
                 return;
             }
 
-            registry.Register<TService, TImplementation>();
+            registry.Register<TDependency, TImplementation>();
         }
 
-        private void RegisterDefaultInstance<TService>(IComponentRegistry registry, TService instance)
-            where TService : class
+        private void RegisterDefaultInstance<TDependency>(IComponentRegistry registry, TDependency instance)
+            where TDependency : class
         {
-            if (_dontRegisterTypes.Contains(typeof (TService)))
+            if (_dontRegisterTypes.Contains(typeof(TDependency)))
             {
                 return;
             }
 
             registry.Register(instance);
-        }
-
-        public static IServiceBusConfiguration Configure(IComponentRegistry registry)
-        {
-            return new DefaultConfigurator(registry).Configure();
         }
     }
 }

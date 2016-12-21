@@ -11,7 +11,12 @@ namespace Shuttle.Esb
 			return state.Get<IThreadState>(StateKeys.ActiveState);
 		}
 
-		public static IQueue GetWorkQueue(this IState state)
+        public static void SetActiveState(this IState state, IThreadState activeState)
+        {
+            state.Replace(StateKeys.ActiveState, activeState);
+        }
+
+        public static IQueue GetWorkQueue(this IState state)
 		{
 			return state.Get<IQueue>(StateKeys.WorkQueue);
 		}
@@ -121,16 +126,6 @@ namespace Shuttle.Esb
 			return state.Get<AvailableWorker>(StateKeys.AvailableWorker);
 		}
 
-		public static bool GetTransactionComplete(this IState state)
-		{
-			return state.Get<bool>(StateKeys.TransactionComplete);
-		}
-
-		public static void SetTransactionComplete(this IState state)
-		{
-			state.Replace(StateKeys.TransactionComplete, true);
-		}
-
 		public static void SetWorking(this IState state)
 		{
 			state.Replace(StateKeys.Working, true);
@@ -144,16 +139,6 @@ namespace Shuttle.Esb
 		public static void ResetWorking(this IState state)
 		{
 			state.Replace(StateKeys.Working, false);
-		}
-
-		public static ITransactionScope GetTransactionScope(this IState state)
-		{
-			return state.Get<ITransactionScope>(StateKeys.TransactionScope);
-		}
-
-		public static void SetTransactionScope(this IState state, ITransactionScope scope)
-		{
-			state.Replace(StateKeys.TransactionScope, scope);
 		}
 
 		public static void SetMessageHandler(this IState state, object handler)
@@ -189,11 +174,6 @@ namespace Shuttle.Esb
 		public static void SetDurationToIgnoreOnFailure(this IState state, TimeSpan[] timeSpans)
 		{
 			state.Add(StateKeys.DurationToIgnoreOnFailure, timeSpans);
-		}
-
-		public static void SetActiveState(this IState state, IThreadState activeState)
-		{
-			state.Replace(StateKeys.ActiveState, activeState);
 		}
 
 		public static IMessageSender GetHandlerContext(this IState state)

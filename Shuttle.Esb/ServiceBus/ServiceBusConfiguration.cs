@@ -21,7 +21,6 @@ namespace Shuttle.Esb
                 new StringDurationArrayConverter()
                     .ConvertFrom("250ms*4,500ms*2,1s");
 
-
         private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
@@ -33,8 +32,11 @@ namespace Shuttle.Esb
 
         public ServiceBusConfiguration()
         {
-            RegisterHandlers = true;
             ScanForQueueFactories = true;
+            CreateQueues = true;
+            CacheIdentity = true;
+            RegisterHandlers = true;
+            RemoveMessagesNotHandled = false;
         }
 
         public IInboxQueueConfiguration Inbox { get; set; }

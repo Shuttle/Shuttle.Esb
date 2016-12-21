@@ -62,21 +62,6 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnStartTransactionScope : PipelineEvent
-	{
-	}
-
-	public class OnAfterStartTransactionScope : PipelineEvent
-	{
-	}
-
-	public class OnCompleteTransactionScope : PipelineEvent
-	{
-	}
-
-	public class OnDisposeTransactionScope : PipelineEvent
-	{
-	}
 
 	public class OnAcknowledgeMessage : PipelineEvent
 	{

@@ -30,7 +30,7 @@ namespace Shuttle.Esb.Tests
 
             container.Register<IMessageHandlerInvoker>(handlerInvoker);
 
-            var defaultConfigurator = new DefaultConfigurator(container);
+            var defaultConfigurator = new ServiceBusConfigurator(container);
 
             defaultConfigurator.DontRegister<IMessageHandlerInvoker>();
 
