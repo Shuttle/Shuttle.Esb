@@ -493,15 +493,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The TransactionScopeConfiguration is null.  The default values have been used..
-        /// </summary>
-        public static string WarningNullTransactionScopeConfiguration {
-            get {
-                return ResourceManager.GetString("WarningNullTransactionScopeConfiguration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [publishing] : no subscribers / event message type = &apos;{0}&apos;.
         /// </summary>
         public static string WarningPublishWithoutSubscribers {

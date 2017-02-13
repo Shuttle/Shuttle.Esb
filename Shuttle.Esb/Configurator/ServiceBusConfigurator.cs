@@ -8,15 +8,12 @@ namespace Shuttle.Esb
     {
         private readonly IComponentRegistry _registry;
         private readonly List<Type> _dontRegisterTypes = new List<Type>();
-        private readonly ILog _log;
 
         public ServiceBusConfigurator(IComponentRegistry registry)
         {
             Guard.AgainstNull(registry, "registry");
 
             _registry = registry;
-
-            _log = Log.For(this);
         }
 
         public ServiceBusConfigurator DontRegister<TDependency>()
@@ -66,14 +63,7 @@ namespace Shuttle.Esb
             RegisterDefault<ISubscriptionManager, NullSubscriptionManager>(_registry);
             RegisterDefault<IIdempotenceService, NullIdempotenceService>(_registry);
             
-            var transactionScopeConfiguration = configuration.TransactionScope;
-
-            if (transactionScopeConfiguration == null)
-            {
-                _log.Warning(EsbResources.WarningNullTransactionScopeConfiguration);
-
-                transactionScopeConfiguration = new TransactionScopeConfiguration();
-            }
+            var transactionScopeConfiguration = configuration.TransactionScope ?? new TransactionScopeConfiguration();
 
             RegisterDefaultInstance<ITransactionScopeFactory>(_registry,
                 new DefaultTransactionScopeFactory(transactionScopeConfiguration.Enabled,
@@ -150,7 +140,8 @@ namespace Shuttle.Esb
         }
 
         private void RegisterDefault<TDependency, TImplementation>(IComponentRegistry registry)
-            where TImplementation : class where TDependency : class
+            where TDependency : class
+            where TImplementation : class, TDependency
         {
             if (_dontRegisterTypes.Contains(typeof(TDependency)))
             {

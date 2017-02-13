@@ -303,9 +303,6 @@
   <data name="SubscribeWithNoInboxException" xml:space="preserve">
     <value>You have attempted to subscribe to messages but there is no inbox configured.</value>
   </data>
-  <data name="WarningNullTransactionScopeConfiguration" xml:space="preserve">
-    <value>The TransactionScopeConfiguration is null.  The default values have been used.</value>
-  </data>
   <data name="MappingInvalidUriException" xml:space="preserve">
     <value>The uri specified as the '{0}' is not a valid uri.  The value configured is '{1}'.</value>
     <comment>{0} = the uri type, {1} = the invalid uri value</comment>
