@@ -9,7 +9,9 @@ namespace Shuttle.Esb
         IPipelineObserver<OnStartControlInboxProcessing>,
         IPipelineObserver<OnStartOutboxProcessing>,
         IPipelineObserver<OnStartDeferredMessageProcessing>,
-        IPipelineObserver<OnStartWorker>
+        IPipelineObserver<OnStartWorker>,
+        IPipelineObserver<OnStarting>,
+		IPipelineObserver<OnStarted>
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
@@ -140,5 +142,15 @@ namespace Shuttle.Esb
             },
                 c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
         }
-    }
+
+	    public void Execute(OnStarted pipelineEvent)
+	    {
+		    _events.OnStarted(this, new PipelineEventEventArgs(pipelineEvent));
+	    }
+
+	    public void Execute(OnStarting pipelineEvent)
+	    {
+			_events.OnStarting(this, new PipelineEventEventArgs(pipelineEvent));
+		}
+	}
 }

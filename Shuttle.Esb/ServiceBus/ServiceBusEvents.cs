@@ -1,19 +1,11 @@
+using System;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
 	internal class ServiceBusEvents : IServiceBusEvents
 	{
-		public event BeforePipelineExceptionHandledDelegate BeforePipelineExceptionHandled = delegate { };
-		public event AfterPipelineExceptionHandledDelegate AfterPipelineExceptionHandled = delegate { };
-		public event TransportMessageDeserializationExceptionDelegate TransportMessageDeserializationException = delegate { };
-		public event MessageDeserializationExceptionDelegate MessageDeserializationException = delegate { };
-		public event QueueEmptyDelegate QueueEmpty = delegate { };
-		public event MessageNotHandledDelegate MessageNotHandled = delegate { };
-		public event HandlerExceptionDelegate HandlerException = delegate { };
-
-		public event ThreadWorkingDelegate ThreadWorking = delegate { };
-		public event ThreadWaitingDelegate ThreadWaiting = delegate { };
+		public event EventHandler<PipelineExceptionEventArgs> BeforePipelineExceptionHandled = delegate { };
 
 		public void OnBeforePipelineExceptionHandled(object sender, PipelineExceptionEventArgs args)
 		{
@@ -59,5 +51,26 @@ namespace Shuttle.Esb
 		{
 			ThreadWaiting(sender, args);
 		}
+
+		public void OnStarting(object sender, PipelineEventEventArgs args)
+		{
+			Starting(sender, args);
+		}
+
+		public void OnStarted(object sender, PipelineEventEventArgs args)
+		{
+			Started(sender, args);
+		}
+
+		public event EventHandler Starting = delegate { };
+		public event EventHandler Started = delegate { };
+		public event EventHandler<PipelineExceptionEventArgs> AfterPipelineExceptionHandled = delegate { };
+		public event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException = delegate { };
+		public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate { };
+		public event EventHandler<QueueEmptyEventArgs> QueueEmpty = delegate { };
+		public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled = delegate { };
+		public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate { };
+		public event EventHandler<ThreadStateEventArgs> ThreadWorking = delegate { };
+		public event EventHandler<ThreadStateEventArgs> ThreadWaiting = delegate { };
 	}
 }

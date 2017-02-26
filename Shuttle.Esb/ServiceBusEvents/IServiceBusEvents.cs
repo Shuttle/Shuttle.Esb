@@ -1,39 +1,24 @@
+using System;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public delegate void BeforePipelineExceptionHandledDelegate(object sender, PipelineExceptionEventArgs e);
-
-	public delegate void AfterPipelineExceptionHandledDelegate(object sender, PipelineExceptionEventArgs e);
-
-	public delegate void TransportMessageDeserializationExceptionDelegate(
-		object sender, DeserializationExceptionEventArgs e);
-
-	public delegate void MessageDeserializationExceptionDelegate(object sender, DeserializationExceptionEventArgs e);
-
-	public delegate void QueueEmptyDelegate(object sender, QueueEmptyEventArgs e);
-
-	public delegate void MessageNotHandledDelegate(object sender, MessageNotHandledEventArgs e);
-
-	public delegate void HandlerExceptionDelegate(object sender, HandlerExceptionEventArgs e);
-
-	public delegate void ThreadWorkingDelegate(object sender, ThreadStateEventArgs e);
-
-	public delegate void ThreadWaitingDelegate(object sender, ThreadStateEventArgs e);
-
 	public interface IServiceBusEvents
 	{
-		event BeforePipelineExceptionHandledDelegate BeforePipelineExceptionHandled;
-		event AfterPipelineExceptionHandledDelegate AfterPipelineExceptionHandled;
-		event TransportMessageDeserializationExceptionDelegate TransportMessageDeserializationException;
-		event MessageDeserializationExceptionDelegate MessageDeserializationException;
+		event EventHandler<PipelineExceptionEventArgs> BeforePipelineExceptionHandled;
+		event EventHandler<PipelineExceptionEventArgs> AfterPipelineExceptionHandled;
+		event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException;
+		event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
 
-		event QueueEmptyDelegate QueueEmpty;
-		event MessageNotHandledDelegate MessageNotHandled;
-		event HandlerExceptionDelegate HandlerException;
+		event EventHandler<QueueEmptyEventArgs> QueueEmpty;
+		event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+		event EventHandler<HandlerExceptionEventArgs> HandlerException;
 
-		event ThreadWorkingDelegate ThreadWorking;
-		event ThreadWaitingDelegate ThreadWaiting;
+		event EventHandler<ThreadStateEventArgs> ThreadWorking;
+		event EventHandler<ThreadStateEventArgs> ThreadWaiting;
+
+		event EventHandler Started;
+		event EventHandler Starting;
 
 		void OnBeforePipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
 		void OnAfterPipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
@@ -45,5 +30,8 @@ namespace Shuttle.Esb
 
 		void OnThreadWorking(object sender, ThreadStateEventArgs args);
 		void OnThreadWaiting(object sender, ThreadStateEventArgs args);
+
+		void OnStarted(object sender, PipelineEventEventArgs args);
+		void OnStarting(object sender, PipelineEventEventArgs args);
 	}
 }

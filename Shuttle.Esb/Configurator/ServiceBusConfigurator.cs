@@ -8,6 +8,7 @@ namespace Shuttle.Esb
     {
         private readonly IComponentRegistry _registry;
         private readonly List<Type> _dontRegisterTypes = new List<Type>();
+	    private bool _registerObservers = true;
 
         public ServiceBusConfigurator(IComponentRegistry registry)
         {
@@ -26,7 +27,12 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public IServiceBusConfiguration Configure()
+	    public void DontRegisterObservers()
+	    {
+		    _registerObservers = false;
+	    }
+
+	    public IServiceBusConfiguration Configure()
         {
             var configuration = new ServiceBusConfiguration();
 
@@ -89,17 +95,20 @@ namespace Shuttle.Esb
 
             var reflectionService = new ReflectionService();
 
-            foreach (var type in reflectionService.GetTypes<IPipelineObserver>())
-            {
-                if (type.IsInterface || _dontRegisterTypes.Contains(type))
-                {
-                    continue;
-                }
+	        if (_registerObservers)
+	        {
+		        foreach (var type in reflectionService.GetTypes<IPipelineObserver>())
+		        {
+			        if (type.IsInterface || _dontRegisterTypes.Contains(type))
+			        {
+				        continue;
+			        }
 
-                _registry.Register(type, type, Lifestyle.Singleton);
-            }
+			        _registry.Register(type, type, Lifestyle.Singleton);
+		        }
+	        }
 
-            if (configuration.RegisterHandlers)
+	        if (configuration.RegisterHandlers)
             {
                 _registry.RegisterMessageHandlers();
             }
