@@ -30,7 +30,7 @@ namespace Shuttle.Esb.Tests
 
             container.Register<IMessageHandlerInvoker>(handlerInvoker);
 
-            ServiceBus.RegisterComponents(container, configuration);
+            ServiceBus.Register(container, configuration);
 
             using (var bus = ServiceBus.Create(container))
             {

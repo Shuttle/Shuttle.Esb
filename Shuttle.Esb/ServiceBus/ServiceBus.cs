@@ -156,7 +156,7 @@ namespace Shuttle.Esb
 			}
 		}
 
-		public static IServiceBusConfiguration RegisterComponents(IComponentRegistry registry)
+		public static IServiceBusConfiguration Register(IComponentRegistry registry)
 		{
 			Guard.AgainstNull(registry, "registry");
 
@@ -171,51 +171,51 @@ namespace Shuttle.Esb
 			new OutboxConfigurator().Apply(configuration);
 			new WorkerConfigurator().Apply(configuration);
 
-			RegisterComponents(registry, configuration);
+			Register(registry, configuration);
 
 			return configuration;
 		}
 
-		public static void RegisterComponents(IComponentRegistry registry, IServiceBusConfiguration configuration)
+		public static void Register(IComponentRegistry registry, IServiceBusConfiguration configuration)
 		{
 			Guard.AgainstNull(registry, "registry");
 			Guard.AgainstNull(configuration, "configuration");
 
-			Register(registry, configuration);
+			RegisterComponent<IServiceBusConfiguration>(registry, configuration);
 
-			Register<IServiceBusEvents, ServiceBusEvents>(registry);
-			Register<ISerializer, DefaultSerializer>(registry);
-			Register<IServiceBusPolicy, DefaultServiceBusPolicy>(registry);
-			Register<IMessageRouteProvider, DefaultMessageRouteProvider>(registry);
-			Register<IIdentityProvider, DefaultIdentityProvider>(registry);
-			Register<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>(registry);
-			Register<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>(registry);
-			Register<IUriResolver, DefaultUriResolver>(registry);
-			Register<IQueueManager, QueueManager>(registry);
-			Register<IWorkerAvailabilityManager, WorkerAvailabilityManager>(registry);
-			Register<ISubscriptionManager, NullSubscriptionManager>(registry);
-			Register<IIdempotenceService, NullIdempotenceService>(registry);
+			RegisterComponent<IServiceBusEvents, ServiceBusEvents>(registry);
+			RegisterComponent<ISerializer, DefaultSerializer>(registry);
+			RegisterComponent<IServiceBusPolicy, DefaultServiceBusPolicy>(registry);
+			RegisterComponent<IMessageRouteProvider, DefaultMessageRouteProvider>(registry);
+			RegisterComponent<IIdentityProvider, DefaultIdentityProvider>(registry);
+			RegisterComponent<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>(registry);
+			RegisterComponent<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>(registry);
+			RegisterComponent<IUriResolver, DefaultUriResolver>(registry);
+			RegisterComponent<IQueueManager, QueueManager>(registry);
+			RegisterComponent<IWorkerAvailabilityManager, WorkerAvailabilityManager>(registry);
+			RegisterComponent<ISubscriptionManager, NullSubscriptionManager>(registry);
+			RegisterComponent<IIdempotenceService, NullIdempotenceService>(registry);
 
-			Register<TransactionScopeObserver, TransactionScopeObserver>(registry);
+			RegisterComponent<TransactionScopeObserver, TransactionScopeObserver>(registry);
 
 			if (!registry.IsRegistered<ITransactionScopeFactory>())
 			{
 				var transactionScopeConfiguration = configuration.TransactionScope ?? new TransactionScopeConfiguration();
 
-				Register<ITransactionScopeFactory>(registry,
+				RegisterComponent<ITransactionScopeFactory>(registry,
 					new DefaultTransactionScopeFactory(transactionScopeConfiguration.Enabled,
 						transactionScopeConfiguration.IsolationLevel,
 						TimeSpan.FromSeconds(transactionScopeConfiguration.TimeoutSeconds)));
 			}
 
-			Register<IPipelineFactory, DefaultPipelineFactory>(registry);
-			Register<ITransportMessageFactory, DefaultTransportMessageFactory>(registry);
+			RegisterComponent<IPipelineFactory, DefaultPipelineFactory>(registry);
+			RegisterComponent<ITransportMessageFactory, DefaultTransportMessageFactory>(registry);
 
 			var reflectionService = new ReflectionService();
 
 			foreach (var type in reflectionService.GetTypes<IPipeline>(typeof(ServiceBus).Assembly))
 			{
-				if (type.IsInterface || registry.IsRegistered(type))
+				if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
 				{
 					continue;
 				}
@@ -225,7 +225,7 @@ namespace Shuttle.Esb
 
 			foreach (var type in reflectionService.GetTypes<IPipelineObserver>(typeof(ServiceBus).Assembly))
 			{
-				if (type.IsInterface || registry.IsRegistered(type))
+				if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
 				{
 					continue;
 				}
@@ -269,7 +269,7 @@ namespace Shuttle.Esb
 			registry.Register<IServiceBus, ServiceBus>();
 		}
 
-		private static void Register<TDependency, TImplementation>(IComponentRegistry registry)
+		private static void RegisterComponent<TDependency, TImplementation>(IComponentRegistry registry)
 			where TDependency : class
 			where TImplementation : class, TDependency
 		{
@@ -281,7 +281,7 @@ namespace Shuttle.Esb
 			registry.Register<TDependency, TImplementation>();
 		}
 
-		private static void Register<TDependency>(IComponentRegistry registry, TDependency instance)
+		private static void RegisterComponent<TDependency>(IComponentRegistry registry, TDependency instance)
 			where TDependency : class
 		{
 			if (registry.IsRegistered(typeof(TDependency)))
