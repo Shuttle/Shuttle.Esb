@@ -15,6 +15,8 @@ namespace Shuttle.Esb
 		private IProcessorThreadPool _inboxThreadPool;
 		private IProcessorThreadPool _outboxThreadPool;
 
+		private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+
 		public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
 			IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
 		{
@@ -181,7 +183,7 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(registry, "registry");
 			Guard.AgainstNull(configuration, "configuration");
 
-			RegisterComponent<IServiceBusConfiguration>(registry, configuration);
+			RegisterComponent(registry, configuration);
 
 			RegisterComponent<IServiceBusEvents, ServiceBusEvents>(registry);
 			RegisterComponent<ISerializer, DefaultSerializer>(registry);
@@ -235,7 +237,26 @@ namespace Shuttle.Esb
 
 			if (configuration.RegisterHandlers)
 			{
-				registry.RegisterMessageHandlers();
+				foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+				{
+					foreach (var type in reflectionService.GetTypes(MessageHandlerType, assembly))
+					{
+						foreach (var @interface in type.GetInterfaces())
+						{
+							if (!@interface.IsAssignableTo(MessageHandlerType))
+							{
+								continue;
+							}
+
+							var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+
+							if (!registry.IsRegistered(genericType))
+							{
+								registry.Register(genericType, type, Lifestyle.Transient);
+							}
+						}
+					}
+				}
 			}
 
 			var queueFactoryType = typeof(IQueueFactory);

@@ -116,7 +116,6 @@
     <Compile Include="Messages\DefaultTransportMessageFactory.cs" />
     <Compile Include="Messages\ITransportMessageFactory.cs" />
     <Compile Include="Pipeline\Observers\Startup\StartupProcessingObserver.cs" />
-    <Compile Include="RegistryExtensions.cs" />
     <Compile Include="Idempotence\NullIdempotenceService.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
     <Compile Include="MessageHandling\IHandlerContext.cs" />
