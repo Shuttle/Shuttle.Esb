@@ -185,6 +185,8 @@ namespace Shuttle.Esb
 
 			RegisterComponent(registry, configuration);
 
+			registry.RegistryBoostrap();
+
 			RegisterComponent<IServiceBusEvents, ServiceBusEvents>(registry);
 			RegisterComponent<ISerializer, DefaultSerializer>(registry);
 			RegisterComponent<IServiceBusPolicy, DefaultServiceBusPolicy>(registry);
@@ -316,6 +318,8 @@ namespace Shuttle.Esb
 		public static IServiceBus Create(IComponentResolver resolver)
 		{
 			Guard.AgainstNull(resolver, "resolver");
+
+			resolver.ResolverBoostrap();
 
 			var configuration = resolver.Resolve<IServiceBusConfiguration>();
 
