@@ -183,37 +183,37 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(registry, "registry");
 			Guard.AgainstNull(configuration, "configuration");
 
-			RegisterComponent(registry, configuration);
-
 			registry.RegistryBoostrap();
 
-			RegisterComponent<IServiceBusEvents, ServiceBusEvents>(registry);
-			RegisterComponent<ISerializer, DefaultSerializer>(registry);
-			RegisterComponent<IServiceBusPolicy, DefaultServiceBusPolicy>(registry);
-			RegisterComponent<IMessageRouteProvider, DefaultMessageRouteProvider>(registry);
-			RegisterComponent<IIdentityProvider, DefaultIdentityProvider>(registry);
-			RegisterComponent<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>(registry);
-			RegisterComponent<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>(registry);
-			RegisterComponent<IUriResolver, DefaultUriResolver>(registry);
-			RegisterComponent<IQueueManager, QueueManager>(registry);
-			RegisterComponent<IWorkerAvailabilityManager, WorkerAvailabilityManager>(registry);
-			RegisterComponent<ISubscriptionManager, NullSubscriptionManager>(registry);
-			RegisterComponent<IIdempotenceService, NullIdempotenceService>(registry);
+			registry.AttemptRegister(configuration);
 
-			RegisterComponent<TransactionScopeObserver, TransactionScopeObserver>(registry);
+			registry.AttemptRegister<IServiceBusEvents, ServiceBusEvents>();
+			registry.AttemptRegister<ISerializer, DefaultSerializer>();
+			registry.AttemptRegister<IServiceBusPolicy, DefaultServiceBusPolicy>();
+			registry.AttemptRegister<IMessageRouteProvider, DefaultMessageRouteProvider>();
+			registry.AttemptRegister<IIdentityProvider, DefaultIdentityProvider>();
+			registry.AttemptRegister<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>();
+			registry.AttemptRegister<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
+			registry.AttemptRegister<IUriResolver, DefaultUriResolver>();
+			registry.AttemptRegister<IQueueManager, QueueManager>();
+			registry.AttemptRegister<IWorkerAvailabilityManager, WorkerAvailabilityManager>();
+			registry.AttemptRegister<ISubscriptionManager, NullSubscriptionManager>();
+			registry.AttemptRegister<IIdempotenceService, NullIdempotenceService>();
+
+			registry.AttemptRegister<TransactionScopeObserver, TransactionScopeObserver>();
 
 			if (!registry.IsRegistered<ITransactionScopeFactory>())
 			{
 				var transactionScopeConfiguration = configuration.TransactionScope ?? new TransactionScopeConfiguration();
 
-				RegisterComponent<ITransactionScopeFactory>(registry,
+				registry.AttemptRegister<ITransactionScopeFactory>(
 					new DefaultTransactionScopeFactory(transactionScopeConfiguration.Enabled,
 						transactionScopeConfiguration.IsolationLevel,
 						TimeSpan.FromSeconds(transactionScopeConfiguration.TimeoutSeconds)));
 			}
 
-			RegisterComponent<IPipelineFactory, DefaultPipelineFactory>(registry);
-			RegisterComponent<ITransportMessageFactory, DefaultTransportMessageFactory>(registry);
+			registry.AttemptRegister<IPipelineFactory, DefaultPipelineFactory>();
+			registry.AttemptRegister<ITransportMessageFactory, DefaultTransportMessageFactory>();
 
 			var reflectionService = new ReflectionService();
 
@@ -289,30 +289,7 @@ namespace Shuttle.Esb
 
 			registry.RegisterCollection(queueFactoryType, queueFactoryImplementationTypes, Lifestyle.Singleton);
 
-			registry.Register<IServiceBus, ServiceBus>();
-		}
-
-		private static void RegisterComponent<TDependency, TImplementation>(IComponentRegistry registry)
-			where TDependency : class
-			where TImplementation : class, TDependency
-		{
-			if (registry.IsRegistered(typeof(TDependency)))
-			{
-				return;
-			}
-
-			registry.Register<TDependency, TImplementation>();
-		}
-
-		private static void RegisterComponent<TDependency>(IComponentRegistry registry, TDependency instance)
-			where TDependency : class
-		{
-			if (registry.IsRegistered(typeof(TDependency)))
-			{
-				return;
-			}
-
-			registry.Register(instance);
+			registry.AttemptRegister<IServiceBus, ServiceBus>();
 		}
 
 		public static IServiceBus Create(IComponentResolver resolver)
