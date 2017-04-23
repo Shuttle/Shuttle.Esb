@@ -10,8 +10,12 @@ There is [extensive documentation](http://shuttle.github.io/shuttle-esb/) on our
 
 ### Send a command message for processing
 
-~~~ c#
-using (var bus = ServiceBus.Create().Start())
+``` c#
+var container = new WindsorComponentContainer(new WindsorContainer());
+
+ServiceBus.Register(container);
+
+using (var bus = ServiceBus.Create(container).Start())
 {
 	bus.Send(new RegisterMemberCommand
 	{
@@ -19,29 +23,38 @@ using (var bus = ServiceBus.Create().Start())
 		EMailAddress = "ohm@resistor.domain"
 	});
 }
-~~~
+```
 
 ### Publish an event message when something interesting happens
 
-~~~ c#
-using (var bus = ServiceBus.Create(c => c.SubscriptionManager(SubscriptionManager.Default())).Start())
+``` c#
+var smRegistry = new Registry();
+var registry = new StructureMapComponentRegistry(smRegistry);
+
+ServiceBus.Register(registry); // will using bootstrapping to register SubscriptionManager
+
+using (var bus = ServiceBus
+	.Create(
+		new StructureMapComponentResolver(
+		new Container(smRegistry)))
+	.Start())
 {
 	bus.Publish(new MemberRegisteredEvent
 	{
 		UserName = "Mr Resistor"
 	});
 }
-~~~
+```
 
 ### Subscribe to those interesting events
 
-~~~ c#
+``` c#
 SubscriptionManager.Default().Subscribe<MemberRegisteredEvent>();
-~~~
+```
 
 ### Handle any messages
 
-~~~ c#
+``` c#
 public class RegisterMemberHandler : IMessageHandler<RegisterMemberCommand>
 {
 	public void ProcessMessage(IHandlerContext<RegisterMemberCommand> context)
@@ -56,9 +69,9 @@ public class RegisterMemberHandler : IMessageHandler<RegisterMemberCommand>
 		});
 	}
 }
-~~~
+```
 
-~~~ c#
+``` c#
 public class MemberRegisteredHandler : IMessageHandler<MemberRegisteredEvent>
 {
 	public void ProcessMessage(IHandlerContext<MemberRegisteredEvent> context)
@@ -68,4 +81,4 @@ public class MemberRegisteredHandler : IMessageHandler<MemberRegisteredEvent>
 		Console.WriteLine();
 	}
 }
-~~~
+```
