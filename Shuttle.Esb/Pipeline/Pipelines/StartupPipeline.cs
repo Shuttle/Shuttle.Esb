@@ -18,8 +18,10 @@ namespace Shuttle.Esb
 		        .WithEvent<OnAfterConfigureUriResolver>()
 		        .WithEvent<OnConfigureQueueManager>()
 		        .WithEvent<OnAfterConfigureQueueManager>()
-		        .WithEvent<OnCreateQueues>()
-		        .WithEvent<OnAfterCreateQueues>()
+		        .WithEvent<OnConfigureQueues>()
+		        .WithEvent<OnAfterConfigureQueues>()
+		        .WithEvent<OnCreatePhysicalQueues>()
+		        .WithEvent<OnAfterCreatePhysicalQueues>()
 		        .WithEvent<OnConfigureMessageRouteProvider>()
 		        .WithEvent<OnAfterConfigureMessageRouteProvider>();
 

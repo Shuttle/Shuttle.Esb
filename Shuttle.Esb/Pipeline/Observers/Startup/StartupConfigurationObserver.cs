@@ -1,4 +1,3 @@
-using System;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -6,15 +5,17 @@ namespace Shuttle.Esb
     public class StartupConfigurationObserver :
         IPipelineObserver<OnConfigureUriResolver>,
         IPipelineObserver<OnConfigureQueueManager>,
-        IPipelineObserver<OnCreateQueues>,
+        IPipelineObserver<OnConfigureQueues>,
+        IPipelineObserver<OnCreatePhysicalQueues>,
         IPipelineObserver<OnConfigureMessageRouteProvider>
     {
         private readonly IServiceBusConfiguration _configuration;
-        private readonly IQueueManager _queueManager;
         private readonly IMessageRouteProvider _messageRouteProvider;
+        private readonly IQueueManager _queueManager;
         private readonly IUriResolver _uriResolver;
 
-        public StartupConfigurationObserver(IServiceBusConfiguration configuration, IQueueManager queueManager, IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
+        public StartupConfigurationObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
+            IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
         {
             Guard.AgainstNull(configuration, "configuration");
             Guard.AgainstNull(queueManager, "queueManager");
@@ -25,24 +26,6 @@ namespace Shuttle.Esb
             _messageRouteProvider = messageRouteProvider;
             _uriResolver = uriResolver;
             _configuration = configuration;
-        }
-
-        public void Execute(OnCreateQueues pipelineEvent)
-        {
-            if (!_configuration.CreateQueues)
-            {
-                return;
-            }
-
-            _queueManager.CreatePhysicalQueues(_configuration);
-        }
-
-        public void Execute(OnConfigureQueueManager pipelineEvent)
-        {
-            foreach (var queueFactory in _configuration.Resolver.ResolveAll<IQueueFactory>())
-            {
-                _queueManager.RegisterQueueFactory(queueFactory);
-            }
         }
 
         public void Execute(OnConfigureMessageRouteProvider pipelineEvent)
@@ -67,12 +50,75 @@ namespace Shuttle.Esb
             }
         }
 
+        public void Execute(OnConfigureQueueManager pipelineEvent)
+        {
+            foreach (var queueFactory in _configuration.Resolver.ResolveAll<IQueueFactory>())
+            {
+                _queueManager.RegisterQueueFactory(queueFactory);
+            }
+        }
+
+        public void Execute(OnConfigureQueues pipelineEvent)
+        {
+            if (_configuration.HasControlInbox)
+            {
+                _configuration.ControlInbox.WorkQueue = _configuration.ControlInbox.WorkQueue ??
+                                                        _queueManager.CreateQueue(
+                                                            _configuration.ControlInbox.WorkQueueUri);
+
+                _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ??
+                                                         _queueManager.CreateQueue(
+                                                             _configuration.ControlInbox.ErrorQueueUri);
+            }
+
+            if (_configuration.HasInbox)
+            {
+                _configuration.Inbox.WorkQueue = _configuration.Inbox.WorkQueue ??
+                                                 _queueManager.CreateQueue(_configuration.Inbox.WorkQueueUri);
+
+                _configuration.Inbox.DeferredQueue = _configuration.Inbox.DeferredQueue ?? (
+                                                         string.IsNullOrEmpty(_configuration.Inbox.DeferredQueueUri)
+                                                             ? null
+                                                             : _queueManager
+                                                                 .CreateQueue(_configuration.Inbox.DeferredQueueUri));
+
+                _configuration.Inbox.ErrorQueue = _configuration.Inbox.ErrorQueue ??
+                                                  _queueManager.CreateQueue(_configuration.Inbox.ErrorQueueUri);
+            }
+
+            if (_configuration.HasOutbox)
+            {
+                _configuration.Outbox.WorkQueue = _configuration.Outbox.WorkQueue ??
+                                                  _queueManager.CreateQueue(_configuration.Outbox.WorkQueueUri);
+
+                _configuration.Outbox.ErrorQueue = _configuration.Outbox.ErrorQueue ??
+                                                   _queueManager.CreateQueue(_configuration.Outbox.ErrorQueueUri);
+            }
+
+            if (_configuration.IsWorker)
+            {
+                _configuration.Worker.DistributorControlInboxWorkQueue =
+                    _configuration.Worker.DistributorControlInboxWorkQueue ??
+                    _queueManager.CreateQueue(_configuration.Worker.DistributorControlInboxWorkQueueUri);
+            }
+        }
+
         public void Execute(OnConfigureUriResolver pipelineEvent)
         {
             foreach (var configuration in _configuration.UriMapping)
             {
                 _uriResolver.Add(configuration.SourceUri, configuration.TargetUri);
             }
+        }
+
+        public void Execute(OnCreatePhysicalQueues pipelineEvent)
+        {
+            if (!_configuration.CreateQueues)
+            {
+                return;
+            }
+
+            _queueManager.CreatePhysicalQueues(_configuration);
         }
     }
 }

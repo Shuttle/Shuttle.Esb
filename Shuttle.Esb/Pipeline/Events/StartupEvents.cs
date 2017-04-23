@@ -22,11 +22,19 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnCreateQueues : PipelineEvent
+	public class OnConfigureQueues : PipelineEvent
 	{
 	}
 
-    public class OnAfterCreateQueues : PipelineEvent
+	public class OnAfterConfigureQueues : PipelineEvent
+	{
+	}
+
+	public class OnCreatePhysicalQueues : PipelineEvent
+	{
+	}
+
+    public class OnAfterCreatePhysicalQueues : PipelineEvent
 	{
 	}
 
