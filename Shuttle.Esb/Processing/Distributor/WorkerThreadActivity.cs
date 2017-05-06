@@ -44,8 +44,8 @@ namespace Shuttle.Esb
 				{
 					_log.Verbose(string.Format(EsbResources.DebugWorkerAvailable,
 						_identifier,
-						_configuration.Inbox.WorkQueue.Uri,
-						_configuration.Worker.DistributorControlInboxWorkQueue.Uri));
+						_configuration.Inbox.WorkQueue.Uri.Secured(),
+						_configuration.Worker.DistributorControlInboxWorkQueue.Uri.Secured()));
 				}
 
 				_nextNotificationDate = DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);

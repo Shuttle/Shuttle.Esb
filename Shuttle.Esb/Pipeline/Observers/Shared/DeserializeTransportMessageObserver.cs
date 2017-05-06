@@ -43,7 +43,7 @@ namespace Shuttle.Esb
 			catch (Exception ex)
 			{
 				_log.Error(ex.ToString());
-				_log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri, ex));
+				_log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri.Secured(), ex));
 
                 state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
 

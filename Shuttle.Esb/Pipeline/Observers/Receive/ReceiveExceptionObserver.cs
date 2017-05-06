@@ -94,7 +94,7 @@ namespace Shuttle.Esb
                                 transportMessage.MessageType,
                                 transportMessage.MessageId,
                                 state.GetMaximumFailureCount(),
-                                state.GetErrorQueue().Uri));
+                                state.GetErrorQueue().Uri.Secured()));
 
                             state.GetErrorQueue().Enqueue(transportMessage, stream);
                         }
