@@ -45,14 +45,16 @@ namespace Shuttle.Esb
 				_log.Error(ex.ToString());
 				_log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri, ex));
 
-				pipelineEvent.Pipeline.Abort();
+                state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
 
-				_events.OnTransportMessageDeserializationException(this,
-					new DeserializationExceptionEventArgs(
-						pipelineEvent,
-						workQueue,
-						errorQueue,
-						ex));
+                _events.OnTransportMessageDeserializationException(this,
+                    new DeserializationExceptionEventArgs(
+                        pipelineEvent,
+                        workQueue,
+                        errorQueue,
+                        ex));
+
+                pipelineEvent.Pipeline.Abort();
 
 				return;
 			}
