@@ -139,7 +139,13 @@ namespace Shuttle.Esb
 			}
 
 			_queueFactories.Add(queueFactory);
-		}
+
+		    if (Log.IsTraceEnabled)
+		    {
+                _log.Trace(string.Format(EsbResources.QueueFactoryRegistered, queueFactory.Scheme,
+                    queueFactory.GetType().FullName));
+            }
+        }
 
 		public bool ContainsQueueFactory(string scheme)
 		{
