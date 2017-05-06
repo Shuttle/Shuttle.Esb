@@ -93,30 +93,50 @@ namespace Shuttle.Esb
 
 		public void Dispatch(TransportMessage transportMessage)
 		{
+            StartedGuard();
+
 			_messageSender.Dispatch(transportMessage);
 		}
 
 		public TransportMessage Send(object message)
 		{
-			return _messageSender.Send(message);
+            StartedGuard();
+
+            return _messageSender.Send(message);
 		}
 
 		public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
 		{
-			return _messageSender.Send(message, configure);
+            StartedGuard();
+
+            return _messageSender.Send(message, configure);
 		}
 
 		public IEnumerable<TransportMessage> Publish(object message)
 		{
-			return _messageSender.Publish(message);
+            StartedGuard();
+
+            return _messageSender.Publish(message);
 		}
 
 		public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
 		{
-			return _messageSender.Publish(message, configure);
+            StartedGuard();
+
+            return _messageSender.Publish(message, configure);
 		}
 
-		private void ConfigurationInvariant()
+	    private void StartedGuard()
+	    {
+	        if (Started)
+	        {
+	            return;
+	        }
+
+            throw new InvalidOperationException(EsbResources.ServiceBusInstanceNotStarted);
+	    }
+
+	    private void ConfigurationInvariant()
 		{
 			Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
 				EsbResources.WorkerRequiresInboxException);

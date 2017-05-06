@@ -106,7 +106,7 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue threadActivityFactory type &apos;{1}&apos; to register queue threadActivityFactory type &apos;{2}&apos;..
+        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue factory type &apos;{1}&apos; to register queue factory type &apos;{2}&apos;..
         /// </summary>
         public static string DuplicateQueueFactoryReplaced {
             get {
@@ -277,6 +277,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [queue factory registered] : scheme = &apos;{0}&apos; / type &apos;{1}&apos; .
+        /// </summary>
+        public static string QueueFactoryRegistered {
+            get {
+                return ResourceManager.GetString("QueueFactoryRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There has been an exception in the ReceiveMessagePipeline.  No message has been received.  Exception: {0}.
         /// </summary>
         public static string ReceivePipelineExceptionMessageNotReceived {
@@ -367,11 +376,20 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The service dependency instance has already been started..
+        ///   Looks up a localized string similar to The service bus instance has already been started..
         /// </summary>
         public static string ServiceBusInstanceAlreadyStarted {
             get {
                 return ResourceManager.GetString("ServiceBusInstanceAlreadyStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The service bus instance has not yet been started..
+        /// </summary>
+        public static string ServiceBusInstanceNotStarted {
+            get {
+                return ResourceManager.GetString("ServiceBusInstanceNotStarted", resourceCulture);
             }
         }
         
