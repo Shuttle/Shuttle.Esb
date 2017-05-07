@@ -3,7 +3,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	internal class ServiceBusEvents : IServiceBusEvents
+    public class ServiceBusEvents : IServiceBusEvents
 	{
 		public event EventHandler<PipelineExceptionEventArgs> BeforePipelineExceptionHandled = delegate { };
 
