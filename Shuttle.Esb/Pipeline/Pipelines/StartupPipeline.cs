@@ -37,9 +37,7 @@ namespace Shuttle.Esb
 				.WithEvent<OnAfterStartDeferredMessageProcessing>();
 
 			RegisterStage("Final")
-				.WithEvent<OnStarted>()
-			    .WithEvent<OnStartWorker>()
-			    .WithEvent<OnAfterStartWorker>();
+				.WithEvent<OnStarted>();
 		}
     }
 }

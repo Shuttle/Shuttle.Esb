@@ -78,14 +78,6 @@ namespace Shuttle.Esb
 	{
 	}
 
-	public class OnStartWorker : PipelineEvent
-	{
-	}
-
-	public class OnAfterStartWorker : PipelineEvent
-	{
-	}
-
 	public class OnStarting : PipelineEvent
 	{
 	}
