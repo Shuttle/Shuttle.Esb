@@ -8,7 +8,6 @@ namespace Shuttle.Esb
         IPipelineObserver<OnStartControlInboxProcessing>,
         IPipelineObserver<OnStartOutboxProcessing>,
         IPipelineObserver<OnStartDeferredMessageProcessing>,
-        IPipelineObserver<OnStartWorker>,
         IPipelineObserver<OnStarting>,
 		IPipelineObserver<OnStarted>
     {
@@ -96,22 +95,7 @@ namespace Shuttle.Esb
                     new OutboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
 
-        public void Execute(OnStartWorker pipelineEvent)
-        {
-            if (!_configuration.IsWorker)
-            {
-                return;
-            }
-
-            _bus.Send(new WorkerStartedEvent
-            {
-                InboxWorkQueueUri = _configuration.Inbox.WorkQueue.Uri.ToString(),
-                DateStarted = DateTime.Now
-            },
-                c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
-        }
-
-	    public void Execute(OnStarted pipelineEvent)
+ 	    public void Execute(OnStarted pipelineEvent)
 	    {
 		    _events.OnStarted(this, new PipelineEventEventArgs(pipelineEvent));
 	    }
