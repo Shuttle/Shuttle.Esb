@@ -20,6 +20,9 @@ namespace Shuttle.Esb
 		event EventHandler Started;
 		event EventHandler Starting;
 
+		event EventHandler Stopped;
+		event EventHandler Stopping;
+
 		void OnBeforePipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
 		void OnAfterPipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
 		void OnTransportMessageDeserializationException(object sender, DeserializationExceptionEventArgs args);
@@ -33,5 +36,8 @@ namespace Shuttle.Esb
 
 		void OnStarted(object sender, PipelineEventEventArgs args);
 		void OnStarting(object sender, PipelineEventEventArgs args);
+
+		void OnStopped(object sender, PipelineEventEventArgs args);
+		void OnStopping(object sender, PipelineEventEventArgs args);
 	}
 }

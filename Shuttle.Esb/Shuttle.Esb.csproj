@@ -115,6 +115,8 @@
     <Compile Include="Configurator\WorkerConfigurator.cs" />
     <Compile Include="Messages\DefaultTransportMessageFactory.cs" />
     <Compile Include="Messages\ITransportMessageFactory.cs" />
+    <Compile Include="Pipeline\Events\ShutdownEvents.cs" />
+    <Compile Include="Pipeline\Observers\Shutdown\ShutdownProcessingObserver.cs" />
     <Compile Include="Pipeline\Observers\Startup\StartupProcessingObserver.cs" />
     <Compile Include="Idempotence\NullIdempotenceService.cs" />
     <Compile Include="MessageHandling\DefaultMessageHandlerInvoker.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="NullSubscriptionManager.cs" />
     <Compile Include="Pipeline\Observers\Receive\IdempotenceObserver.cs" />
     <Compile Include="Pipeline\Observers\Receive\AssessMessageHandlingObserver.cs" />
+    <Compile Include="Pipeline\Pipelines\ShutdownPipeline.cs" />
     <Compile Include="Queues\DefaultUriResolver.cs" />
     <Compile Include="Queues\IUriResolver.cs" />
     <Compile Include="Queues\ResolvedQueue.cs" />
@@ -281,6 +284,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -7,7 +7,7 @@ namespace Shuttle.Esb
 	public class ServiceBus : IServiceBus
 	{
 		private readonly IServiceBusConfiguration _configuration;
-		private readonly IMessageSender _messageSender;
+	    private readonly IMessageSender _messageSender;
 		private readonly IPipelineFactory _pipelineFactory;
 
 		private IProcessorThreadPool _controlThreadPool;
@@ -26,7 +26,7 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(subscriptionManager, "subscriptionManager");
 
 			_configuration = configuration;
-			_pipelineFactory = pipelineFactory;
+		    _pipelineFactory = pipelineFactory;
 
 			_messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionManager);
 		}
@@ -61,7 +61,7 @@ namespace Shuttle.Esb
 				return;
 			}
 
-			if (_configuration.HasInbox)
+            if (_configuration.HasInbox)
 			{
 				if (_configuration.Inbox.HasDeferredQueue)
 				{
@@ -81,7 +81,9 @@ namespace Shuttle.Esb
 				_outboxThreadPool.Dispose();
 			}
 
-			Started = false;
+            _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute();
+
+            Started = false;
 		}
 
 		public bool Started { get; private set; }
@@ -235,7 +237,7 @@ namespace Shuttle.Esb
 			registry.AttemptRegister<IPipelineFactory, DefaultPipelineFactory>();
 			registry.AttemptRegister<ITransportMessageFactory, DefaultTransportMessageFactory>();
 
-			var reflectionService = new ReflectionService();
+		    var reflectionService = new ReflectionService();
 
 			foreach (var type in reflectionService.GetTypes<IPipeline>(typeof(ServiceBus).Assembly))
 			{
@@ -296,7 +298,7 @@ namespace Shuttle.Esb
 
 			if (configuration.ScanForQueueFactories)
 			{
-				foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
+				foreach (var type in reflectionService.GetTypes<IQueueFactory>())
 				{
 					addQueueFactoryImplementationType(type);
 				}

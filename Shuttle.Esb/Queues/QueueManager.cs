@@ -13,18 +13,18 @@ namespace Shuttle.Esb
 
 		private readonly ILog _log;
 		private static readonly object Padlock = new object();
-		private readonly IUriResolver _uriResolver;
+	    private readonly IUriResolver _uriResolver;
 
 		public QueueManager(IUriResolver uriResolver) 
 		{
             Guard.AgainstNull(uriResolver, "uriResolver");
 
-            _uriResolver = uriResolver;
+		    _uriResolver = uriResolver;
 
             _log = Log.For(this);
 		}
 
-		public void Dispose()
+        public void Dispose()
 		{
 			foreach (var queueFactory in _queueFactories)
 			{

@@ -62,8 +62,20 @@ namespace Shuttle.Esb
 			Started(sender, args);
 		}
 
+		public void OnStopping(object sender, PipelineEventEventArgs args)
+		{
+			Stopping(sender, args);
+		}
+
+		public void OnStopped(object sender, PipelineEventEventArgs args)
+		{
+			Stopped(sender, args);
+		}
+
 		public event EventHandler Starting = delegate { };
 		public event EventHandler Started = delegate { };
+		public event EventHandler Stopping = delegate { };
+		public event EventHandler Stopped = delegate { };
 		public event EventHandler<PipelineExceptionEventArgs> AfterPipelineExceptionHandled = delegate { };
 		public event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException = delegate { };
 		public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate { };
