@@ -1,6 +1,6 @@
 ﻿using Shuttle.Core.Infrastructure;
 
-namespace Shuttle.Esb.Observers
+namespace Shuttle.Esb
 {
     public class ShutdownProcessingObserver :
         IPipelineObserver<OnStopping>,

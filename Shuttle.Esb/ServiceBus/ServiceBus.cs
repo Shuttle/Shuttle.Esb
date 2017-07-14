@@ -33,7 +33,9 @@ namespace Shuttle.Esb
         public IServiceBus Start()
         {
             if (Started)
+            {
                 throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
+            }
 
             ConfigurationInvariant();
 
@@ -54,21 +56,29 @@ namespace Shuttle.Esb
         public void Stop()
         {
             if (!Started)
+            {
                 return;
+            }
 
             if (_configuration.HasInbox)
             {
                 if (_configuration.Inbox.HasDeferredQueue)
+                {
                     _deferredMessageThreadPool.Dispose();
+                }
 
                 _inboxThreadPool.Dispose();
             }
 
             if (_configuration.HasControlInbox)
+            {
                 _controlThreadPool.Dispose();
+            }
 
             if (_configuration.HasOutbox)
+            {
                 _outboxThreadPool.Dispose();
+            }
 
             _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute();
 
@@ -120,7 +130,9 @@ namespace Shuttle.Esb
         private void StartedGuard()
         {
             if (Started)
+            {
                 return;
+            }
 
             throw new InvalidOperationException(EsbResources.ServiceBusInstanceNotStarted);
         }
@@ -230,7 +242,9 @@ namespace Shuttle.Esb
             foreach (var type in reflectionService.GetTypes<IPipeline>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
+                {
                     continue;
+                }
 
                 registry.Register(type, type, Lifestyle.Transient);
             }
@@ -238,24 +252,32 @@ namespace Shuttle.Esb
             foreach (var type in reflectionService.GetTypes<IPipelineObserver>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
+                {
                     continue;
+                }
 
                 registry.Register(type, type, Lifestyle.Singleton);
             }
 
             if (configuration.RegisterHandlers)
+            {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 foreach (var type in reflectionService.GetTypes(MessageHandlerType, assembly))
                 foreach (var @interface in type.GetInterfaces())
                 {
                     if (!@interface.IsAssignableTo(MessageHandlerType))
+                    {
                         continue;
+                    }
 
                     var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
 
                     if (!registry.IsRegistered(genericType))
+                    {
                         registry.Register(genericType, type, Lifestyle.Transient);
+                    }
                 }
+            }
 
             var queueFactoryType = typeof(IQueueFactory);
             var queueFactoryImplementationTypes = new List<Type>();
@@ -263,17 +285,25 @@ namespace Shuttle.Esb
             Action<Type> addQueueFactoryImplementationType = type =>
             {
                 if (queueFactoryImplementationTypes.Contains(type))
+                {
                     return;
+                }
 
                 queueFactoryImplementationTypes.Add(type);
             };
 
             if (configuration.ScanForQueueFactories)
+            {
                 foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
+                {
                     addQueueFactoryImplementationType(type);
+                }
+            }
 
             foreach (var type in configuration.QueueFactoryTypes)
+            {
                 addQueueFactoryImplementationType(type);
+            }
 
             registry.RegisterCollection(queueFactoryType, queueFactoryImplementationTypes, Lifestyle.Singleton);
 
@@ -289,15 +319,19 @@ namespace Shuttle.Esb
             var configuration = resolver.Resolve<IServiceBusConfiguration>();
 
             if (configuration == null)
+            {
                 throw new InvalidOperationException(string.Format(InfrastructureResources.TypeNotRegisteredException,
                     typeof(IServiceBusConfiguration).FullName));
+            }
 
             configuration.Assign(resolver);
 
             var defaultPipelineFactory = resolver.Resolve<IPipelineFactory>() as DefaultPipelineFactory;
 
             if (defaultPipelineFactory != null)
+            {
                 defaultPipelineFactory.Assign(resolver);
+            }
 
             return resolver.Resolve<IServiceBus>();
         }

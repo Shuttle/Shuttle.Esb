@@ -17,10 +17,5 @@ namespace Shuttle.Esb
 		{
 			_workerAvailabilityManager.WorkerStarted(context.Message);
 		}
-
-		public bool IsReusable
-		{
-			get { return true; }
-		}
 	}
 }

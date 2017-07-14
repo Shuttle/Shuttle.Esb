@@ -8,9 +8,5 @@ namespace Shuttle.Esb.Tests
 		{
 			Console.WriteLine("Handled SimpleCommand with name '{0}.", context.Message.Name);
 		}
-
-		public bool IsReusable {
-			get { return true; }
-		}
 	}
 }
