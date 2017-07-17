@@ -47,14 +47,6 @@ namespace Shuttle.Esb
 			Guard.AgainstNull(transportMessage, "transportMessage");
 			Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-			if (transportMessage.IsIgnoring() && _configuration.HasInbox && _configuration.Inbox.HasDeferredQueue)
-			{
-				_configuration.Inbox.DeferredQueue.Enqueue(transportMessage, state.GetTransportMessageStream());
-				_configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
-
-				return;
-			}
-
 			var queue = !_configuration.HasOutbox
 				? _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
 				: _configuration.Outbox.WorkQueue;
