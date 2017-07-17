@@ -4,9 +4,10 @@ namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver, DeserializeTransportMessageObserver deserializeTransportMessageObserver,
-            DeferTransportMessageObserver deferTransportMessageObserver, SendOutboxMessageObserver sendOutboxMessageObserver,
-            AcknowledgeMessageObserver acknowledgeMessageObserver, OutboxExceptionObserver outboxExceptionObserver)
+        public OutboxPipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver,
+            DeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            SendOutboxMessageObserver sendOutboxMessageObserver, AcknowledgeMessageObserver acknowledgeMessageObserver,
+            OutboxExceptionObserver outboxExceptionObserver)
         {
             Guard.AgainstNull(configuration, "configuration");
 
@@ -30,7 +31,6 @@ namespace Shuttle.Esb
 
             RegisterObserver(getWorkMessageObserver);
             RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(deferTransportMessageObserver);
             RegisterObserver(sendOutboxMessageObserver);
 
             RegisterObserver(acknowledgeMessageObserver);
