@@ -29,7 +29,7 @@ namespace Shuttle.Esb
 					DurationToSleepWhenIdle =
 						ServiceBusSection.Get().Outbox.DurationToSleepWhenIdle ??
 						ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-					ThreadCount = ServiceBusSection.Get().Inbox.ThreadCount
+					ThreadCount = ServiceBusSection.Get().Outbox.ThreadCount
 				};
 		}
 	}
