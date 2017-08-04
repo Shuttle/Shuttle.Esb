@@ -8,14 +8,77 @@ There is [extensive documentation](http://shuttle.github.io/shuttle-esb/) on our
 
 # Overview
 
+Start a new **Console Application** project and select a Shuttle.Esb queue implementation from the [supported queues]({{ site.baseurl }}/packages/#queues):
+
+<div class="nuget-badge">
+	<p>
+		<code>Install-Package Shuttle.Esb.Msmq</code>
+	</p>
+</div>
+
+Now we'll need select one of the [supported containers](http://shuttle.github.io/shuttle-core/overview-container/#Supported):
+
+<div class="nuget-badge">
+	<p>
+		<code>Install-Package Shuttle.Core.Autofac</code>
+	</p>
+</div>
+
+We'll also need to host our endpoint using the [service host](http://shuttle.github.io/shuttle-core/overview-service-host/):
+
+<div class="nuget-badge">
+	<p>
+		<code>Install-Package Shuttle.Core.ServiceHost</code>
+	</p>
+</div>
+
+Next we'll implement our endpoint in order to start listening on our queue:
+
+``` c#
+public class Host : IHost, IDisposable
+{
+	private IServiceBus _bus;
+
+	public void Start()
+	{
+		var containerBuilder = new ContainerBuilder();
+		var registry = new AutofacComponentRegistry(containerBuilder);
+
+		ServiceBus.Register(registry);
+		
+		var resolver = new AutofacComponentResolver(containerBuilder.Build());
+
+		_bus = ServiceBus.Create(resolver).Start();
+	}
+
+	public void Dispose()
+	{
+		_bus.Dispose();
+	}
+}
+```
+
+A bit of configuration is going to be needed to help things along:
+
+``` xml
+<configuration>
+	<configSections>
+		<section name="serviceBus" type="Shuttle.Esb.ServiceBusSection, Shuttle.Esb"/>
+	</configSections>
+
+	<serviceBus>
+		<inbox 
+			workQueueUri="msmq://./shuttle-server-work" 
+			deferredQueueUri="msmq://./shuttle-server-deferred" 
+			errorQueueUri="msmq://./shuttle-error" />
+	</serviceBus>
+</configuration>
+```
+
 ### Send a command message for processing
 
 ``` c#
-var container = new WindsorComponentContainer(new WindsorContainer());
-
-ServiceBus.Register(container);
-
-using (var bus = ServiceBus.Create(container).Start())
+using (var bus = ServiceBus.Create(resolver).Start())
 {
 	bus.Send(new RegisterMemberCommand
 	{
@@ -28,16 +91,7 @@ using (var bus = ServiceBus.Create(container).Start())
 ### Publish an event message when something interesting happens
 
 ``` c#
-var smRegistry = new Registry();
-var registry = new StructureMapComponentRegistry(smRegistry);
-
-ServiceBus.Register(registry); // will using bootstrapping to register SubscriptionManager
-
-using (var bus = ServiceBus
-	.Create(
-		new StructureMapComponentResolver(
-		new Container(smRegistry)))
-	.Start())
+using (var bus = ServiceBus.Create(resolver).Start())
 {
 	bus.Publish(new MemberRegisteredEvent
 	{
@@ -49,7 +103,7 @@ using (var bus = ServiceBus
 ### Subscribe to those interesting events
 
 ``` c#
-SubscriptionManager.Default().Subscribe<MemberRegisteredEvent>();
+resolver.Resolve<ISubscriptionManager>().Subscribe<MemberRegisteredEvent>();
 ```
 
 ### Handle any messages
