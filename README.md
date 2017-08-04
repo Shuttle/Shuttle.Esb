@@ -35,7 +35,15 @@ We'll also need to host our endpoint using the [service host](http://shuttle.git
 Next we'll implement our endpoint in order to start listening on our queue:
 
 ``` c#
-public class Host : IHost, IDisposable
+internal class Program
+{
+	private static void Main()
+	{
+		ServiceHost.Run<Host>();
+	}
+}
+
+public class Host : IServiceHost
 {
 	private IServiceBus _bus;
 
@@ -45,13 +53,13 @@ public class Host : IHost, IDisposable
 		var registry = new AutofacComponentRegistry(containerBuilder);
 
 		ServiceBus.Register(registry);
-		
+
 		var resolver = new AutofacComponentResolver(containerBuilder.Build());
 
 		_bus = ServiceBus.Create(resolver).Start();
 	}
 
-	public void Dispose()
+	public void Stop()
 	{
 		_bus.Dispose();
 	}
