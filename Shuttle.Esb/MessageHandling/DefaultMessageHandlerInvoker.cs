@@ -85,6 +85,8 @@ namespace Shuttle.Esb
                     _transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
                     state.GetActiveState());
 
+                state.SetHandlerContext((IMessageSender)handlerContext);
+
                 contextMethod.Method.Invoke(handler, new[] {handlerContext});
             }
             finally

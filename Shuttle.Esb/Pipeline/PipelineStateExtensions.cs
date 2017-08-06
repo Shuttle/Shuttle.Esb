@@ -176,12 +176,12 @@ namespace Shuttle.Esb
             state.Add(StateKeys.DurationToIgnoreOnFailure, timeSpans);
         }
 
-        public static IMessageSender GetHandlerContext(this IState state)
+        public static object GetHandlerContext(this IState state)
         {
-            return state.Get<IMessageSender>(StateKeys.HandlerContext);
+            return state.Get<object>(StateKeys.HandlerContext);
         }
 
-        public static void SetHandlerContext(this IState state, IMessageSender handlerContext)
+        public static void SetHandlerContext(this IState state, object handlerContext)
         {
             state.Replace(StateKeys.HandlerContext, handlerContext);
         }
