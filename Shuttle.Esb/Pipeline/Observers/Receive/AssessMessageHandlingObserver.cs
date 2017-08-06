@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 
         public AssessMessageHandlingObserver(IMessageHandlingAssessor messageHandlingAssessor)
         {
-            Guard.AgainstNull(messageHandlingAssessor, "messageHandlingAssessor");
+            Guard.AgainstNull(messageHandlingAssessor, nameof(messageHandlingAssessor));
 
             _messageHandlingAssessor = messageHandlingAssessor;
         }

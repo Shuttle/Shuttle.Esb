@@ -78,9 +78,13 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <DefineConstants>$(DefineConstants);NET461FULL</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Framework)' == 'net462-full'">
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <DefineConstants>$(DefineConstants);NET462FULL</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shuttle.Core.Infrastructure, Version=8.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shuttle.Core.Infrastructure.8.0.1\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
+    <Reference Include="Shuttle.Core.Infrastructure, Version=8.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Shuttle.Core.Infrastructure.8.0.3\lib\net40-full\Shuttle.Core.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

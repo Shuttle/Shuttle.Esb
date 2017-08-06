@@ -18,8 +18,8 @@ namespace Shuttle.Esb
 
         public static readonly TimeSpan[] DefaultDurationToSleepWhenIdle =
             (TimeSpan[])
-                new StringDurationArrayConverter()
-                    .ConvertFrom("250ms*4,500ms*2,1s");
+            new StringDurationArrayConverter()
+                .ConvertFrom("250ms*4,500ms*2,1s");
 
         private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
@@ -64,7 +64,7 @@ namespace Shuttle.Esb
                 if (_resolver == null)
                 {
                     throw new InvalidOperationException(string.Format(InfrastructureResources.NullDependencyException,
-                        typeof (IComponentResolver).FullName));
+                        typeof(IComponentResolver).FullName));
                 }
 
                 return _resolver;
@@ -73,27 +73,18 @@ namespace Shuttle.Esb
 
         public IServiceBusConfiguration Assign(IComponentResolver resolver)
         {
-            Guard.AgainstNull(resolver, "resolver");
+            Guard.AgainstNull(resolver, nameof(resolver));
 
             _resolver = resolver;
 
             return this;
         }
 
-        public bool HasInbox
-        {
-            get { return Inbox != null; }
-        }
+        public bool HasInbox => Inbox != null;
 
-        public bool HasOutbox
-        {
-            get { return Outbox != null; }
-        }
+        public bool HasOutbox => Outbox != null;
 
-        public bool HasControlInbox
-        {
-            get { return ControlInbox != null; }
-        }
+        public bool HasControlInbox => ControlInbox != null;
 
         public bool RemoveMessagesNotHandled { get; set; }
         public string EncryptionAlgorithm { get; set; }
@@ -108,7 +99,7 @@ namespace Shuttle.Esb
 
         public void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm)
         {
-            Guard.AgainstNull(algorithm, "algorithm");
+            Guard.AgainstNull(algorithm, nameof(algorithm));
 
             _encryptionAlgorithms.Add(algorithm);
         }
@@ -122,51 +113,41 @@ namespace Shuttle.Esb
 
         public void AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
         {
-            Guard.AgainstNull(algorithm, "algorithm");
+            Guard.AgainstNull(algorithm, nameof(algorithm));
 
             _compressionAlgorithms.Add(algorithm);
         }
 
-        public IEnumerable<Type> QueueFactoryTypes
-        {
-            get { return new ReadOnlyCollection<Type>(_queueFactoryTypes); }
-        }
+        public IEnumerable<Type> QueueFactoryTypes => new ReadOnlyCollection<Type>(_queueFactoryTypes);
 
         public void AddQueueFactoryType(Type type)
         {
-            Guard.AgainstNull(type, "type");
+            Guard.AgainstNull(type, nameof(type));
 
             _queueFactoryTypes.Add(type);
         }
 
         public bool ScanForQueueFactories { get; set; }
 
-        public IEnumerable<MessageRouteConfiguration> MessageRoutes
-        {
-            get { return new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes); }
-        }
+        public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
+            new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);
 
         public void AddMessageRoute(MessageRouteConfiguration messageRoute)
         {
-            Guard.AgainstNull(messageRoute, "messageRoute");
+            Guard.AgainstNull(messageRoute, nameof(messageRoute));
 
             _messageRoutes.Add(messageRoute);
         }
 
-        public IEnumerable<UriMappingConfiguration> UriMapping
-        {
-            get { return new ReadOnlyCollection<UriMappingConfiguration>(_uriMapping); }
-        }
+        public IEnumerable<UriMappingConfiguration> UriMapping =>
+            new ReadOnlyCollection<UriMappingConfiguration>(_uriMapping);
 
         public void AddUriMapping(Uri sourceUri, Uri targetUri)
         {
             _uriMapping.Add(new UriMappingConfiguration(sourceUri, targetUri));
         }
 
-        public bool IsWorker
-        {
-            get { return Worker != null; }
-        }
+        public bool IsWorker => Worker != null;
 
         private static T Synchronised<T>(Func<T> f)
         {

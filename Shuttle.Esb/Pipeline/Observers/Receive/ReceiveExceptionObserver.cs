@@ -5,17 +5,17 @@ namespace Shuttle.Esb
     public class ReceiveExceptionObserver :
         IPipelineObserver<OnPipelineException>
     {
+        private readonly IServiceBusEvents _events;
         private readonly ILog _log;
 
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
-        private readonly IServiceBusEvents _events;
 
         public ReceiveExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, "events");
-            Guard.AgainstNull(policy, "policy");
-            Guard.AgainstNull(serializer, "serializer");
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(policy, nameof(policy));
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _events = events;
             _policy = policy;

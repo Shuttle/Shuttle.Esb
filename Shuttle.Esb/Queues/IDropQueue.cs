@@ -1,7 +1,7 @@
 namespace Shuttle.Esb
 {
-	public interface IDropQueue
-	{
-		void Drop();
-	}
+    public interface IDropQueue
+    {
+        void Drop();
+    }
 }

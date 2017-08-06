@@ -2,8 +2,8 @@
 
 namespace Shuttle.Esb
 {
-	public interface IMessageHandlerInvoker
-	{
-		MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent);
-	}
+    public interface IMessageHandlerInvoker
+    {
+        MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent);
+    }
 }

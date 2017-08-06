@@ -3,58 +3,59 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public abstract class QueueProcessor<TPipeline> : IProcessor
-		where TPipeline : IPipeline
-	{
-	    private readonly IServiceBusEvents _events;
-	    private readonly IThreadActivity _threadActivity;
-	    private readonly IPipelineFactory _pipelineFactory;
+    public abstract class QueueProcessor<TPipeline> : IProcessor
+        where TPipeline : IPipeline
+    {
+        private readonly IServiceBusEvents _events;
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly IThreadActivity _threadActivity;
 
-	    protected QueueProcessor(IServiceBusEvents events, IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
-		{
-			Guard.AgainstNull(events, "events");
-			Guard.AgainstNull(threadActivity, "threadActivity");
-			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+        protected QueueProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
+            IPipelineFactory pipelineFactory)
+        {
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(threadActivity, nameof(threadActivity));
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
-	        _events = events;
-	        _threadActivity = threadActivity;
-	        _pipelineFactory = pipelineFactory;
-		}
+            _events = events;
+            _threadActivity = threadActivity;
+            _pipelineFactory = pipelineFactory;
+        }
 
-		public virtual void Execute(IThreadState state)
-		{
-			var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
+        [DebuggerNonUserCode]
+        void IProcessor.Execute(IThreadState state)
+        {
+            Execute(state);
+        }
 
-			try
-			{
-				messagePipeline.State.ResetWorking();
-				messagePipeline.State.Replace(StateKeys.ActiveState, state);
+        public virtual void Execute(IThreadState state)
+        {
+            var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 
-				messagePipeline.Execute();
+            try
+            {
+                messagePipeline.State.ResetWorking();
+                messagePipeline.State.Replace(StateKeys.ActiveState, state);
 
-				if (messagePipeline.State.GetWorking())
-				{
-					_events.OnThreadWorking(this, new ThreadStateEventArgs(typeof (TPipeline)));
+                messagePipeline.Execute();
 
-					_threadActivity.Working();
-				}
-				else
-				{
-					_events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof (TPipeline)));
+                if (messagePipeline.State.GetWorking())
+                {
+                    _events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(TPipeline)));
 
-					_threadActivity.Waiting(state);
-				}
-			}
-			finally
-			{
-				_pipelineFactory.ReleasePipeline(messagePipeline);
-			}
-		}
+                    _threadActivity.Working();
+                }
+                else
+                {
+                    _events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(TPipeline)));
 
-		[DebuggerNonUserCode]
-		void IProcessor.Execute(IThreadState state)
-		{
-			Execute(state);
-		}
-	}
+                    _threadActivity.Waiting(state);
+                }
+            }
+            finally
+            {
+                _pipelineFactory.ReleasePipeline(messagePipeline);
+            }
+        }
+    }
 }

@@ -2,13 +2,13 @@ using System;
 
 namespace Shuttle.Esb
 {
-	public class ThreadStateEventArgs : EventArgs
-	{
-		public Type PipelineType { get; private set; }
+    public class ThreadStateEventArgs : EventArgs
+    {
+        public ThreadStateEventArgs(Type pipelineType)
+        {
+            PipelineType = pipelineType;
+        }
 
-		public ThreadStateEventArgs(Type pipelineType)
-		{
-			PipelineType = pipelineType;
-		}
-	}
+        public Type PipelineType { get; }
+    }
 }

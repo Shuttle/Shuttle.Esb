@@ -3,93 +3,94 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class DeferredMessageProcessor : IProcessor
-	{
-		private readonly object _messageDeferredLock = new object();
-		private DateTime _nextDeferredProcessDate = DateTime.MinValue;
-		private DateTime _ignoreTillDate = DateTime.MaxValue;
-		private Guid _checkpointMessageId = Guid.Empty;
+    public class DeferredMessageProcessor : IProcessor
+    {
+        private readonly ILog _log;
+        private readonly object _messageDeferredLock = new object();
 
-	    private readonly IPipelineFactory _pipelineFactory;
-	    private readonly ILog _log;
+        private readonly IPipelineFactory _pipelineFactory;
+        private Guid _checkpointMessageId = Guid.Empty;
+        private DateTime _ignoreTillDate = DateTime.MaxValue;
+        private DateTime _nextDeferredProcessDate = DateTime.MinValue;
 
-		public DeferredMessageProcessor(IPipelineFactory pipelineFactory)
-		{
-			Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+        public DeferredMessageProcessor(IPipelineFactory pipelineFactory)
+        {
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
-		    _pipelineFactory = pipelineFactory;
-		    _log = Log.For(this);
-		}
+            _pipelineFactory = pipelineFactory;
+            _log = Log.For(this);
+        }
 
-		public void Execute(IThreadState state)
-		{
-			if (!ShouldProcessDeferred())
-			{
-				ThreadSleep.While(1000, state);
+        public void Execute(IThreadState state)
+        {
+            if (!ShouldProcessDeferred())
+            {
+                ThreadSleep.While(1000, state);
 
-				return;
-			}
+                return;
+            }
 
-			var pipeline = _pipelineFactory.GetPipeline<DeferredMessagePipeline>();
+            var pipeline = _pipelineFactory.GetPipeline<DeferredMessagePipeline>();
 
-			try
-			{
-				pipeline.State.ResetWorking();
+            try
+            {
+                pipeline.State.ResetWorking();
 
-				pipeline.Execute();
+                pipeline.Execute();
 
-				if (pipeline.State.GetWorking())
-				{
-					var transportMessage = pipeline.State.GetTransportMessage();
+                if (pipeline.State.GetWorking())
+                {
+                    var transportMessage = pipeline.State.GetTransportMessage();
 
-					if (transportMessage.IgnoreTillDate < _ignoreTillDate)
-					{
-						_ignoreTillDate = transportMessage.IgnoreTillDate;
-					}
+                    if (transportMessage.IgnoreTillDate < _ignoreTillDate)
+                    {
+                        _ignoreTillDate = transportMessage.IgnoreTillDate;
+                    }
 
-					if (!_checkpointMessageId.Equals(transportMessage.MessageId))
-					{
-						if (!Guid.Empty.Equals(_checkpointMessageId))
-						{
-							return;
-						}
+                    if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+                    {
+                        if (!Guid.Empty.Equals(_checkpointMessageId))
+                        {
+                            return;
+                        }
 
-						_checkpointMessageId = transportMessage.MessageId;
+                        _checkpointMessageId = transportMessage.MessageId;
 
-						_log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId, transportMessage.MessageId));
+                        _log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId,
+                            transportMessage.MessageId));
 
-						return;
-					}
-				}
+                        return;
+                    }
+                }
 
-				_nextDeferredProcessDate = _ignoreTillDate;
-				_ignoreTillDate = DateTime.MaxValue;
-				_checkpointMessageId = Guid.Empty;
+                _nextDeferredProcessDate = _ignoreTillDate;
+                _ignoreTillDate = DateTime.MaxValue;
+                _checkpointMessageId = Guid.Empty;
 
-			    _log.Trace(_nextDeferredProcessDate.Equals(DateTime.MaxValue)
-			        ? EsbResources.TraceDeferredProcessingHalted
-			        : string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
-			}
-			finally
-			{
-				_pipelineFactory.ReleasePipeline(pipeline);
-			}
-		}
+                _log.Trace(_nextDeferredProcessDate.Equals(DateTime.MaxValue)
+                    ? EsbResources.TraceDeferredProcessingHalted
+                    : string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
+            }
+            finally
+            {
+                _pipelineFactory.ReleasePipeline(pipeline);
+            }
+        }
 
-		public void MessageDeferred(DateTime ignoreTillDate)
-		{
-			lock (_messageDeferredLock)
-			{
-				if (ignoreTillDate < _nextDeferredProcessDate)
-				{
-					_nextDeferredProcessDate = ignoreTillDate;
-				}
-			}
-		}
+        public void MessageDeferred(DateTime ignoreTillDate)
+        {
+            lock (_messageDeferredLock)
+            {
+                if (ignoreTillDate < _nextDeferredProcessDate)
+                {
+                    _nextDeferredProcessDate = ignoreTillDate;
+                }
+            }
+        }
 
-		private bool ShouldProcessDeferred()
-		{
-			return (DateTime.Now >= _nextDeferredProcessDate);
-		}
-	}
+        private bool ShouldProcessDeferred()
+        {
+            return DateTime.Now >= _nextDeferredProcessDate;
+        }
+    }
 }

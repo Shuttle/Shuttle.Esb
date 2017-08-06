@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 
 namespace Shuttle.Esb
 {
@@ -17,7 +16,8 @@ namespace Shuttle.Esb
         {
         }
 
-        public bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
+        public bool AddDeferredMessage(TransportMessage processingTransportMessage,
+            TransportMessage deferredTransportMessage,
             Stream deferredTransportMessageStream)
         {
             return false;
@@ -28,7 +28,8 @@ namespace Shuttle.Esb
             return _empty;
         }
 
-        public void DeferredMessageSent(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage)
+        public void DeferredMessageSent(TransportMessage processingTransportMessage,
+            TransportMessage deferredTransportMessage)
         {
         }
 

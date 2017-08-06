@@ -14,8 +14,8 @@ namespace Shuttle.Esb
         public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
             IQueueManager queueManager)
         {
-            Guard.AgainstNull(configuration, "configuration");
-            Guard.AgainstNull(events, "events");
+            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(events, nameof(events));
 
             _configuration = configuration;
             _events = events;
@@ -44,7 +44,9 @@ namespace Shuttle.Esb
             }
 
             if (_configuration.IsWorker)
+            {
                 _configuration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
+            }
 
             _queueManager.AttemptDispose();
         }

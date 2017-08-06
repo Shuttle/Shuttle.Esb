@@ -6,13 +6,13 @@ namespace Shuttle.Esb
 {
     public class DeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
     {
-        private readonly ISerializer _serializer;
         private readonly IServiceBusEvents _events;
+        private readonly ISerializer _serializer;
 
         public DeserializeMessageObserver(IServiceBusEvents events, ISerializer serializer)
         {
-            Guard.AgainstNull(events, "events");
-            Guard.AgainstNull(serializer, "serializer");
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _events = events;
             _serializer = serializer;
@@ -34,7 +34,8 @@ namespace Shuttle.Esb
             {
                 using (var stream = new MemoryStream(transportMessage.Message))
                 {
-                    message = _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream);
+                    message = _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true),
+                        stream);
                 }
             }
             catch (Exception ex)

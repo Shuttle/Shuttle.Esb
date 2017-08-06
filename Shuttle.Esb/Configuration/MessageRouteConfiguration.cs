@@ -14,12 +14,10 @@ namespace Shuttle.Esb
             Uri = uri;
         }
 
-        public string Uri { get; private set; }
+        public string Uri { get; }
 
-        public IEnumerable<MessageRouteSpecificationConfiguration> Specifications
-        {
-            get { return new ReadOnlyCollection<MessageRouteSpecificationConfiguration>(_specifications); }
-        }
+        public IEnumerable<MessageRouteSpecificationConfiguration> Specifications => new
+            ReadOnlyCollection<MessageRouteSpecificationConfiguration>(_specifications);
 
         public void AddSpecification(string name, string value)
         {

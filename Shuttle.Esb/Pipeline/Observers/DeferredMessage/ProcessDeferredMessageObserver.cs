@@ -2,34 +2,34 @@
 
 namespace Shuttle.Esb
 {
-	public class ProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
-	{
-		public void Execute(OnProcessDeferredMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var transportMessage = state.GetTransportMessage();
-			var receivedMessage = state.GetReceivedMessage();
-			var workQueue = state.GetWorkQueue();
-			var deferredQueue = state.GetDeferredQueue();
+    public class ProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
+    {
+        public void Execute(OnProcessDeferredMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var transportMessage = state.GetTransportMessage();
+            var receivedMessage = state.GetReceivedMessage();
+            var workQueue = state.GetWorkQueue();
+            var deferredQueue = state.GetDeferredQueue();
 
-			Guard.AgainstNull(transportMessage, "transportMessage");
-			Guard.AgainstNull(receivedMessage, "receivedMessage");
-			Guard.AgainstNull(workQueue, "workQueue");
-			Guard.AgainstNull(deferredQueue, "deferredQueue");
+            Guard.AgainstNull(transportMessage, nameof(transportMessage));
+            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
+            Guard.AgainstNull(workQueue, nameof(workQueue));
+            Guard.AgainstNull(deferredQueue, nameof(deferredQueue));
 
-			if (transportMessage.IsIgnoring())
-			{
-				deferredQueue.Release(receivedMessage.AcknowledgementToken);
+            if (transportMessage.IsIgnoring())
+            {
+                deferredQueue.Release(receivedMessage.AcknowledgementToken);
 
-				state.SetDeferredMessageReturned(false);
+                state.SetDeferredMessageReturned(false);
 
-				return;
-			}
+                return;
+            }
 
-			workQueue.Enqueue(transportMessage, receivedMessage.Stream);
-			deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            workQueue.Enqueue(transportMessage, receivedMessage.Stream);
+            deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
 
-			state.SetDeferredMessageReturned(true);
-		}
-	}
+            state.SetDeferredMessageReturned(true);
+        }
+    }
 }

@@ -1,6 +1,6 @@
 ﻿namespace OtherNamespace
 {
-	public class OtherNamespaceCommand
-	{
-	}
+    public class OtherNamespaceCommand
+    {
+    }
 }

@@ -10,7 +10,7 @@ namespace Shuttle.Esb
 
         public DefaultIdentityProvider(IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             _cache = configuration.CacheIdentity;
 

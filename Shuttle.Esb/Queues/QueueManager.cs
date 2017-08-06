@@ -6,221 +6,223 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class QueueManager : IQueueManager, IDisposable
-	{
-		private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
-		private readonly List<IQueue> _queues = new List<IQueue>();
+    public class QueueManager : IQueueManager, IDisposable
+    {
+        private static readonly object Padlock = new object();
 
-		private readonly ILog _log;
-		private static readonly object Padlock = new object();
-	    private readonly IUriResolver _uriResolver;
+        private readonly ILog _log;
+        private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
+        private readonly List<IQueue> _queues = new List<IQueue>();
+        private readonly IUriResolver _uriResolver;
 
-		public QueueManager(IUriResolver uriResolver) 
-		{
-            Guard.AgainstNull(uriResolver, "uriResolver");
+        public QueueManager(IUriResolver uriResolver)
+        {
+            Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
-		    _uriResolver = uriResolver;
+            _uriResolver = uriResolver;
 
             _log = Log.For(this);
-		}
+        }
 
         public void Dispose()
-		{
-			foreach (var queueFactory in _queueFactories)
-			{
-				queueFactory.AttemptDispose();
-			}
+        {
+            foreach (var queueFactory in _queueFactories)
+            {
+                queueFactory.AttemptDispose();
+            }
 
-			foreach (var queue in _queues)
-			{
-				queue.AttemptDispose();
-			}
+            foreach (var queue in _queues)
+            {
+                queue.AttemptDispose();
+            }
 
-			_queueFactories.Clear();
-			_queues.Clear();
-		}
+            _queueFactories.Clear();
+            _queues.Clear();
+        }
 
-		public IQueueFactory GetQueueFactory(string scheme)
-		{
-			Uri uri;
+        public IQueueFactory GetQueueFactory(string scheme)
+        {
+            Uri uri;
 
-			return Uri.TryCreate(scheme, UriKind.Absolute, out uri)
-				? GetQueueFactory(uri)
-				: _queueFactories.Find(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
-		}
+            return Uri.TryCreate(scheme, UriKind.Absolute, out uri)
+                ? GetQueueFactory(uri)
+                : _queueFactories.Find(
+                    factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
+        }
 
-		public IQueueFactory GetQueueFactory(Uri uri)
-		{
-			foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
-			{
-				return factory;
-			}
+        public IQueueFactory GetQueueFactory(Uri uri)
+        {
+            foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
+            {
+                return factory;
+            }
 
-			throw new QueueFactoryNotFoundException(uri.Scheme);
-		}
+            throw new QueueFactoryNotFoundException(uri.Scheme);
+        }
 
-		public IQueue GetQueue(string uri)
-		{
-			Guard.AgainstNullOrEmptyString(uri, "uri");
+        public IQueue GetQueue(string uri)
+        {
+            Guard.AgainstNullOrEmptyString(uri, "uri");
 
-			var queue =
-				_queues.Find(
-					candidate => Find(candidate, uri));
+            var queue =
+                _queues.Find(
+                    candidate => Find(candidate, uri));
 
-			if (queue != null)
-			{
-				return queue;
-			}
+            if (queue != null)
+            {
+                return queue;
+            }
 
-			lock (Padlock)
-			{
-				queue =
-					_queues.Find(
-						candidate => Find(candidate, uri));
+            lock (Padlock)
+            {
+                queue =
+                    _queues.Find(
+                        candidate => Find(candidate, uri));
 
-				if (queue != null)
-				{
-					return queue;
-				}
+                if (queue != null)
+                {
+                    return queue;
+                }
 
-				var queueUri = new Uri(uri);
+                var queueUri = new Uri(uri);
 
-				if (queueUri.Scheme.Equals("resolver"))
-				{
-					var resolvedQueueUri = _uriResolver.GetTarget(queueUri);
+                if (queueUri.Scheme.Equals("resolver"))
+                {
+                    var resolvedQueueUri = _uriResolver.GetTarget(queueUri);
 
-					if (resolvedQueueUri == null)
-					{
-						throw new KeyNotFoundException(string.Format(EsbResources.UriNameNotFoundException,
-							_uriResolver.GetType().FullName,
-							uri));
-					}
+                    if (resolvedQueueUri == null)
+                    {
+                        throw new KeyNotFoundException(string.Format(EsbResources.UriNameNotFoundException,
+                            _uriResolver.GetType().FullName,
+                            uri));
+                    }
 
-					queue = new ResolvedQueue(CreateQueue(GetQueueFactory(resolvedQueueUri), resolvedQueueUri), queueUri);
-				}
-				else
-				{
-					queue = CreateQueue(GetQueueFactory(queueUri), queueUri);
-				}
+                    queue = new ResolvedQueue(CreateQueue(GetQueueFactory(resolvedQueueUri), resolvedQueueUri),
+                        queueUri);
+                }
+                else
+                {
+                    queue = CreateQueue(GetQueueFactory(queueUri), queueUri);
+                }
 
-				_queues.Add(queue);
+                _queues.Add(queue);
 
-				return queue;
-			}
-		}
+                return queue;
+            }
+        }
 
-		public IQueue CreateQueue(string uri)
-		{
-			return CreateQueue(new Uri(uri));
-		}
+        public IQueue CreateQueue(string uri)
+        {
+            return CreateQueue(new Uri(uri));
+        }
 
-		public IQueue CreateQueue(Uri uri)
-		{
-			return GetQueueFactory(uri).Create(uri);
-		}
+        public IQueue CreateQueue(Uri uri)
+        {
+            return GetQueueFactory(uri).Create(uri);
+        }
 
-		public IEnumerable<IQueueFactory> QueueFactories()
-		{
-			return new ReadOnlyCollection<IQueueFactory>(_queueFactories);
-		}
+        public IEnumerable<IQueueFactory> QueueFactories()
+        {
+            return new ReadOnlyCollection<IQueueFactory>(_queueFactories);
+        }
 
-		public void RegisterQueueFactory(IQueueFactory queueFactory)
-		{
-			Guard.AgainstNull(queueFactory, "queueFactory");
+        public void RegisterQueueFactory(IQueueFactory queueFactory)
+        {
+            Guard.AgainstNull(queueFactory, nameof(queueFactory));
 
-			var factory = GetQueueFactory(queueFactory.Scheme);
+            var factory = GetQueueFactory(queueFactory.Scheme);
 
-			if (factory != null)
-			{
-				_queueFactories.Remove(factory);
+            if (factory != null)
+            {
+                _queueFactories.Remove(factory);
 
-				_log.Warning(string.Format(EsbResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
-					factory.GetType().FullName, queueFactory.GetType().FullName));
-			}
+                _log.Warning(string.Format(EsbResources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
+                    factory.GetType().FullName, queueFactory.GetType().FullName));
+            }
 
-			_queueFactories.Add(queueFactory);
+            _queueFactories.Add(queueFactory);
 
-		    if (Log.IsTraceEnabled)
-		    {
+            if (Log.IsTraceEnabled)
+            {
                 _log.Trace(string.Format(EsbResources.QueueFactoryRegistered, queueFactory.Scheme,
                     queueFactory.GetType().FullName));
             }
         }
 
-		public bool ContainsQueueFactory(string scheme)
-		{
-			return GetQueueFactory(scheme) != null;
-		}
+        public bool ContainsQueueFactory(string scheme)
+        {
+            return GetQueueFactory(scheme) != null;
+        }
 
-	    private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
-		{
-			var result = queueFactory.Create(queueUri);
+        public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
+        {
+            if (configuration.HasInbox)
+            {
+                CreateQueues(configuration.Inbox);
 
-			Guard.AgainstNull(result,
-				string.Format(EsbResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
+                if (configuration.Inbox.HasDeferredQueue)
+                {
+                    configuration.Inbox.DeferredQueue.AttemptCreate();
+                }
+            }
 
-			return result;
-		}
+            if (configuration.HasOutbox)
+            {
+                CreateQueues(configuration.Outbox);
+            }
 
-		private bool Find(IQueue candidate, string uri)
-		{
-			try
-			{
-				return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
-			}
-			catch (Exception ex)
-			{
-				var candidateTypeName = "(candidate is null)";
-				var candidateUri = "(candidate is null)";
+            if (configuration.HasControlInbox)
+            {
+                CreateQueues(configuration.ControlInbox);
+            }
+        }
 
-				if (candidate != null)
-				{
-					candidateTypeName = candidate.GetType().FullName;
-					candidateUri = candidate.Uri != null
-						? candidate.Uri.ToString()
-						: "(candidate.Uri is null)";
-				}
+        private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
+        {
+            var result = queueFactory.Create(queueUri);
 
-				_log.Error(string.Format(EsbResources.FindQueueException, candidateTypeName, candidateUri,
-					uri ?? "(comparison uri is null)", ex.AllMessages()));
+            Guard.AgainstNull(result,
+                string.Format(EsbResources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
 
-				return false;
-			}
-		}
+            return result;
+        }
 
-		public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
-		{
-			if (configuration.HasInbox)
-			{
-				CreateQueues(configuration.Inbox);
+        private bool Find(IQueue candidate, string uri)
+        {
+            try
+            {
+                return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
+            }
+            catch (Exception ex)
+            {
+                var candidateTypeName = "(candidate is null)";
+                var candidateUri = "(candidate is null)";
 
-				if (configuration.Inbox.HasDeferredQueue)
-				{
-					configuration.Inbox.DeferredQueue.AttemptCreate();
-				}
-			}
+                if (candidate != null)
+                {
+                    candidateTypeName = candidate.GetType().FullName;
+                    candidateUri = candidate.Uri != null
+                        ? candidate.Uri.ToString()
+                        : "(candidate.Uri is null)";
+                }
 
-			if (configuration.HasOutbox)
-			{
-				CreateQueues(configuration.Outbox);
-			}
+                _log.Error(string.Format(EsbResources.FindQueueException, candidateTypeName, candidateUri,
+                    uri ?? "(comparison uri is null)", ex.AllMessages()));
 
-			if (configuration.HasControlInbox)
-			{
-				CreateQueues(configuration.ControlInbox);
-			}
-		}
+                return false;
+            }
+        }
 
-		private void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
-		{
-			workQueueConfiguration.WorkQueue.AttemptCreate();
+        private void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
+        {
+            workQueueConfiguration.WorkQueue.AttemptCreate();
 
-			var errorQueueConfiguration = workQueueConfiguration as IErrorQueueConfiguration;
+            var errorQueueConfiguration = workQueueConfiguration as IErrorQueueConfiguration;
 
-			if (errorQueueConfiguration != null)
-			{
-				errorQueueConfiguration.ErrorQueue.AttemptCreate();
-			}
-		}
-	}
+            if (errorQueueConfiguration != null)
+            {
+                errorQueueConfiguration.ErrorQueue.AttemptCreate();
+            }
+        }
+    }
 }

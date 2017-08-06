@@ -3,47 +3,48 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class DeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
-	{
-		private readonly ILog _log;
-	    private readonly ISerializer _serializer;
+    public class DeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
+    {
         private readonly IServiceBusEvents _events;
+        private readonly ILog _log;
+        private readonly ISerializer _serializer;
 
         public DeserializeTransportMessageObserver(IServiceBusEvents events, ISerializer serializer)
-	    {
-            Guard.AgainstNull(events, "events");
-            Guard.AgainstNull(serializer, "serializer");
+        {
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _events = events;
             _serializer = serializer;
-	        _log = Log.For(this);
-	    }
+            _log = Log.For(this);
+        }
 
-	    public void Execute(OnDeserializeTransportMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var receivedMessage = state.GetReceivedMessage();
-			var workQueue = state.GetWorkQueue();
-			var errorQueue = state.GetErrorQueue();
+        public void Execute(OnDeserializeTransportMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var receivedMessage = state.GetReceivedMessage();
+            var workQueue = state.GetWorkQueue();
+            var errorQueue = state.GetErrorQueue();
 
-			Guard.AgainstNull(receivedMessage, "receivedMessage");
-			Guard.AgainstNull(workQueue, "workQueue");
-			Guard.AgainstNull(errorQueue, "errorQueue");
+            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
+            Guard.AgainstNull(workQueue, nameof(workQueue));
+            Guard.AgainstNull(errorQueue, nameof(errorQueue));
 
-			TransportMessage transportMessage;
+            TransportMessage transportMessage;
 
-			try
-			{
-				using (var stream = receivedMessage.Stream.Copy())
-				{
-					transportMessage =
-						(TransportMessage) _serializer.Deserialize(typeof (TransportMessage), stream);
-				}
-			}
-			catch (Exception ex)
-			{
-				_log.Error(ex.ToString());
-				_log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri.Secured(), ex));
+            try
+            {
+                using (var stream = receivedMessage.Stream.Copy())
+                {
+                    transportMessage =
+                        (TransportMessage) _serializer.Deserialize(typeof(TransportMessage), stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error(ex.ToString());
+                _log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri.Secured(),
+                    ex));
 
                 state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
 
@@ -56,13 +57,13 @@ namespace Shuttle.Esb
 
                 pipelineEvent.Pipeline.Abort();
 
-				return;
-			}
+                return;
+            }
 
-			state.SetTransportMessage(transportMessage);
-			state.SetMessageBytes(transportMessage.Message);
+            state.SetTransportMessage(transportMessage);
+            state.SetMessageBytes(transportMessage.Message);
 
-			transportMessage.AcceptInvariants();
-		}
-	}
+            transportMessage.AcceptInvariants();
+        }
+    }
 }

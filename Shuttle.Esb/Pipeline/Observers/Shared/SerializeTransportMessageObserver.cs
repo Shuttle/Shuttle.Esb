@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 
         public SerializeTransportMessageObserver(ISerializer serializer)
         {
-            Guard.AgainstNull(serializer, "serializer");
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _serializer = serializer;
         }
@@ -18,7 +18,7 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
-            Guard.AgainstNull(transportMessage, "transportMessage");
+            Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             state.SetTransportMessageStream(_serializer.Serialize(transportMessage));
         }

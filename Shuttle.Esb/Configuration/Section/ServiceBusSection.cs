@@ -3,89 +3,50 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class ServiceBusSection : ConfigurationSection
-	{
-	    private static bool _initialized;
+    public class ServiceBusSection : ConfigurationSection
+    {
+        private static bool _initialized;
         private static readonly object Padlock = new object();
         private static ServiceBusSection _section;
 
         [ConfigurationProperty("messageRoutes", IsRequired = false, DefaultValue = null)]
-		public MessageRouteElementCollection MessageRoutes
-		{
-			get { return (MessageRouteElementCollection) this["messageRoutes"]; }
-		}
+        public MessageRouteElementCollection MessageRoutes => (MessageRouteElementCollection) this["messageRoutes"];
 
-		[ConfigurationProperty("queueFactories", IsRequired = false, DefaultValue = null)]
-		public QueueFactoriesElement QueueFactories
-		{
-			get { return (QueueFactoriesElement) this["queueFactories"]; }
-		}
+        [ConfigurationProperty("queueFactories", IsRequired = false, DefaultValue = null)]
+        public QueueFactoriesElement QueueFactories => (QueueFactoriesElement) this["queueFactories"];
 
-		[ConfigurationProperty("inbox", IsRequired = false, DefaultValue = null)]
-		public InboxElement Inbox
-		{
-			get { return (InboxElement) this["inbox"]; }
-		}
+        [ConfigurationProperty("inbox", IsRequired = false, DefaultValue = null)]
+        public InboxElement Inbox => (InboxElement) this["inbox"];
 
-		[ConfigurationProperty("control", IsRequired = false, DefaultValue = null)]
-		public ControlInboxElement ControlInbox
-		{
-			get { return (ControlInboxElement) this["control"]; }
-		}
+        [ConfigurationProperty("control", IsRequired = false, DefaultValue = null)]
+        public ControlInboxElement ControlInbox => (ControlInboxElement) this["control"];
 
-		[ConfigurationProperty("outbox", IsRequired = false, DefaultValue = null)]
-		public OutboxElement Outbox
-		{
-			get { return (OutboxElement) this["outbox"]; }
-		}
+        [ConfigurationProperty("outbox", IsRequired = false, DefaultValue = null)]
+        public OutboxElement Outbox => (OutboxElement) this["outbox"];
 
-		[ConfigurationProperty("createQueues", IsRequired = false, DefaultValue = true)]
-		public bool CreateQueues
-		{
-			get { return (bool) this["createQueues"]; }
-		}
+        [ConfigurationProperty("createQueues", IsRequired = false, DefaultValue = true)]
+        public bool CreateQueues => (bool) this["createQueues"];
 
-		[ConfigurationProperty("cacheIdentity", IsRequired = false, DefaultValue = true)]
-		public bool CacheIdentity
-        {
-			get { return (bool) this["cacheIdentity"]; }
-		}
+        [ConfigurationProperty("cacheIdentity", IsRequired = false, DefaultValue = true)]
+        public bool CacheIdentity => (bool) this["cacheIdentity"];
 
-		[ConfigurationProperty("registerHandlers", IsRequired = false, DefaultValue = true)]
-		public bool RegisterHandlers
-        {
-			get { return (bool) this["registerHandlers"]; }
-		}
+        [ConfigurationProperty("registerHandlers", IsRequired = false, DefaultValue = true)]
+        public bool RegisterHandlers => (bool) this["registerHandlers"];
 
-		[ConfigurationProperty("worker", IsRequired = false)]
-		public WorkerElement Worker
-		{
-			get { return (WorkerElement) this["worker"]; }
-		}
+        [ConfigurationProperty("worker", IsRequired = false)]
+        public WorkerElement Worker => (WorkerElement) this["worker"];
 
-		[ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = false)]
-		public bool RemoveMessagesNotHandled
-		{
-			get { return (bool) this["removeMessagesNotHandled"]; }
-		}
+        [ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = false)]
+        public bool RemoveMessagesNotHandled => (bool) this["removeMessagesNotHandled"];
 
-		[ConfigurationProperty("encryptionAlgorithm", IsRequired = false, DefaultValue = "")]
-		public string EncryptionAlgorithm
-		{
-			get { return (string) this["encryptionAlgorithm"]; }
-		}
+        [ConfigurationProperty("encryptionAlgorithm", IsRequired = false, DefaultValue = "")]
+        public string EncryptionAlgorithm => (string) this["encryptionAlgorithm"];
 
-		[ConfigurationProperty("compressionAlgorithm", IsRequired = false, DefaultValue = "")]
-		public string CompressionAlgorithm
-		{
-			get { return (string) this["compressionAlgorithm"]; }
-		}
+        [ConfigurationProperty("compressionAlgorithm", IsRequired = false, DefaultValue = "")]
+        public string CompressionAlgorithm => (string) this["compressionAlgorithm"];
 
-		[ConfigurationProperty("uriResolver", IsRequired = false, DefaultValue = null)]
-		public UriResolverElement UriResolver
-		{
-			get { return (UriResolverElement) this["uriResolver"]; }
-		}
+        [ConfigurationProperty("uriResolver", IsRequired = false, DefaultValue = null)]
+        public UriResolverElement UriResolver => (UriResolverElement) this["uriResolver"];
 
         public static ServiceBusSection Get()
         {

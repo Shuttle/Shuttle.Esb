@@ -8,27 +8,28 @@ namespace Shuttle.Esb
 {
     public class MessageSender : IMessageSender
     {
-        private readonly ISubscriptionManager _subscriptionManager;
-
         private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
             new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
 
-        private readonly ITransportMessageFactory _transportMessageFactory;
+        private readonly ILog _log;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly ISubscriptionManager _subscriptionManager;
+
+        private readonly ITransportMessageFactory _transportMessageFactory;
         private readonly TransportMessage _transportMessageReceived;
 
-        private readonly ILog _log;
-
-        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
+            ISubscriptionManager subscriptionManager)
             : this(transportMessageFactory, pipelineFactory, subscriptionManager, null)
         {
         }
 
-        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
+        public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
+            ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
         {
-            Guard.AgainstNull(transportMessageFactory, "transportMessageFactory");
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
+            Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
 
             _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
@@ -40,7 +41,7 @@ namespace Shuttle.Esb
 
         public void Dispatch(TransportMessage transportMessage)
         {
-            Guard.AgainstNull(transportMessage, "transportMessage");
+            Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 
@@ -61,7 +62,7 @@ namespace Shuttle.Esb
 
         public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
         {
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(message, nameof(message));
 
             var result = _transportMessageFactory.Create(message, configure, _transportMessageReceived);
 
@@ -77,7 +78,7 @@ namespace Shuttle.Esb
 
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
         {
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(message, nameof(message));
 
             var subscribers = _subscriptionManager.GetSubscribedUris(message).ToList();
 
@@ -87,7 +88,8 @@ namespace Shuttle.Esb
 
                 foreach (var subscriber in subscribers)
                 {
-                    var transportMessage = _transportMessageFactory.Create(message, configure, _transportMessageReceived);
+                    var transportMessage =
+                        _transportMessageFactory.Create(message, configure, _transportMessageReceived);
 
                     transportMessage.RecipientInboxWorkQueueUri = subscriber;
 

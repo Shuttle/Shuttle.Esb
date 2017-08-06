@@ -2,35 +2,35 @@
 
 namespace Shuttle.Esb
 {
-	public class DistributorMessageObserver :
-		IPipelineObserver<OnHandleDistributeMessage>,
-		IPipelineObserver<OnAbortPipeline>
-	{
-	    private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+    public class DistributorMessageObserver :
+        IPipelineObserver<OnHandleDistributeMessage>,
+        IPipelineObserver<OnAbortPipeline>
+    {
+        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
-	    public DistributorMessageObserver(IWorkerAvailabilityManager workerAvailabilityManager)
-	    {
-            Guard.AgainstNull(workerAvailabilityManager, "workerAvailabilityManager");
+        public DistributorMessageObserver(IWorkerAvailabilityManager workerAvailabilityManager)
+        {
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
 
-	        _workerAvailabilityManager = workerAvailabilityManager;
-	    }
+            _workerAvailabilityManager = workerAvailabilityManager;
+        }
 
-	    public void Execute(OnHandleDistributeMessage pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
-			var transportMessage = state.GetTransportMessage();
+        public void Execute(OnAbortPipeline pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
 
-			transportMessage.RecipientInboxWorkQueueUri = state.GetAvailableWorker().InboxWorkQueueUri;
+            _workerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
+        }
 
-			state.SetTransportMessage(transportMessage);
-			state.SetTransportMessageReceived(null);
-		}
+        public void Execute(OnHandleDistributeMessage pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+            var transportMessage = state.GetTransportMessage();
 
-		public void Execute(OnAbortPipeline pipelineEvent)
-		{
-			var state = pipelineEvent.Pipeline.State;
+            transportMessage.RecipientInboxWorkQueueUri = state.GetAvailableWorker().InboxWorkQueueUri;
 
-			_workerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
-		}
-	}
+            state.SetTransportMessage(transportMessage);
+            state.SetTransportMessageReceived(null);
+        }
+    }
 }

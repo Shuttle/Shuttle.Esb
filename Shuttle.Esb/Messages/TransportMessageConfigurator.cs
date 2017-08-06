@@ -5,80 +5,80 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class TransportMessageConfigurator
-	{
-		private bool _local;
-		private string _sendInboxWorkQueueUri;
-		private string _recipientInboxWorkQueueUri;
-		private TransportMessage _transportMessageReceived;
-		private DateTime _ignoreTillDate;
-		private DateTime _expiryDate;
-		private string _correlationId;
-	    private readonly string _anonymousName = WindowsIdentity.GetAnonymous().Name;
+    public class TransportMessageConfigurator
+    {
+        private readonly string _anonymousName = WindowsIdentity.GetAnonymous().Name;
+        private string _correlationId;
+        private DateTime _expiryDate;
+        private DateTime _ignoreTillDate;
+        private bool _local;
+        private string _recipientInboxWorkQueueUri;
+        private string _sendInboxWorkQueueUri;
+        private TransportMessage _transportMessageReceived;
+
+        public TransportMessageConfigurator(object message)
+        {
+            Guard.AgainstNull(message, nameof(message));
+
+            Headers = new List<TransportHeader>();
+            Message = message;
+
+            _correlationId = string.Empty;
+            _ignoreTillDate = DateTime.MinValue;
+            _expiryDate = DateTime.MaxValue;
+            _recipientInboxWorkQueueUri = null;
+            _local = false;
+        }
 
         public List<TransportHeader> Headers { get; set; }
-		public object Message { get; private set; }
+        public object Message { get; }
 
-		public TransportMessageConfigurator(object message)
-		{
-			Guard.AgainstNull(message, "message");
+        public bool HasTransportMessageReceived => _transportMessageReceived != null;
 
-			Headers = new List<TransportHeader>();
-			Message = message;
+        public TransportMessage TransportMessage(IServiceBusConfiguration configuration,
+            IIdentityProvider identityProvider)
+        {
+            Guard.AgainstNull(identityProvider, nameof(identityProvider));
 
-			_correlationId = string.Empty;
-			_ignoreTillDate = DateTime.MinValue;
-			_expiryDate = DateTime.MaxValue;
-			_recipientInboxWorkQueueUri = null;
-			_local = false;
-		}
+            if (_local && !configuration.HasInbox)
+            {
+                throw new InvalidOperationException(EsbResources.SendToSelfException);
+            }
 
-		public TransportMessage TransportMessage(IServiceBusConfiguration configuration, IIdentityProvider identityProvider)
-		{
-            Guard.AgainstNull(identityProvider, "identityProvider");
+            var identity = identityProvider.Get();
 
-			if (_local && !configuration.HasInbox)
-			{
-				throw new InvalidOperationException(EsbResources.SendToSelfException);
-			}
-
-		    var identity = identityProvider.Get(); 
-
-			var result = new TransportMessage
-			{
-				RecipientInboxWorkQueueUri = _local ? configuration.Inbox.WorkQueue.Uri.ToString() : _recipientInboxWorkQueueUri,
-				SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
-					? configuration.HasInbox
-						? configuration.Inbox.WorkQueue.Uri.ToString()
-						: string.Empty
-					: _sendInboxWorkQueueUri,
-				PrincipalIdentityName = identity != null
-					? identity.Name
-					: _anonymousName,
-				IgnoreTillDate = _ignoreTillDate,
-				ExpiryDate = _expiryDate,
-				MessageType = Message.GetType().FullName,
-				AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
-				EncryptionAlgorithm = configuration.EncryptionAlgorithm,
-				CompressionAlgorithm = configuration.CompressionAlgorithm,
+            var result = new TransportMessage
+            {
+                RecipientInboxWorkQueueUri = _local
+                    ? configuration.Inbox.WorkQueue.Uri.ToString()
+                    : _recipientInboxWorkQueueUri,
+                SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
+                    ? configuration.HasInbox
+                        ? configuration.Inbox.WorkQueue.Uri.ToString()
+                        : string.Empty
+                    : _sendInboxWorkQueueUri,
+                PrincipalIdentityName = identity != null
+                    ? identity.Name
+                    : _anonymousName,
+                IgnoreTillDate = _ignoreTillDate,
+                ExpiryDate = _expiryDate,
+                MessageType = Message.GetType().FullName,
+                AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
+                EncryptionAlgorithm = configuration.EncryptionAlgorithm,
+                CompressionAlgorithm = configuration.CompressionAlgorithm,
                 MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
                 CorrelationId = _correlationId,
-				SendDate = DateTime.Now
-			};
+                SendDate = DateTime.Now
+            };
 
-			result.Headers.Merge(Headers);
+            result.Headers.Merge(Headers);
 
-			return result;
-		}
-
-        public bool HasTransportMessageReceived
-		{
-			get { return _transportMessageReceived != null; }
-		}
+            return result;
+        }
 
         public void TransportMessageReceived(TransportMessage transportMessageReceived)
         {
-            Guard.AgainstNull(transportMessageReceived, "transportMessageReceived");
+            Guard.AgainstNull(transportMessageReceived, nameof(transportMessageReceived));
 
             _transportMessageReceived = transportMessageReceived;
 
@@ -87,81 +87,81 @@ namespace Shuttle.Esb
         }
 
         public TransportMessageConfigurator Defer(DateTime ignoreTillDate)
-		{
-			_ignoreTillDate = ignoreTillDate;
+        {
+            _ignoreTillDate = ignoreTillDate;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator WillExpire(DateTime expiryDate)
-		{
-			_expiryDate = expiryDate;
+        public TransportMessageConfigurator WillExpire(DateTime expiryDate)
+        {
+            _expiryDate = expiryDate;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator WithCorrelationId(string correlationId)
-		{
-			_correlationId = correlationId;
+        public TransportMessageConfigurator WithCorrelationId(string correlationId)
+        {
+            _correlationId = correlationId;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator WithRecipient(IQueue queue)
-		{
-			return WithRecipient(queue.Uri.ToString());
-		}
+        public TransportMessageConfigurator WithRecipient(IQueue queue)
+        {
+            return WithRecipient(queue.Uri.ToString());
+        }
 
-		public TransportMessageConfigurator WithRecipient(Uri uri)
-		{
-			return WithRecipient(uri.ToString());
-		}
+        public TransportMessageConfigurator WithRecipient(Uri uri)
+        {
+            return WithRecipient(uri.ToString());
+        }
 
-		public TransportMessageConfigurator WithRecipient(string uri)
-		{
-			_local = false;
+        public TransportMessageConfigurator WithRecipient(string uri)
+        {
+            _local = false;
 
-			_recipientInboxWorkQueueUri = uri;
+            _recipientInboxWorkQueueUri = uri;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator WithSender(IQueue queue)
-		{
-			return WithSender(queue.Uri.ToString());
-		}
+        public TransportMessageConfigurator WithSender(IQueue queue)
+        {
+            return WithSender(queue.Uri.ToString());
+        }
 
-		public TransportMessageConfigurator WithSender(Uri uri)
-		{
-			return WithSender(uri.ToString());
-		}
+        public TransportMessageConfigurator WithSender(Uri uri)
+        {
+            return WithSender(uri.ToString());
+        }
 
-		public TransportMessageConfigurator WithSender(string uri)
-		{
-			_sendInboxWorkQueueUri = uri;
+        public TransportMessageConfigurator WithSender(string uri)
+        {
+            _sendInboxWorkQueueUri = uri;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator Local()
-		{
-			_local = true;
+        public TransportMessageConfigurator Local()
+        {
+            _local = true;
 
-			return this;
-		}
+            return this;
+        }
 
-		public TransportMessageConfigurator Reply()
-		{
-			if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
-			{
-				throw new InvalidOperationException(EsbResources.SendReplyException);
-			}
+        public TransportMessageConfigurator Reply()
+        {
+            if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
+            {
+                throw new InvalidOperationException(EsbResources.SendReplyException);
+            }
 
-			_local = false;
+            _local = false;
 
-			WithRecipient(_transportMessageReceived.SenderInboxWorkQueueUri);
+            WithRecipient(_transportMessageReceived.SenderInboxWorkQueueUri);
 
-			return this;
-		}
-	}
+            return this;
+        }
+    }
 }

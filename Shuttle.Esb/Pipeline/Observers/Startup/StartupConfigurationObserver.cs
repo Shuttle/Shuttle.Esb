@@ -1,3 +1,4 @@
+using System;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
@@ -17,10 +18,10 @@ namespace Shuttle.Esb
         public StartupConfigurationObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
             IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
         {
-            Guard.AgainstNull(configuration, "configuration");
-            Guard.AgainstNull(queueManager, "queueManager");
-            Guard.AgainstNull(messageRouteProvider, "messageRouteProvider");
-            Guard.AgainstNull(uriResolver, "uriResolver");
+            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(queueManager, nameof(queueManager));
+            Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
+            Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
             _queueManager = queueManager;
             _messageRouteProvider = messageRouteProvider;
@@ -38,7 +39,7 @@ namespace Shuttle.Esb
 
                 if (messageRoute == null)
                 {
-                    messageRoute = new MessageRoute(_queueManager.GetQueue(configuration.Uri));
+                    messageRoute = new MessageRoute(new Uri(configuration.Uri));
 
                     _messageRouteProvider.Add(messageRoute);
                 }

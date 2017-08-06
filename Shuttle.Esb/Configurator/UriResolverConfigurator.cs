@@ -1,5 +1,4 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
@@ -15,7 +14,8 @@ namespace Shuttle.Esb
 
             foreach (UriResolverItemElement uriRepositoryItemElement in ServiceBusSection.Get().UriResolver)
             {
-                configuration.AddUriMapping(Uri("ResolverUri", uriRepositoryItemElement.ResolverUri), Uri("TargetUri", uriRepositoryItemElement.TargetUri));
+                configuration.AddUriMapping(Uri("ResolverUri", uriRepositoryItemElement.ResolverUri),
+                    Uri("TargetUri", uriRepositoryItemElement.TargetUri));
             }
         }
 
@@ -27,7 +27,8 @@ namespace Shuttle.Esb
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(string.Format(EsbResources.MappingInvalidUriException, name, uri), ex);
+                throw new InvalidOperationException(string.Format(EsbResources.MappingInvalidUriException, name, uri),
+                    ex);
             }
         }
     }

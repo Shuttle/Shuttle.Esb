@@ -3,41 +3,41 @@ using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
 {
-	[TestFixture]
-	public class InboxServiceBusSection : ServiceBusSectionFixture
-	{
-		[Test]
-		[TestCase("Inbox-Full.config")]
-		[TestCase("Inbox-Full-Grouped.config")]
-		public void Should_be_able_to_load_a_full_configuration(string file)
-		{
-			var section = GetServiceBusSection(file);
+    [TestFixture]
+    public class InboxServiceBusSection : ServiceBusSectionFixture
+    {
+        [Test]
+        [TestCase("Inbox-Full.config")]
+        [TestCase("Inbox-Full-Grouped.config")]
+        public void Should_be_able_to_load_a_full_configuration(string file)
+        {
+            var section = GetServiceBusSection(file);
 
-			Assert.IsNotNull(section);
+            Assert.IsNotNull(section);
 
-			Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
-			Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
+            Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
+            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
 
-			Assert.AreEqual(25, section.Inbox.ThreadCount);
-			Assert.AreEqual(25, section.Inbox.MaximumFailureCount);
+            Assert.AreEqual(25, section.Inbox.ThreadCount);
+            Assert.AreEqual(25, section.Inbox.MaximumFailureCount);
 
-			Assert.AreEqual(TimeSpan.FromMilliseconds(250), section.Inbox.DurationToSleepWhenIdle[0]);
-			Assert.AreEqual(TimeSpan.FromSeconds(10), section.Inbox.DurationToSleepWhenIdle[1]);
-			Assert.AreEqual(TimeSpan.FromSeconds(30), section.Inbox.DurationToSleepWhenIdle[2]);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(250), section.Inbox.DurationToSleepWhenIdle[0]);
+            Assert.AreEqual(TimeSpan.FromSeconds(10), section.Inbox.DurationToSleepWhenIdle[1]);
+            Assert.AreEqual(TimeSpan.FromSeconds(30), section.Inbox.DurationToSleepWhenIdle[2]);
 
-			Assert.AreEqual(TimeSpan.FromMinutes(30), section.Inbox.DurationToIgnoreOnFailure[0]);
-			Assert.AreEqual(TimeSpan.FromHours(1), section.Inbox.DurationToIgnoreOnFailure[1]);
-		}
+            Assert.AreEqual(TimeSpan.FromMinutes(30), section.Inbox.DurationToIgnoreOnFailure[0]);
+            Assert.AreEqual(TimeSpan.FromHours(1), section.Inbox.DurationToIgnoreOnFailure[1]);
+        }
 
-		[Test]
-		public void Should_be_able_to_load_with_only_required_configuration()
-		{
-			var section = GetServiceBusSection("Inbox-Required.config");
+        [Test]
+        public void Should_be_able_to_load_with_only_required_configuration()
+        {
+            var section = GetServiceBusSection("Inbox-Required.config");
 
-			Assert.IsNotNull(section);
+            Assert.IsNotNull(section);
 
-			Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
-			Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
-		}
-	}
+            Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
+            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
+        }
+    }
 }

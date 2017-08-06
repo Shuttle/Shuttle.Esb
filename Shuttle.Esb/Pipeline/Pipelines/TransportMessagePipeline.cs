@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
     public class TransportMessagePipeline : Pipeline
     {
-        public TransportMessagePipeline(AssembleMessageObserver assembleMessageObserver, SerializeMessageObserver serializeMessageObserver, 
+        public TransportMessagePipeline(AssembleMessageObserver assembleMessageObserver,
+            SerializeMessageObserver serializeMessageObserver,
             CompressMessageObserver compressMessageObserver, EncryptMessageObserver encryptMessageObserver)
         {
             RegisterStage("Create")
@@ -25,7 +26,7 @@ namespace Shuttle.Esb
 
         public bool Execute(TransportMessageConfigurator configurator)
         {
-            Guard.AgainstNull(configurator, "options");
+            Guard.AgainstNull(configurator, nameof(configurator));
 
             State.SetTransportMessageContext(configurator);
 

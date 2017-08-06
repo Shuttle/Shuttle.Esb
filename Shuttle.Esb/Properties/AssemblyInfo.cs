@@ -26,10 +26,14 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Shuttle.Esb for .NET Framework 4.6.1")]
 #endif
 
-[assembly: AssemblyVersion("8.0.12.0")]
+#if NET462FULL
+[assembly: AssemblyTitle("Shuttle.Esb for .NET Framework 4.6.2")]
+#endif
+
+[assembly: AssemblyVersion("9.0.0.0")]
 [assembly: AssemblyCopyright("Copyright © Eben Roux 2017")]
 [assembly: AssemblyProduct("Shuttle.Esb")]
 [assembly: AssemblyCompany("Shuttle")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyInformationalVersion("8.0.12")]
+[assembly: AssemblyInformationalVersion("9.0.0")]
 [assembly: ComVisible(false)]

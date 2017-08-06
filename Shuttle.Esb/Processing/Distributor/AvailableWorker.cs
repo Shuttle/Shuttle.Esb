@@ -2,19 +2,19 @@ using System;
 
 namespace Shuttle.Esb
 {
-	public class AvailableWorker
-	{
-		public Guid Identifier { get; private set; }
-		public string InboxWorkQueueUri { get; private set; }
-		public int ManagedThreadId { get; private set; }
-		public DateTime WorkerSendDate { get; private set; }
+    public class AvailableWorker
+    {
+        public AvailableWorker(WorkerThreadAvailableCommand command)
+        {
+            Identifier = command.Identifier;
+            InboxWorkQueueUri = command.InboxWorkQueueUri;
+            ManagedThreadId = command.ManagedThreadId;
+            WorkerSendDate = command.DateSent;
+        }
 
-		public AvailableWorker(WorkerThreadAvailableCommand command)
-		{
-			Identifier = command.Identifier;
-			InboxWorkQueueUri = command.InboxWorkQueueUri;
-			ManagedThreadId = command.ManagedThreadId;
-			WorkerSendDate = command.DateSent;
-		}
-	}
+        public Guid Identifier { get; }
+        public string InboxWorkQueueUri { get; }
+        public int ManagedThreadId { get; }
+        public DateTime WorkerSendDate { get; }
+    }
 }

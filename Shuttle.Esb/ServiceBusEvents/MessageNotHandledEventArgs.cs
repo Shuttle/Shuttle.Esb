@@ -2,27 +2,27 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class MessageNotHandledEventArgs : PipelineEventEventArgs
-	{
-		public IQueue WorkQueue { get; private set; }
-		public IQueue ErrorQueue { get; private set; }
-		public TransportMessage TransportMessage { get; private set; }
-		public object Message { get; private set; }
+    public class MessageNotHandledEventArgs : PipelineEventEventArgs
+    {
+        public MessageNotHandledEventArgs(IPipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
+            TransportMessage transportMessage, object message)
+            : base(pipelineEvent)
+        {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+            Guard.AgainstNull(workQueue, nameof(workQueue));
+            Guard.AgainstNull(errorQueue, nameof(errorQueue));
+            Guard.AgainstNull(transportMessage, nameof(transportMessage));
+            Guard.AgainstNull(message, nameof(message));
 
-		public MessageNotHandledEventArgs(IPipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
-			TransportMessage transportMessage, object message)
-			: base(pipelineEvent)
-		{
-			Guard.AgainstNull(pipelineEvent, "pipelineEvent");
-			Guard.AgainstNull(workQueue, "workQueue");
-			Guard.AgainstNull(errorQueue, "errorQueue");
-			Guard.AgainstNull(transportMessage, "transportMessage");
-			Guard.AgainstNull(message, "message");
+            WorkQueue = workQueue;
+            ErrorQueue = errorQueue;
+            TransportMessage = transportMessage;
+            Message = message;
+        }
 
-			WorkQueue = workQueue;
-			ErrorQueue = errorQueue;
-			TransportMessage = transportMessage;
-			Message = message;
-		}
-	}
+        public IQueue WorkQueue { get; }
+        public IQueue ErrorQueue { get; }
+        public TransportMessage TransportMessage { get; }
+        public object Message { get; }
+    }
 }

@@ -15,9 +15,9 @@ namespace Shuttle.Esb
         public SendDeferredObserver(IPipelineFactory pipelineFactory, ISerializer serializer,
             IIdempotenceService idempotenceService)
         {
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(serializer, "serializer");
-            Guard.AgainstNull(idempotenceService, "idempotenceService");
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(serializer, nameof(serializer));
+            Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
             _pipelineFactory = pipelineFactory;
             _serializer = serializer;
@@ -68,7 +68,7 @@ namespace Shuttle.Esb
                 foreach (var stream in _idempotenceService.GetDeferredMessages(transportMessage))
                 {
                     var deferredTransportMessage =
-                        (TransportMessage) _serializer.Deserialize(typeof (TransportMessage), stream);
+                        (TransportMessage) _serializer.Deserialize(typeof(TransportMessage), stream);
 
                     var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 

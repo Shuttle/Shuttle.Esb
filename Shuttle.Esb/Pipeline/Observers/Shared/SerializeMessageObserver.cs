@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 
         public SerializeMessageObserver(ISerializer serializer)
         {
-            Guard.AgainstNull(serializer, "serializer");
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _serializer = serializer;
         }

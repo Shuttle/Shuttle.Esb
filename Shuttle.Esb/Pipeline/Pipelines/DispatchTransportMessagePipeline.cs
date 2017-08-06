@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
     public class DispatchTransportMessagePipeline : Pipeline
     {
-        public DispatchTransportMessagePipeline(FindMessageRouteObserver findMessageRouteObserver, SerializeTransportMessageObserver serializeTransportMessageObserver,
+        public DispatchTransportMessagePipeline(FindMessageRouteObserver findMessageRouteObserver,
+            SerializeTransportMessageObserver serializeTransportMessageObserver,
             DispatchTransportMessageObserver dispatchTransportMessageObserver)
         {
             RegisterStage("Send")
@@ -22,7 +23,7 @@ namespace Shuttle.Esb
 
         public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
         {
-            Guard.AgainstNull(transportMessage, "transportMessage");
+            Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             State.SetTransportMessage(transportMessage);
             State.SetTransportMessageReceived(transportMessageReceived);

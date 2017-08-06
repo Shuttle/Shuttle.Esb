@@ -7,17 +7,19 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
+        private readonly IPipelineFactory _pipelineFactory;
         protected readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
-        private readonly IPipelineFactory _pipelineFactory;
 
-        public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events, IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
+        public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events,
+            IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager,
+            IPipelineFactory pipelineFactory)
         {
-            Guard.AgainstNull(configuration, "configuration");
-            Guard.AgainstNull(events, "events");
-            Guard.AgainstNull(threadActivity, "threadActivity");
-            Guard.AgainstNull(workerAvailabilityManager, "workerAvailabilityManager");
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(threadActivity, nameof(threadActivity));
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _configuration = configuration;
             _events = events;
@@ -45,7 +47,7 @@ namespace Shuttle.Esb
 
             var messagePipeline = availableWorker == null
                 ? _pipelineFactory.GetPipeline<InboxMessagePipeline>()
-                : (IPipeline)_pipelineFactory.GetPipeline<DistributorPipeline>();
+                : (IPipeline) _pipelineFactory.GetPipeline<DistributorPipeline>();
 
             try
             {

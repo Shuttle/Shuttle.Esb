@@ -4,7 +4,8 @@ namespace Shuttle.Esb
 {
     public class ControlInboxMessagePipeline : ReceiveMessagePipeline
     {
-        public ControlInboxMessagePipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver,
+        public ControlInboxMessagePipeline(IServiceBusConfiguration configuration,
+            GetWorkMessageObserver getWorkMessageObserver,
             DeserializeTransportMessageObserver deserializeTransportMessageObserver,
             DeferTransportMessageObserver deferTransportMessageObserver,
             DeserializeMessageObserver deserializeMessageObserver, DecryptMessageObserver decryptMessageObserver,
@@ -19,7 +20,7 @@ namespace Shuttle.Esb
                 assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, transactionScopeObserver,
                 acknowledgeMessageObserver, sendDeferredObserver, receiveExceptionObserver)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             State.SetWorkQueue(configuration.ControlInbox.WorkQueue);
             State.SetErrorQueue(configuration.ControlInbox.ErrorQueue);

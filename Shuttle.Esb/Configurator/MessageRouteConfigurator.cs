@@ -7,7 +7,7 @@ namespace Shuttle.Esb
     {
         public void Apply(IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             if (ServiceBusSection.Get() == null ||
                 ServiceBusSection.Get().MessageRoutes == null)

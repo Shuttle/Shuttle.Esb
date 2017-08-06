@@ -9,7 +9,7 @@ namespace Shuttle.Esb
             SendOutboxMessageObserver sendOutboxMessageObserver, AcknowledgeMessageObserver acknowledgeMessageObserver,
             OutboxExceptionObserver outboxExceptionObserver)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             State.SetWorkQueue(configuration.Outbox.WorkQueue);
             State.SetErrorQueue(configuration.Outbox.ErrorQueue);

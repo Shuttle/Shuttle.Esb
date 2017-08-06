@@ -9,7 +9,7 @@ namespace Shuttle.Esb
 
         public DefaultTransportMessageFactory(IPipelineFactory pipelineFactory)
         {
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _pipelineFactory = pipelineFactory;
         }
@@ -24,9 +24,10 @@ namespace Shuttle.Esb
             return Create(message, null, transportMessageReceived);
         }
 
-        public TransportMessage Create(object message, Action<TransportMessageConfigurator> configure, TransportMessage transportMessageReceived)
+        public TransportMessage Create(object message, Action<TransportMessageConfigurator> configure,
+            TransportMessage transportMessageReceived)
         {
-            Guard.AgainstNull(message, "message");
+            Guard.AgainstNull(message, nameof(message));
 
             var transportMessagePipeline = _pipelineFactory.GetPipeline<TransportMessagePipeline>();
 

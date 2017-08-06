@@ -2,11 +2,11 @@
 
 namespace Shuttle.Esb
 {
-	public class CoreConfigurator : IConfigurator
-	{
-		public void Apply(IServiceBusConfiguration configuration)
-		{
-			Guard.AgainstNull(configuration, "configuration");
+    public class CoreConfigurator : IConfigurator
+    {
+        public void Apply(IServiceBusConfiguration configuration)
+        {
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             var transactionScopeElement = TransactionScopeSection.Get();
 
@@ -21,17 +21,17 @@ namespace Shuttle.Esb
 
             var section = ServiceBusSection.Get();
 
-			if (section == null)
-			{
-				return;
-			}
+            if (section == null)
+            {
+                return;
+            }
 
-			configuration.CreateQueues = section.CreateQueues;
-			configuration.CacheIdentity = section.CacheIdentity;
-			configuration.RegisterHandlers = section.RegisterHandlers;
-			configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
-			configuration.CompressionAlgorithm = section.CompressionAlgorithm;
-			configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
-		}
-	}
+            configuration.CreateQueues = section.CreateQueues;
+            configuration.CacheIdentity = section.CacheIdentity;
+            configuration.RegisterHandlers = section.RegisterHandlers;
+            configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
+            configuration.CompressionAlgorithm = section.CompressionAlgorithm;
+            configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
+        }
+    }
 }

@@ -2,11 +2,11 @@
 
 namespace Shuttle.Esb
 {
-	public class OnHandleDistributeMessage : PipelineEvent
-	{
-	}
+    public class OnHandleDistributeMessage : PipelineEvent
+    {
+    }
 
-	public class OnAfterHandleDistributeMessage : PipelineEvent
-	{
-	}
+    public class OnAfterHandleDistributeMessage : PipelineEvent
+    {
+    }
 }

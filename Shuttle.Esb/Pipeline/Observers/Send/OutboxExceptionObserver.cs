@@ -4,15 +4,15 @@ namespace Shuttle.Esb
 {
     public class OutboxExceptionObserver : IPipelineObserver<OnPipelineException>
     {
+        private readonly IServiceBusEvents _events;
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
-        private readonly IServiceBusEvents _events;
 
         public OutboxExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, "events");
-            Guard.AgainstNull(policy, "policy");
-            Guard.AgainstNull(serializer, "serializer");
+            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(policy, nameof(policy));
+            Guard.AgainstNull(serializer, nameof(serializer));
 
             _events = events;
             _policy = policy;
@@ -66,7 +66,8 @@ namespace Shuttle.Esb
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    _events.OnAfterPipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
+                    _events.OnAfterPipelineExceptionHandled(this,
+                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }
             finally

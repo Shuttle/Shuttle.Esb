@@ -1,43 +1,44 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb
 {
-	public class MessageRoute : IMessageRoute
-	{
-		private readonly List<ISpecification<string>> _specifications = new List<ISpecification<string>>();
+    public class MessageRoute : IMessageRoute
+    {
+        private readonly List<ISpecification<string>> _specifications = new List<ISpecification<string>>();
 
-		public MessageRoute(IQueue queue)
-		{
-			Queue = queue;
-		}
+        public MessageRoute(Uri uri)
+        {
+            Guard.AgainstNull(uri, nameof(uri));
 
-		public IQueue Queue { get; private set; }
+            Uri = uri;
+        }
 
-		public IMessageRoute AddSpecification(ISpecification<string> specification)
-		{
-			_specifications.Add(specification);
+        public IMessageRoute AddSpecification(ISpecification<string> specification)
+        {
+            _specifications.Add(specification);
 
-			return this;
-		}
+            return this;
+        }
 
-		public bool IsSatisfiedBy(string messageType)
-		{
-			foreach (var specification in _specifications)
-			{
-				if (specification.IsSatisfiedBy(messageType))
-				{
-					return true;
-				}
-			}
+        public bool IsSatisfiedBy(string messageType)
+        {
+            foreach (var specification in _specifications)
+            {
+                if (specification.IsSatisfiedBy(messageType))
+                {
+                    return true;
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public IEnumerable<ISpecification<string>> Specifications
-		{
-			get { return new ReadOnlyCollection<ISpecification<string>>(_specifications); }
-		}
-	}
+        public Uri Uri { get; }
+
+        public IEnumerable<ISpecification<string>> Specifications =>
+            new ReadOnlyCollection<ISpecification<string>>(_specifications);
+    }
 }

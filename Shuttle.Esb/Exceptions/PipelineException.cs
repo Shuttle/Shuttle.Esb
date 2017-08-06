@@ -2,10 +2,10 @@
 
 namespace Shuttle.Esb
 {
-	public class PipelineException : Exception
-	{
-		public PipelineException(string message) : base(message)
-		{
-		}
-	}
+    public class PipelineException : Exception
+    {
+        public PipelineException(string message) : base(message)
+        {
+        }
+    }
 }

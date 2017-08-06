@@ -9,7 +9,7 @@ namespace Shuttle.Esb
 
         public FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider)
         {
-            Guard.AgainstNull(messageRouteProvider, "messageRouteProvider");
+            Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
 
             _messageRouteProvider = messageRouteProvider;
         }
@@ -21,7 +21,8 @@ namespace Shuttle.Esb
 
             if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
             {
-                transportMessage.RecipientInboxWorkQueueUri = FindRoute(_messageRouteProvider, transportMessage.MessageType);
+                transportMessage.RecipientInboxWorkQueueUri =
+                    FindRoute(_messageRouteProvider, transportMessage.MessageType);
             }
         }
 

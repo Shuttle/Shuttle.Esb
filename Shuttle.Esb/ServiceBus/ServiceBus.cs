@@ -19,10 +19,10 @@ namespace Shuttle.Esb
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
             IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
         {
-            Guard.AgainstNull(configuration, "configuration");
-            Guard.AgainstNull(transportMessageFactory, "transportMessageFactory");
-            Guard.AgainstNull(pipelineFactory, "pipelineFactory");
-            Guard.AgainstNull(subscriptionManager, "subscriptionManager");
+            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
 
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
@@ -181,7 +181,7 @@ namespace Shuttle.Esb
 
         public static IServiceBusConfiguration Register(IComponentRegistry registry)
         {
-            Guard.AgainstNull(registry, "registry");
+            Guard.AgainstNull(registry, nameof(registry));
 
             var configuration = new ServiceBusConfiguration();
 
@@ -201,8 +201,8 @@ namespace Shuttle.Esb
 
         public static void Register(IComponentRegistry registry, IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(registry, "registry");
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(registry, nameof(registry));
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             registry.RegistryBoostrap();
 
@@ -312,7 +312,7 @@ namespace Shuttle.Esb
 
         public static IServiceBus Create(IComponentResolver resolver)
         {
-            Guard.AgainstNull(resolver, "resolver");
+            Guard.AgainstNull(resolver, nameof(resolver));
 
             resolver.ResolverBoostrap();
 

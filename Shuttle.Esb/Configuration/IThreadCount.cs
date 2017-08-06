@@ -1,7 +1,7 @@
 namespace Shuttle.Esb
 {
-	public interface IThreadCount
-	{
-		int ThreadCount { get; set; }
-	}
+    public interface IThreadCount
+    {
+        int ThreadCount { get; set; }
+    }
 }

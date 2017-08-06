@@ -3,32 +3,32 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb.Tests
 {
-	public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
-	{
-		private readonly Dictionary<string, int> _invokeCounts = new Dictionary<string, int>();
+    public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
+    {
+        private readonly Dictionary<string, int> _invokeCounts = new Dictionary<string, int>();
 
-		public int GetInvokeCount(string messageType)
-		{
-			if (!_invokeCounts.ContainsKey(messageType))
-			{
-				return 0;
-			}
+        public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+        {
+            var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
 
-			return _invokeCounts[messageType];
-		}
+            if (!_invokeCounts.ContainsKey(messageType))
+            {
+                _invokeCounts.Add(messageType, 0);
+            }
 
-		public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
-		{
-			var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
+            _invokeCounts[messageType] = _invokeCounts[messageType] + 1;
 
-			if (!_invokeCounts.ContainsKey(messageType))
-			{
-				_invokeCounts.Add(messageType,0);
-			}
+            return MessageHandlerInvokeResult.InvokedHandler(this);
+        }
 
-			_invokeCounts[messageType] = _invokeCounts[messageType] + 1;
+        public int GetInvokeCount(string messageType)
+        {
+            if (!_invokeCounts.ContainsKey(messageType))
+            {
+                return 0;
+            }
 
-			return MessageHandlerInvokeResult.InvokedHandler(this);
-		}
-	}
+            return _invokeCounts[messageType];
+        }
+    }
 }

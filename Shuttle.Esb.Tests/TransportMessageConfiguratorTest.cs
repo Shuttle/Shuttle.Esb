@@ -4,30 +4,32 @@ using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
 {
-	[TestFixture]
-	public class TransportMessageConfiguratorTest
-	{
-		[Test]
-		public void Should_be_able_to_set_sender()
-		{
+    [TestFixture]
+    public class TransportMessageConfiguratorTest
+    {
+        [Test]
+        public void Should_be_able_to_set_sender()
+        {
             var identityProvider = new Mock<IIdentityProvider>();
-			var configurator = new TransportMessageConfigurator(this);
-			var configuration = new ServiceBusConfiguration
-			{
-				Inbox = new InboxQueueConfiguration
-				{
-					WorkQueue = new NullQueue("null-queue://./work-queue")
-				}
-			};
+            var configurator = new TransportMessageConfigurator(this);
+            var configuration = new ServiceBusConfiguration
+            {
+                Inbox = new InboxQueueConfiguration
+                {
+                    WorkQueue = new NullQueue("null-queue://./work-queue")
+                }
+            };
 
-		    identityProvider.Setup(m => m.Get()).Returns(WindowsIdentity.GetCurrent());
+            identityProvider.Setup(m => m.Get()).Returns(WindowsIdentity.GetCurrent());
 
 
-            Assert.AreEqual("null-queue://./work-queue", configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
+            Assert.AreEqual("null-queue://./work-queue",
+                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
 
-			configurator.WithSender("null-queue://./another-queue");
+            configurator.WithSender("null-queue://./another-queue");
 
-			Assert.AreEqual("null-queue://./another-queue", configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
-		}
-	}
+            Assert.AreEqual("null-queue://./another-queue",
+                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
+        }
+    }
 }

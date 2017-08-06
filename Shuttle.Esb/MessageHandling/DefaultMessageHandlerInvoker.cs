@@ -9,19 +9,22 @@ namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
-        private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionManager _subscriptionManager;
-        private readonly ITransportMessageFactory _transportMessageFactory;
-        private readonly IServiceBusConfiguration _configuration;
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
-        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new Dictionary<Type, Dictionary<int, object>>();
+        private readonly IServiceBusConfiguration _configuration;
+        private readonly IPipelineFactory _pipelineFactory;
+        private readonly ISubscriptionManager _subscriptionManager;
+
+        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers =
+            new Dictionary<Type, Dictionary<int, object>>();
+
+        private readonly ITransportMessageFactory _transportMessageFactory;
 
         public DefaultMessageHandlerInvoker(IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(configuration, "configuration");
+            Guard.AgainstNull(configuration, nameof(configuration));
 
             _configuration = configuration;
 
@@ -32,7 +35,7 @@ namespace Shuttle.Esb
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
         {
-            Guard.AgainstNull(pipelineEvent, "pipelineEvent");
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
 
             var state = pipelineEvent.Pipeline.State;
             var message = state.GetMessage();
@@ -130,7 +133,8 @@ namespace Shuttle.Esb
 
                 if (!instances.ContainsKey(managedThreadId))
                 {
-                    instances.Add(managedThreadId, _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(messageType)));
+                    instances.Add(managedThreadId,
+                        _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(messageType)));
                 }
 
                 return instances[managedThreadId];

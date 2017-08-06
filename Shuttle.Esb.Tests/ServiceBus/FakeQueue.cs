@@ -4,60 +4,61 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Esb.Tests
 {
-	public class FakeQueue : IQueue
-	{
-		public int MessagesToReturn { get; private set; }
-		private readonly ISerializer _serializer = new DefaultSerializer();
+    public class FakeQueue : IQueue
+    {
+        private readonly ISerializer _serializer = new DefaultSerializer();
 
-		public FakeQueue(int messagesToReturn)
-		{
-			MessagesToReturn = messagesToReturn;
-		}
+        public FakeQueue(int messagesToReturn)
+        {
+            MessagesToReturn = messagesToReturn;
+        }
 
-		public int MessageCount { get; private set; }
+        public int MessagesToReturn { get; }
 
-		public Uri Uri { get; }
+        public int MessageCount { get; private set; }
 
-		public bool IsEmpty()
-		{
-			return false;
-		}
+        public Uri Uri { get; }
 
-		public void Enqueue(TransportMessage message, Stream stream)
-		{
-		}
+        public bool IsEmpty()
+        {
+            return false;
+        }
 
-		public ReceivedMessage GetMessage()
-		{
-			if (MessageCount == MessagesToReturn)
-			{
-				return null;
-			}
+        public void Enqueue(TransportMessage message, Stream stream)
+        {
+        }
 
-			var expired = (MessageCount%2) != 0;
+        public ReceivedMessage GetMessage()
+        {
+            if (MessageCount == MessagesToReturn)
+            {
+                return null;
+            }
 
-			var command = new SimpleCommand(expired ? "Expired" : "HasNotExpired");
+            var expired = MessageCount % 2 != 0;
 
-			var transportMessage = new TransportMessage
-			{
-				MessageType = command.GetType().Name,
-				ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
-				PrincipalIdentityName = "Identity",
-				AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
-				Message = _serializer.Serialize(command).ToBytes()
-			};
+            var command = new SimpleCommand(expired ? "Expired" : "HasNotExpired");
 
-			MessageCount += 1;
+            var transportMessage = new TransportMessage
+            {
+                MessageType = command.GetType().Name,
+                ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
+                PrincipalIdentityName = "Identity",
+                AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
+                Message = _serializer.Serialize(command).ToBytes()
+            };
 
-			return new ReceivedMessage(_serializer.Serialize(transportMessage), null);
-		}
+            MessageCount += 1;
 
-		public void Acknowledge(object acknowledgementToken)
-		{
-		}
+            return new ReceivedMessage(_serializer.Serialize(transportMessage), null);
+        }
 
-		public void Release(object acknowledgementToken)
-		{
-		}
-	}
+        public void Acknowledge(object acknowledgementToken)
+        {
+        }
+
+        public void Release(object acknowledgementToken)
+        {
+        }
+    }
 }
