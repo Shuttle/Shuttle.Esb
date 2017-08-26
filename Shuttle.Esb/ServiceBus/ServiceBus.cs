@@ -41,14 +41,22 @@ namespace Shuttle.Esb
 
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
-            startupPipeline.Execute();
+            Started = true; // required for using ServiceBus in OnStarted event
 
-            _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
-            _controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
-            _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
-            _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+            try
+            {
+                startupPipeline.Execute();
 
-            Started = true;
+                _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
+                _controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
+                _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
+                _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+            }
+            catch
+            {
+                Started = false;
+                throw;
+            }
 
             return this;
         }
