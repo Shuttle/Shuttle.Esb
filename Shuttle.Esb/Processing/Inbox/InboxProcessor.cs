@@ -8,7 +8,7 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
-        protected readonly IThreadActivity _threadActivity;
+        private readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
         public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events,
@@ -54,6 +54,8 @@ namespace Shuttle.Esb
                 messagePipeline.State.SetAvailableWorker(availableWorker);
                 messagePipeline.State.ResetWorking();
                 messagePipeline.State.SetActiveState(state);
+                messagePipeline.State.SetTransportMessage(null);
+                messagePipeline.State.SetReceivedMessage(null);
 
                 if (!state.Active)
                 {
