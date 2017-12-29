@@ -52,6 +52,8 @@ namespace Shuttle.Esb
                 messagePipeline.State.SetAvailableWorker(availableWorker);
                 messagePipeline.State.ResetWorking();
                 messagePipeline.State.SetActiveState(state);
+                messagePipeline.State.SetTransportMessage(null);
+                messagePipeline.State.SetReceivedMessage(null);
 
                 if (!state.Active)
                 {
