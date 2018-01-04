@@ -1,4 +1,4 @@
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {
@@ -26,7 +26,7 @@ namespace Shuttle.Esb
                 }
             }
 
-            throw new MessageRouteSpecificationException(string.Format(EsbResources.UnknownMessageRouteSpecification,
+            throw new MessageRouteSpecificationException(string.Format(Resources.UnknownMessageRouteSpecification,
                 specification));
         }
     }

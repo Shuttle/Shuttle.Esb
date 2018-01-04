@@ -1,5 +1,7 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
@@ -40,15 +42,13 @@ namespace Shuttle.Esb
                     transportMessageConfigurator.TransportMessageReceived(transportMessageReceived);
                 }
 
-                if (configure != null)
-                {
-                    configure(transportMessageConfigurator);
-                }
+                configure?.Invoke(transportMessageConfigurator);
 
                 if (!transportMessagePipeline.Execute(transportMessageConfigurator))
                 {
-                    throw new PipelineException(string.Format(EsbResources.PipelineExecutionException,
-                        "TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()));
+                    throw new PipelineException(string.Format(Resources.PipelineExecutionException,
+                            "TransportMessagePipeline", transportMessagePipeline.Exception.AllMessages()),
+                        transportMessagePipeline.Exception);
                 }
 
                 return transportMessagePipeline.State.GetTransportMessage();

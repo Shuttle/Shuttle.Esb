@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -32,12 +33,12 @@ namespace Shuttle.Esb
 
             if (!routeUris.Any())
             {
-                throw new SendMessageException(string.Format(EsbResources.MessageRouteNotFound, messageType));
+                throw new SendMessageException(string.Format(Resources.MessageRouteNotFound, messageType));
             }
 
             if (routeUris.Count() > 1)
             {
-                throw new SendMessageException(string.Format(EsbResources.MessageRoutedToMoreThanOneEndpoint,
+                throw new SendMessageException(string.Format(Resources.MessageRoutedToMoreThanOneEndpoint,
                     messageType, string.Join(",", routeUris.ToArray())));
             }
 

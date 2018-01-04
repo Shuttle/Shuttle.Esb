@@ -1,4 +1,4 @@
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {

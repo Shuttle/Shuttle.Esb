@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Compression;
+using Shuttle.Core.Container;
+using Shuttle.Core.Encryption;
+using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {

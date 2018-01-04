@@ -1,4 +1,7 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
@@ -49,7 +52,7 @@ namespace Shuttle.Esb
 
             if (_log.IsTraceEnabled)
             {
-                _log.Trace(string.Format(EsbResources.TraceTransportMessageDeferred, transportMessage.MessageId,
+                _log.Trace(string.Format(Resources.TraceTransportMessageDeferred, transportMessage.MessageId,
                     transportMessage.IgnoreTillDate.ToString("O")));
             }
 

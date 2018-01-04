@@ -1,6 +1,10 @@
 ﻿using System;
 using System.IO;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.Reflection;
+using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {

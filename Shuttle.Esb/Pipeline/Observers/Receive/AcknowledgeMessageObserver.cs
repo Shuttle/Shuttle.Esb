@@ -1,17 +1,11 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
 {
     public class AcknowledgeMessageObserver :
         IPipelineObserver<OnAcknowledgeMessage>
     {
-        private readonly ILog _log;
-
-        public AcknowledgeMessageObserver()
-        {
-            _log = Log.For(this);
-        }
-
         public void Execute(OnAcknowledgeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;

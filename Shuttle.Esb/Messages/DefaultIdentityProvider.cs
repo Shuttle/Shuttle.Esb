@@ -1,5 +1,6 @@
-﻿using System.Security.Principal;
-using Shuttle.Core.Infrastructure;
+﻿using System;
+using System.Security.Principal;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
@@ -16,13 +17,13 @@ namespace Shuttle.Esb
 
             if (_cache)
             {
-                _identity = WindowsIdentity.GetCurrent();
+                _identity = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous");
             }
         }
 
         public IIdentity Get()
         {
-            return _cache ? _identity : WindowsIdentity.GetCurrent();
+            return _cache ? _identity : new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous");
         }
     }
 }

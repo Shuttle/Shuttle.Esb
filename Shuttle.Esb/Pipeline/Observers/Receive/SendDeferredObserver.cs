@@ -1,5 +1,9 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {

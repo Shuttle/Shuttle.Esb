@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
@@ -43,7 +45,7 @@ namespace Shuttle.Esb
 
                 if (_log.IsVerboseEnabled)
                 {
-                    _log.Verbose(string.Format(EsbResources.DebugWorkerAvailable,
+                    _log.Verbose(string.Format(Resources.DebugWorkerAvailable,
                         _identifier,
                         _configuration.Inbox.WorkQueue.Uri.Secured(),
                         _configuration.Worker.DistributorControlInboxWorkQueue.Uri.Secured()));

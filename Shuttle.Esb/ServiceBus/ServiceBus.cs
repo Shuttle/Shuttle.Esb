@@ -1,6 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Container;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.Reflection;
+using Shuttle.Core.Serialization;
+using Shuttle.Core.Threading;
+using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
@@ -34,7 +41,7 @@ namespace Shuttle.Esb
         {
             if (Started)
             {
-                throw new ApplicationException(EsbResources.ServiceBusInstanceAlreadyStarted);
+                throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
             }
 
             ConfigurationInvariant();
@@ -142,35 +149,35 @@ namespace Shuttle.Esb
                 return;
             }
 
-            throw new InvalidOperationException(EsbResources.ServiceBusInstanceNotStarted);
+            throw new InvalidOperationException(Resources.ServiceBusInstanceNotStarted);
         }
 
         private void ConfigurationInvariant()
         {
             Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
-                EsbResources.WorkerRequiresInboxException);
+                Resources.WorkerRequiresInboxException);
 
             if (_configuration.HasInbox)
             {
                 Guard.Against<EsbConfigurationException>(
                     _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
 
                 Guard.Against<EsbConfigurationException>(
                     _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
             }
 
             if (_configuration.HasOutbox)
             {
                 Guard.Against<EsbConfigurationException>(
                     _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
 
                 Guard.Against<EsbConfigurationException>(
                     _configuration.Outbox.ErrorQueue == null &&
                     string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
             }
 
             if (_configuration.HasControlInbox)
@@ -178,12 +185,12 @@ namespace Shuttle.Esb
                 Guard.Against<EsbConfigurationException>(
                     _configuration.ControlInbox.WorkQueue == null &&
                     string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
 
                 Guard.Against<EsbConfigurationException>(
                     _configuration.ControlInbox.ErrorQueue == null &&
                     string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
-                    string.Format(EsbResources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+                    string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
             }
         }
 
@@ -290,7 +297,7 @@ namespace Shuttle.Esb
             var queueFactoryType = typeof(IQueueFactory);
             var queueFactoryImplementationTypes = new List<Type>();
 
-            Action<Type> addQueueFactoryImplementationType = type =>
+            void AddQueueFactoryImplementationType(Type type)
             {
                 if (queueFactoryImplementationTypes.Contains(type))
                 {
@@ -298,19 +305,19 @@ namespace Shuttle.Esb
                 }
 
                 queueFactoryImplementationTypes.Add(type);
-            };
+            }
 
             if (configuration.ScanForQueueFactories)
             {
                 foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
                 {
-                    addQueueFactoryImplementationType(type);
+                    AddQueueFactoryImplementationType(type);
                 }
             }
 
             foreach (var type in configuration.QueueFactoryTypes)
             {
-                addQueueFactoryImplementationType(type);
+                AddQueueFactoryImplementationType(type);
             }
 
             registry.RegisterCollection(queueFactoryType, queueFactoryImplementationTypes, Lifestyle.Singleton);
@@ -328,7 +335,7 @@ namespace Shuttle.Esb
 
             if (configuration == null)
             {
-                throw new InvalidOperationException(string.Format(InfrastructureResources.TypeNotRegisteredException,
+                throw new InvalidOperationException(string.Format(Core.Container.Resources.TypeNotRegisteredException,
                     typeof(IServiceBusConfiguration).FullName));
             }
 

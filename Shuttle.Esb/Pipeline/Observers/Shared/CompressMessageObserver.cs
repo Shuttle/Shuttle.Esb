@@ -1,5 +1,6 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -26,9 +27,11 @@ namespace Shuttle.Esb
 
             var algorithm = _configuration.FindCompressionAlgorithm(transportMessage.CompressionAlgorithm);
 
-            Guard.Against<InvalidOperationException>(algorithm == null,
-                string.Format(InfrastructureResources.MissingCompressionAlgorithmException,
+            if (algorithm == null)
+            {
+                throw new InvalidOperationException(string.Format(Resources.MissingCompressionAlgorithmException,
                     transportMessage.CompressionAlgorithm));
+            }
 
             transportMessage.Message = algorithm.Compress(transportMessage.Message);
         }

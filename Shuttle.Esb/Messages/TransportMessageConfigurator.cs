@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
     public class TransportMessageConfigurator
     {
-        private readonly string _anonymousName = WindowsIdentity.GetAnonymous().Name;
+        private readonly string _anonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
         private string _correlationId;
         private DateTime _expiryDate;
         private DateTime _ignoreTillDate;
@@ -42,7 +42,7 @@ namespace Shuttle.Esb
 
             if (_local && !configuration.HasInbox)
             {
-                throw new InvalidOperationException(EsbResources.SendToSelfException);
+                throw new InvalidOperationException(Resources.SendToSelfException);
             }
 
             var identity = identityProvider.Get();
@@ -154,7 +154,7 @@ namespace Shuttle.Esb
         {
             if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
             {
-                throw new InvalidOperationException(EsbResources.SendReplyException);
+                throw new InvalidOperationException(Resources.SendReplyException);
             }
 
             _local = false;

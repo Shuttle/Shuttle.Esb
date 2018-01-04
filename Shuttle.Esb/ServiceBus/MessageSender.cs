@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -101,7 +103,7 @@ namespace Shuttle.Esb
                 return result;
             }
 
-            _log.Warning(string.Format(EsbResources.WarningPublishWithoutSubscribers, message.GetType().FullName));
+            _log.Warning(string.Format(Resources.WarningPublishWithoutSubscribers, message.GetType().FullName));
 
             return EmptyPublishFlyweight;
         }

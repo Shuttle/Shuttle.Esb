@@ -1,5 +1,6 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -26,9 +27,12 @@ namespace Shuttle.Esb
 
             var algorithm = _configuration.FindEncryptionAlgorithm(transportMessage.EncryptionAlgorithm);
 
-            Guard.Against<InvalidOperationException>(algorithm == null,
-                string.Format(InfrastructureResources.MissingEncryptionAlgorithmException,
-                    transportMessage.EncryptionAlgorithm));
+            if (algorithm == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format(Resources.MissingEncryptionAlgorithmException,
+                        transportMessage.EncryptionAlgorithm));
+            }
 
             transportMessage.Message = algorithm.Encrypt(transportMessage.Message);
         }

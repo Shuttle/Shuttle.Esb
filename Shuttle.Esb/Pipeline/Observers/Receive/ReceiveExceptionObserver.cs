@@ -1,4 +1,8 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
+using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
@@ -47,12 +51,12 @@ namespace Shuttle.Esb
                         {
                             state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
 
-                            _log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageReleased,
+                            _log.Error(string.Format(Resources.ReceivePipelineExceptionMessageReleased,
                                 pipelineEvent.Pipeline.Exception.AllMessages()));
                         }
                         else
                         {
-                            _log.Error(string.Format(EsbResources.ReceivePipelineExceptionMessageNotReceived,
+                            _log.Error(string.Format(Resources.ReceivePipelineExceptionMessageNotReceived,
                                 pipelineEvent.Pipeline.Exception.AllMessages()));
                         }
 
@@ -76,7 +80,7 @@ namespace Shuttle.Esb
 
                         if (retry)
                         {
-                            _log.Warning(string.Format(EsbResources.MessageHandlerExceptionWillRetry,
+                            _log.Warning(string.Format(Resources.MessageHandlerExceptionWillRetry,
                                 handlerFullTypeName,
                                 pipelineEvent.Pipeline.Exception.AllMessages(),
                                 transportMessage.MessageType,
@@ -88,7 +92,7 @@ namespace Shuttle.Esb
                         }
                         else
                         {
-                            _log.Error(string.Format(EsbResources.MessageHandlerExceptionFailure,
+                            _log.Error(string.Format(Resources.MessageHandlerExceptionFailure,
                                 handlerFullTypeName,
                                 pipelineEvent.Pipeline.Exception.AllMessages(),
                                 transportMessage.MessageType,

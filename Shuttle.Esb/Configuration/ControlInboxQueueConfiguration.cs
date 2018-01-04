@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public class ControlInboxQueueConfiguration : IControlInboxQueueConfiguration
     {
-        private int threadCount;
+        private int _threadCount;
 
         public ControlInboxQueueConfiguration()
         {
@@ -34,10 +34,10 @@ namespace Shuttle.Esb
 
         public int ThreadCount
         {
-            get { return threadCount; }
+            get { return _threadCount; }
             set
             {
-                threadCount = value > 0
+                _threadCount = value > 0
                     ? value
                     : 5;
             }

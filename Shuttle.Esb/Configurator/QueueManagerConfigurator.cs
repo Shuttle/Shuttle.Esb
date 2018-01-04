@@ -1,5 +1,5 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
@@ -15,7 +15,7 @@ namespace Shuttle.Esb
                     var type = Type.GetType(queueFactoryElement.Type);
 
                     Guard.Against<EsbConfigurationException>(type == null,
-                        string.Format(EsbResources.UnknownTypeException, queueFactoryElement.Type));
+                        string.Format(Resources.UnknownTypeException, queueFactoryElement.Type));
 
                     configuration.AddQueueFactoryType(type);
                 }

@@ -19,17 +19,17 @@ namespace Shuttle.Esb {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class EsbResources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal EsbResources() {
+        internal Resources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Shuttle.Esb {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Esb.EsbResources", typeof(EsbResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Esb.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,6 +66,15 @@ namespace Shuttle.Esb {
         public static string AssemblyNotFound {
             get {
                 return ResourceManager.GetString("AssemblyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The IServiceBusConfiguration.Resolver has not been assigned..
+        /// </summary>
+        public static string ConfigurationResolverMissing {
+            get {
+                return ResourceManager.GetString("ConfigurationResolverMissing", resourceCulture);
             }
         }
         
@@ -210,6 +219,24 @@ namespace Shuttle.Esb {
         public static string MessageRouteNotFound {
             get {
                 return ResourceManager.GetString("MessageRouteNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compression algorithm &apos;{0}&apos; has not been registered..
+        /// </summary>
+        public static string MissingCompressionAlgorithmException {
+            get {
+                return ResourceManager.GetString("MissingCompressionAlgorithmException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Encryption algorithm &apos;{0}&apos; has not been registered..
+        /// </summary>
+        public static string MissingEncryptionAlgorithmException {
+            get {
+                return ResourceManager.GetString("MissingEncryptionAlgorithmException", resourceCulture);
             }
         }
         

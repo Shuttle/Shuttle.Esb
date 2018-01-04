@@ -1,8 +1,13 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class AssembleMessageObserver : IPipelineObserver<OnAssembleMessage>
+    public interface IAssembleMessageObserver : IPipelineObserver<OnAssembleMessage>
+    {
+    }
+
+    public class AssembleMessageObserver : IAssembleMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IIdentityProvider _identityProvider;

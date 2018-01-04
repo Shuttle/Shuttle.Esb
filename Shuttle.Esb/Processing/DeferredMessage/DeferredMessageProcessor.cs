@@ -1,5 +1,8 @@
 using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
@@ -56,7 +59,7 @@ namespace Shuttle.Esb
 
                         _checkpointMessageId = transportMessage.MessageId;
 
-                        _log.Trace(string.Format(EsbResources.TraceDeferredCheckpointMessageId,
+                        _log.Trace(string.Format(Resources.TraceDeferredCheckpointMessageId,
                             transportMessage.MessageId));
 
                         return;
@@ -68,8 +71,8 @@ namespace Shuttle.Esb
                 _checkpointMessageId = Guid.Empty;
 
                 _log.Trace(_nextDeferredProcessDate.Equals(DateTime.MaxValue)
-                    ? EsbResources.TraceDeferredProcessingHalted
-                    : string.Format(EsbResources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
+                    ? Resources.TraceDeferredProcessingHalted
+                    : string.Format(Resources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
             }
             finally
             {

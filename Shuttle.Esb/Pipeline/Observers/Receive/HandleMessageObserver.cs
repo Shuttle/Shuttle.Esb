@@ -1,6 +1,10 @@
 using System;
 using System.Reflection;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
+using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
@@ -67,7 +71,7 @@ namespace Shuttle.Esb
 
                     if (!_configuration.RemoveMessagesNotHandled)
                     {
-                        var error = string.Format(EsbResources.MessageNotHandledFailure, message.GetType().FullName,
+                        var error = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName,
                             transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
 
                         _log.Error(error);
@@ -81,7 +85,7 @@ namespace Shuttle.Esb
                     }
                     else
                     {
-                        _log.Warning(string.Format(EsbResources.MessageNotHandledIgnored,
+                        _log.Warning(string.Format(Resources.MessageNotHandledIgnored,
                             message.GetType().FullName,
                             transportMessage.MessageId));
                     }

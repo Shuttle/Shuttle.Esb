@@ -1,10 +1,11 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
     public class SendOutboxMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
     {
-        private readonly ILog _log;
         private readonly IQueueManager _queueManager;
 
         public SendOutboxMessageObserver(IQueueManager queueManager)
@@ -12,7 +13,6 @@ namespace Shuttle.Esb
             Guard.AgainstNull(queueManager, nameof(queueManager));
 
             _queueManager = queueManager;
-            _log = Log.For(this);
         }
 
         public void Execute(OnDispatchTransportMessage pipelineEvent)

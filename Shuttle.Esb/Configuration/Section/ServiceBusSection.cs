@@ -1,5 +1,5 @@
 using System.Configuration;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Configuration;
 
 namespace Shuttle.Esb
 {

@@ -1,5 +1,8 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
@@ -12,7 +15,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(ex, nameof(ex));
             Guard.AgainstNull(pipeline, nameof(pipeline));
 
-            log.Fatal(string.Format(EsbResources.FatalIdempotenceServiceException, service.GetType().FullName,
+            log.Fatal(string.Format(Resources.FatalIdempotenceServiceException, service.GetType().FullName,
                 ex.AllMessages()));
 
             pipeline.Abort();

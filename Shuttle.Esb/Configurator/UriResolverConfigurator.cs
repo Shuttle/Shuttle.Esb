@@ -27,7 +27,7 @@ namespace Shuttle.Esb
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(string.Format(EsbResources.MappingInvalidUriException, name, uri),
+                throw new InvalidOperationException(string.Format(Resources.MappingInvalidUriException, name, uri),
                     ex);
             }
         }

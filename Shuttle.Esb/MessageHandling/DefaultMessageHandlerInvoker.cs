@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Container;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -64,7 +66,7 @@ namespace Shuttle.Esb
                         if (method == null)
                         {
                             throw new ProcessMessageMethodMissingException(string.Format(
-                                EsbResources.ProcessMessageMethodMissingException,
+                                Resources.ProcessMessageMethodMissingException,
                                 handler.GetType().FullName,
                                 messageType.FullName));
                         }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb.Tests
 {

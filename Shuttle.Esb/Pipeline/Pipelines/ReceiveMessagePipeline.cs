@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
 {

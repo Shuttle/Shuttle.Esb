@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {

@@ -1,7 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Compression;
+using Shuttle.Core.Container;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Encryption;
+using Shuttle.Core.TimeSpanTypeConverters;
+using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
@@ -63,8 +68,7 @@ namespace Shuttle.Esb
             {
                 if (_resolver == null)
                 {
-                    throw new InvalidOperationException(string.Format(InfrastructureResources.NullDependencyException,
-                        typeof(IComponentResolver).FullName));
+                    throw new InvalidOperationException(Resources.ConfigurationResolverMissing);
                 }
 
                 return _resolver;

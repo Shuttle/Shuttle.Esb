@@ -1,5 +1,9 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Serialization;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
@@ -43,7 +47,7 @@ namespace Shuttle.Esb
             catch (Exception ex)
             {
                 _log.Error(ex.ToString());
-                _log.Error(string.Format(EsbResources.TransportMessageDeserializationException, workQueue.Uri.Secured(),
+                _log.Error(string.Format(Resources.TransportMessageDeserializationException, workQueue.Uri.Secured(),
                     ex));
 
                 state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);

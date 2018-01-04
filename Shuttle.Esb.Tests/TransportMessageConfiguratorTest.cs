@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System;
+using System.Security.Principal;
 using Moq;
 using NUnit.Framework;
 
@@ -20,7 +21,7 @@ namespace Shuttle.Esb.Tests
                 }
             };
 
-            identityProvider.Setup(m => m.Get()).Returns(WindowsIdentity.GetCurrent());
+            identityProvider.Setup(m => m.Get()).Returns(new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous"));
 
 
             Assert.AreEqual("null-queue://./work-queue",

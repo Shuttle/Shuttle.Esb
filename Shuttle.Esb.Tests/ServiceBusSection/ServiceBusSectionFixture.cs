@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Configuration;
 
 namespace Shuttle.Esb.Tests
 {

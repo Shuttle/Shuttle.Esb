@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Serialization;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb.Tests
 {

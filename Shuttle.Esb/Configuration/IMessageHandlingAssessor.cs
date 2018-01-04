@@ -1,5 +1,6 @@
 using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {

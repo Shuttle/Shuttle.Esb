@@ -1,4 +1,5 @@
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
@@ -21,7 +22,7 @@ namespace Shuttle.Esb
             {
                 if (_instanced)
                 {
-                    throw new ProcessorException(EsbResources.DeferredMessageProcessorInstanceException);
+                    throw new ProcessorException(Resources.DeferredMessageProcessorInstanceException);
                 }
 
                 _instanced = true;

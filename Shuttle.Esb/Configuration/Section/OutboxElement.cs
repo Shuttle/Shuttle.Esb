@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Configuration;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.TimeSpanTypeConverters;
 
 namespace Shuttle.Esb
 {

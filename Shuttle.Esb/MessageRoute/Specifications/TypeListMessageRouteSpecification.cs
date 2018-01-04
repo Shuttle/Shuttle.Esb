@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {
@@ -41,7 +42,7 @@ namespace Shuttle.Esb
                 if (type == null)
                 {
                     throw new MessageRouteSpecificationException(
-                        string.Format(EsbResources.TypeListMessageRouteSpecificationUnknownType, typeName));
+                        string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
                 }
 
                 MessageTypes.Add(type.FullName);

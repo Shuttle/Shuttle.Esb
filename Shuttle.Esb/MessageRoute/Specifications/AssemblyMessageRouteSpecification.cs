@@ -42,7 +42,7 @@ namespace Shuttle.Esb
 
             if (scanAssembly == null)
             {
-                throw new MessageRouteSpecificationException(string.Format(EsbResources.AssemblyNotFound, assembly,
+                throw new MessageRouteSpecificationException(string.Format(Resources.AssemblyNotFound, assembly,
                     "AssemblyMessageRouteSpecification"));
             }
 

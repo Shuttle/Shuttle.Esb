@@ -3,7 +3,7 @@ using System.Threading;
 using Castle.Windsor;
 using NUnit.Framework;
 using Shuttle.Core.Castle;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Container;
 
 namespace Shuttle.Esb.Tests
 {

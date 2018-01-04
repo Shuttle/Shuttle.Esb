@@ -1,25 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
-using Enumerable = System.Linq.Enumerable;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Serialization;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
     public static class TransportMessageExtensions
     {
-        private static readonly DateTime _expiryDateImplementation = new DateTime(2016, 04, 23);
-
         public static bool HasExpiryDate(this TransportMessage transportMessage)
         {
-            return transportMessage.ExpiryDate > _expiryDateImplementation &&
-                   transportMessage.ExpiryDate < DateTime.MaxValue;
+            return transportMessage.ExpiryDate < DateTime.MaxValue;
         }
 
         public static bool HasExpired(this TransportMessage transportMessage)
         {
-            return transportMessage.ExpiryDate > _expiryDateImplementation &&
-                   transportMessage.ExpiryDate < DateTime.Now;
+            return transportMessage.ExpiryDate < DateTime.Now;
         }
 
         public static bool EncryptionEnabled(this TransportMessage transportMessage)
@@ -63,7 +60,11 @@ namespace Shuttle.Esb
         public static TransportMessage SetMessage(this TransportMessage transportMessage, ISerializer serializer,
             object message)
         {
-            transportMessage.Message = serializer.Serialize(message).ToBytes();
+            using (var stream = serializer.Serialize(message))
+            {
+                transportMessage.Message = stream.ToBytes();
+            }
+
             transportMessage.MessageType = message.GetType().FullName;
             transportMessage.AssemblyQualifiedName = message.GetType().AssemblyQualifiedName;
 
@@ -87,7 +88,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(headers, nameof(headers));
 
-            foreach (var header in Enumerable.Where(headers, header => !merge.Contains(header.Key)))
+            foreach (var header in headers.Where(header => !merge.Contains(header.Key)))
             {
                 merge.Add(new TransportHeader
                 {

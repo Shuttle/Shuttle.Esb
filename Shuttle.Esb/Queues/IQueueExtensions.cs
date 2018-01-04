@@ -1,9 +1,9 @@
 using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public static class IQueueExtensions
+    public static class QueueExtensions
     {
         public static bool AttemptCreate(this IQueue queue)
         {
@@ -27,7 +27,7 @@ namespace Shuttle.Esb
 
             if (operation == null)
             {
-                throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
                     queue.GetType().FullName, "ICreateQueue"));
             }
 
@@ -56,7 +56,7 @@ namespace Shuttle.Esb
 
             if (operation == null)
             {
-                throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
                     queue.GetType().FullName, "IDropQueue"));
             }
 
@@ -85,7 +85,7 @@ namespace Shuttle.Esb
 
             if (operation == null)
             {
-                throw new InvalidOperationException(string.Format(EsbResources.NotImplementedOnQueue,
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
                     queue.GetType().FullName, "IPurgeQueue"));
             }
 

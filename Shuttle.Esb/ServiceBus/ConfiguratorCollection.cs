@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
@@ -25,7 +25,7 @@ namespace Shuttle.Esb
 
             if (Contains(configurator))
             {
-                throw new EsbConfigurationException(string.Format(EsbResources.ConfiguratorAlreadyRegisteredException,
+                throw new EsbConfigurationException(string.Format(Resources.ConfiguratorAlreadyRegisteredException,
                     configurator.GetType().FullName));
             }
 

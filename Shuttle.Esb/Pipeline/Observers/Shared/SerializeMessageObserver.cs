@@ -1,4 +1,7 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
+using Shuttle.Core.Serialization;
+using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
@@ -18,11 +21,12 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var message = state.GetMessage();
             var transportMessage = state.GetTransportMessage();
-            var bytes = _serializer.Serialize(message).ToBytes();
 
-            state.SetMessageBytes(bytes);
-
-            transportMessage.Message = bytes;
+            using (var stream = _serializer.Serialize(message))
+            {
+                transportMessage.Message = stream.ToBytes();
+                state.SetMessageBytes(transportMessage.Message);
+            }
         }
     }
 }

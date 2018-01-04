@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Logging;
 
 namespace Shuttle.Esb
 {
