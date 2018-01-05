@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class AssemblyMessageRouteSpecificationTest
+    public class AssemblyMessageRouteSpecificationFixture
     {
         [Test]
         public void Should_be_able_to_get_all_the_message_types_from_a_given_assembly()

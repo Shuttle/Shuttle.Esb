@@ -5,12 +5,16 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class StartupConfigurationObserver :
-        IPipelineObserver<OnConfigureUriResolver>,
-        IPipelineObserver<OnConfigureQueueManager>,
-        IPipelineObserver<OnConfigureQueues>,
-        IPipelineObserver<OnCreatePhysicalQueues>,
+    public interface IStartupConfigurationObserver : 
+        IPipelineObserver<OnConfigureUriResolver>, 
+        IPipelineObserver<OnConfigureQueueManager>, 
+        IPipelineObserver<OnConfigureQueues>, 
+        IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnConfigureMessageRouteProvider>
+    {
+    }
+
+    public class StartupConfigurationObserver : IStartupConfigurationObserver
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageRouteProvider _messageRouteProvider;

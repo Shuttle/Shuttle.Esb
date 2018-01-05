@@ -3,9 +3,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class DistributorMessageObserver :
-        IPipelineObserver<OnHandleDistributeMessage>,
+    public interface IDistributorMessageObserver : 
+        IPipelineObserver<OnHandleDistributeMessage>, 
         IPipelineObserver<OnAbortPipeline>
+    {
+    }
+
+    public class DistributorMessageObserver : IDistributorMessageObserver
     {
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 

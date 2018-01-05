@@ -250,6 +250,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Observer with type name &apos;{0}&apos; does not have an interface with name &apos;I{0}&apos;..
+        /// </summary>
+        public static string ObserverInterfaceMissingException {
+            get {
+                return ResourceManager.GetString("ObserverInterfaceMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find a section named &apos;{0}&apos; in configuration file &apos;{1}&apos; that is of type &apos;{2}&apos;..
         /// </summary>
         public static string OpenSectionException {

@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class TranportMessageTest
+    public class TranportMessageFixture
     {
         [Test]
         public void Should_be_able_to_determine_if_message_has_an_expiry_date()

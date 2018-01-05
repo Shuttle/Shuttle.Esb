@@ -4,7 +4,7 @@ using OtherNamespace;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class RouteSpecificationTest
+    public class RouteSpecificationFixture
     {
         [Test]
         public void Should_be_able_to_use_regex()

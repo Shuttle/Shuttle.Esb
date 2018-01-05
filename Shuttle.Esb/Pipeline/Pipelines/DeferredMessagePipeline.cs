@@ -1,16 +1,20 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class DeferredMessagePipeline : Pipeline
     {
         public DeferredMessagePipeline(IServiceBusConfiguration configuration,
-            GetDeferredMessageObserver getDeferredMessageObserver,
-            DeserializeTransportMessageObserver deserializeTransportMessageObserver,
-            ProcessDeferredMessageObserver processDeferredMessageObserver)
+            IEnumerable<IPipelineObserver> observers)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(observers, nameof(observers));
+
+            var list = observers.ToList();
 
             State.SetWorkQueue(configuration.Inbox.WorkQueue);
             State.SetErrorQueue(configuration.Inbox.ErrorQueue);
@@ -23,9 +27,9 @@ namespace Shuttle.Esb
                 .WithEvent<OnProcessDeferredMessage>()
                 .WithEvent<OnAfterProcessDeferredMessage>();
 
-            RegisterObserver(getDeferredMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(processDeferredMessageObserver);
+            RegisterObserver(list.Get<IGetDeferredMessageObserver>());
+            RegisterObserver(list.Get<IDeserializeTransportMessageObserver>());
+            RegisterObserver(list.Get<IProcessDeferredMessageObserver>());
         }
     }
 }

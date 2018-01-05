@@ -5,7 +5,7 @@ using Shuttle.Core.TimeSpanTypeConverters;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class StringDurationArrayConverterTest
+    public class StringDurationArrayConverterFixture
     {
         [Test]
         public void Should_be_able_to_convert_all_supported_types()

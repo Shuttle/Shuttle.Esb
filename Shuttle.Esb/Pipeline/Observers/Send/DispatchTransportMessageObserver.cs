@@ -6,7 +6,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
-    public class DispatchTransportMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
+    public interface IDispatchTransportMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
+    {
+    }
+
+    public class DispatchTransportMessageObserver : IDispatchTransportMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IIdempotenceService _idempotenceService;

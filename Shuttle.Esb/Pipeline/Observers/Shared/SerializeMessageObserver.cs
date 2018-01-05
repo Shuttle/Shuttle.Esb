@@ -5,7 +5,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
-    public class SerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
+    public interface ISerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
+    {
+    }
+
+    public class SerializeMessageObserver : ISerializeMessageObserver
     {
         private readonly ISerializer _serializer;
 

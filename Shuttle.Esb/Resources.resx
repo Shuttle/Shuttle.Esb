@@ -321,4 +321,8 @@
   <data name="ConfigurationResolverMissing" xml:space="preserve">
     <value>The IServiceBusConfiguration.Resolver has not been assigned.</value>
   </data>
+  <data name="ObserverInterfaceMissingException" xml:space="preserve">
+    <value>Observer with type name '{0}' does not have an interface with name 'I{0}'.</value>
+    <comment>{0} = observer type name</comment>
+  </data>
 </root>

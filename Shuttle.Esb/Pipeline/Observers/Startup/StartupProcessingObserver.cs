@@ -4,13 +4,17 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public class StartupProcessingObserver :
-        IPipelineObserver<OnStartInboxProcessing>,
-        IPipelineObserver<OnStartControlInboxProcessing>,
-        IPipelineObserver<OnStartOutboxProcessing>,
-        IPipelineObserver<OnStartDeferredMessageProcessing>,
-        IPipelineObserver<OnStarting>,
+    public interface IStartupProcessingObserver : 
+        IPipelineObserver<OnStartInboxProcessing>, 
+        IPipelineObserver<OnStartControlInboxProcessing>, 
+        IPipelineObserver<OnStartOutboxProcessing>, 
+        IPipelineObserver<OnStartDeferredMessageProcessing>, 
+        IPipelineObserver<OnStarting>, 
         IPipelineObserver<OnStarted>
+    {
+    }
+
+    public class StartupProcessingObserver : IStartupProcessingObserver
     {
         private readonly IServiceBus _bus;
         private readonly IServiceBusConfiguration _configuration;

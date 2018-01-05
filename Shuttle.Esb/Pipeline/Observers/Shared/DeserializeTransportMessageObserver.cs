@@ -7,7 +7,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
-    public class DeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
+    public interface IDeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
+    {
+    }
+
+    public class DeserializeTransportMessageObserver : IDeserializeTransportMessageObserver
     {
         private readonly IServiceBusEvents _events;
         private readonly ILog _log;

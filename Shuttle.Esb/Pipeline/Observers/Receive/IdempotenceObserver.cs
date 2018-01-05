@@ -5,9 +5,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class IdempotenceObserver :
-        IPipelineObserver<OnProcessIdempotenceMessage>,
+    public interface IIdempotenceObserver : 
+        IPipelineObserver<OnProcessIdempotenceMessage>, 
         IPipelineObserver<OnIdempotenceMessageHandled>
+    {
+    }
+
+    public class IdempotenceObserver : IIdempotenceObserver
     {
         private readonly IIdempotenceService _idempotenceService;
         private readonly ILog _log;

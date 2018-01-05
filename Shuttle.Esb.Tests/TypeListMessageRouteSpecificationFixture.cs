@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class TypeListMessageRouteSpecificationTest
+    public class TypeListMessageRouteSpecificationFixture
     {
         [Test]
         public void Should_be_able_to_get_types_from_given_valid_value_string()

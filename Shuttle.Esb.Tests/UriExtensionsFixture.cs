@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class UriExtensionsTest
+    public class UriExtensionsFixture
     {
         [Test]
         public void Should_be_able_to_secure_a_uri()

@@ -1,20 +1,20 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class DistributorPipeline : Pipeline
     {
         public DistributorPipeline(IServiceBusConfiguration configuration,
-            GetWorkMessageObserver getWorkMessageObserver,
-            DeserializeTransportMessageObserver deserializeTransportMessageObserver,
-            DistributorMessageObserver distributorMessageObserver,
-            SerializeTransportMessageObserver serializeTransportMessageObserver,
-            DispatchTransportMessageObserver dispatchTransportMessageObserver,
-            AcknowledgeMessageObserver acknowledgeMessageObserver,
-            DistributorExceptionObserver distributorExceptionObserver)
+            IEnumerable<IPipelineObserver> observers)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(observers, nameof(observers));
+
+            var list = observers.ToList();
 
             State.SetWorkQueue(configuration.Inbox.WorkQueue);
             State.SetErrorQueue(configuration.Inbox.ErrorQueue);
@@ -32,14 +32,14 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(getWorkMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(distributorMessageObserver);
-            RegisterObserver(serializeTransportMessageObserver);
-            RegisterObserver(dispatchTransportMessageObserver);
-            RegisterObserver(acknowledgeMessageObserver);
+            RegisterObserver(list.Get<IGetWorkMessageObserver>());
+            RegisterObserver(list.Get<IDeserializeTransportMessageObserver>());
+            RegisterObserver(list.Get<IDistributorMessageObserver>());
+            RegisterObserver(list.Get<ISerializeTransportMessageObserver>());
+            RegisterObserver(list.Get<IDispatchTransportMessageObserver>());
+            RegisterObserver(list.Get<IAcknowledgeMessageObserver>());
 
-            RegisterObserver(distributorExceptionObserver); // must be last
+            RegisterObserver(list.Get<IDistributorExceptionObserver>()); // must be last
         }
     }
 }

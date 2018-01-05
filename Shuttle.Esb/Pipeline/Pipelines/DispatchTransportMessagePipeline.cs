@@ -1,14 +1,19 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class DispatchTransportMessagePipeline : Pipeline
     {
-        public DispatchTransportMessagePipeline(FindMessageRouteObserver findMessageRouteObserver,
-            SerializeTransportMessageObserver serializeTransportMessageObserver,
-            DispatchTransportMessageObserver dispatchTransportMessageObserver)
+        public DispatchTransportMessagePipeline(IEnumerable<IPipelineObserver> observers)
         {
+            Guard.AgainstNull(observers, nameof(observers));
+
+            var list = observers.ToList();
+
             RegisterStage("Send")
                 .WithEvent<OnFindRouteForMessage>()
                 .WithEvent<OnAfterFindRouteForMessage>()
@@ -17,9 +22,9 @@ namespace Shuttle.Esb
                 .WithEvent<OnDispatchTransportMessage>()
                 .WithEvent<OnAfterDispatchTransportMessage>();
 
-            RegisterObserver(findMessageRouteObserver);
-            RegisterObserver(serializeTransportMessageObserver);
-            RegisterObserver(dispatchTransportMessageObserver);
+            RegisterObserver(list.Get<IFindMessageRouteObserver>());
+            RegisterObserver(list.Get<ISerializeTransportMessageObserver>());
+            RegisterObserver(list.Get<IDispatchTransportMessageObserver>());
         }
 
         public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)

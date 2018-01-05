@@ -4,7 +4,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class DecompressMessageObserver : IPipelineObserver<OnDecompressMessage>
+    public interface IDecompressMessageObserver : IPipelineObserver<OnDecompressMessage>
+    {
+    }
+
+    public class DecompressMessageObserver : IDecompressMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
 

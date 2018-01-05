@@ -8,8 +8,11 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public class HandleMessageObserver :
-        IPipelineObserver<OnHandleMessage>
+    public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
+    {
+    }
+
+    public class HandleMessageObserver : IHandleMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;

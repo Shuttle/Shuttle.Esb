@@ -4,7 +4,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class FindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
+    public interface IFindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
+    {
+    }
+
+    public class FindMessageRouteObserver : IFindMessageRouteObserver
     {
         private readonly IMessageRouteProvider _messageRouteProvider;
 

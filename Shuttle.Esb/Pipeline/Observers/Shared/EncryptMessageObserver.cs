@@ -4,7 +4,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class EncryptMessageObserver : IPipelineObserver<OnEncryptMessage>
+    public interface IEncryptMessageObserver : IPipelineObserver<OnEncryptMessage>
+    {
+    }
+
+    public class EncryptMessageObserver : IEncryptMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
 

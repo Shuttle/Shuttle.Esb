@@ -6,8 +6,11 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public class ReceiveExceptionObserver :
-        IPipelineObserver<OnPipelineException>
+    public interface IReceiveExceptionObserver : IPipelineObserver<OnPipelineException>
+    {
+    }
+
+    public class ReceiveExceptionObserver : IReceiveExceptionObserver
     {
         private readonly IServiceBusEvents _events;
         private readonly ILog _log;

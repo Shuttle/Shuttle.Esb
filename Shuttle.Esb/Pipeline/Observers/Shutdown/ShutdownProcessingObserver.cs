@@ -4,10 +4,14 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class ShutdownProcessingObserver :
-        IPipelineObserver<OnStopping>,
-        IPipelineObserver<OnDisposeQueues>,
+    public interface IShutdownProcessingObserver : 
+        IPipelineObserver<OnStopping>, 
+        IPipelineObserver<OnDisposeQueues>, 
         IPipelineObserver<OnStopped>
+    {
+    }
+
+    public class ShutdownProcessingObserver : IShutdownProcessingObserver
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;

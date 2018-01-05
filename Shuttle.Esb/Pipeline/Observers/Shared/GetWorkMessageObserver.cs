@@ -3,7 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class GetWorkMessageObserver : IPipelineObserver<OnGetMessage>
+    public interface IGetWorkMessageObserver : IPipelineObserver<OnGetMessage>
+    {
+    }
+
+    public class GetWorkMessageObserver : IGetWorkMessageObserver
     {
         private readonly IServiceBusEvents _events;
 

@@ -4,7 +4,11 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public class SerializeTransportMessageObserver : IPipelineObserver<OnSerializeTransportMessage>
+    public interface ISerializeTransportMessageObserver : IPipelineObserver<OnSerializeTransportMessage>
+    {
+    }
+
+    public class SerializeTransportMessageObserver : ISerializeTransportMessageObserver
     {
         private readonly ISerializer _serializer;
 

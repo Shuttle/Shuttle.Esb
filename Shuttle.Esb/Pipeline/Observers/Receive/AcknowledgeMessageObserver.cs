@@ -3,8 +3,11 @@ using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
 {
-    public class AcknowledgeMessageObserver :
-        IPipelineObserver<OnAcknowledgeMessage>
+    public interface IAcknowledgeMessageObserver : IPipelineObserver<OnAcknowledgeMessage>
+    {
+    }
+
+    public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
     {
         public void Execute(OnAcknowledgeMessage pipelineEvent)
         {

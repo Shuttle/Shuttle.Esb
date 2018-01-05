@@ -1,16 +1,19 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBusConfiguration configuration, GetWorkMessageObserver getWorkMessageObserver,
-            DeserializeTransportMessageObserver deserializeTransportMessageObserver,
-            SendOutboxMessageObserver sendOutboxMessageObserver, AcknowledgeMessageObserver acknowledgeMessageObserver,
-            OutboxExceptionObserver outboxExceptionObserver)
+        public OutboxPipeline(IServiceBusConfiguration configuration, IEnumerable<IPipelineObserver> observers)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(observers, nameof(observers));
+
+            var list = observers.ToList();
 
             State.SetWorkQueue(configuration.Outbox.WorkQueue);
             State.SetErrorQueue(configuration.Outbox.ErrorQueue);
@@ -30,13 +33,12 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(getWorkMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(sendOutboxMessageObserver);
+            RegisterObserver(list.Get<IGetWorkMessageObserver>());
+            RegisterObserver(list.Get<IDeserializeTransportMessageObserver>());
+            RegisterObserver(list.Get<ISendOutboxMessageObserver>());
+            RegisterObserver(list.Get<IAcknowledgeMessageObserver>());
 
-            RegisterObserver(acknowledgeMessageObserver);
-
-            RegisterObserver(outboxExceptionObserver); // must be last
+            RegisterObserver(list.Get<IOutboxExceptionObserver>()); // must be last
         }
     }
 }

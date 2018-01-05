@@ -8,7 +8,7 @@ using Shuttle.Core.Container;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class ServiceBusTest
+    public class ServiceBusFixture
     {
         [Test]
         public void Should_be_able_to_handle_expired_message()

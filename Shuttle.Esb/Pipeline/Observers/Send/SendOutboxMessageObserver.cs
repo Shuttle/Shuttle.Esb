@@ -4,7 +4,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb
 {
-    public class SendOutboxMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
+    public interface ISendOutboxMessageObserver : IPipelineObserver<OnDispatchTransportMessage>
+    {
+    }
+
+    public class SendOutboxMessageObserver : ISendOutboxMessageObserver
     {
         private readonly IQueueManager _queueManager;
 

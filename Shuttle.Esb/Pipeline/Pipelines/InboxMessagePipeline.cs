@@ -1,25 +1,13 @@
-﻿using Shuttle.Core.Contract;
-using Shuttle.Core.PipelineTransaction;
+﻿using System.Collections.Generic;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public class InboxMessagePipeline : ReceiveMessagePipeline
     {
-        public InboxMessagePipeline(IServiceBusConfiguration configuration,
-            GetWorkMessageObserver getWorkMessageObserver,
-            DeserializeTransportMessageObserver deserializeTransportMessageObserver,
-            DeferTransportMessageObserver deferTransportMessageObserver,
-            DeserializeMessageObserver deserializeMessageObserver, DecryptMessageObserver decryptMessageObserver,
-            DecompressMessageObserver decompressMessageObserver,
-            AssessMessageHandlingObserver assessMessageHandlingObserver, IdempotenceObserver idempotenceObserver,
-            HandleMessageObserver handleMessageObserver, TransactionScopeObserver transactionScopeObserver,
-            AcknowledgeMessageObserver acknowledgeMessageObserver,
-            SendDeferredObserver sendDeferredObserver, ReceiveExceptionObserver receiveExceptionObserver)
-            : base(
-                getWorkMessageObserver, deserializeTransportMessageObserver, deferTransportMessageObserver,
-                deserializeMessageObserver, decryptMessageObserver, decompressMessageObserver,
-                assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, transactionScopeObserver,
-                acknowledgeMessageObserver, sendDeferredObserver, receiveExceptionObserver)
+        public InboxMessagePipeline(IServiceBusConfiguration configuration, IEnumerable<IPipelineObserver> observers)
+            : base(observers)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 

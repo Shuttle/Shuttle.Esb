@@ -236,8 +236,6 @@ namespace Shuttle.Esb
             registry.AttemptRegister<ISubscriptionManager, NullSubscriptionManager>();
             registry.AttemptRegister<IIdempotenceService, NullIdempotenceService>();
 
-            registry.AttemptRegister<TransactionScopeObserver, TransactionScopeObserver>();
-
             if (!registry.IsRegistered<ITransactionScopeFactory>())
             {
                 var transactionScopeConfiguration = configuration.TransactionScope ??
@@ -264,15 +262,35 @@ namespace Shuttle.Esb
                 registry.Register(type, type, Lifestyle.Transient);
             }
 
-            foreach (var type in reflectionService.GetTypes<IPipelineObserver>(typeof(ServiceBus).Assembly))
+            var observers = new List<Type>();
+
+            foreach (var type in reflectionService.GetTypes<IPipelineObserver>())
             {
-                if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
+                if (type.IsInterface || type.IsAbstract)
                 {
                     continue;
                 }
 
-                registry.Register(type, type, Lifestyle.Singleton);
+                var interfaceType = type.InterfaceMatching($"I{type.Name}");
+
+                if (interfaceType != null)
+                {
+                    if (registry.IsRegistered(type))
+                    {
+                        continue;
+                    }
+
+                    registry.Register(interfaceType, type, Lifestyle.Singleton);
+                }
+                else
+                {
+                    throw new EsbConfigurationException(string.Format(Resources.ObserverInterfaceMissingException, type.Name));
+                }
+
+                observers.Add(type);
             }
+
+            registry.RegisterCollection(typeof(IPipelineObserver), observers, Lifestyle.Singleton);
 
             if (configuration.RegisterHandlers)
             {

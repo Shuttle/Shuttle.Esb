@@ -7,9 +7,13 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public class SendDeferredObserver :
-        IPipelineObserver<OnSendDeferred>,
+    public interface ISendDeferredObserver : 
+        IPipelineObserver<OnSendDeferred>, 
         IPipelineObserver<OnAfterSendDeferred>
+    {
+    }
+
+    public class SendDeferredObserver : ISendDeferredObserver
     {
         private readonly IIdempotenceService _idempotenceService;
         private readonly ILog _log;

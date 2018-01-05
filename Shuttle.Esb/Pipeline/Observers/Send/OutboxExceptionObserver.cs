@@ -5,7 +5,11 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public class OutboxExceptionObserver : IPipelineObserver<OnPipelineException>
+    public interface IOutboxExceptionObserver : IPipelineObserver<OnPipelineException>
+    {
+    }
+
+    public class OutboxExceptionObserver : IOutboxExceptionObserver
     {
         private readonly IServiceBusEvents _events;
         private readonly IServiceBusPolicy _policy;

@@ -3,7 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class AssessMessageHandlingObserver : IPipelineObserver<OnAssessMessageHandling>
+    public interface IAssessMessageHandlingObserver : IPipelineObserver<OnAssessMessageHandling>
+    {
+    }
+
+    public class AssessMessageHandlingObserver : IAssessMessageHandlingObserver
     {
         private readonly IMessageHandlingAssessor _messageHandlingAssessor;
 

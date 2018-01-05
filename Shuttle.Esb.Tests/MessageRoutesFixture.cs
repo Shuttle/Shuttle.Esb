@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class MessageRoutesTest
+    public class MessageRoutesFixture
     {
         [Test]
         public void Should_be_able_to_create_new_routes()

@@ -3,7 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class ProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
+    public interface IProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
+    {
+    }
+
+    public class ProcessDeferredMessageObserver : IProcessDeferredMessageObserver
     {
         public void Execute(OnProcessDeferredMessage pipelineEvent)
         {

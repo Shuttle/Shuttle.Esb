@@ -1,18 +1,21 @@
+using System.Collections.Generic;
+using System.Linq;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class StartupPipeline : Pipeline
     {
-        public StartupPipeline(StartupConfigurationObserver startupConfigurationObserver,
-            StartupProcessingObserver startupProcessingObserver)
+        public StartupPipeline(IEnumerable<IPipelineObserver> observers)
         {
-            Guard.AgainstNull(startupConfigurationObserver, nameof(startupConfigurationObserver));
-            Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver));
+            Guard.AgainstNull(observers, nameof(observers));
 
-            RegisterObserver(startupConfigurationObserver);
-            RegisterObserver(startupProcessingObserver);
+            var list = observers.ToList();
+
+            RegisterObserver(list.Get<IStartupConfigurationObserver>());
+            RegisterObserver(list.Get<IStartupProcessingObserver>());
 
             RegisterStage("Configuration")
                 .WithEvent<OnInitializing>()
