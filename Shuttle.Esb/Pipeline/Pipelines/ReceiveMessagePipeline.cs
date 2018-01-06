@@ -9,7 +9,7 @@ namespace Shuttle.Esb
 {
     public abstract class ReceiveMessagePipeline : Pipeline
     {
-        protected ReceiveMessagePipeline(IEnumerable<IPipelineObserver> observers)
+        protected ReceiveMessagePipeline(IEnumerable<IPipelineObserver> observers, ITransactionScopeObserver transactionScopeObserver)
         {
             Guard.AgainstNull(observers, nameof(observers));
 
@@ -50,9 +50,9 @@ namespace Shuttle.Esb
             RegisterObserver(list.Get<IAssessMessageHandlingObserver>());
             RegisterObserver(list.Get<IIdempotenceObserver>());
             RegisterObserver(list.Get<IHandleMessageObserver>());
-            RegisterObserver(list.Get<ITransactionScopeObserver>());
             RegisterObserver(list.Get<IAcknowledgeMessageObserver>());
             RegisterObserver(list.Get<ISendDeferredObserver>());
+            RegisterObserver(transactionScopeObserver);
 
             RegisterObserver(list.Get<IReceiveExceptionObserver>()); // must be last
         }

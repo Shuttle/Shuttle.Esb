@@ -236,6 +236,8 @@ namespace Shuttle.Esb
             registry.AttemptRegister<ISubscriptionManager, NullSubscriptionManager>();
             registry.AttemptRegister<IIdempotenceService, NullIdempotenceService>();
 
+            registry.AttemptRegister<ITransactionScopeObserver, TransactionScopeObserver>();
+
             if (!registry.IsRegistered<ITransactionScopeFactory>())
             {
                 var transactionScopeConfiguration = configuration.TransactionScope ??
@@ -264,7 +266,7 @@ namespace Shuttle.Esb
 
             var observers = new List<Type>();
 
-            foreach (var type in reflectionService.GetTypes<IPipelineObserver>())
+            foreach (var type in reflectionService.GetTypes<IPipelineObserver>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract)
                 {

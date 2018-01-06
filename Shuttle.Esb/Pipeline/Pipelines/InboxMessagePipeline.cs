@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
 {
     public class InboxMessagePipeline : ReceiveMessagePipeline
     {
-        public InboxMessagePipeline(IServiceBusConfiguration configuration, IEnumerable<IPipelineObserver> observers)
-            : base(observers)
+        public InboxMessagePipeline(IServiceBusConfiguration configuration, IEnumerable<IPipelineObserver> observers, ITransactionScopeObserver transactionScopeObserver)
+            : base(observers, transactionScopeObserver)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 
