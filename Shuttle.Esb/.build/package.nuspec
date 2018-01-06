@@ -27,8 +27,6 @@
         <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
-        <dependency id="System.Configuration.ConfigurationManager"
-                    version="{System.Configuration.ConfigurationManager-version}" />
       </group>
 
       <group targetFramework="netstandard2.0">
