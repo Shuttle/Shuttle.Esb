@@ -254,7 +254,7 @@ namespace Shuttle.Esb
 
             var reflectionService = new ReflectionService();
 
-            foreach (var type in reflectionService.GetTypes<IPipeline>(typeof(ServiceBus).Assembly))
+            foreach (var type in reflectionService.GetTypesAssignableTo<IPipeline>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
                 {
@@ -266,7 +266,7 @@ namespace Shuttle.Esb
 
             var observers = new List<Type>();
 
-            foreach (var type in reflectionService.GetTypes<IPipelineObserver>(typeof(ServiceBus).Assembly))
+            foreach (var type in reflectionService.GetTypesAssignableTo<IPipelineObserver>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract)
                 {
@@ -297,7 +297,7 @@ namespace Shuttle.Esb
             if (configuration.RegisterHandlers)
             {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                foreach (var type in reflectionService.GetTypes(MessageHandlerType, assembly))
+                foreach (var type in reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly))
                 foreach (var @interface in type.GetInterfaces())
                 {
                     if (!@interface.IsAssignableTo(MessageHandlerType))
@@ -329,7 +329,7 @@ namespace Shuttle.Esb
 
             if (configuration.ScanForQueueFactories)
             {
-                foreach (var type in new ReflectionService().GetTypes<IQueueFactory>())
+                foreach (var type in new ReflectionService().GetTypesAssignableTo<IQueueFactory>())
                 {
                     AddQueueFactoryImplementationType(type);
                 }

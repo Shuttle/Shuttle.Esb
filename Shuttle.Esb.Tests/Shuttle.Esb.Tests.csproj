@@ -9,7 +9,7 @@
     <PackageReference Include="Moq" Version="4.8.0" />
     <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
-    <PackageReference Include="Shuttle.Core.Castle" Version="10.0.2" />
+    <PackageReference Include="Shuttle.Core.Castle" Version="10.0.4" />
   </ItemGroup>
 
   <ItemGroup>
