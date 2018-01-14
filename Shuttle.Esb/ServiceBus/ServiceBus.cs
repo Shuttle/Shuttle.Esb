@@ -221,7 +221,7 @@ namespace Shuttle.Esb
 
             registry.RegistryBoostrap();
 
-            registry.AttemptRegister(configuration);
+            registry.AttemptRegisterInstance(configuration);
 
             registry.AttemptRegister<IServiceBusEvents, ServiceBusEvents>();
             registry.AttemptRegister<ISerializer, DefaultSerializer>();
@@ -243,7 +243,7 @@ namespace Shuttle.Esb
                 var transactionScopeConfiguration = configuration.TransactionScope ??
                                                     new TransactionScopeConfiguration();
 
-                registry.AttemptRegister<ITransactionScopeFactory>(
+                registry.AttemptRegisterInstance<ITransactionScopeFactory>(
                     new DefaultTransactionScopeFactory(transactionScopeConfiguration.Enabled,
                         transactionScopeConfiguration.IsolationLevel,
                         TimeSpan.FromSeconds(transactionScopeConfiguration.TimeoutSeconds)));

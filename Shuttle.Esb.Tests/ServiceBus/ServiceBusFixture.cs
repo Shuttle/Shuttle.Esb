@@ -28,7 +28,7 @@ namespace Shuttle.Esb.Tests
 
             var container = new WindsorComponentContainer(new WindsorContainer());
 
-            container.Register<IMessageHandlerInvoker>(handlerInvoker);
+            container.RegisterInstance<IMessageHandlerInvoker>(handlerInvoker);
 
             ServiceBus.Register(container, configuration);
 
