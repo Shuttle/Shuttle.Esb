@@ -363,10 +363,7 @@ namespace Shuttle.Esb
 
             var defaultPipelineFactory = resolver.Resolve<IPipelineFactory>() as DefaultPipelineFactory;
 
-            if (defaultPipelineFactory != null)
-            {
-                defaultPipelineFactory.Assign(resolver);
-            }
+            defaultPipelineFactory?.Assign(resolver);
 
             return resolver.Resolve<IServiceBus>();
         }

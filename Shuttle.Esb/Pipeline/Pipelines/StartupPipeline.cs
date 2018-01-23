@@ -1,21 +1,15 @@
-using System.Collections.Generic;
-using System.Linq;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class StartupPipeline : Pipeline
     {
-        public StartupPipeline(IEnumerable<IPipelineObserver> observers)
+        public StartupPipeline(IStartupConfigurationObserver startupConfigurationObserver,
+            IStartupProcessingObserver startupProcessingObserver)
         {
-            Guard.AgainstNull(observers, nameof(observers));
-
-            var list = observers.ToList();
-
-            RegisterObserver(list.Get<IStartupConfigurationObserver>());
-            RegisterObserver(list.Get<IStartupProcessingObserver>());
+            Guard.AgainstNull(startupConfigurationObserver, nameof(startupConfigurationObserver));
+            Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver));
 
             RegisterStage("Configuration")
                 .WithEvent<OnInitializing>()
@@ -43,6 +37,9 @@ namespace Shuttle.Esb
 
             RegisterStage("Final")
                 .WithEvent<OnStarted>();
+
+            RegisterObserver(startupConfigurationObserver);
+            RegisterObserver(startupProcessingObserver);
         }
     }
 }

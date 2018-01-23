@@ -1,19 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Shuttle.Core.Contract;
+﻿using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBusConfiguration configuration, IEnumerable<IPipelineObserver> observers)
+        public OutboxPipeline(IServiceBusConfiguration configuration, IGetWorkMessageObserver getWorkMessageObserver,
+            IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            ISendOutboxMessageObserver sendOutboxMessageObserver,
+            IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(observers, nameof(observers));
-
-            var list = observers.ToList();
+            Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
+            Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
+            Guard.AgainstNull(sendOutboxMessageObserver, nameof(sendOutboxMessageObserver));
+            Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
+            Guard.AgainstNull(outboxExceptionObserver, nameof(outboxExceptionObserver));
 
             State.SetWorkQueue(configuration.Outbox.WorkQueue);
             State.SetErrorQueue(configuration.Outbox.ErrorQueue);
@@ -33,12 +35,11 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(list.Get<IGetWorkMessageObserver>());
-            RegisterObserver(list.Get<IDeserializeTransportMessageObserver>());
-            RegisterObserver(list.Get<ISendOutboxMessageObserver>());
-            RegisterObserver(list.Get<IAcknowledgeMessageObserver>());
-
-            RegisterObserver(list.Get<IOutboxExceptionObserver>()); // must be last
+            RegisterObserver(getWorkMessageObserver);
+            RegisterObserver(deserializeTransportMessageObserver);
+            RegisterObserver(sendOutboxMessageObserver);
+            RegisterObserver(acknowledgeMessageObserver);
+            RegisterObserver(outboxExceptionObserver); // must be last
         }
     }
 }

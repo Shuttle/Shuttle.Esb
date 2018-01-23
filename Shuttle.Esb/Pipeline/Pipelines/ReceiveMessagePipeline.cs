@@ -1,19 +1,33 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Shuttle.Core.Contract;
+﻿using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public abstract class ReceiveMessagePipeline : Pipeline
     {
-        protected ReceiveMessagePipeline(IEnumerable<IPipelineObserver> observers, ITransactionScopeObserver transactionScopeObserver)
+        protected ReceiveMessagePipeline(IGetWorkMessageObserver getWorkMessageObserver,
+            IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
+            IDeferTransportMessageObserver deferTransportMessageObserver,
+            IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver,
+            IDecompressMessageObserver decompressMessageObserver,
+            IAssessMessageHandlingObserver assessMessageHandlingObserver, IIdempotenceObserver idempotenceObserver,
+            IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver,
+            ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver,
+            ITransactionScopeObserver transactionScopeObserver)
         {
-            Guard.AgainstNull(observers, nameof(observers));
-
-            var list = observers.ToList();
+            Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
+            Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
+            Guard.AgainstNull(deferTransportMessageObserver, nameof(deferTransportMessageObserver));
+            Guard.AgainstNull(deserializeMessageObserver, nameof(deserializeMessageObserver));
+            Guard.AgainstNull(decryptMessageObserver, nameof(decryptMessageObserver));
+            Guard.AgainstNull(decompressMessageObserver, nameof(decompressMessageObserver));
+            Guard.AgainstNull(assessMessageHandlingObserver, nameof(assessMessageHandlingObserver));
+            Guard.AgainstNull(idempotenceObserver, nameof(idempotenceObserver));
+            Guard.AgainstNull(handleMessageObserver, nameof(handleMessageObserver));
+            Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
+            Guard.AgainstNull(sendDeferredObserver, nameof(sendDeferredObserver));
+            Guard.AgainstNull(receiveExceptionObserver, nameof(receiveExceptionObserver));
 
             RegisterStage("Read")
                 .WithEvent<OnGetMessage>()
@@ -41,20 +55,20 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(list.Get<IGetWorkMessageObserver>());
-            RegisterObserver(list.Get<IDeserializeTransportMessageObserver>());
-            RegisterObserver(list.Get<IDeferTransportMessageObserver>());
-            RegisterObserver(list.Get<IDeserializeMessageObserver>());
-            RegisterObserver(list.Get<IDecryptMessageObserver>());
-            RegisterObserver(list.Get<IDecompressMessageObserver>());
-            RegisterObserver(list.Get<IAssessMessageHandlingObserver>());
-            RegisterObserver(list.Get<IIdempotenceObserver>());
-            RegisterObserver(list.Get<IHandleMessageObserver>());
-            RegisterObserver(list.Get<IAcknowledgeMessageObserver>());
-            RegisterObserver(list.Get<ISendDeferredObserver>());
+            RegisterObserver(getWorkMessageObserver);
+            RegisterObserver(deserializeTransportMessageObserver);
+            RegisterObserver(deferTransportMessageObserver);
+            RegisterObserver(deserializeMessageObserver);
+            RegisterObserver(decryptMessageObserver);
+            RegisterObserver(decompressMessageObserver);
+            RegisterObserver(assessMessageHandlingObserver);
+            RegisterObserver(idempotenceObserver);
+            RegisterObserver(handleMessageObserver);
+            RegisterObserver(acknowledgeMessageObserver);
+            RegisterObserver(sendDeferredObserver);
             RegisterObserver(transactionScopeObserver);
 
-            RegisterObserver(list.Get<IReceiveExceptionObserver>()); // must be last
+            RegisterObserver(receiveExceptionObserver); // must be last
         }
     }
 }

@@ -8,11 +8,12 @@ namespace Shuttle.Esb
 {
     public class TransportMessagePipeline : Pipeline
     {
-        public TransportMessagePipeline(IEnumerable<IPipelineObserver> observers)
+        public TransportMessagePipeline(IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
         {
-            Guard.AgainstNull(observers, nameof(observers));
-
-            var list = observers.ToList();
+            Guard.AgainstNull(assembleMessageObserver, nameof(assembleMessageObserver));
+            Guard.AgainstNull(serializeMessageObserver, nameof(serializeMessageObserver));
+            Guard.AgainstNull(compressMessageObserver, nameof(compressMessageObserver));
+            Guard.AgainstNull(encryptMessageObserver, nameof(encryptMessageObserver));
 
             RegisterStage("Create")
                 .WithEvent<OnAssembleMessage>()
@@ -24,10 +25,10 @@ namespace Shuttle.Esb
                 .WithEvent<OnCompressMessage>()
                 .WithEvent<OnAfterCompressMessage>();
 
-            RegisterObserver(list.Get<IAssembleMessageObserver>());
-            RegisterObserver(list.Get<ISerializeMessageObserver>());
-            RegisterObserver(list.Get<ICompressMessageObserver>());
-            RegisterObserver(list.Get<IEncryptMessageObserver>());
+            RegisterObserver(assembleMessageObserver);
+            RegisterObserver(serializeMessageObserver);
+            RegisterObserver(compressMessageObserver);
+            RegisterObserver(encryptMessageObserver);
         }
 
         public bool Execute(TransportMessageConfigurator configurator)
