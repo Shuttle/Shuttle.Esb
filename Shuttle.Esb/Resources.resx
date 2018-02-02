@@ -186,10 +186,6 @@
     <value>Unknown message route specification '{0}'.  Cannot create the specification.</value>
     <comment>{0} = specification name</comment>
   </data>
-  <data name="ProcessMessageMethodMissingException" xml:space="preserve">
-    <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
-    <comment>{0} = handler full type name, {1} = message full type name</comment>
-  </data>
   <data name="ReplyWithoutSenderInboxWorkQueueUri" xml:space="preserve">
     <value>The current message has no SenderIndexWorkQueueUri.  Cannot reply.</value>
   </data>
@@ -324,5 +320,9 @@
   <data name="ObserverInterfaceMissingException" xml:space="preserve">
     <value>Observer with type name '{0}' does not have an interface with name 'I{0}'.</value>
     <comment>{0} = observer type name</comment>
+  </data>
+  <data name="HandlerMessageMethodMissingException" xml:space="preserve">
+    <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
+    <comment>{0} = handler full type name, {1} = message full type name</comment>
   </data>
 </root>

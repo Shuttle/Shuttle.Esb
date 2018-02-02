@@ -142,6 +142,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
+        /// </summary>
+        public static string HandlerMessageMethodMissingException {
+            get {
+                return ResourceManager.GetString("HandlerMessageMethodMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only scheme &apos;{0}&apos; is supported.  The given uri &apos;{1}&apos; is not supported..
         /// </summary>
         public static string InvalidSchemeException {
@@ -273,15 +282,6 @@ namespace Shuttle.Esb {
         public static string PipelineExecutionException {
             get {
                 return ResourceManager.GetString("PipelineExecutionException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
-        /// </summary>
-        public static string ProcessMessageMethodMissingException {
-            get {
-                return ResourceManager.GetString("ProcessMessageMethodMissingException", resourceCulture);
             }
         }
         

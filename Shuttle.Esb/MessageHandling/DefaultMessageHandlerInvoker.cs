@@ -65,8 +65,8 @@ namespace Shuttle.Esb
 
                         if (method == null)
                         {
-                            throw new ProcessMessageMethodMissingException(string.Format(
-                                Resources.ProcessMessageMethodMissingException,
+                            throw new HandlerMessageMethodMissingException(string.Format(
+                                Resources.HandlerMessageMethodMissingException,
                                 handler.GetType().FullName,
                                 messageType.FullName));
                         }
@@ -93,9 +93,7 @@ namespace Shuttle.Esb
             }
             finally
             {
-                var reusability = handler as IReusability;
-
-                if (reusability != null && !reusability.IsReusable)
+                if (handler is IReusability reusability && !reusability.IsReusable)
                 {
                     ReleaseHandler(messageType);
                 }
