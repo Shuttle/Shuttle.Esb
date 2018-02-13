@@ -292,8 +292,6 @@ namespace Shuttle.Esb
                 observers.Add(type);
             }
 
-            registry.RegisterCollection(typeof(IPipelineObserver), observers, Lifestyle.Singleton);
-
             if (configuration.RegisterHandlers)
             {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
