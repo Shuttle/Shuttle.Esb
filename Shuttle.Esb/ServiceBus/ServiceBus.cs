@@ -313,15 +313,10 @@ namespace Shuttle.Esb
             }
 
             var queueFactoryType = typeof(IQueueFactory);
-            var queueFactoryImplementationTypes = new List<Type>();
+            var queueFactoryImplementationTypes = new HashSet<Type>();
 
             void AddQueueFactoryImplementationType(Type type)
             {
-                if (queueFactoryImplementationTypes.Contains(type))
-                {
-                    return;
-                }
-
                 queueFactoryImplementationTypes.Add(type);
             }
 

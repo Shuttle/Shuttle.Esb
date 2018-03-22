@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -5,8 +6,6 @@ namespace Shuttle.Esb
 {
     public class NullIdempotenceService : IIdempotenceService
     {
-        private readonly List<Stream> _empty = new List<Stream>();
-
         public ProcessingStatus ProcessingStatus(TransportMessage transportMessage)
         {
             return Esb.ProcessingStatus.Active;
@@ -25,7 +24,7 @@ namespace Shuttle.Esb
 
         public IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage)
         {
-            return _empty;
+            return Array.Empty<Stream>();
         }
 
         public void DeferredMessageSent(TransportMessage processingTransportMessage,

@@ -104,12 +104,13 @@ namespace Shuttle.Esb
 
         private List<AvailableWorker> GetAvailableWorkers(string inboxWorkQueueUri)
         {
-            if (!_workers.ContainsKey(inboxWorkQueueUri))
+            if (!_workers.TryGetValue(inboxWorkQueueUri, out var worker))
             {
-                _workers.Add(inboxWorkQueueUri, new List<AvailableWorker>());
+                worker = new List<AvailableWorker>();
+                _workers.Add(inboxWorkQueueUri, worker);
             }
 
-            return _workers[inboxWorkQueueUri];
+            return worker;
         }
     }
 }
