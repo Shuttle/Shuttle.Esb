@@ -8,7 +8,7 @@
 	<Import Project="Shuttle.Core.MSBuild.targets" />
 
 	<ItemGroup>
-		<Framework Include="net40-full;net45-full;net451-full;net452-full;net46-full;net461-full" />
+		<Framework Include="net40-full;net45-full;net451-full;net452-full;net46-full;net461-full;net462-full" />
 		<ProjectReference Include="..\$(PackageAssembly)\$(PackageAssembly).csproj" />
 	</ItemGroup>
 
