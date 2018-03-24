@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Shuttle.Core.Contract;
@@ -7,7 +8,6 @@ namespace Shuttle.Esb
 {
     public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
     {
-        private readonly IEnumerable<string> _empty = new ReadOnlyCollection<string>(new List<string>());
         private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
         public IEnumerable<string> GetRouteUris(string messageType)
@@ -16,10 +16,7 @@ namespace Shuttle.Esb
                 _messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Uri.ToString())
                     .FirstOrDefault();
 
-            return
-                string.IsNullOrEmpty(uri)
-                    ? _empty
-                    : new List<string> {uri};
+            return string.IsNullOrEmpty(uri) ? Array.Empty<string>() : new[] {uri};
         }
 
         public void Add(IMessageRoute messageRoute)

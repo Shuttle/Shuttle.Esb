@@ -10,9 +10,6 @@ namespace Shuttle.Esb
 {
     public class MessageSender : IMessageSender
     {
-        private static readonly IEnumerable<TransportMessage> EmptyPublishFlyweight =
-            new ReadOnlyCollection<TransportMessage>(new List<TransportMessage>());
-
         private readonly ILog _log;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
@@ -86,7 +83,7 @@ namespace Shuttle.Esb
 
             if (subscribers.Count > 0)
             {
-                var result = new List<TransportMessage>();
+                var result = new List<TransportMessage>(subscribers.Count);
 
                 foreach (var subscriber in subscribers)
                 {
@@ -105,7 +102,7 @@ namespace Shuttle.Esb
 
             _log.Warning(string.Format(Resources.WarningPublishWithoutSubscribers, message.GetType().FullName));
 
-            return EmptyPublishFlyweight;
+            return Array.Empty<TransportMessage>();
         }
     }
 }
