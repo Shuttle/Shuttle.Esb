@@ -12,7 +12,8 @@ namespace Shuttle.Esb
         {
             var key = resolverUri.OriginalString.ToLower();
 
-            return _uris.ContainsKey(key) ? _uris[key] : null;
+            _uris.TryGetValue(key, out var result);
+            return result;
         }
 
         public void Add(Uri resolverUri, Uri targetUri)
