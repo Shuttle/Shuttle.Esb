@@ -29,10 +29,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle(".NET Standard 2.0")]
 #endif
 
-[assembly: AssemblyVersion("10.0.3.0")]
+[assembly: AssemblyVersion("10.0.4.0")]
 [assembly: AssemblyCopyright("Copyright © Eben Roux 2018")]
 [assembly: AssemblyProduct("Shuttle.Esb")]
 [assembly: AssemblyCompany("Shuttle")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyInformationalVersion("10.0.3")]
+[assembly: AssemblyInformationalVersion("10.0.4")]
 [assembly: ComVisible(false)]
