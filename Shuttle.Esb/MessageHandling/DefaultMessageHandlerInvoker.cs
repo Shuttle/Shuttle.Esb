@@ -57,7 +57,7 @@ namespace Shuttle.Esb
 
                 lock (LockInvoke)
                 {
-                    if (!_cache.ContainsKey(messageType))
+                    if (!_cache.TryGetValue(messageType, out contextMethod))
                     {
                         var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
                         var method =
@@ -71,16 +71,16 @@ namespace Shuttle.Esb
                                 messageType.FullName));
                         }
 
-                        _cache.Add(messageType, new ContextMethod
+                        contextMethod = new ContextMethod
                         {
                             ContextType = typeof(HandlerContext<>).MakeGenericType(messageType),
                             Method = handler.GetType()
                                 .GetInterfaceMap(typeof(IMessageHandler<>).MakeGenericType(messageType))
                                 .TargetMethods.SingleOrDefault()
-                        });
-                    }
+                        };
 
-                    contextMethod = _cache[messageType];
+                        _cache.Add(messageType, contextMethod);
+                    }
                 }
 
                 var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration,
@@ -106,18 +106,13 @@ namespace Shuttle.Esb
         {
             lock (LockGetHandler)
             {
-                if (!_threadHandlers.ContainsKey(messageType))
+                if (!_threadHandlers.TryGetValue(messageType, out var instances))
                 {
                     return;
                 }
 
-                var instances = _threadHandlers[messageType];
                 var managedThreadId = Thread.CurrentThread.ManagedThreadId;
-
-                if (instances.ContainsKey(managedThreadId))
-                {
-                    instances.Remove(managedThreadId);
-                }
+                instances.Remove(managedThreadId);
             }
         }
 
@@ -125,21 +120,21 @@ namespace Shuttle.Esb
         {
             lock (LockGetHandler)
             {
-                if (!_threadHandlers.ContainsKey(messageType))
+                if (!_threadHandlers.TryGetValue(messageType, out var instances))
                 {
-                    _threadHandlers.Add(messageType, new Dictionary<int, object>());
+                    instances = new Dictionary<int, object>();
+                    _threadHandlers.Add(messageType, instances);
                 }
 
-                var instances = _threadHandlers[messageType];
                 var managedThreadId = Thread.CurrentThread.ManagedThreadId;
 
-                if (!instances.ContainsKey(managedThreadId))
+                if (!instances.TryGetValue(managedThreadId, out var handler))
                 {
-                    instances.Add(managedThreadId,
-                        _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(messageType)));
+                    handler = _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(messageType));
+                    instances.Add(managedThreadId, handler);
                 }
 
-                return instances[managedThreadId];
+                return handler;
             }
         }
     }
