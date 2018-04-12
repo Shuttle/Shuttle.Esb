@@ -7,7 +7,7 @@ namespace Shuttle.Esb
 {
     public class TransportMessageConfigurator
     {
-        private readonly string _anonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
+        private static readonly string AnonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
         private string _correlationId;
         private DateTime _expiryDate;
         private DateTime _ignoreTillDate;
@@ -59,7 +59,7 @@ namespace Shuttle.Esb
                     : _sendInboxWorkQueueUri,
                 PrincipalIdentityName = identity != null
                     ? identity.Name
-                    : _anonymousName,
+                    : AnonymousName,
                 IgnoreTillDate = _ignoreTillDate,
                 ExpiryDate = _expiryDate,
                 MessageType = Message.GetType().FullName,
