@@ -264,8 +264,6 @@ namespace Shuttle.Esb
                 registry.Register(type, type, Lifestyle.Transient);
             }
 
-            var observers = new List<Type>();
-
             foreach (var type in reflectionService.GetTypesAssignableTo<IPipelineObserver>(typeof(ServiceBus).Assembly))
             {
                 if (type.IsInterface || type.IsAbstract)
@@ -288,8 +286,6 @@ namespace Shuttle.Esb
                 {
                     throw new EsbConfigurationException(string.Format(Resources.ObserverInterfaceMissingException, type.Name));
                 }
-
-                observers.Add(type);
             }
 
             if (configuration.RegisterHandlers)
