@@ -9,6 +9,7 @@
     <licenseUrl>https://github.com/shuttle/Shuttle.Esb/raw/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/Shuttle/Shuttle.Esb/master/.media/logo.png</iconUrl>
+    <repository type="git" url="https://github.com/Shuttle/Shuttle.Esb.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
     <releaseNotes />
@@ -30,8 +31,6 @@
       </group>
 
       <group targetFramework="netstandard2.0">
-        <dependency id="System.Configuration.ConfigurationManager"
-                    version="{System.Configuration.ConfigurationManager-version}" />
         <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Encryption" version="{Shuttle.Core.Encryption-version}" />
@@ -48,8 +47,22 @@
       </group>
 
       <group targetFramework="netcoreapp2.0">
+        <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
+        <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
+        <dependency id="Shuttle.Core.Encryption" version="{Shuttle.Core.Encryption-version}" />
+        <dependency id="Shuttle.Core.Pipelines" version="{Shuttle.Core.Pipelines-version}" />
+        <dependency id="Shuttle.Core.PipelineTransaction" version="{Shuttle.Core.PipelineTransaction-version}" />
+        <dependency id="Shuttle.Core.Reflection" version="{Shuttle.Core.Reflection-version}" />
+        <dependency id="Shuttle.Core.Serialization" version="{Shuttle.Core.Serialization-version}" />
+        <dependency id="Shuttle.Core.Specification" version="{Shuttle.Core.Specification-version}" />
+        <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
+        <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
+        <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
         <dependency id="System.Configuration.ConfigurationManager"
                     version="{System.Configuration.ConfigurationManager-version}" />
+      </group>
+
+      <group targetFramework="netcoreapp2.1">
         <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Encryption" version="{Shuttle.Core.Encryption-version}" />

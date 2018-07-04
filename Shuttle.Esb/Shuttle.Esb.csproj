@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net46;net461;net462;net47;net471;netstandard2.0;netcoreapp2.0</TargetFrameworks>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFrameworks>net461;net462;net47;net471;netstandard2.0;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,22 +12,23 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Shuttle.Core.Compression" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.Container" Version="10.0.5" />
-        <PackageReference Include="Shuttle.Core.Encryption" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.Pipelines" Version="10.0.2" />
-        <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="10.0.2" />
-        <PackageReference Include="Shuttle.Core.Reflection" Version="10.0.6" />
-        <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.Specification" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.Streams" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.Threading" Version="10.0.0" />
-        <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.0" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0'" />
+        <PackageReference Include="Shuttle.Core.Compression" Version="10.0.2" />
+        <PackageReference Include="Shuttle.Core.Container" Version="10.0.8" />
+        <PackageReference Include="Shuttle.Core.Encryption" Version="10.0.1" />
+        <PackageReference Include="Shuttle.Core.Pipelines" Version="10.0.6" />
+        <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="10.0.3" />
+        <PackageReference Include="Shuttle.Core.Reflection" Version="10.0.8" />
+        <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.2" />
+        <PackageReference Include="Shuttle.Core.Specification" Version="10.0.1" />
+        <PackageReference Include="Shuttle.Core.Streams" Version="10.0.1" />
+        <PackageReference Include="Shuttle.Core.Threading" Version="10.0.2" />
+        <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netcoreapp2.1'" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'" />
+        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
         <Reference Include="System.Transactions" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     </ItemGroup>
 
