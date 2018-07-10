@@ -38,13 +38,26 @@ namespace Shuttle.Esb
             try
             {
                 pipeline.State.ResetWorking();
+                pipeline.State.SetDeferredMessageReturned(false);
+                pipeline.State.SetTransportMessage(null);
 
                 pipeline.Execute();
 
-                if (pipeline.State.GetWorking())
-                {
-                    var transportMessage = pipeline.State.GetTransportMessage();
+                var transportMessage = pipeline.State.GetTransportMessage();
 
+                if (pipeline.State.GetDeferredMessageReturned())
+                {
+                    if (transportMessage != null &&
+                        transportMessage.MessageId.Equals(_checkpointMessageId))
+                    {
+                        _checkpointMessageId = Guid.Empty;
+                    }
+
+                    return;
+                }
+
+                if (pipeline.State.GetWorking() && transportMessage != null)
+                {
                     if (transportMessage.IgnoreTillDate < _ignoreTillDate)
                     {
                         _ignoreTillDate = transportMessage.IgnoreTillDate;
@@ -52,7 +65,7 @@ namespace Shuttle.Esb
 
                     if (!_checkpointMessageId.Equals(transportMessage.MessageId))
                     {
-                        if (!Guid.Empty.Equals(_checkpointMessageId))
+                        if (!_checkpointMessageId.Equals(Guid.Empty))
                         {
                             return;
                         }
@@ -66,7 +79,11 @@ namespace Shuttle.Esb
                     }
                 }
 
-                _nextDeferredProcessDate = _ignoreTillDate;
+                lock (_messageDeferredLock)
+                {
+                    _nextDeferredProcessDate = _ignoreTillDate;
+                }
+
                 _ignoreTillDate = DateTime.MaxValue;
                 _checkpointMessageId = Guid.Empty;
 
@@ -93,7 +110,10 @@ namespace Shuttle.Esb
 
         private bool ShouldProcessDeferred()
         {
-            return DateTime.Now >= _nextDeferredProcessDate;
+            lock (_messageDeferredLock)
+            {
+                return DateTime.Now >= _nextDeferredProcessDate;
+            }
         }
     }
 }
