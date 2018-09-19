@@ -68,7 +68,8 @@ namespace Shuttle.Esb
 
                     var action = _policy.EvaluateMessageHandlingFailure(pipelineEvent);
 
-                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                    transportMessage.RegisterFailure(
+                        pipelineEvent.Pipeline.Exception.AllMessages(),
                         action.TimeSpanToIgnoreRetriedMessage);
 
                     using (var stream = _serializer.Serialize(transportMessage))
@@ -77,7 +78,7 @@ namespace Shuttle.Esb
                         var handlerFullTypeName = handler != null ? handler.GetType().FullName : "(handler is null)";
                         var currentRetryCount = transportMessage.FailureMessages.Count;
 
-                        var retry = !(pipelineEvent.Pipeline.Exception is UnrecoverableHandlerException)
+                        var retry = !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>()
                                     &&
                                     action.Retry;
 
