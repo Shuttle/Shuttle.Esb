@@ -19,6 +19,11 @@ namespace Shuttle.Esb
             return transportMessage.ExpiryDate < DateTime.Now;
         }
 
+        public static bool HasPriority(this TransportMessage transportMessage)
+        {
+            return transportMessage.Priority != 0;
+        }
+
         public static bool EncryptionEnabled(this TransportMessage transportMessage)
         {
             return !string.IsNullOrEmpty(transportMessage.EncryptionAlgorithm)
