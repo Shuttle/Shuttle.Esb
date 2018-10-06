@@ -10,6 +10,7 @@ namespace Shuttle.Esb
         private static readonly string AnonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
         private string _correlationId;
         private DateTime _expiryDate;
+        private int _priority;
         private DateTime _ignoreTillDate;
         private bool _local;
         private string _recipientInboxWorkQueueUri;
@@ -62,6 +63,7 @@ namespace Shuttle.Esb
                     : AnonymousName,
                 IgnoreTillDate = _ignoreTillDate,
                 ExpiryDate = _expiryDate,
+                Priority = _priority,
                 MessageType = Message.GetType().FullName,
                 AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
                 EncryptionAlgorithm = configuration.EncryptionAlgorithm,
@@ -96,6 +98,13 @@ namespace Shuttle.Esb
         public TransportMessageConfigurator WillExpire(DateTime expiryDate)
         {
             _expiryDate = expiryDate;
+
+            return this;
+        }
+
+        public TransportMessageConfigurator WithPriority(int priority)
+        {
+            _priority = priority;
 
             return this;
         }

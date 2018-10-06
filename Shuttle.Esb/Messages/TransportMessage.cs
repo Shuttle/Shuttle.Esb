@@ -28,6 +28,7 @@ namespace Shuttle.Esb
         public DateTime IgnoreTillDate { get; set; }
         public DateTime SendDate { get; set; }
         public DateTime ExpiryDate { get; set; }
+        public int Priority { get; set; }
         public List<string> FailureMessages { get; set; }
         public string MessageType { get; set; }
         public string AssemblyQualifiedName { get; set; }
