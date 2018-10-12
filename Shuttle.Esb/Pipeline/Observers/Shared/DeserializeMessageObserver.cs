@@ -40,7 +40,8 @@ namespace Shuttle.Esb
 
             try
             {
-                using (var stream = new MemoryStream(transportMessage.Message))
+                var data = transportMessage.Message;
+                using (var stream = new MemoryStream(data, 0, data.Length, false, true))
                 {
                     message = _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true),
                         stream);
