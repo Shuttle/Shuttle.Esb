@@ -38,7 +38,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            using (var stream = receivedMessage.Stream.Copy())
+            using (var stream = receivedMessage.Stream.CopyMemoryStream())
             {
                 if (state.GetDeferredQueue() == null)
                 {
