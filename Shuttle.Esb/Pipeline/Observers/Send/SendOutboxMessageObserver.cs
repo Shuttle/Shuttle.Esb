@@ -31,7 +31,7 @@ namespace Shuttle.Esb
 
             var queue = _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
 
-            using (var stream = receivedMessage.Stream.CopyMemoryStream())
+            using (var stream = receivedMessage.Stream.Copy())
             {
                 queue.Enqueue(transportMessage, stream);
             }

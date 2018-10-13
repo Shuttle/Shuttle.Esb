@@ -42,7 +42,7 @@ namespace Shuttle.Esb
 
             try
             {
-                using (var stream = receivedMessage.Stream.CopyMemoryStream())
+                using (var stream = receivedMessage.Stream.Copy())
                 {
                     transportMessage =
                         (TransportMessage) _serializer.Deserialize(typeof(TransportMessage), stream);
