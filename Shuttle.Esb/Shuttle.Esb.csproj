@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-    <TargetFrameworks>net461;net462;net47;net471;netstandard2.0;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
@@ -18,9 +18,9 @@
         <PackageReference Include="Shuttle.Core.Pipelines" Version="10.0.6" />
         <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="10.0.3" />
         <PackageReference Include="Shuttle.Core.Reflection" Version="10.0.10" />
-        <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.2" />
+        <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.3" />
         <PackageReference Include="Shuttle.Core.Specification" Version="10.0.1" />
-        <PackageReference Include="Shuttle.Core.Streams" Version="10.0.1" />
+        <PackageReference Include="Shuttle.Core.Streams" Version="10.0.2" />
         <PackageReference Include="Shuttle.Core.Threading" Version="10.0.2" />
         <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.1" />
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netcoreapp2.1'" />
