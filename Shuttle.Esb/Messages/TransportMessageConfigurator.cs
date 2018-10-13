@@ -11,6 +11,8 @@ namespace Shuttle.Esb
         private string _correlationId;
         private DateTime _expiryDate;
         private int _priority;
+        private string _encryptionAlgorithm;
+        private string _compressionAlgorithm;
         private DateTime _ignoreTillDate;
         private bool _local;
         private string _recipientInboxWorkQueueUri;
@@ -66,8 +68,8 @@ namespace Shuttle.Esb
                 Priority = _priority,
                 MessageType = Message.GetType().FullName,
                 AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
-                EncryptionAlgorithm = configuration.EncryptionAlgorithm,
-                CompressionAlgorithm = configuration.CompressionAlgorithm,
+                EncryptionAlgorithm = _encryptionAlgorithm ?? configuration.EncryptionAlgorithm,
+                CompressionAlgorithm = _compressionAlgorithm ?? configuration.CompressionAlgorithm,
                 MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
                 CorrelationId = _correlationId,
                 SendDate = DateTime.Now
@@ -105,6 +107,20 @@ namespace Shuttle.Esb
         public TransportMessageConfigurator WithPriority(int priority)
         {
             _priority = priority;
+
+            return this;
+        }
+
+        public TransportMessageConfigurator WithEncryption(string encryption)
+        {
+            _encryptionAlgorithm = encryption;
+
+            return this;
+        }
+
+        public TransportMessageConfigurator WithCompression(string compression)
+        {
+            _compressionAlgorithm = compression;
 
             return this;
         }
