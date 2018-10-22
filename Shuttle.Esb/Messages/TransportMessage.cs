@@ -30,7 +30,6 @@ namespace Shuttle.Esb
         public DateTime ExpiryDate { get; set; }
         public int Priority { get; set; }
         public List<string> FailureMessages { get; set; }
-        public string MessageType { get; set; }
         public string AssemblyQualifiedName { get; set; }
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }

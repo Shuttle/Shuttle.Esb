@@ -9,7 +9,7 @@ namespace Shuttle.Esb.Tests
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
         {
-            var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
+            var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().GetMessageTypeFullName();
 
             _invokeCounts.TryGetValue(messageType, out int count);
             _invokeCounts[messageType] = count + 1;

@@ -66,7 +66,6 @@ namespace Shuttle.Esb
                 IgnoreTillDate = _ignoreTillDate,
                 ExpiryDate = _expiryDate,
                 Priority = _priority,
-                MessageType = Message.GetType().FullName,
                 AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
                 EncryptionAlgorithm = _encryptionAlgorithm ?? configuration.EncryptionAlgorithm,
                 CompressionAlgorithm = _compressionAlgorithm ?? configuration.CompressionAlgorithm,

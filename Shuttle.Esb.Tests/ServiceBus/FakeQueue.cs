@@ -42,7 +42,6 @@ namespace Shuttle.Esb.Tests
 
             var transportMessage = new TransportMessage
             {
-                MessageType = command.GetType().Name,
                 ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
                 PrincipalIdentityName = "Identity",
                 AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,

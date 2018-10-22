@@ -70,7 +70,6 @@ namespace Shuttle.Esb
                 transportMessage.Message = stream.ToBytes();
             }
 
-            transportMessage.MessageType = message.GetType().FullName;
             transportMessage.AssemblyQualifiedName = message.GetType().AssemblyQualifiedName;
 
             return transportMessage;
@@ -83,10 +82,39 @@ namespace Shuttle.Esb
 
         public static void AcceptInvariants(this TransportMessage transportMessage)
         {
-            Guard.AgainstNull(transportMessage.MessageId, "MessageId");
-            Guard.AgainstNullOrEmptyString(transportMessage.PrincipalIdentityName, "PrincipalIdentityName");
-            Guard.AgainstNullOrEmptyString(transportMessage.MessageType, "MessageType");
-            Guard.AgainstNullOrEmptyString(transportMessage.AssemblyQualifiedName, "AssemblyQualifiedName");
+            Guard.AgainstNull(transportMessage.MessageId, nameof(transportMessage.MessageId));
+            Guard.AgainstNullOrEmptyString(transportMessage.PrincipalIdentityName, nameof(transportMessage.PrincipalIdentityName));
+            Guard.AgainstNullOrEmptyString(transportMessage.AssemblyQualifiedName, nameof(transportMessage.AssemblyQualifiedName));
+        }
+
+        /// <summary>
+        /// Gets the full name of the message type. This method removes the assembly information from the end of the assembly qualified name
+        /// </summary>
+        /// <returns></returns>
+        public static string GetMessageTypeFullName(this TransportMessage transportMessage)
+        {
+            string aqn = transportMessage.AssemblyQualifiedName;
+            int i = 0;
+            int p = 0;
+            for (; i < aqn.Length; i++)
+            {
+                char chr = aqn[i];
+                if (p == 0 && chr == ',')
+                {
+                    break;
+                }
+
+                if (chr == '[')
+                {
+                    p++;
+                }
+                else if (chr == ']')
+                {
+                    p--;
+                }
+            }
+
+            return aqn.Substring(0, i);
         }
 
         public static void Merge(this List<TransportHeader> merge, IEnumerable<TransportHeader> headers)

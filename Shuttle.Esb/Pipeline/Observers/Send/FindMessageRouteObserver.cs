@@ -27,7 +27,7 @@ namespace Shuttle.Esb
             if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
             {
                 transportMessage.RecipientInboxWorkQueueUri =
-                    FindRoute(_messageRouteProvider, transportMessage.MessageType);
+                    FindRoute(_messageRouteProvider, transportMessage.GetMessageTypeFullName());
             }
         }
 

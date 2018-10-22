@@ -82,12 +82,13 @@ namespace Shuttle.Esb
                                     &&
                                     action.Retry;
 
+                        string messageType = transportMessage.GetMessageTypeFullName();
                         if (retry)
                         {
                             _log.Warning(string.Format(Resources.MessageHandlerExceptionWillRetry,
                                 handlerFullTypeName,
                                 pipelineEvent.Pipeline.Exception.AllMessages(),
-                                transportMessage.MessageType,
+                                messageType,
                                 transportMessage.MessageId,
                                 currentRetryCount,
                                 state.GetMaximumFailureCount()));
@@ -99,7 +100,7 @@ namespace Shuttle.Esb
                             _log.Error(string.Format(Resources.MessageHandlerExceptionFailure,
                                 handlerFullTypeName,
                                 pipelineEvent.Pipeline.Exception.AllMessages(),
-                                transportMessage.MessageType,
+                                messageType,
                                 transportMessage.MessageId,
                                 state.GetMaximumFailureCount(),
                                 state.GetErrorQueue().Uri.Secured()));

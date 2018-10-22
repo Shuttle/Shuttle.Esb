@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
@@ -95,6 +96,31 @@ namespace Shuttle.Esb.Tests
             ignoreTillDate = DateTime.Now.AddHours(2);
 
             Assert.IsTrue(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate);
+        }
+
+        [Test]
+        public void Should_be_able_to_get_the_message_type_full_name()
+        {
+            var types = new[]
+            {
+                typeof(int),
+                typeof(System.Collections.ArrayList),
+                typeof(TransportHeader),
+                typeof(Dictionary<Tuple<int, (string a, int b, TransportHeader c)>, DateTime>)
+            };
+
+            foreach (var type in types)
+            {
+                string fullName = type.FullName;
+                string aqn = type.AssemblyQualifiedName;
+
+                var transportMessage = new TransportMessage {AssemblyQualifiedName = aqn};
+                Assert.AreEqual(fullName, transportMessage.GetMessageTypeFullName());
+
+                // it should work when the specified type name is not assembly qualified, too
+                transportMessage = new TransportMessage {AssemblyQualifiedName = fullName};
+                Assert.AreEqual(fullName, transportMessage.GetMessageTypeFullName());
+            }
         }
     }
 }
