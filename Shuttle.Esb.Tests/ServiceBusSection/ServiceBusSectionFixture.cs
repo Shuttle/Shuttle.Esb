@@ -10,7 +10,7 @@ namespace Shuttle.Esb.Tests
         {
             return ConfigurationSectionProvider.OpenFile<ServiceBusSection>("shuttle", "serviceBus",
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                    string.Format(@".\ServiceBusSection\files\{0}", file)));
+                    $@".\ServiceBusSection\files\{file}"));
         }
     }
 }

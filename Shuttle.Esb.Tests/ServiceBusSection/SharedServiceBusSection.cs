@@ -15,6 +15,7 @@ namespace Shuttle.Esb.Tests
             Assert.IsNotNull(section);
 
             Assert.IsTrue(section.RemoveMessagesNotHandled);
+            Assert.IsTrue(section.RemoveCorruptMessages);
             Assert.AreEqual("GZip", section.CompressionAlgorithm);
             Assert.AreEqual("3DES", section.EncryptionAlgorithm);
         }
