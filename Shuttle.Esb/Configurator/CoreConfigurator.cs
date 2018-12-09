@@ -31,6 +31,7 @@ namespace Shuttle.Esb
             configuration.CacheIdentity = section.CacheIdentity;
             configuration.RegisterHandlers = section.RegisterHandlers;
             configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
+            configuration.RemoveCorruptMessages = section.RemoveCorruptMessages;
             configuration.CompressionAlgorithm = section.CompressionAlgorithm;
             configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
         }

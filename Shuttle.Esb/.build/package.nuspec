@@ -46,7 +46,7 @@
                     version="{System.Configuration.ConfigurationManager-version}" />
       </group>
 
-      <group targetFramework="netcoreapp2.0">
+      <group targetFramework="netcoreapp2.1">
         <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Encryption" version="{Shuttle.Core.Encryption-version}" />

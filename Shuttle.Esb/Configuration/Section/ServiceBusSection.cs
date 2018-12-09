@@ -39,6 +39,9 @@ namespace Shuttle.Esb
         [ConfigurationProperty("removeMessagesNotHandled", IsRequired = false, DefaultValue = false)]
         public bool RemoveMessagesNotHandled => (bool) this["removeMessagesNotHandled"];
 
+        [ConfigurationProperty("removeCorruptMessages", IsRequired = false, DefaultValue = false)]
+        public bool RemoveCorruptMessages => (bool) this["removeCorruptMessages"];
+
         [ConfigurationProperty("encryptionAlgorithm", IsRequired = false, DefaultValue = "")]
         public string EncryptionAlgorithm => (string) this["encryptionAlgorithm"];
 

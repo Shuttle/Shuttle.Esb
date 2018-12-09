@@ -6,13 +6,15 @@ namespace Shuttle.Esb
 {
     public class DefaultUriResolver : IUriResolver
     {
-        private readonly Dictionary<string, Uri> _uris = new Dictionary<string, Uri>();
+        private readonly Dictionary<string, Uri> _targetUris = new Dictionary<string, Uri>();
 
         public Uri GetTarget(Uri resolverUri)
         {
-            var key = resolverUri.OriginalString.ToLower();
+            if (!_targetUris.TryGetValue(resolverUri.OriginalString.ToLower(), out var result))
+            {
 
-            _uris.TryGetValue(key, out var result);
+            }
+
             return result;
         }
 
@@ -21,7 +23,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(resolverUri, nameof(resolverUri));
             Guard.AgainstNull(targetUri, nameof(targetUri));
 
-            _uris.Add(resolverUri.OriginalString.ToLower(), targetUri);
+            _targetUris.Add(resolverUri.OriginalString.ToLower(), targetUri);
         }
     }
 }

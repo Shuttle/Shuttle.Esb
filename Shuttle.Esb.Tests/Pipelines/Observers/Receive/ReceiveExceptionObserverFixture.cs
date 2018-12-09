@@ -37,7 +37,7 @@ namespace Shuttle.Esb.Tests
                 .RegisterObserver(observer);
 
             pipeline
-                .RegisterStage("Test")
+                .RegisterStage(".")
                 .WithEvent<OnTest>();
 
             var transportMessage = new TransportMessage();

@@ -91,6 +91,7 @@ namespace Shuttle.Esb
         public bool HasControlInbox => ControlInbox != null;
 
         public bool RemoveMessagesNotHandled { get; set; }
+        public bool RemoveCorruptMessages { get; set; }
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 

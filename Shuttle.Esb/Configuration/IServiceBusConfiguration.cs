@@ -17,6 +17,7 @@ namespace Shuttle.Esb
 
         bool IsWorker { get; }
         bool RemoveMessagesNotHandled { get; set; }
+        bool RemoveCorruptMessages { get; set; }
 
         IControlInboxQueueConfiguration ControlInbox { get; set; }
         IInboxQueueConfiguration Inbox { get; set; }
