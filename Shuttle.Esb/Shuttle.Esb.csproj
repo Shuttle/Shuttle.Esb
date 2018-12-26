@@ -24,12 +24,11 @@
         <PackageReference Include="Shuttle.Core.System" Version="1.0.1" />
         <PackageReference Include="Shuttle.Core.Threading" Version="10.0.2" />
         <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.1" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netcoreapp2.1'" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.1'" />
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
+        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
         <Reference Include="System.Transactions" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     </ItemGroup>
 

@@ -26,6 +26,7 @@
         <dependency id="Shuttle.Core.Serialization" version="{Shuttle.Core.Serialization-version}" />
         <dependency id="Shuttle.Core.Specification" version="{Shuttle.Core.Specification-version}" />
         <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
+        <dependency id="Shuttle.Core.System" version="{Shuttle.Core.System-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
       </group>
@@ -40,6 +41,7 @@
         <dependency id="Shuttle.Core.Serialization" version="{Shuttle.Core.Serialization-version}" />
         <dependency id="Shuttle.Core.Specification" version="{Shuttle.Core.Specification-version}" />
         <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
+        <dependency id="Shuttle.Core.System" version="{Shuttle.Core.System-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
         <dependency id="System.Configuration.ConfigurationManager"
@@ -56,22 +58,7 @@
         <dependency id="Shuttle.Core.Serialization" version="{Shuttle.Core.Serialization-version}" />
         <dependency id="Shuttle.Core.Specification" version="{Shuttle.Core.Specification-version}" />
         <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
-        <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
-        <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
-        <dependency id="System.Configuration.ConfigurationManager"
-                    version="{System.Configuration.ConfigurationManager-version}" />
-      </group>
-
-      <group targetFramework="netcoreapp2.1">
-        <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
-        <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
-        <dependency id="Shuttle.Core.Encryption" version="{Shuttle.Core.Encryption-version}" />
-        <dependency id="Shuttle.Core.Pipelines" version="{Shuttle.Core.Pipelines-version}" />
-        <dependency id="Shuttle.Core.PipelineTransaction" version="{Shuttle.Core.PipelineTransaction-version}" />
-        <dependency id="Shuttle.Core.Reflection" version="{Shuttle.Core.Reflection-version}" />
-        <dependency id="Shuttle.Core.Serialization" version="{Shuttle.Core.Serialization-version}" />
-        <dependency id="Shuttle.Core.Specification" version="{Shuttle.Core.Specification-version}" />
-        <dependency id="Shuttle.Core.Streams" version="{Shuttle.Core.Streams-version}" />
+        <dependency id="Shuttle.Core.System" version="{Shuttle.Core.System-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
         <dependency id="System.Configuration.ConfigurationManager"
