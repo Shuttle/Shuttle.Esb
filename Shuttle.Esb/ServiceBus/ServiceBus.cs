@@ -219,7 +219,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(registry, nameof(registry));
             Guard.AgainstNull(configuration, nameof(configuration));
 
-            registry.RegistryBoostrap();
+            registry.RegistryBootstrap();
 
             registry.AttemptRegisterInstance(configuration);
 
@@ -338,7 +338,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(resolver, nameof(resolver));
 
-            resolver.ResolverBoostrap();
+            resolver.ResolverBootstrap();
 
             var configuration = resolver.Resolve<IServiceBusConfiguration>();
 

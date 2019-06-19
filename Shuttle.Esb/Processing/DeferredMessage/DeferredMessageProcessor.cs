@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
@@ -24,11 +25,13 @@ namespace Shuttle.Esb
             _log = Log.For(this);
         }
 
-        public void Execute(IThreadState state)
+        public void Execute(CancellationToken cancellationToken)
         {
+            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
+
             if (!ShouldProcessDeferred())
             {
-                ThreadSleep.While(1000, state);
+                ThreadSleep.While(1000, cancellationToken);
 
                 return;
             }

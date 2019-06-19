@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
@@ -10,28 +10,25 @@ namespace Shuttle.Esb
     {
         private readonly IMessageSender _messageSender;
 
-        public HandlerContext(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
+        public HandlerContext(ITransportMessageFactory transportMessageFactory,
             IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
-            TransportMessage transportMessage, T message, IThreadState activeState)
+            TransportMessage transportMessage, T message, CancellationToken cancellationToken)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(message, nameof(message));
-            Guard.AgainstNull(activeState, nameof(activeState));
+            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
 
             _messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionManager,
                 transportMessage);
 
             TransportMessage = transportMessage;
             Message = message;
-            ActiveState = activeState;
-            Configuration = configuration;
+            CancellationToken = cancellationToken;
         }
 
         public TransportMessage TransportMessage { get; }
         public T Message { get; }
-        public IThreadState ActiveState { get; }
-        public IServiceBusConfiguration Configuration { get; }
+        public CancellationToken CancellationToken { get; }
 
         public void Dispatch(TransportMessage transportMessage)
         {

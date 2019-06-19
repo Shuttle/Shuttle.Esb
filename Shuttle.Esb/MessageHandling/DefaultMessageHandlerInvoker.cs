@@ -11,11 +11,12 @@ namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
+        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
         private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IComponentResolver _resolver;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
 
@@ -24,15 +25,17 @@ namespace Shuttle.Esb
 
         private readonly ITransportMessageFactory _transportMessageFactory;
 
-        public DefaultMessageHandlerInvoker(IServiceBusConfiguration configuration)
+        public DefaultMessageHandlerInvoker(IComponentResolver resolver, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ITransportMessageFactory transportMessageFactory)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(resolver, nameof(resolver));
+            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
+            Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
 
-            _configuration = configuration;
-
-            _pipelineFactory = configuration.Resolver.Resolve<IPipelineFactory>();
-            _subscriptionManager = configuration.Resolver.Resolve<ISubscriptionManager>();
-            _transportMessageFactory = configuration.Resolver.Resolve<ITransportMessageFactory>();
+            _resolver = resolver;
+            _pipelineFactory = pipelineFactory;
+            _subscriptionManager = subscriptionManager;
+            _transportMessageFactory = transportMessageFactory;
         }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
@@ -59,7 +62,7 @@ namespace Shuttle.Esb
                 {
                     if (!_cache.TryGetValue(messageType, out contextMethod))
                     {
-                        var interfaceType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+                        var interfaceType = MessageHandlerType.MakeGenericType(messageType);
                         var method =
                             handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
@@ -73,9 +76,9 @@ namespace Shuttle.Esb
 
                         contextMethod = new ContextMethod
                         {
-                            ContextType = typeof(HandlerContext<>).MakeGenericType(messageType),
+                            ContextType = HandlerContextType.MakeGenericType(messageType),
                             Method = handler.GetType()
-                                .GetInterfaceMap(typeof(IMessageHandler<>).MakeGenericType(messageType))
+                                .GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType))
                                 .TargetMethods.SingleOrDefault()
                         };
 
@@ -83,9 +86,8 @@ namespace Shuttle.Esb
                     }
                 }
 
-                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _configuration,
-                    _transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
-                    state.GetActiveState());
+                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
+                    state.GetCancellationToken());
 
                 state.SetHandlerContext((IMessageSender)handlerContext);
 
@@ -111,8 +113,7 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                var managedThreadId = Thread.CurrentThread.ManagedThreadId;
-                instances.Remove(managedThreadId);
+                instances.Remove(Thread.CurrentThread.ManagedThreadId);
             }
         }
 
@@ -130,7 +131,7 @@ namespace Shuttle.Esb
 
                 if (!instances.TryGetValue(managedThreadId, out var handler))
                 {
-                    handler = _configuration.Resolver.Resolve(MessageHandlerType.MakeGenericType(messageType));
+                    handler = _resolver.Resolve(MessageHandlerType.MakeGenericType(messageType));
                     instances.Add(managedThreadId, handler);
                 }
 

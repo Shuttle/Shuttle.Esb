@@ -30,8 +30,10 @@ namespace Shuttle.Esb
             _log = Log.For(this);
         }
 
-        public void Waiting(IThreadState state)
+        public void Waiting(CancellationToken cancellationToken)
         {
+            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
+
             if (ShouldNotifyDistributor())
             {
                 _bus.Send(new WorkerThreadAvailableCommand
@@ -55,7 +57,7 @@ namespace Shuttle.Esb
                     DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
             }
 
-            _threadActivity.Waiting(state);
+            _threadActivity.Waiting(cancellationToken);
         }
 
         public void Working()

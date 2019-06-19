@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -31,18 +32,20 @@ namespace Shuttle.Esb
         }
 
         [DebuggerNonUserCode]
-        void IProcessor.Execute(IThreadState state)
+        void IProcessor.Execute(CancellationToken cancellationToken)
         {
-            Execute(state);
+            Execute(cancellationToken);
         }
 
-        public virtual void Execute(IThreadState state)
+        public virtual void Execute(CancellationToken cancellationToken)
         {
+            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
+
             var availableWorker = _workerAvailabilityManager.GetAvailableWorker();
 
             if (_configuration.Inbox.Distribute && availableWorker == null)
             {
-                _threadActivity.Waiting(state);
+                _threadActivity.Waiting(cancellationToken);
 
                 return;
             }
@@ -55,11 +58,11 @@ namespace Shuttle.Esb
             {
                 messagePipeline.State.SetAvailableWorker(availableWorker);
                 messagePipeline.State.ResetWorking();
-                messagePipeline.State.SetActiveState(state);
+                messagePipeline.State.SetCancellationToken(cancellationToken);
                 messagePipeline.State.SetTransportMessage(null);
                 messagePipeline.State.SetReceivedMessage(null);
 
-                if (!state.Active)
+                if (cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
@@ -76,7 +79,7 @@ namespace Shuttle.Esb
                 {
                     _events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
 
-                    _threadActivity.Waiting(state);
+                    _threadActivity.Waiting(cancellationToken);
                 }
             }
             finally

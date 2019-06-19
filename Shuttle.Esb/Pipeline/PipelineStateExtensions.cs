@@ -1,20 +1,20 @@
 using System;
 using System.IO;
+using System.Threading;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
     public static class PipelineStateExtensions
     {
-        public static IThreadState GetActiveState(this IState state)
+        public static CancellationToken GetCancellationToken(this IState state)
         {
-            return state.Get<IThreadState>(StateKeys.ActiveState);
+            return state.Get<CancellationToken>(StateKeys.CancellationToken);
         }
 
-        public static void SetActiveState(this IState state, IThreadState activeState)
+        public static void SetCancellationToken(this IState state, CancellationToken cancellationToken)
         {
-            state.Replace(StateKeys.ActiveState, activeState);
+            state.Replace(StateKeys.CancellationToken, cancellationToken);
         }
 
         public static IQueue GetWorkQueue(this IState state)

@@ -1,4 +1,4 @@
-using Shuttle.Core.Threading;
+using System.Threading;
 
 namespace Shuttle.Esb
 {
@@ -6,7 +6,6 @@ namespace Shuttle.Esb
     {
         TransportMessage TransportMessage { get; }
         T Message { get; }
-        IThreadState ActiveState { get; }
-        IServiceBusConfiguration Configuration { get; }
+        CancellationToken CancellationToken { get; }
     }
 }
