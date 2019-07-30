@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Logging;
@@ -11,6 +10,8 @@ namespace Shuttle.Esb
     public class MessageSender : IMessageSender
     {
         private readonly ILog _log;
+        private readonly HashSet<string> _messageTypesPublishedWarning = new HashSet<string>();
+
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
 
@@ -100,7 +101,12 @@ namespace Shuttle.Esb
                 return result;
             }
 
-            _log.Warning(string.Format(Resources.WarningPublishWithoutSubscribers, message.GetType().FullName));
+            if (!_messageTypesPublishedWarning.Contains(message.GetType().FullName))
+            {
+                _log.Warning(string.Format(Resources.WarningPublishWithoutSubscribers, message.GetType().FullName));
+
+                _messageTypesPublishedWarning.Add(message.GetType().FullName);
+            }
 
             return Array.Empty<TransportMessage>();
         }
