@@ -16,7 +16,6 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(message, nameof(message));
-            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
 
             _messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionManager,
                 transportMessage);

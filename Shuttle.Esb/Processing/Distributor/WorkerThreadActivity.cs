@@ -32,8 +32,6 @@ namespace Shuttle.Esb
 
         public void Waiting(CancellationToken cancellationToken)
         {
-            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
-
             if (ShouldNotifyDistributor())
             {
                 _bus.Send(new WorkerThreadAvailableCommand

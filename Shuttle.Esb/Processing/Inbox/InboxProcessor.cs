@@ -39,8 +39,6 @@ namespace Shuttle.Esb
 
         public virtual void Execute(CancellationToken cancellationToken)
         {
-            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
-
             var availableWorker = _workerAvailabilityManager.GetAvailableWorker();
 
             if (_configuration.Inbox.Distribute && availableWorker == null)

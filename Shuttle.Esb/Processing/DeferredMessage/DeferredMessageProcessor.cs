@@ -27,8 +27,6 @@ namespace Shuttle.Esb
 
         public void Execute(CancellationToken cancellationToken)
         {
-            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
-
             if (!ShouldProcessDeferred())
             {
                 ThreadSleep.While(1000, cancellationToken);

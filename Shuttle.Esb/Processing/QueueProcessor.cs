@@ -33,8 +33,6 @@ namespace Shuttle.Esb
 
         public virtual void Execute(CancellationToken cancellationToken)
         {
-            Guard.AgainstNull(cancellationToken, nameof(cancellationToken));
-
             var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 
             try
