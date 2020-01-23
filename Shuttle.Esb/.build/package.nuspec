@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <package>
   <metadata>
     <id>Shuttle.Esb</id>
@@ -8,7 +7,7 @@
     <owners>Eben Roux</owners>
     <license type="expression">BSD-3-Clause</license>
     <projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/Shuttle/Shuttle.Esb/master/.media/logo.png</iconUrl>
+    <icon>images\logo.png</icon>
     <repository type="git" url="https://github.com/Shuttle/Shuttle.Esb.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
@@ -30,7 +29,6 @@
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
       </group>
-
       <group targetFramework="netstandard2.0">
         <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
@@ -44,10 +42,8 @@
         <dependency id="Shuttle.Core.System" version="{Shuttle.Core.System-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
-        <dependency id="System.Configuration.ConfigurationManager"
-                    version="{System.Configuration.ConfigurationManager-version}" />
+        <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
       </group>
-
       <group targetFramework="netcoreapp2.1">
         <dependency id="Shuttle.Core.Compression" version="{Shuttle.Core.Compression-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
@@ -61,9 +57,12 @@
         <dependency id="Shuttle.Core.System" version="{Shuttle.Core.System-version}" />
         <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
         <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="{Shuttle.Core.TimeSpanTypeConverters-version}" />
-        <dependency id="System.Configuration.ConfigurationManager"
-                    version="{System.Configuration.ConfigurationManager-version}" />
+        <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
       </group>
     </dependencies>
   </metadata>
+  <files>
+    <file src="..\..\..\..\.media\logo.png" target="images\" />
+	<file src="lib\**\*.*" target="lib" />
+  </files>
 </package>
