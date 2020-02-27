@@ -55,7 +55,7 @@ namespace Shuttle.Esb
             {
                 return _transactionScope ?? Synchronised(() => _transactionScope = new TransactionScopeConfiguration());
             }
-            set { _transactionScope = value; }
+            set => _transactionScope = value;
         }
 
         public bool CreateQueues { get; set; }
