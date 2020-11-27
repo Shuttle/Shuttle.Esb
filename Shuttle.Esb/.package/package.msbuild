@@ -1,0 +1,104 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Version" ToolsVersion="15">
+  <PropertyGroup>
+    <PackageName>Shuttle.Esb</PackageName>
+    <PackageSource Condition="$(PackageSource) == ''">https://www.nuget.org</PackageSource>
+    <Configuration Condition="$(Configuration) == ''">Release</Configuration>
+  </PropertyGroup>
+
+  <Import Project="Shuttle.NuGetPackager.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\$(PackageName).csproj" />
+  </ItemGroup>
+
+  <Target Name="Build">
+    <MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Debug;Platform=AnyCPU" />
+    <MSBuild Projects="@(ProjectReference)" Targets="Rebuild" Properties="Configuration=Release;Platform=AnyCPU" />
+  </Target>
+
+  <Target Name="Version">
+    <Prompt Text="Enter semantic version:" Condition="$(SemanticVersion) == ''">
+      <Output TaskParameter="UserInput" PropertyName="SemanticVersion" />
+    </Prompt>
+
+    <Error Text="Please enter a version number." Condition="$(SemanticVersion) == ''" />
+
+    <SemanticVersion Value="$(SemanticVersion)">
+      <Output TaskParameter="VersionCore" PropertyName="SemanticVersionCore" />
+      <Output TaskParameter="Prerelease" PropertyName="SemanticVersionPrerelease" />
+      <Output TaskParameter="BuildMetadata" PropertyName="SemanticVersionBuildMetadata" />
+    </SemanticVersion>
+
+    <Copy SourceFiles="AssemblyInfo.cs.template" DestinationFiles="..\Properties\AssemblyInfo.cs" SkipUnchangedFiles="false" />
+
+    <RegexFindAndReplace Files="..\Properties\AssemblyInfo.cs" FindExpression="#\{SemanticVersionCore\}#"
+                         ReplacementText="$(SemanticVersionCore)" />
+    <RegexFindAndReplace Files="..\Properties\AssemblyInfo.cs" FindExpression="#\{SemanticVersion\}#"
+                         ReplacementText="$(SemanticVersion)" />
+    <RegexFindAndReplace Files="..\Properties\AssemblyInfo.cs" FindExpression="#\{Year\}#"
+                         ReplacementText="$([System.DateTime]::Now.ToString(`yyyy`))" />
+
+    <Copy SourceFiles="package.nuspec.template" DestinationFiles="package.nuspec" SkipUnchangedFiles="false" />
+
+    <RegexFindAndReplace Files="package.nuspec" FindExpression="#\{SemanticVersion\}#"
+                         ReplacementText="$(SemanticVersion)" />
+    <RegexFindAndReplace Files="package.nuspec" FindExpression="#\{Year\}#"
+                         ReplacementText="$([System.DateTime]::Now.ToString(`yyyy`))" />
+
+    <SetNuGetPackageVersions Files="package.nuspec" ProjectFile="..\$(PackageName).csproj" />
+  </Target>
+
+  <Target Name="Pack" DependsOnTargets="Build">
+    <Error
+      Text="Before executing the 'Package' target first execute the 'Version' target to set the relevant semantic version in all applicable files."
+      Condition="!Exists('package.nuspec')" />
+
+    <ItemGroup>
+      <NuGetBinaries Include="..\bin\$(Configuration)\**\$(PackageName).dll" />
+    </ItemGroup>
+
+    <RemoveDir Directories="release" />
+
+    <Copy SourceFiles="package.nuspec" DestinationFolder="release\" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(NuGetBinaries)" DestinationFolder="release\lib\%(RecursiveDir)" SkipUnchangedFiles="false" />
+
+    <Exec Command="nuget pack release\package.nuspec -OutputDirectory release -NoPackageAnalysis" />
+  </Target>
+
+  <Target Name="Push" DependsOnTargets="Version">
+    <MSBuild
+      Projects="$(MSBuildProjectFile)"
+      Targets="Pack"
+      Properties="SemanticVersion=$(SemanticVersion)" />
+
+    <Exec
+      Command="nuget push release\$(PackageName).$(SemanticVersion).nupkg -source $(PackageSource)" />
+  </Target>
+
+  <Target Name="Bump" DependsOnTargets="Version">
+    <MSBuild
+      Projects="$(MSBuildProjectFile)"
+      Targets="Pack"
+      Properties="SemanticVersion=$(SemanticVersion)" />
+
+    <ItemGroup>
+      <PackageFile Include="release\$(PackageName).*.nupkg" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(NuGetPackageSourceFolder)" Condition="$(NuGetPackageSourceFolder) != ''" />
+
+    <Copy
+      SourceFiles="@(PackageFile)"
+      DestinationFolder="$(NuGetPackageSourceFolder)"
+      SkipUnchangedFiles="false"
+      Condition="$(NuGetPackageSourceFolder) != ''" />
+  </Target>
+
+  <Target Name="Flush">
+    <ItemGroup>
+      <PackageFolder Include="$(UserProfile)\.nuget\packages\$(PackageName)" />
+    </ItemGroup>
+
+    <RemoveDir Directories="@(PackageFolder)" />
+  </Target>
+</Project>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<package>
+	<metadata>
+		<id>Shuttle.Esb</id>
+		<version>#{SemanticVersion}#</version>
+		<authors>Eben Roux</authors>
+		<owners>Eben Roux</owners>
+		<license type="expression">BSD-3-Clause</license>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<icon>images\logo.png</icon>
+		<repository type="git" url="https://github.com/shuttle/Shuttle.Esb.git" />
+		<projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
+		<description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
+		<copyright>Copyright (c) #{Year}#, Eben Roux</copyright>
+		<tags>shuttle</tags>
+		<dependencies>
+#{Dependencies}#
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="..\..\..\.media\logo.png" target="images" />
+		<file src="lib\**\*.*" target="lib" />
+	</files>
+</package>

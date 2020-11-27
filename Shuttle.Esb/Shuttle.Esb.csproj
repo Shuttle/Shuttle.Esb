@@ -1,49 +1,46 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
+
+  <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    </PropertyGroup>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include=".build\package.msbuild" />
-        <None Include=".build\package.nuspec" />
-        <None Include=".build\Shuttle.MSBuild.dll" />
-        <None Include=".build\Shuttle.MSBuild.targets" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Include=".package\AssemblyInfo.cs.template" />
+    <None Include=".package\package.msbuild" />
+    <None Include=".package\package.nuspec.template" />
+    <None Include=".package\Shuttle.NuGetPackager.MSBuild.dll" />
+    <None Include=".package\Shuttle.NuGetPackager.targets" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Shuttle.Core.Compression" Version="10.0.3" />
-        <PackageReference Include="Shuttle.Core.Container" Version="11.2.0" />
-        <PackageReference Include="Shuttle.Core.Encryption" Version="10.0.2" />
-        <PackageReference Include="Shuttle.Core.Pipelines" Version="10.0.6" />
-        <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="10.0.3" />
-        <PackageReference Include="Shuttle.Core.Reflection" Version="10.0.10" />
-        <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.4" />
-        <PackageReference Include="Shuttle.Core.Specification" Version="10.0.2" />
-        <PackageReference Include="Shuttle.Core.Streams" Version="10.0.2" />
-        <PackageReference Include="Shuttle.Core.System" Version="1.0.1" />
-        <PackageReference Include="Shuttle.Core.Threading" Version="11.0.0" />
-        <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.1" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.1'" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Shuttle.Core.Compression" Version="10.0.4" />
+    <PackageReference Include="Shuttle.Core.Container" Version="11.2.1" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="10.0.3" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="10.0.7" />
+    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="10.0.4" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="10.0.11" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.5" />
+    <PackageReference Include="Shuttle.Core.Specification" Version="10.0.3" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="10.0.3" />
+    <PackageReference Include="Shuttle.Core.System" Version="10.0.2" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.2" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
-        <Reference Include="System.Transactions" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Resources.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Resources.resx</DependentUpon>
-      </Compile>
-    </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Update="Resources.resx">
-        <Generator>PublicResXFileCodeGenerator</Generator>
-        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
-    </ItemGroup>
 </Project>

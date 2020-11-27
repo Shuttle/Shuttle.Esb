@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<PackageTasksPath Condition="'$(PackageTasksPath)' == ''">Shuttle.NuGetPackager.MSBuild.dll</PackageTasksPath>
+	</PropertyGroup>
+
+	<UsingTask AssemblyFile="$(PackageTasksPath)" TaskName="Shuttle.NuGetPackager.MSBuild.Prompt" />
+	<UsingTask AssemblyFile="$(PackageTasksPath)" TaskName="Shuttle.NuGetPackager.MSBuild.RegexFindAndReplace" />
+	<UsingTask AssemblyFile="$(PackageTasksPath)" TaskName="Shuttle.NuGetPackager.MSBuild.NuGet.SetNuGetPackageVersions" />
+	<UsingTask AssemblyFile="$(PackageTasksPath)" TaskName="Shuttle.NuGetPackager.MSBuild.Zip" />
+	<UsingTask AssemblyFile="$(PackageTasksPath)" TaskName="Shuttle.NuGetPackager.MSBuild.NuGet.SemanticVersion" />
+</Project>
