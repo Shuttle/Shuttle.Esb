@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Reflection;
 using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
@@ -26,18 +27,11 @@ namespace Shuttle.Esb
             Guard.AgainstNullOrEmptyString(value, "value");
 
             var typeNames = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            var reflectionService = new ReflectionService();
 
             foreach (var typeName in typeNames)
             {
-                Type type = null;
-
-                try
-                {
-                    type = Type.GetType(typeName);
-                }
-                catch
-                {
-                }
+                var type = reflectionService.GetType(typeName);
 
                 if (type == null)
                 {

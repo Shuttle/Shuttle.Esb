@@ -1,5 +1,5 @@
-﻿using System;
-using Shuttle.Core.Contract;
+﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
@@ -10,9 +10,11 @@ namespace Shuttle.Esb
             if (ServiceBusSection.Get() != null &&
                 ServiceBusSection.Get().QueueFactories != null)
             {
+                var reflectionService = new ReflectionService();
+
                 foreach (QueueFactoryElement queueFactoryElement in ServiceBusSection.Get().QueueFactories)
                 {
-                    var type = Type.GetType(queueFactoryElement.Type);
+                    var type = reflectionService.GetType(queueFactoryElement.Type);
 
                     Guard.Against<EsbConfigurationException>(type == null,
                         string.Format(Resources.UnknownTypeException, queueFactoryElement.Type));

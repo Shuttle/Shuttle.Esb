@@ -11,7 +11,6 @@ namespace Shuttle.Esb.Tests
         {
             var consoleLog = new ConsoleLog(GetType()) {LogLevel = LogLevel.Trace};
 
-
             Log.Assign(consoleLog);
         }
     }
