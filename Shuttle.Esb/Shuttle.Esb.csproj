@@ -24,7 +24,7 @@
     <PackageReference Include="Shuttle.Core.Specification" Version="10.0.3" />
     <PackageReference Include="Shuttle.Core.Streams" Version="10.0.3" />
     <PackageReference Include="Shuttle.Core.System" Version="10.0.3" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="11.0.2" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="11.1.1" />
     <PackageReference Include="Shuttle.Core.TimeSpanTypeConverters" Version="10.0.2" />
   </ItemGroup>
 

@@ -64,9 +64,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNullOrEmptyString(uri, "uri");
 
-            var queue =
-                _queues.Find(
-                    candidate => Find(candidate, uri));
+            var queue = FindQueue(uri);
 
             if (queue != null)
             {
@@ -109,6 +107,19 @@ namespace Shuttle.Esb
 
                 return queue;
             }
+        }
+
+        public bool ContainsQueue(string uri)
+        {
+            return FindQueue(uri) != null;
+        }
+
+        public IQueue FindQueue(string uri)
+        {
+            Guard.AgainstNullOrEmptyString(uri, nameof(uri));
+            
+            return _queues.Find(
+                candidate => Find(candidate, uri));
         }
 
         public IQueue CreateQueue(string uri)

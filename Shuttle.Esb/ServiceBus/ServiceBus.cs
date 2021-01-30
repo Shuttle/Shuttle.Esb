@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -22,9 +23,10 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _deferredMessageThreadPool;
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
+        private ICancellationTokenSource _cancellationTokenSource;
 
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager)
+            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
@@ -33,6 +35,7 @@ namespace Shuttle.Esb
 
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
+            _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
 
             _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionManager);
         }
@@ -75,6 +78,8 @@ namespace Shuttle.Esb
                 return;
             }
 
+            _cancellationTokenSource.Renew();
+
             if (_configuration.HasInbox)
             {
                 if (_configuration.Inbox.HasDeferredQueue)
@@ -105,6 +110,8 @@ namespace Shuttle.Esb
         public void Dispose()
         {
             Stop();
+            
+            _cancellationTokenSource.AttemptDispose();
         }
 
         public void Dispatch(TransportMessage transportMessage)
@@ -235,8 +242,8 @@ namespace Shuttle.Esb
             registry.AttemptRegister<IWorkerAvailabilityManager, WorkerAvailabilityManager>();
             registry.AttemptRegister<ISubscriptionManager, NullSubscriptionManager>();
             registry.AttemptRegister<IIdempotenceService, NullIdempotenceService>();
-
             registry.AttemptRegister<ITransactionScopeObserver, TransactionScopeObserver>();
+            registry.AttemptRegister<ICancellationTokenSource, DefaultCancellationTokenSource>();
 
             if (!registry.IsRegistered<ITransactionScopeFactory>())
             {
