@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Container;
@@ -11,11 +12,10 @@ namespace Shuttle.Esb
 {
     public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
     {
-        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
-        private readonly Dictionary<Type, ContextMethod> _cache = new Dictionary<Type, ContextMethod>();
+        private readonly Dictionary<Type, ContextMethodInvoker> _cache = new Dictionary<Type, ContextMethodInvoker>();
         private readonly IComponentResolver _resolver;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
@@ -56,7 +56,7 @@ namespace Shuttle.Esb
 
             try
             {
-                ContextMethod contextMethod;
+                ContextMethodInvoker contextMethod;
 
                 lock (LockInvoke)
                 {
@@ -74,24 +74,23 @@ namespace Shuttle.Esb
                                 messageType.FullName));
                         }
 
-                        contextMethod = new ContextMethod
-                        {
-                            ContextType = HandlerContextType.MakeGenericType(messageType),
-                            Method = handler.GetType()
+                        contextMethod = new ContextMethodInvoker(
+                            messageType,
+                            handler.GetType()
                                 .GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType))
                                 .TargetMethods.SingleOrDefault()
-                        };
+                        );
 
                         _cache.Add(messageType, contextMethod);
                     }
                 }
 
-                var handlerContext = Activator.CreateInstance(contextMethod.ContextType, _transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
+                var handlerContext = contextMethod.CreateHandlerContext(_transportMessageFactory, _pipelineFactory, _subscriptionManager, transportMessage, message,
                     state.GetCancellationToken());
 
-                state.SetHandlerContext((IMessageSender)handlerContext);
+                state.SetHandlerContext(handlerContext);
 
-                contextMethod.Method.Invoke(handler, new[] {handlerContext});
+                contextMethod.Invoke(handler, handlerContext);
             }
             finally
             {
@@ -140,9 +139,70 @@ namespace Shuttle.Esb
         }
     }
 
-    internal class ContextMethod
+    internal class ContextMethodInvoker
     {
-        public Type ContextType { get; set; }
-        public MethodInfo Method { get; set; }
+        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
+        private readonly ConstructorInvokeHandler _constructorInvoker;
+
+        private delegate IMessageSender ConstructorInvokeHandler(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, 
+            ISubscriptionManager subscriptionManager, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+
+        private readonly InvokeHandler _invoker;
+
+        private delegate void InvokeHandler(object handler, IMessageSender handlerContext);
+
+        public ContextMethodInvoker(Type messageType, MethodInfo methodInfo)
+        {
+            var dynamicMethod = new DynamicMethod(string.Empty, typeof(IMessageSender), 
+                new[]
+                {
+                    typeof(ITransportMessageFactory), typeof(IPipelineFactory), typeof(ISubscriptionManager), 
+                    typeof(TransportMessage), typeof(object), typeof(CancellationToken)
+                }, typeof(IMessageSender).Module);
+
+            var il = dynamicMethod.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldarg_3);
+            il.Emit(OpCodes.Ldarg_S, 4);
+            il.Emit(OpCodes.Ldarg_S, 5);
+
+            var contextType = HandlerContextType.MakeGenericType(messageType);
+            var constructorInfo = contextType.GetConstructor(new[]
+            {
+                typeof(ITransportMessageFactory), typeof(IPipelineFactory), typeof(ISubscriptionManager), 
+                typeof(TransportMessage), messageType, typeof(CancellationToken)
+            });
+            
+            il.Emit(OpCodes.Newobj, constructorInfo);
+            il.Emit(OpCodes.Ret);
+
+            _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
+
+            dynamicMethod = new DynamicMethod(string.Empty,
+                typeof(void), new[] { typeof(object), typeof(IMessageSender) },
+                typeof(IMessageSender).Module);
+
+            il = dynamicMethod.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+
+            il.EmitCall(OpCodes.Callvirt, methodInfo, null);
+            il.Emit(OpCodes.Ret);
+
+            _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
+        }
+
+        public void Invoke(object handler, IMessageSender handlerContext)
+        {
+            _invoker.Invoke(handler, handlerContext);
+        }
+
+        public IMessageSender CreateHandlerContext(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+        {
+            return _constructorInvoker(transportMessageFactory, pipelineFactory, subscriptionManager, transportMessage, message, cancellationToken);
+        }
     }
 }
