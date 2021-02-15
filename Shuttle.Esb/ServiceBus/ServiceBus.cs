@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -18,12 +17,12 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageSender _messageSender;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly ICancellationTokenSource _cancellationTokenSource;
 
         private IProcessorThreadPool _controlThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
-        private ICancellationTokenSource _cancellationTokenSource;
 
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
             IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ICancellationTokenSource cancellationTokenSource)
