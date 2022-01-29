@@ -14,10 +14,6 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigureQueueManager : PipelineEvent
-    {
-    }
-
     public class OnAfterConfigureQueueManager : PipelineEvent
     {
     }

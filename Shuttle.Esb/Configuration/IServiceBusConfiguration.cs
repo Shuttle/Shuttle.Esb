@@ -9,8 +9,6 @@ namespace Shuttle.Esb
 {
     public interface IServiceBusConfiguration
     {
-        IComponentResolver Resolver { get; }
-
         bool HasInbox { get; }
         bool HasControlInbox { get; }
         bool HasOutbox { get; }
@@ -40,7 +38,6 @@ namespace Shuttle.Esb
         IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
 
         IEnumerable<UriMappingConfiguration> UriMapping { get; }
-        IServiceBusConfiguration Assign(IComponentResolver resolver);
 
         IEncryptionAlgorithm FindEncryptionAlgorithm(string name);
         void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm);

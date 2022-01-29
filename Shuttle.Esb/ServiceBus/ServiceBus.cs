@@ -3,21 +3,17 @@ using System.Collections.Generic;
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.PipelineTransaction;
 using Shuttle.Core.Reflection;
-using Shuttle.Core.Serialization;
 using Shuttle.Core.Threading;
-using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
     public class ServiceBus : IServiceBus
     {
-        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+        private readonly ICancellationTokenSource _cancellationTokenSource;
         private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageSender _messageSender;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ICancellationTokenSource _cancellationTokenSource;
 
         private IProcessorThreadPool _controlThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
@@ -25,7 +21,8 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _outboxThreadPool;
 
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ICancellationTokenSource cancellationTokenSource)
+            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
+            ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
@@ -59,7 +56,8 @@ namespace Shuttle.Esb
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
                 _controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
                 _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
-                _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+                _deferredMessageThreadPool =
+                    startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
             }
             catch
             {
@@ -109,7 +107,7 @@ namespace Shuttle.Esb
         public void Dispose()
         {
             Stop();
-            
+
             _cancellationTokenSource.AttemptDispose();
         }
 
@@ -200,165 +198,16 @@ namespace Shuttle.Esb
             }
         }
 
+        [Obsolete("This method has been replaced by `ComponentContainerExtensions.RegisterServiceBus()`.", false)]
         public static IServiceBusConfiguration Register(IComponentRegistry registry)
         {
-            Guard.AgainstNull(registry, nameof(registry));
-
-            var configuration = new ServiceBusConfiguration();
-
-            new CoreConfigurator().Apply(configuration);
-            new UriResolverConfigurator().Apply(configuration);
-            new QueueManagerConfigurator().Apply(configuration);
-            new MessageRouteConfigurator().Apply(configuration);
-            new ControlInboxConfigurator().Apply(configuration);
-            new InboxConfigurator().Apply(configuration);
-            new OutboxConfigurator().Apply(configuration);
-            new WorkerConfigurator().Apply(configuration);
-
-            Register(registry, configuration);
-
-            return configuration;
+            return registry.RegisterServiceBus();
         }
 
-        public static void Register(IComponentRegistry registry, IServiceBusConfiguration configuration)
-        {
-            Guard.AgainstNull(registry, nameof(registry));
-            Guard.AgainstNull(configuration, nameof(configuration));
-
-            registry.RegistryBootstrap();
-
-            registry.AttemptRegisterInstance(configuration);
-
-            registry.AttemptRegister<IServiceBusEvents, ServiceBusEvents>();
-            registry.AttemptRegister<ISerializer, DefaultSerializer>();
-            registry.AttemptRegister<IServiceBusPolicy, DefaultServiceBusPolicy>();
-            registry.AttemptRegister<IMessageRouteProvider, DefaultMessageRouteProvider>();
-            registry.AttemptRegister<IIdentityProvider, DefaultIdentityProvider>();
-            registry.AttemptRegister<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>();
-            registry.AttemptRegister<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
-            registry.AttemptRegister<IUriResolver, DefaultUriResolver>();
-            registry.AttemptRegister<IQueueManager, QueueManager>();
-            registry.AttemptRegister<IWorkerAvailabilityManager, WorkerAvailabilityManager>();
-            registry.AttemptRegister<ISubscriptionManager, NullSubscriptionManager>();
-            registry.AttemptRegister<IIdempotenceService, NullIdempotenceService>();
-            registry.AttemptRegister<ITransactionScopeObserver, TransactionScopeObserver>();
-            registry.AttemptRegister<ICancellationTokenSource, DefaultCancellationTokenSource>();
-
-            if (!registry.IsRegistered<ITransactionScopeFactory>())
-            {
-                var transactionScopeConfiguration = configuration.TransactionScope ??
-                                                    new TransactionScopeConfiguration();
-
-                registry.AttemptRegisterInstance<ITransactionScopeFactory>(
-                    new DefaultTransactionScopeFactory(transactionScopeConfiguration.Enabled,
-                        transactionScopeConfiguration.IsolationLevel,
-                        TimeSpan.FromSeconds(transactionScopeConfiguration.TimeoutSeconds)));
-            }
-
-            registry.AttemptRegister<IPipelineFactory, DefaultPipelineFactory>();
-            registry.AttemptRegister<ITransportMessageFactory, DefaultTransportMessageFactory>();
-
-            var reflectionService = new ReflectionService();
-
-            foreach (var type in reflectionService.GetTypesAssignableTo<IPipeline>(typeof(ServiceBus).Assembly))
-            {
-                if (type.IsInterface || type.IsAbstract || registry.IsRegistered(type))
-                {
-                    continue;
-                }
-
-                registry.Register(type, type, Lifestyle.Transient);
-            }
-
-            foreach (var type in reflectionService.GetTypesAssignableTo<IPipelineObserver>(typeof(ServiceBus).Assembly))
-            {
-                if (type.IsInterface || type.IsAbstract)
-                {
-                    continue;
-                }
-
-                var interfaceType = type.InterfaceMatching($"I{type.Name}");
-
-                if (interfaceType != null)
-                {
-                    if (registry.IsRegistered(type))
-                    {
-                        continue;
-                    }
-
-                    registry.Register(interfaceType, type, Lifestyle.Singleton);
-                }
-                else
-                {
-                    throw new EsbConfigurationException(string.Format(Resources.ObserverInterfaceMissingException, type.Name));
-                }
-            }
-
-            if (configuration.RegisterHandlers)
-            {
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                foreach (var type in reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly))
-                foreach (var @interface in type.GetInterfaces())
-                {
-                    if (!@interface.IsAssignableTo(MessageHandlerType))
-                    {
-                        continue;
-                    }
-
-                    var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
-
-                    if (!registry.IsRegistered(genericType))
-                    {
-                        registry.Register(genericType, type, Lifestyle.Transient);
-                    }
-                }
-            }
-
-            var queueFactoryType = typeof(IQueueFactory);
-            var queueFactoryImplementationTypes = new HashSet<Type>();
-
-            void AddQueueFactoryImplementationType(Type type)
-            {
-                queueFactoryImplementationTypes.Add(type);
-            }
-
-            if (configuration.ScanForQueueFactories)
-            {
-                foreach (var type in new ReflectionService().GetTypesAssignableTo<IQueueFactory>())
-                {
-                    AddQueueFactoryImplementationType(type);
-                }
-            }
-
-            foreach (var type in configuration.QueueFactoryTypes)
-            {
-                AddQueueFactoryImplementationType(type);
-            }
-
-            registry.RegisterCollection(queueFactoryType, queueFactoryImplementationTypes, Lifestyle.Singleton);
-
-            registry.AttemptRegister<IServiceBus, ServiceBus>();
-        }
-
+        [Obsolete("Please create an instance of the service bus using `IComponentResolver.Resolve<IServiceBus>()`.")]
         public static IServiceBus Create(IComponentResolver resolver)
         {
             Guard.AgainstNull(resolver, nameof(resolver));
-
-            resolver.ResolverBootstrap();
-
-            var configuration = resolver.Resolve<IServiceBusConfiguration>();
-
-            if (configuration == null)
-            {
-                throw new InvalidOperationException(string.Format(Core.Container.Resources.TypeNotRegisteredException,
-                    typeof(IServiceBusConfiguration).FullName));
-            }
-
-            configuration.Assign(resolver);
-
-            var defaultPipelineFactory = resolver.Resolve<IPipelineFactory>() as DefaultPipelineFactory;
-
-            defaultPipelineFactory?.Assign(resolver);
 
             return resolver.Resolve<IServiceBus>();
         }

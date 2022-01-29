@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Shuttle.Core.Compression;
-using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.TimeSpanTypeConverters;
@@ -32,7 +31,6 @@ namespace Shuttle.Esb
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
         private readonly List<Type> _queueFactoryTypes = new List<Type>();
         private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
-        private IComponentResolver _resolver;
         private ITransactionScopeConfiguration _transactionScope;
 
         public ServiceBusConfiguration()
@@ -61,28 +59,6 @@ namespace Shuttle.Esb
         public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
         public bool RegisterHandlers { get; set; }
-
-        public IComponentResolver Resolver
-        {
-            get
-            {
-                if (_resolver == null)
-                {
-                    throw new InvalidOperationException(Resources.ConfigurationResolverMissing);
-                }
-
-                return _resolver;
-            }
-        }
-
-        public IServiceBusConfiguration Assign(IComponentResolver resolver)
-        {
-            Guard.AgainstNull(resolver, nameof(resolver));
-
-            _resolver = resolver;
-
-            return this;
-        }
 
         public bool HasInbox => Inbox != null;
 

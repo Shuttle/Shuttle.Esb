@@ -1,5 +1,4 @@
 using System;
-using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -7,7 +6,6 @@ namespace Shuttle.Esb
 {
     public interface IStartupConfigurationObserver : 
         IPipelineObserver<OnConfigureUriResolver>, 
-        IPipelineObserver<OnConfigureQueueManager>, 
         IPipelineObserver<OnConfigureQueues>, 
         IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnConfigureMessageRouteProvider>
@@ -54,14 +52,6 @@ namespace Shuttle.Esb
                 {
                     messageRoute.AddSpecification(specificationFactory.Create(specification.Name, specification.Value));
                 }
-            }
-        }
-
-        public void Execute(OnConfigureQueueManager pipelineEvent)
-        {
-            foreach (var queueFactory in _configuration.Resolver.ResolveAll<IQueueFactory>())
-            {
-                _queueManager.RegisterQueueFactory(queueFactory);
             }
         }
 

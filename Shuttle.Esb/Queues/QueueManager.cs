@@ -17,11 +17,13 @@ namespace Shuttle.Esb
         private readonly List<IQueue> _queues = new List<IQueue>();
         private readonly IUriResolver _uriResolver;
 
-        public QueueManager(IUriResolver uriResolver)
+        public QueueManager(IUriResolver uriResolver, IEnumerable<IQueueFactory> queueFactories = null)
         {
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
             _uriResolver = uriResolver;
+
+            _queueFactories.AddRange(queueFactories ?? Enumerable.Empty<IQueueFactory>());
 
             _log = Log.For(this);
         }

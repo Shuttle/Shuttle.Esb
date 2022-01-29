@@ -15,7 +15,6 @@ namespace Shuttle.Esb
                 .WithEvent<OnInitializing>()
                 .WithEvent<OnConfigureUriResolver>()
                 .WithEvent<OnAfterConfigureUriResolver>()
-                .WithEvent<OnConfigureQueueManager>()
                 .WithEvent<OnAfterConfigureQueueManager>()
                 .WithEvent<OnConfigureQueues>()
                 .WithEvent<OnAfterConfigureQueues>()

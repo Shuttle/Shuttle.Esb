@@ -29,10 +29,9 @@ namespace Shuttle.Esb.Tests
             var container = new WindsorComponentContainer(new WindsorContainer());
 
             container.RegisterInstance<IMessageHandlerInvoker>(handlerInvoker);
+            container.RegisterServiceBus(configuration);
 
-            ServiceBus.Register(container, configuration);
-
-            using (var bus = ServiceBus.Create(container))
+            using (var bus = container.ResolveServiceBus())
             {
                 bus.Start();
 
@@ -44,8 +43,7 @@ namespace Shuttle.Esb.Tests
                 }
             }
 
-            Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"),
-                "FakeHandlerInvoker was not invoked exactly once.");
+            Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"),  "FakeHandlerInvoker was not invoked exactly once.");
             Assert.AreEqual(2, fakeQueue.MessageCount, "FakeQueue was not invoked exactly twice.");
         }
     }

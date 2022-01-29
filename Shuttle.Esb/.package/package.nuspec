@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Esb</id>
-		<version>11.2.0</version>
+		<version>12.0.0</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<license type="expression">BSD-3-Clause</license>
@@ -12,19 +12,19 @@
 		<repository type="git" url="https://github.com/shuttle/Shuttle.Esb.git" />
 		<projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
 		<description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
-		<copyright>Copyright (c) 2021, Eben Roux</copyright>
+		<copyright>Copyright (c) 2022, Eben Roux</copyright>
 		<tags>shuttle</tags>
 		<dependencies>
       <dependency id="Shuttle.Core.Compression" version="10.0.4" />
-      <dependency id="Shuttle.Core.Container" version="11.2.3" />
+      <dependency id="Shuttle.Core.Container" version="12.0.0" />
       <dependency id="Shuttle.Core.Encryption" version="10.0.3" />
-      <dependency id="Shuttle.Core.Pipelines" version="10.1.0" />
+      <dependency id="Shuttle.Core.Pipelines" version="11.0.0" />
       <dependency id="Shuttle.Core.PipelineTransaction" version="10.0.4" />
       <dependency id="Shuttle.Core.Reflection" version="11.0.2" />
       <dependency id="Shuttle.Core.Serialization" version="10.0.5" />
       <dependency id="Shuttle.Core.Specification" version="10.0.3" />
       <dependency id="Shuttle.Core.Streams" version="10.0.3" />
-      <dependency id="Shuttle.Core.System" version="10.0.3" />
+      <dependency id="Shuttle.Core.System" version="11.0.0" />
       <dependency id="Shuttle.Core.Threading" version="11.1.1" />
       <dependency id="Shuttle.Core.TimeSpanTypeConverters" version="10.0.2" />
 		</dependencies>
