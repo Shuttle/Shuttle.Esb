@@ -17,6 +17,11 @@ namespace Shuttle.Esb
             Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
             Guard.AgainstNull(outboxExceptionObserver, nameof(outboxExceptionObserver));
 
+            if (!configuration.HasOutbox)
+            {
+                return;
+            }
+
             State.SetWorkQueue(configuration.Outbox.WorkQueue);
             State.SetErrorQueue(configuration.Outbox.ErrorQueue);
 

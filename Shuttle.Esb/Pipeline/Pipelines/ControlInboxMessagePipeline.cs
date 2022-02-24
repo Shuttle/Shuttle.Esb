@@ -22,6 +22,11 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 
+            if (!configuration.HasControlInbox)
+            {
+                return;
+            }
+
             State.SetWorkQueue(configuration.ControlInbox.WorkQueue);
             State.SetErrorQueue(configuration.ControlInbox.ErrorQueue);
             State.SetDurationToIgnoreOnFailure(configuration.ControlInbox.DurationToIgnoreOnFailure);
