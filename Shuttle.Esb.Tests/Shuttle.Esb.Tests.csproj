@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net461;net5.0</TargetFrameworks>
@@ -9,7 +9,7 @@
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Shuttle.Core.Castle" Version="10.0.7" />
+    <PackageReference Include="Shuttle.Core.Castle" Version="10.1.0" />
     <PackageReference Include="Shuttle.Core.System" Version="11.0.0" />
   </ItemGroup>
 

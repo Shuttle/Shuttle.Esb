@@ -198,7 +198,7 @@ namespace Shuttle.Esb
             }
         }
 
-        [Obsolete("This method has been replaced by `ComponentContainerExtensions.RegisterServiceBus()`.", false)]
+        [Obsolete("This method has been replaced by `ComponentRegistryExtensions.RegisterServiceBus()`.", false)]
         public static IServiceBusConfiguration Register(IComponentRegistry registry)
         {
             return registry.RegisterServiceBus();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -13,7 +12,7 @@ using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
-    public static class ComponentContainerExtensions
+    public static class ComponentRegistryExtensions
     {
         public static IServiceBusConfiguration RegisterServiceBus(this IComponentRegistry registry, IServiceBusConfiguration configuration = null)
         {
