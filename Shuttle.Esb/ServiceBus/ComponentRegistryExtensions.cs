@@ -88,7 +88,7 @@ namespace Shuttle.Esb
 
                 if (interfaceType != null)
                 {
-                    if (registry.IsRegistered(type))
+                    if (registry.IsRegistered(interfaceType))
                     {
                         continue;
                     }
