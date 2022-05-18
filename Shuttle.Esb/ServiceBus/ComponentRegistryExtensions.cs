@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -14,6 +15,8 @@ namespace Shuttle.Esb
 {
     public static class ComponentRegistryExtensions
     {
+        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+
         public static IServiceBusConfiguration RegisterServiceBus(this IComponentRegistry registry, IServiceBusConfiguration configuration = null)
         {
             Guard.AgainstNull(registry, nameof(registry));
@@ -104,23 +107,9 @@ namespace Shuttle.Esb
 
             if (serviceBusConfiguration.RegisterHandlers)
             {
-                var messageHandlerType = typeof(IMessageHandler<>);
-
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                foreach (var type in reflectionService.GetTypesAssignableTo(messageHandlerType, assembly))
-                foreach (var @interface in type.GetInterfaces())
                 {
-                    if (!@interface.IsAssignableTo(messageHandlerType))
-                    {
-                        continue;
-                    }
-
-                    var genericType = messageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
-
-                    if (!registry.IsRegistered(genericType))
-                    {
-                        registry.Register(genericType, type, Lifestyle.Transient);
-                    }
+                    registry.RegisterMessageHandlers(assembly);
                 }
             }
 
@@ -150,6 +139,27 @@ namespace Shuttle.Esb
             registry.AttemptRegister<IServiceBus, ServiceBus>();
 
             return serviceBusConfiguration;
+        }
+
+        public static void RegisterMessageHandlers(this IComponentRegistry registry, Assembly assembly)
+        {
+            var reflectionService = new ReflectionService();
+
+            foreach (var type in reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly))
+            foreach (var @interface in type.GetInterfaces())
+            {
+                if (!@interface.IsAssignableTo(MessageHandlerType))
+                {
+                    continue;
+                }
+
+                var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+
+                if (!registry.IsRegistered(genericType))
+                {
+                    registry.Register(genericType, type, Lifestyle.Transient);
+                }
+            }
         }
     }
 }

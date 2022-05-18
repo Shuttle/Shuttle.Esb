@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Esb", "Shuttle.Esb\Shuttle.Esb.csproj", "{336B819E-1977-46CF-A3F4-ED7220B06A24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Esb", "Shuttle.Esb\Shuttle.Esb.csproj", "{336B819E-1977-46CF-A3F4-ED7220B06A24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Esb.Tests", "Shuttle.Esb.Tests\Shuttle.Esb.Tests.csproj", "{833D85DB-7160-4708-8AB6-86E70E32CCBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Esb.Tests", "Shuttle.Esb.Tests\Shuttle.Esb.Tests.csproj", "{833D85DB-7160-4708-8AB6-86E70E32CCBC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{511E9654-33CB-44CD-A3F4-16206992FF47}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

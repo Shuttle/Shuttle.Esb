@@ -9,6 +9,7 @@
 		<license type="expression">BSD-3-Clause</license>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<icon>images\logo.png</icon>
+		<readme>docs\README.md</readme>
 		<repository type="git" url="https://github.com/shuttle/Shuttle.Esb.git" />
 		<projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
 		<description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
@@ -20,6 +21,7 @@
 	</metadata>
 	<files>
 		<file src="..\..\..\.media\logo.png" target="images" />
+		<file src="..\..\..\README.md" target="docs\" />
 		<file src="lib\**\*.*" target="lib" />
 	</files>
 </package>

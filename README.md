@@ -1,36 +1,26 @@
-# Shuttle.Esb
+# Documentation
 
-A highly flexible and free .NET open-source enterprise service bus.
+Please visit out [official documentation](https://shuttle.github.io/shuttle-esb/) for more information.
 
-# Documentation 
+# Getting Started
 
-There is [extensive documentation](http://shuttle.github.io/shuttle-esb/) on our site and you can make use of the [samples](https://github.com/Shuttle/Shuttle.Esb.Samples) to get you going.
+Start a new **Console Application** project and select a Shuttle.Esb queue implementation from the supported queues:
 
-# Overview
+```
+PM> Install-Package Shuttle.Esb.AzureMQ
+```
 
-Start a new **Console Application** project and select a Shuttle.Esb queue implementation from the [supported queues]({{ site.baseurl }}/packages/#queues):
+Now we'll need select one of the [supported containers](https://shuttle.github.io/shuttle-core/container/shuttle-core-container.html#implementations):
 
-<div class="nuget-badge">
-	<p>
-		<code>Install-Package Shuttle.Esb.Msmq</code>
-	</p>
-</div>
+```
+PM> Install-Package Shuttle.Core.Autofac
+```
 
-Now we'll need select one of the [supported containers](http://shuttle.github.io/shuttle-core/overview-container/#Supported):
+We'll also need to host our endpoint using a [worker service](https://shuttle.github.io/shuttle-core/service-hosting/shuttle-core-workerservice.html):
 
-<div class="nuget-badge">
-	<p>
-		<code>Install-Package Shuttle.Core.Autofac</code>
-	</p>
-</div>
-
-We'll also need to host our endpoint using the [service host](http://shuttle.github.io/shuttle-core/overview-service-host/):
-
-<div class="nuget-badge">
-	<p>
-		<code>Install-Package Shuttle.Core.ServiceHost</code>
-	</p>
-</div>
+```
+PM> Install-Package Shuttle.Core.WorkerService
+```
 
 Next we'll implement our endpoint in order to start listening on our queue:
 
@@ -47,17 +37,17 @@ public class Host : IServiceHost
 {
 	private IServiceBus _bus;
 
-	public void Start()
-	{
-		var containerBuilder = new ContainerBuilder();
-		var registry = new AutofacComponentRegistry(containerBuilder);
+    public void Start()
+    {
+        var containerBuilder = new ContainerBuilder();
+        var registry = new AutofacComponentRegistry(containerBuilder);
 
-		ServiceBus.Register(registry);
+        registry.Register<IAzureStorageConfiguration, DefaultAzureStorageConfiguration>();
+        registry.RegisterServiceBus();
 
-		var resolver = new AutofacComponentResolver(containerBuilder.Build());
-
-		_bus = ServiceBus.Create(resolver).Start();
-	}
+        _bus = new AutofacComponentResolver(containerBuilder.Build())
+            .Resolve<IServiceBus>().Start();
+    }
 
 	public void Stop()
 	{
@@ -74,11 +64,14 @@ A bit of configuration is going to be needed to help things along:
 		<section name="serviceBus" type="Shuttle.Esb.ServiceBusSection, Shuttle.Esb"/>
 	</configSections>
 
+	<appSettings>
+		<add key="azure" value="UseDevelopmentStorage=true;" />
+	</appSettings>
+
 	<serviceBus>
-		<inbox 
-			workQueueUri="msmq://./shuttle-server-work" 
-			deferredQueueUri="msmq://./shuttle-server-deferred" 
-			errorQueueUri="msmq://./shuttle-error" />
+		<inbox workQueueUri="azuremq://azure/shuttle-server-work" 
+		       deferredQueueUri="azuremq://azure/shuttle-server-deferred"
+		       errorQueueUri="azuremq://azure/shuttle-error" />
 	</serviceBus>
 </configuration>
 ```
@@ -86,26 +79,20 @@ A bit of configuration is going to be needed to help things along:
 ### Send a command message for processing
 
 ``` c#
-using (var bus = ServiceBus.Create(resolver).Start())
+bus.Send(new RegisterMemberCommand
 {
-	bus.Send(new RegisterMemberCommand
-	{
-		UserName = "Mr Resistor",
-		EMailAddress = "ohm@resistor.domain"
-	});
-}
+    UserName = "user-name",
+    EMailAddress = "user@domain.com"
+});
 ```
 
 ### Publish an event message when something interesting happens
 
 ``` c#
-using (var bus = ServiceBus.Create(resolver).Start())
+bus.Publish(new MemberRegisteredEvent
 {
-	bus.Publish(new MemberRegisteredEvent
-	{
-		UserName = "Mr Resistor"
-	});
-}
+    UserName = "user-name"
+});
 ```
 
 ### Subscribe to those interesting events
@@ -119,11 +106,13 @@ resolver.Resolve<ISubscriptionManager>().Subscribe<MemberRegisteredEvent>();
 ``` c#
 public class RegisterMemberHandler : IMessageHandler<RegisterMemberCommand>
 {
+    public RegisterMemberHandler(IDependency dependency)
+    {
+    }
+
 	public void ProcessMessage(IHandlerContext<RegisterMemberCommand> context)
 	{
-		Console.WriteLine();
-		Console.WriteLine("[MEMBER REGISTERED] : user name = '{0}'", context.Message.UserName);
-		Console.WriteLine();
+        // perform member registration
 
 		context.Publish(new MemberRegisteredEvent
 		{
@@ -138,9 +127,7 @@ public class MemberRegisteredHandler : IMessageHandler<MemberRegisteredEvent>
 {
 	public void ProcessMessage(IHandlerContext<MemberRegisteredEvent> context)
 	{
-		Console.WriteLine();
-		Console.WriteLine("[EVENT RECEIVED] : user name = '{0}'", context.Message.UserName);
-		Console.WriteLine();
+        // processing
 	}
 }
 ```
