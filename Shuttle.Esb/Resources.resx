@@ -325,4 +325,8 @@
     <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
     <comment>{0} = handler full type name, {1} = message full type name</comment>
   </data>
+  <data name="SectionKeyMissingException" xml:space="preserve">
+    <value>Could not find a section with key '{0}'.</value>
+    <comment>0 = section key</comment>
+  </data>
 </root>

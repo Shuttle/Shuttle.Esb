@@ -5,7 +5,6 @@ using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.TimeSpanTypeConverters;
-using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
@@ -31,7 +30,6 @@ namespace Shuttle.Esb
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
         private readonly List<Type> _queueFactoryTypes = new List<Type>();
         private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
-        private ITransactionScopeConfiguration _transactionScope;
 
         public ServiceBusConfiguration()
         {
@@ -46,15 +44,6 @@ namespace Shuttle.Esb
         public IControlInboxQueueConfiguration ControlInbox { get; set; }
         public IOutboxQueueConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
-
-        public ITransactionScopeConfiguration TransactionScope
-        {
-            get
-            {
-                return _transactionScope ?? Synchronised(() => _transactionScope = new TransactionScopeConfiguration());
-            }
-            set => _transactionScope = value;
-        }
 
         public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
@@ -129,13 +118,5 @@ namespace Shuttle.Esb
         }
 
         public bool IsWorker => Worker != null;
-
-        private static T Synchronised<T>(Func<T> f)
-        {
-            lock (Padlock)
-            {
-                return f.Invoke();
-            }
-        }
     }
 }

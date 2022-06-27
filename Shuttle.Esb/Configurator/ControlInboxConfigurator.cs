@@ -24,20 +24,20 @@ namespace Shuttle.Esb
                 return;
             }
 
-            configuration.ControlInbox =
-                new ControlInboxQueueConfiguration
-                {
-                    WorkQueueUri = controlInboxElement.WorkQueueUri,
-                    ErrorQueueUri = controlInboxElement.ErrorQueueUri,
-                    ThreadCount = controlInboxElement.ThreadCount,
-                    MaximumFailureCount = controlInboxElement.MaximumFailureCount,
-                    DurationToIgnoreOnFailure =
-                        controlInboxElement.DurationToIgnoreOnFailure ??
-                        ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
-                    DurationToSleepWhenIdle =
-                        controlInboxElement.DurationToSleepWhenIdle ??
-                        ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
-                };
+            //configuration.ControlInbox =
+            //    new ControlInboxQueueConfiguration
+            //    {
+            //        WorkQueueUri = controlInboxElement.WorkQueueUri,
+            //        ErrorQueueUri = controlInboxElement.ErrorQueueUri,
+            //        ThreadCount = controlInboxElement.ThreadCount,
+            //        MaximumFailureCount = controlInboxElement.MaximumFailureCount,
+            //        DurationToIgnoreOnFailure =
+            //            controlInboxElement.DurationToIgnoreOnFailure ??
+            //            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+            //        DurationToSleepWhenIdle =
+            //            controlInboxElement.DurationToSleepWhenIdle ??
+            //            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
+            //    };
         }
     }
 }

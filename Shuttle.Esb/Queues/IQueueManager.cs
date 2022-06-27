@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace Shuttle.Esb
 {
+    // IQueueRepository?
+    // IQueueFactoryRepository?
     public interface IQueueManager
     {
         IQueueFactory GetQueueFactory(string scheme);

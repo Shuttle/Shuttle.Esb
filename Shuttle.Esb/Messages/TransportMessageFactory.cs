@@ -5,11 +5,11 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class DefaultTransportMessageFactory : ITransportMessageFactory
+    public class TransportMessageFactory : ITransportMessageFactory
     {
         private readonly IPipelineFactory _pipelineFactory;
 
-        public DefaultTransportMessageFactory(IPipelineFactory pipelineFactory)
+        public TransportMessageFactory(IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 

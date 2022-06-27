@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
-using Castle.Windsor;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Shuttle.Core.Castle;
-using Shuttle.Core.Container;
+using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb.Tests
 {
@@ -16,26 +16,30 @@ namespace Shuttle.Esb.Tests
             var handlerInvoker = new FakeMessageHandlerInvoker();
             var fakeQueue = new FakeQueue(2);
 
-            var configuration = new ServiceBusConfiguration
+            var services = new ServiceCollection();
+
+            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+            services.AddTransactionScope(options =>
             {
-                Inbox = new InboxQueueConfiguration
+                options.Disable();
+            });
+            services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
+            services.AddServiceBus(builder =>
+            {
+                builder.Configure(configuration =>
                 {
-                    WorkQueue = fakeQueue,
-                    ErrorQueue = fakeQueue,
-                    ThreadCount = 1
-                }
-            };
+                    configuration.Inbox = new InboxQueueConfiguration
+                    {
+                        WorkQueue = fakeQueue,
+                        ErrorQueue = fakeQueue,
+                        ThreadCount = 1
+                    };
+                });
+            });
 
-            var container = new WindsorComponentContainer(new WindsorContainer());
-
-            container.RegisterInstance<IMessageHandlerInvoker>(handlerInvoker);
-            container.RegisterServiceBus(configuration);
-
-            using (var bus = container.Resolve<IServiceBus>())
+            using (var bus = services.BuildServiceProvider().GetRequiredService<IServiceBus>().Start())
             {
-                bus.Start();
-
-                var timeout = DateTime.Now.AddMilliseconds(1000);
+                var timeout = DateTime.Now.AddSeconds(1);
 
                 while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
                 {
@@ -43,7 +47,8 @@ namespace Shuttle.Esb.Tests
                 }
             }
 
-            Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"),  "FakeHandlerInvoker was not invoked exactly once.");
+            Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"),
+                "FakeHandlerInvoker was not invoked exactly once.");
             Assert.AreEqual(2, fakeQueue.MessageCount, "FakeQueue was not invoked exactly twice.");
         }
     }

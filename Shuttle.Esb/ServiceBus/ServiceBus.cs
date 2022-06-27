@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Shuttle.Core.Container;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
@@ -161,55 +160,44 @@ namespace Shuttle.Esb
             Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
                 Resources.WorkerRequiresInboxException);
 
-            if (_configuration.HasInbox)
-            {
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+            // DONE
+            //if (_configuration.HasInbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
-            }
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+            //}
 
-            if (_configuration.HasOutbox)
-            {
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+            // DONE
+            //if (_configuration.HasOutbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.Outbox.ErrorQueue == null &&
-                    string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
-            }
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Outbox.ErrorQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+            //}
 
-            if (_configuration.HasControlInbox)
-            {
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.ControlInbox.WorkQueue == null &&
-                    string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+            // DONE
+            //if (_configuration.HasControlInbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.ControlInbox.WorkQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
-                    _configuration.ControlInbox.ErrorQueue == null &&
-                    string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
-            }
-        }
-
-        [Obsolete("This method has been replaced by `ComponentRegistryExtensions.RegisterServiceBus()`.", false)]
-        public static IServiceBusConfiguration Register(IComponentRegistry registry)
-        {
-            return registry.RegisterServiceBus();
-        }
-
-        [Obsolete("Please create an instance of the service bus using `IComponentResolver.Resolve<IServiceBus>()`.")]
-        public static IServiceBus Create(IComponentResolver resolver)
-        {
-            Guard.AgainstNull(resolver, nameof(resolver));
-
-            return resolver.Resolve<IServiceBus>();
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.ControlInbox.ErrorQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+            //}
         }
     }
 }

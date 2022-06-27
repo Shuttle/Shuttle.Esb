@@ -7,33 +7,33 @@ namespace Shuttle.Esb
     {
         public void Apply(IServiceBusConfiguration configuration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            //Guard.AgainstNull(configuration, nameof(configuration));
 
-            var transactionScopeElement = TransactionScopeSection.Get();
+            //var transactionScopeElement = TransactionScopeSection.Get();
 
-            configuration.TransactionScope = transactionScopeElement != null
-                ? new TransactionScopeConfiguration
-                {
-                    Enabled = transactionScopeElement.Enabled,
-                    IsolationLevel = transactionScopeElement.IsolationLevel,
-                    TimeoutSeconds = transactionScopeElement.TimeoutSeconds
-                }
-                : new TransactionScopeConfiguration();
+            //configuration.TransactionScope = transactionScopeElement != null
+            //    ? new TransactionScopeConfiguration
+            //    {
+            //        Enabled = transactionScopeElement.Enabled,
+            //        IsolationLevel = transactionScopeElement.IsolationLevel,
+            //        TimeoutSeconds = transactionScopeElement.TimeoutSeconds
+            //    }
+            //    : new TransactionScopeConfiguration();
 
-            var section = ServiceBusSection.Get();
+            //var section = ServiceBusSection.Get();
 
-            if (section == null)
-            {
-                return;
-            }
+            //if (section == null)
+            //{
+            //    return;
+            //}
 
-            configuration.CreateQueues = section.CreateQueues;
-            configuration.CacheIdentity = section.CacheIdentity;
-            configuration.RegisterHandlers = section.RegisterHandlers;
-            configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
-            configuration.RemoveCorruptMessages = section.RemoveCorruptMessages;
-            configuration.CompressionAlgorithm = section.CompressionAlgorithm;
-            configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
+            //configuration.CreateQueues = section.CreateQueues;
+            //configuration.CacheIdentity = section.CacheIdentity;
+            //configuration.RegisterHandlers = section.RegisterHandlers;
+            //configuration.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
+            //configuration.RemoveCorruptMessages = section.RemoveCorruptMessages;
+            //configuration.CompressionAlgorithm = section.CompressionAlgorithm;
+            //configuration.EncryptionAlgorithm = section.EncryptionAlgorithm;
         }
     }
 }

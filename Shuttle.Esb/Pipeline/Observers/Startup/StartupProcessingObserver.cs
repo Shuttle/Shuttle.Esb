@@ -1,3 +1,4 @@
+using System;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -21,6 +22,8 @@ namespace Shuttle.Esb
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+
+        private static readonly TimeSpan JoinTimeout = TimeSpan.FromSeconds(1);
 
         public StartupProcessingObserver(IServiceBus bus, IServiceBusConfiguration configuration,
             IServiceBusEvents events, IWorkerAvailabilityManager workerAvailabilityManager,
@@ -51,6 +54,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
                     _configuration.ControlInbox.ThreadCount,
+                    JoinTimeout,
                     new ControlInboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
 
@@ -68,6 +72,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "DeferredMessageProcessor",
                     1,
+                    JoinTimeout,
                     new DeferredMessageProcessorFactory(_configuration)).Start());
         }
 
@@ -88,6 +93,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                         "InboxProcessor",
                         _configuration.Inbox.ThreadCount,
+                        JoinTimeout,
                         new InboxProcessorFactory(_bus, _configuration, _events, _workerAvailabilityManager,
                             _pipelineFactory))
                     .Start());
@@ -110,6 +116,7 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "OutboxProcessor",
                     _configuration.Outbox.ThreadCount,
+                    JoinTimeout,
                     new OutboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
     }

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Container;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -16,7 +16,7 @@ namespace Shuttle.Esb
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
         private readonly Dictionary<Type, ContextMethodInvoker> _cache = new Dictionary<Type, ContextMethodInvoker>();
-        private readonly IComponentResolver _resolver;
+        private readonly IServiceProvider _provider;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISubscriptionManager _subscriptionManager;
 
@@ -25,14 +25,14 @@ namespace Shuttle.Esb
 
         private readonly ITransportMessageFactory _transportMessageFactory;
 
-        public DefaultMessageHandlerInvoker(IComponentResolver resolver, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ITransportMessageFactory transportMessageFactory)
+        public DefaultMessageHandlerInvoker(IServiceProvider provider, IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager, ITransportMessageFactory transportMessageFactory)
         {
-            Guard.AgainstNull(resolver, nameof(resolver));
+            Guard.AgainstNull(provider, nameof(provider));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
 
-            _resolver = resolver;
+            _provider = provider;
             _pipelineFactory = pipelineFactory;
             _subscriptionManager = subscriptionManager;
             _transportMessageFactory = transportMessageFactory;
@@ -130,7 +130,7 @@ namespace Shuttle.Esb
 
                 if (!instances.TryGetValue(managedThreadId, out var handler))
                 {
-                    handler = _resolver.Resolve(MessageHandlerType.MakeGenericType(messageType));
+                    handler = _provider.GetRequiredService(MessageHandlerType.MakeGenericType(messageType));
                     instances.Add(managedThreadId, handler);
                 }
 

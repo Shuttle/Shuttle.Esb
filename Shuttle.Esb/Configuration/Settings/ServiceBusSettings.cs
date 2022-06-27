@@ -1,0 +1,21 @@
+﻿using System.Configuration;
+
+namespace Shuttle.Esb
+{
+    public class ServiceBusSettings
+    {
+        public bool CreateQueues { get; set; } = true;
+        public bool CacheIdentity { get; set; } = true;
+        public bool RegisterHandlers { get; set; } = true;
+        public bool RemoveMessagesNotHandled { get; set; }
+        public bool RemoveCorruptMessages { get; set; }
+        public string EncryptionAlgorithm { get; set; }
+        public string CompressionAlgorithm { get; set; }
+
+        public InboxSettings Inbox { get; set; }
+        public OutboxSettings Outbox { get; set; }
+        public ControlInboxSettings ControlInbox { get; set; }
+        public MessageRoutesSettings MessageRoutes { get; set; }
+        public WorkerSettings Worker { get; set; }
+    }
+}

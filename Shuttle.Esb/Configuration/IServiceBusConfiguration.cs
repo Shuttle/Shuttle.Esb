@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Shuttle.Core.Compression;
-using Shuttle.Core.Container;
 using Shuttle.Core.Encryption;
-using Shuttle.Core.Transactions;
 
 namespace Shuttle.Esb
 {
@@ -14,22 +12,20 @@ namespace Shuttle.Esb
         bool HasOutbox { get; }
 
         bool IsWorker { get; }
-        bool RemoveMessagesNotHandled { get; set; }
-        bool RemoveCorruptMessages { get; set; }
+        bool RemoveMessagesNotHandled { get; }
+        bool RemoveCorruptMessages { get; }
 
-        IControlInboxQueueConfiguration ControlInbox { get; set; }
-        IInboxQueueConfiguration Inbox { get; set; }
-        IOutboxQueueConfiguration Outbox { get; set; }
-        IWorkerConfiguration Worker { get; set; }
+        IControlInboxQueueConfiguration ControlInbox { get; }
+        IInboxQueueConfiguration Inbox { get; }
+        IOutboxQueueConfiguration Outbox { get; }
+        IWorkerConfiguration Worker { get; }
 
-        string EncryptionAlgorithm { get; set; }
-        string CompressionAlgorithm { get; set; }
+        string EncryptionAlgorithm { get; }
+        string CompressionAlgorithm { get; }
 
-        ITransactionScopeConfiguration TransactionScope { get; set; }
-
-        bool CreateQueues { get; set; }
-        bool CacheIdentity { get; set; }
-        bool RegisterHandlers { get; set; }
+        bool CreateQueues { get; }
+        bool CacheIdentity { get; }
+        bool RegisterHandlers { get; }
 
         IEnumerable<Type> QueueFactoryTypes { get; }
 

@@ -17,20 +17,20 @@ namespace Shuttle.Esb
                 return;
             }
 
-            configuration.Outbox =
-                new OutboxQueueConfiguration
-                {
-                    WorkQueueUri = ServiceBusSection.Get().Outbox.WorkQueueUri,
-                    ErrorQueueUri = ServiceBusSection.Get().Outbox.ErrorQueueUri,
-                    MaximumFailureCount = ServiceBusSection.Get().Outbox.MaximumFailureCount,
-                    DurationToIgnoreOnFailure =
-                        ServiceBusSection.Get().Outbox.DurationToIgnoreOnFailure ??
-                        ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
-                    DurationToSleepWhenIdle =
-                        ServiceBusSection.Get().Outbox.DurationToSleepWhenIdle ??
-                        ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-                    ThreadCount = ServiceBusSection.Get().Outbox.ThreadCount
-                };
+            //configuration.Outbox =
+            //    new OutboxQueueConfiguration
+            //    {
+            //        WorkQueueUri = ServiceBusSection.Get().Outbox.WorkQueueUri,
+            //        ErrorQueueUri = ServiceBusSection.Get().Outbox.ErrorQueueUri,
+            //        MaximumFailureCount = ServiceBusSection.Get().Outbox.MaximumFailureCount,
+            //        DurationToIgnoreOnFailure =
+            //            ServiceBusSection.Get().Outbox.DurationToIgnoreOnFailure ??
+            //            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+            //        DurationToSleepWhenIdle =
+            //            ServiceBusSection.Get().Outbox.DurationToSleepWhenIdle ??
+            //            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
+            //        ThreadCount = ServiceBusSection.Get().Outbox.ThreadCount
+            //    };
         }
     }
 }
