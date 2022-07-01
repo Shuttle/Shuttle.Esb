@@ -7,11 +7,11 @@ namespace Shuttle.Esb
 {
     public class ControlInboxElement : ConfigurationElement
     {
-        [ConfigurationProperty("workQueueUri", IsRequired = true, DefaultValue = "")]
-        public string WorkQueueUri => (string) this["workQueueUri"];
+        [ConfigurationProperty("uri", IsRequired = true, DefaultValue = "")]
+        public string Uri => (string) this["uri"];
 
-        [ConfigurationProperty("errorQueueUri", IsRequired = true, DefaultValue = "")]
-        public string ErrorQueueUri => (string) this["errorQueueUri"];
+        [ConfigurationProperty("errorUri", IsRequired = true, DefaultValue = "")]
+        public string ErrorUri => (string) this["errorUri"];
 
         [ConfigurationProperty("threadCount", IsRequired = false, DefaultValue = 1)]
         public int ThreadCount => (int) this["threadCount"];

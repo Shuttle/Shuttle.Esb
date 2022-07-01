@@ -10,11 +10,11 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnDisposeQueues : PipelineEvent
+    public class OnDisposeBrokerEndpoints : PipelineEvent
     {
     }
 
-    public class OnAfterDisposeQueues : PipelineEvent
+    public class OnAfterDisposeBrokerEndpoints : PipelineEvent
     {
     }
 }

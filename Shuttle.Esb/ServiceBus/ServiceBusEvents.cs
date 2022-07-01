@@ -27,9 +27,9 @@ namespace Shuttle.Esb
             TransportMessageDeserializationException.Invoke(sender, args);
         }
 
-        public void OnQueueEmpty(object sender, QueueEmptyEventArgs args)
+        public void OnBrokerEndpointEmpty(object sender, BrokerEndpointEmptyEventArgs args)
         {
-            QueueEmpty.Invoke(sender, args);
+            BrokerEndpointEmpty.Invoke(sender, args);
         }
 
         public void OnMessageNotHandled(object sender, MessageNotHandledEventArgs args)
@@ -82,7 +82,7 @@ namespace Shuttle.Esb
             delegate { };
 
         public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate { };
-        public event EventHandler<QueueEmptyEventArgs> QueueEmpty = delegate { };
+        public event EventHandler<BrokerEndpointEmptyEventArgs> BrokerEndpointEmpty = delegate { };
         public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled = delegate { };
         public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate { };
         public event EventHandler<ThreadStateEventArgs> ThreadWorking = delegate { };

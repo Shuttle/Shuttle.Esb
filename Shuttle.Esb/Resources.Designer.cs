@@ -70,6 +70,42 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Queue factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
+        /// </summary>
+        public static string BrokerEndpointFactoryCreatedNull {
+            get {
+                return ResourceManager.GetString("BrokerEndpointFactoryCreatedNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Broker endpoint factory type &apos;{0}&apos; could not be instantiated.  Exception: {1}.
+        /// </summary>
+        public static string BrokerEndpointFactoryInstantiationException {
+            get {
+                return ResourceManager.GetString("BrokerEndpointFactoryInstantiationException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No broker endpoint factory has been registered for scheme &apos;{0}&apos;..
+        /// </summary>
+        public static string BrokerEndpointFactoryNotFoundException {
+            get {
+                return ResourceManager.GetString("BrokerEndpointFactoryNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [queue factory registered] : scheme = &apos;{0}&apos; / type &apos;{1}&apos; .
+        /// </summary>
+        public static string BrokerEndpointFactoryRegistered {
+            get {
+                return ResourceManager.GetString("BrokerEndpointFactoryRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The IServiceBusConfiguration.Resolver has not been assigned..
         /// </summary>
         public static string ConfigurationResolverMissing {
@@ -115,11 +151,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue factory type &apos;{1}&apos; to register queue factory type &apos;{2}&apos;..
+        ///   Looks up a localized string similar to A broker endpoint factory for scheme &apos;{0}&apos; already existed.  Removed broker endpoint factory type &apos;{1}&apos; to register broker endpoint factory type &apos;{2}&apos;..
         /// </summary>
-        public static string DuplicateQueueFactoryReplaced {
+        public static string DuplicateBrokerEndpointFactoryReplaced {
             get {
-                return ResourceManager.GetString("DuplicateQueueFactoryReplaced", resourceCulture);
+                return ResourceManager.GetString("DuplicateBrokerEndpointFactoryReplaced", resourceCulture);
             }
         }
         
@@ -133,11 +169,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An exception occurred trying to find a queue.  Candidate queue type = &apos;{0}&apos;.  Candidate uri = &apos;{1}&apos;.  Comparison uri = &apos;{2}&apos;.  All exception messages = &apos;{3}&apos;..
+        ///   Looks up a localized string similar to An exception occurred trying to find a broker endpoint.  Candidate broker endpoint type = &apos;{0}&apos;.  Candidate uri = &apos;{1}&apos;.  Comparison uri = &apos;{2}&apos;.  All exception messages = &apos;{3}&apos;..
         /// </summary>
-        public static string FindQueueException {
+        public static string FindBrokerEndpointException {
             get {
-                return ResourceManager.GetString("FindQueueException", resourceCulture);
+                return ResourceManager.GetString("FindBrokerEndpointException", resourceCulture);
             }
         }
         
@@ -250,11 +286,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Queue &apos;{0}&apos; does not implement interface &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Broker endpoint &apos;{0}&apos; does not implement interface &apos;{1}&apos;..
         /// </summary>
-        public static string NotImplementedOnQueue {
+        public static string NotImplementedOnBrokerEndpoint {
             get {
-                return ResourceManager.GetString("NotImplementedOnQueue", resourceCulture);
+                return ResourceManager.GetString("NotImplementedOnBrokerEndpoint", resourceCulture);
             }
         }
         
@@ -282,42 +318,6 @@ namespace Shuttle.Esb {
         public static string PipelineExecutionException {
             get {
                 return ResourceManager.GetString("PipelineExecutionException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Queue factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
-        /// </summary>
-        public static string QueueFactoryCreatedNullQueue {
-            get {
-                return ResourceManager.GetString("QueueFactoryCreatedNullQueue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Queue factory type &apos;{0}&apos; could not be instantiated.  Exception: {1}.
-        /// </summary>
-        public static string QueueFactoryInstantiationException {
-            get {
-                return ResourceManager.GetString("QueueFactoryInstantiationException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No queue factory has been registered for scheme &apos;{0}&apos;..
-        /// </summary>
-        public static string QueueFactoryNotFoundException {
-            get {
-                return ResourceManager.GetString("QueueFactoryNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [queue factory registered] : scheme = &apos;{0}&apos; / type &apos;{1}&apos; .
-        /// </summary>
-        public static string QueueFactoryRegistered {
-            get {
-                return ResourceManager.GetString("QueueFactoryRegistered", resourceCulture);
             }
         }
         
@@ -358,11 +358,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The current message has no SenderIndexWorkQueueUri.  Cannot reply..
+        ///   Looks up a localized string similar to The current message has no SenderIndexWorkUri.  Cannot reply..
         /// </summary>
-        public static string ReplyWithoutSenderInboxWorkQueueUri {
+        public static string ReplyWithoutSenderInboxWorkUri {
             get {
-                return ResourceManager.GetString("ReplyWithoutSenderInboxWorkQueueUri", resourceCulture);
+                return ResourceManager.GetString("ReplyWithoutSenderInboxWorkUri", resourceCulture);
             }
         }
         
@@ -376,11 +376,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required queue uri &apos;{0}&apos; has not been configured.  Please check your  application configuration or your code if you implemented it explicitly..
+        ///   Looks up a localized string similar to Required broker endpoint uri &apos;{0}&apos; has not been configured...
         /// </summary>
-        public static string RequiredQueueUriMissing {
+        public static string RequiredBrokerEndpointUriMissing {
             get {
-                return ResourceManager.GetString("RequiredQueueUriMissing", resourceCulture);
+                return ResourceManager.GetString("RequiredBrokerEndpointUriMissing", resourceCulture);
             }
         }
         
@@ -475,11 +475,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; equeuing on queue &apos;{2}&apos;..
+        ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; delivered to broker endpoint &apos;{2}&apos;..
         /// </summary>
-        public static string TraceMessageEnqueued {
+        public static string TraceMessageDelivered {
             get {
-                return ResourceManager.GetString("TraceMessageEnqueued", resourceCulture);
+                return ResourceManager.GetString("TraceMessageDelivered", resourceCulture);
             }
         }
         

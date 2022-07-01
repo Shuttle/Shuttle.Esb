@@ -4,7 +4,7 @@ using Shuttle.Core.Logging;
 
 namespace Shuttle.Esb
 {
-    public class WorkerAvailabilityManager : IWorkerAvailabilityManager
+    public class WorkerAvailabilityService : IWorkerAvailabilityService
     {
         private static readonly object _padlock = new object();
 
@@ -13,7 +13,7 @@ namespace Shuttle.Esb
         private readonly Dictionary<string, List<AvailableWorker>> _workers =
             new Dictionary<string, List<AvailableWorker>>();
 
-        public WorkerAvailabilityManager()
+        public WorkerAvailabilityService()
         {
             _log = Log.For(this);
         }
@@ -61,12 +61,12 @@ namespace Shuttle.Esb
         {
             lock (_padlock)
             {
-                GetAvailableWorkers(message.InboxWorkQueueUri).Add(new AvailableWorker(message));
+                GetAvailableWorkers(message.Uri).Add(new AvailableWorker(message));
             }
 
             if (_log.IsTraceEnabled)
             {
-                _log.Trace(string.Format("AvailableWorker: {0}", message.InboxWorkQueueUri));
+                _log.Trace($"AvailableWorker: {message.Uri}");
             }
         }
 
@@ -79,7 +79,7 @@ namespace Shuttle.Esb
 
             lock (_padlock)
             {
-                GetAvailableWorkers(availableWorker.InboxWorkQueueUri).Add(availableWorker);
+                GetAvailableWorkers(availableWorker.Uri).Add(availableWorker);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Shuttle.Esb
         {
             lock (_padlock)
             {
-                _workers[message.InboxWorkQueueUri] = GetAvailableWorkers(message.InboxWorkQueueUri)
+                _workers[message.Uri] = GetAvailableWorkers(message.Uri)
                     .Where(availableWorker => availableWorker.WorkerSendDate < message.DateStarted)
                     .ToList();
             }
@@ -97,17 +97,17 @@ namespace Shuttle.Esb
         {
             lock (_padlock)
             {
-                GetAvailableWorkers(message.InboxWorkQueueUri)
+                GetAvailableWorkers(message.Uri)
                     .RemoveAll(candidate => candidate.ManagedThreadId == message.ManagedThreadId);
             }
         }
 
-        private List<AvailableWorker> GetAvailableWorkers(string inboxWorkQueueUri)
+        private List<AvailableWorker> GetAvailableWorkers(string uri)
         {
-            if (!_workers.TryGetValue(inboxWorkQueueUri, out var worker))
+            if (!_workers.TryGetValue(uri, out var worker))
             {
                 worker = new List<AvailableWorker>();
-                _workers.Add(inboxWorkQueueUri, worker);
+                _workers.Add(uri, worker);
             }
 
             return worker;

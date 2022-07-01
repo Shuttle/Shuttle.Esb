@@ -4,10 +4,10 @@ namespace Shuttle.Esb
 {
     public class ProcessorSettings
     {
-        public string WorkQueueUri { get; set; }
-        public IQueue WorkQueue { get; set; }
-        public string ErrorQueueUri { get; set; }
-        public IQueue ErrorQueue { get; set; }
+        public string Uri { get; set; }
+        public IBrokerEndpoint WorkBrokerEndpoint { get; set; }
+        public string ErrorUri { get; set; }
+        public IBrokerEndpoint ErrorBrokerEndpoint { get; set; }
         public int MaximumFailureCount { get; set; }
         public int ThreadCount { get; set; } = 1;
 
@@ -15,10 +15,10 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(settings, nameof(settings));
 
-            WorkQueueUri = settings.WorkQueueUri;
-            WorkQueue = settings.WorkQueue;
-            ErrorQueueUri = settings.ErrorQueueUri;
-            ErrorQueue = settings.ErrorQueue;
+            Uri = settings.Uri;
+            WorkBrokerEndpoint = settings.WorkBrokerEndpoint;
+            ErrorUri = settings.ErrorUri;
+            ErrorBrokerEndpoint = settings.ErrorBrokerEndpoint;
             MaximumFailureCount = settings.MaximumFailureCount;
             ThreadCount = settings.ThreadCount;
         }

@@ -10,7 +10,7 @@ namespace Shuttle.Esb.Tests
         [Test]
         public void Should_be_able_to_add_or_merge_message_routes()
         {
-            var nullQueueUri = new Uri("null://queue/");
+            var uri = new Uri("null://queue/");
             const string firstMessageType = "first-message-type";
             const string secondMessageType = "second-message-type";
 
@@ -19,21 +19,21 @@ namespace Shuttle.Esb.Tests
             Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
 
             provider.Add(
-                new MessageRoute(nullQueueUri).AddSpecification(
+                new MessageRoute(uri).AddSpecification(
                     new StartsWithMessageRouteSpecification("first")));
 
             Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
             Assert.IsFalse(provider.GetRouteUris(secondMessageType).Any());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(firstMessageType).First());
+            Assert.AreEqual(uri, provider.GetRouteUris(firstMessageType).First());
 
             provider.Add(
-                new MessageRoute(nullQueueUri).AddSpecification(
+                new MessageRoute(uri).AddSpecification(
                     new StartsWithMessageRouteSpecification("second")));
 
             Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
             Assert.IsTrue(provider.GetRouteUris(secondMessageType).Any());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(firstMessageType).First());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(secondMessageType).First());
+            Assert.AreEqual(uri, provider.GetRouteUris(firstMessageType).First());
+            Assert.AreEqual(uri, provider.GetRouteUris(secondMessageType).First());
         }
     }
 }

@@ -3,20 +3,20 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb.Tests
 {
-    public class NullQueueFactory : IQueueFactory
+    public class NullBrokerEndpointFactory : IBrokerEndpointFactory
     {
-        public NullQueueFactory()
+        public NullBrokerEndpointFactory()
         {
             Scheme = "null-queue";
         }
 
         public string Scheme { get; }
 
-        public IQueue Create(Uri uri)
+        public IBrokerEndpoint Create(Uri uri)
         {
             Guard.AgainstNull(uri, nameof(uri));
 
-            return new NullQueue(uri);
+            return new NullBrokerEndpoint(uri);
         }
     }
 }

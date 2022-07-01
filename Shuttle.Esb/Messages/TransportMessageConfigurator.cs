@@ -52,12 +52,12 @@ namespace Shuttle.Esb
 
             var result = new TransportMessage
             {
-                RecipientInboxWorkQueueUri = _local
-                    ? configuration.Inbox.WorkQueue.Uri.ToString()
+                RecipientUri = _local
+                    ? configuration.Inbox.BrokerEndpoint.Uri.ToString()
                     : _recipientInboxWorkQueueUri,
-                SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
+                SenderUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
                     ? configuration.HasInbox
-                        ? configuration.Inbox.WorkQueue.Uri.ToString()
+                        ? configuration.Inbox.BrokerEndpoint.Uri.ToString()
                         : string.Empty
                     : _sendInboxWorkQueueUri,
                 PrincipalIdentityName = identity != null
@@ -132,9 +132,9 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public TransportMessageConfigurator WithRecipient(IQueue queue)
+        public TransportMessageConfigurator WithRecipient(IBrokerEndpoint brokerEndpoint)
         {
-            return WithRecipient(queue.Uri.ToString());
+            return WithRecipient(brokerEndpoint.Uri.ToString());
         }
 
         public TransportMessageConfigurator WithRecipient(Uri uri)
@@ -151,9 +151,9 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public TransportMessageConfigurator WithSender(IQueue queue)
+        public TransportMessageConfigurator WithSender(IBrokerEndpoint brokerEndpoint)
         {
-            return WithSender(queue.Uri.ToString());
+            return WithSender(brokerEndpoint.Uri.ToString());
         }
 
         public TransportMessageConfigurator WithSender(Uri uri)
@@ -177,14 +177,14 @@ namespace Shuttle.Esb
 
         public TransportMessageConfigurator Reply()
         {
-            if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
+            if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderUri))
             {
                 throw new InvalidOperationException(Resources.SendReplyException);
             }
 
             _local = false;
 
-            WithRecipient(_transportMessageReceived.SenderInboxWorkQueueUri);
+            WithRecipient(_transportMessageReceived.SenderUri);
 
             return this;
         }

@@ -19,13 +19,13 @@ namespace Shuttle.Esb
         public InboxElement Inbox => (InboxElement) this["inbox"];
 
         [ConfigurationProperty("control", IsRequired = false, DefaultValue = null)]
-        public ControlInboxElement ControlInbox => (ControlInboxElement) this["control"];
+        public ControlInboxElement Control => (ControlInboxElement) this["control"];
 
         [ConfigurationProperty("outbox", IsRequired = false, DefaultValue = null)]
         public OutboxElement Outbox => (OutboxElement) this["outbox"];
 
-        [ConfigurationProperty("createQueues", IsRequired = false, DefaultValue = true)]
-        public bool CreateQueues => (bool) this["createQueues"];
+        [ConfigurationProperty("createBrokerEndpoints", IsRequired = false, DefaultValue = true)]
+        public bool CreateBrokerEndpoints => (bool) this["createBrokerEndpoints"];
 
         [ConfigurationProperty("cacheIdentity", IsRequired = false, DefaultValue = true)]
         public bool CacheIdentity => (bool) this["cacheIdentity"];

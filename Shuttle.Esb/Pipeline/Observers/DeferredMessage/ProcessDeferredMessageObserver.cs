@@ -14,25 +14,25 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
             var receivedMessage = state.GetReceivedMessage();
-            var workQueue = state.GetWorkQueue();
-            var deferredQueue = state.GetDeferredQueue();
+            var brokerEndpoint = state.GetBrokerEndpoint();
+            var deferredBrokerEndpoint = state.GetDeferredBrokerEndpoint();
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(deferredQueue, nameof(deferredQueue));
+            Guard.AgainstNull(brokerEndpoint, nameof(brokerEndpoint));
+            Guard.AgainstNull(deferredBrokerEndpoint, nameof(deferredBrokerEndpoint));
 
             if (transportMessage.IsIgnoring())
             {
-                deferredQueue.Release(receivedMessage.AcknowledgementToken);
+                deferredBrokerEndpoint.Release(receivedMessage.AcknowledgementToken);
 
                 state.SetDeferredMessageReturned(false);
 
                 return;
             }
 
-            workQueue.Enqueue(transportMessage, receivedMessage.Stream);
-            deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            brokerEndpoint.Enqueue(transportMessage, receivedMessage.Stream);
+            deferredBrokerEndpoint.Acknowledge(receivedMessage.AcknowledgementToken);
 
             state.SetDeferredMessageReturned(true);
         }

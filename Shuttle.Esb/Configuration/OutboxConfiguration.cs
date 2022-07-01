@@ -2,11 +2,11 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public class OutboxQueueConfiguration : IOutboxQueueConfiguration
+    public class OutboxConfiguration : IOutboxConfiguration
     {
         private int threadCount;
 
-        public OutboxQueueConfiguration()
+        public OutboxConfiguration()
         {
             ThreadCount = 1;
             MaximumFailureCount = 5;
@@ -27,8 +27,8 @@ namespace Shuttle.Esb
             };
         }
 
-        public IQueue WorkQueue { get; set; }
-        public IQueue ErrorQueue { get; set; }
+        public IBrokerEndpoint BrokerEndpoint { get; set; }
+        public IBrokerEndpoint ErrorBrokerEndpoint { get; set; }
 
         public int ThreadCount
         {
@@ -44,7 +44,7 @@ namespace Shuttle.Esb
         public int MaximumFailureCount { get; set; }
         public TimeSpan[] DurationToIgnoreOnFailure { get; set; }
         public TimeSpan[] DurationToSleepWhenIdle { get; set; }
-        public string WorkQueueUri { get; set; }
-        public string ErrorQueueUri { get; set; }
+        public string Uri { get; set; }
+        public string ErrorUri { get; set; }
     }
 }

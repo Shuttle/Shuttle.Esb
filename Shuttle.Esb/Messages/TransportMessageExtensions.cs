@@ -78,7 +78,7 @@ namespace Shuttle.Esb
 
         public static bool HasSenderInboxWorkQueueUri(this TransportMessage transportMessage)
         {
-            return !string.IsNullOrEmpty(transportMessage.SenderInboxWorkQueueUri);
+            return !string.IsNullOrEmpty(transportMessage.SenderUri);
         }
 
         public static void AcceptInvariants(this TransportMessage transportMessage)

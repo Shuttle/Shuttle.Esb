@@ -18,7 +18,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+            state.GetBrokerEndpoint().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
         }
     }
 }

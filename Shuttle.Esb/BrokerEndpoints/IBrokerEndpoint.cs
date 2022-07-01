@@ -3,8 +3,7 @@ using System.IO;
 
 namespace Shuttle.Esb
 {
-    // IBroker
-    public interface IQueue
+    public interface IBrokerEndpoint
     {
         Uri Uri { get; }
 

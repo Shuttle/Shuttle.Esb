@@ -1,6 +1,6 @@
 namespace Shuttle.Esb
 {
-    public interface ICreateQueue
+    public interface ICreateBrokerEndpoint
     {
         void Create();
     }

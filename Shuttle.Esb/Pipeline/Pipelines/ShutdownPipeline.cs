@@ -11,8 +11,8 @@ namespace Shuttle.Esb
 
             RegisterStage("Shutdown")
                 .WithEvent<OnStopping>()
-                .WithEvent<OnDisposeQueues>()
-                .WithEvent<OnAfterDisposeQueues>();
+                .WithEvent<OnDisposeBrokerEndpoints>()
+                .WithEvent<OnAfterDisposeBrokerEndpoints>();
 
             RegisterStage("Final")
                 .WithEvent<OnStopped>();

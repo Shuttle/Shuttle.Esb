@@ -12,22 +12,22 @@ namespace Shuttle.Esb
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IThreadActivity _threadActivity;
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
         public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager,
+            IThreadActivity threadActivity, IWorkerAvailabilityService workerAvailabilityService,
             IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _configuration = configuration;
             _events = events;
             _threadActivity = threadActivity;
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
         }
 
@@ -39,7 +39,7 @@ namespace Shuttle.Esb
 
         public virtual void Execute(CancellationToken cancellationToken)
         {
-            var availableWorker = _workerAvailabilityManager.GetAvailableWorker();
+            var availableWorker = _workerAvailabilityService.GetAvailableWorker();
 
             if (_configuration.Inbox.Distribute && availableWorker == null)
             {

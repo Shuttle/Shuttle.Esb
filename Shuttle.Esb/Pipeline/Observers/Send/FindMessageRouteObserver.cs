@@ -24,9 +24,9 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
-            if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
+            if (string.IsNullOrEmpty(transportMessage.RecipientUri))
             {
-                transportMessage.RecipientInboxWorkQueueUri =
+                transportMessage.RecipientUri =
                     FindRoute(_messageRouteProvider, transportMessage.MessageType);
             }
         }

@@ -14,7 +14,7 @@ namespace Shuttle.Esb.Tests
 
             Assert.IsNotNull(section);
             Assert.AreEqual("msmq://./distributor-server-control-inbox-work",
-                section.Worker.DistributorControlWorkQueueUri);
+                section.Worker.DistributorControlUri);
             Assert.AreEqual(5, section.Worker.ThreadAvailableNotificationIntervalSeconds);
         }
 
@@ -24,7 +24,7 @@ namespace Shuttle.Esb.Tests
             var section = GetServiceBusSection("Empty.config");
 
             Assert.IsNotNull(section);
-            Assert.IsEmpty(section.Worker.DistributorControlWorkQueueUri);
+            Assert.IsEmpty(section.Worker.DistributorControlUri);
             Assert.AreEqual(15, section.Worker.ThreadAvailableNotificationIntervalSeconds);
         }
     }

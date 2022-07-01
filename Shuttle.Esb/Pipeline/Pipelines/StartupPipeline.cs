@@ -15,11 +15,10 @@ namespace Shuttle.Esb
                 .WithEvent<OnInitializing>()
                 .WithEvent<OnConfigureUriResolver>()
                 .WithEvent<OnAfterConfigureUriResolver>()
-                .WithEvent<OnAfterConfigureQueueManager>()
-                .WithEvent<OnConfigureQueues>()
-                .WithEvent<OnAfterConfigureQueues>()
-                .WithEvent<OnCreatePhysicalQueues>()
-                .WithEvent<OnAfterCreatePhysicalQueues>()
+                .WithEvent<OnConfigureBrokerEndpoints>()
+                .WithEvent<OnAfterConfigureBrokerEndpoints>()
+                .WithEvent<OnCreatePhysicalBrokerEndpoints>()
+                .WithEvent<OnAfterCreatePhysicalBrokerEndpoints>()
                 .WithEvent<OnConfigureMessageRouteProvider>()
                 .WithEvent<OnAfterConfigureMessageRouteProvider>();
 

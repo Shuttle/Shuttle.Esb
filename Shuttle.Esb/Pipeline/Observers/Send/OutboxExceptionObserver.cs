@@ -48,7 +48,7 @@ namespace Shuttle.Esb
                     {
                         if (receivedMessage != null)
                         {
-                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+                            state.GetBrokerEndpoint().Release(receivedMessage.AcknowledgementToken);
                         }
 
                         return;
@@ -61,14 +61,14 @@ namespace Shuttle.Esb
 
                     if (action.Retry)
                     {
-                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        state.GetBrokerEndpoint().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
                     }
                     else
                     {
-                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        state.GetErrorBrokerEndpoint().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
                     }
 
-                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
+                    state.GetBrokerEndpoint().Acknowledge(receivedMessage.AcknowledgementToken);
                 }
                 finally
                 {

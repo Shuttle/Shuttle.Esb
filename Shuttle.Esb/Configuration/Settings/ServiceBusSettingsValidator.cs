@@ -15,42 +15,42 @@ namespace Shuttle.Esb
 
             if (settings.Inbox != null)
             {
-                if (string.IsNullOrWhiteSpace(settings.Inbox.WorkQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.Inbox.Uri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing,
-                        "Inbox.WorkQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing,
+                        "Inbox.Uri"));
                 }
 
-                if (string.IsNullOrWhiteSpace(settings.Inbox.ErrorQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.Inbox.ErrorUri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing,
-                        "Inbox.ErrorQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing,
+                        "Inbox.ErrorUri"));
                 }
             }
 
             if (settings.Outbox != null)
             {
-                if (string.IsNullOrWhiteSpace(settings.Outbox.WorkQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.Outbox.Uri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Outbox.Uri"));
                 }
 
-                if (string.IsNullOrWhiteSpace(settings.Outbox.ErrorQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.Outbox.ErrorUri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Outbox.ErrorUri"));
                 }
             }
 
             if (settings.ControlInbox != null)
             {
-                if (string.IsNullOrWhiteSpace(settings.ControlInbox.WorkQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.ControlInbox.Uri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Control.Uri"));
                 }
 
-                if (string.IsNullOrWhiteSpace(settings.ControlInbox.ErrorQueueUri))
+                if (string.IsNullOrWhiteSpace(settings.ControlInbox.ErrorUri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Control.ErrorUri"));
                 }
             }
 
@@ -65,6 +65,11 @@ namespace Shuttle.Esb
 
                     return ValidateOptionsResult.Fail(string.Format(Resources.UnknownTypeException, type));
                 }
+            }
+
+            if (settings.Worker != null && settings.Inbox == null)
+            {
+                return ValidateOptionsResult.Fail(Resources.WorkerRequiresInboxException);
             }
 
             return ValidateOptionsResult.Success;

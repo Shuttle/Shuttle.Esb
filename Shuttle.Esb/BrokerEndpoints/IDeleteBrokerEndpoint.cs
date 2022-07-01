@@ -1,6 +1,6 @@
 namespace Shuttle.Esb
 {
-    public interface IDropQueue
+    public interface IDeleteBrokerEndpoint
     {
         void Drop();
     }

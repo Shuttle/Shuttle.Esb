@@ -2,14 +2,15 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public class ControlInboxQueueConfiguration : IControlInboxQueueConfiguration
+    public class InboxConfiguration : IInboxConfiguration
     {
         private int _threadCount;
 
-        public ControlInboxQueueConfiguration()
+        public InboxConfiguration()
         {
-            ThreadCount = 1;
+            ThreadCount = 5;
             MaximumFailureCount = 5;
+            DistributeSendCount = 5;
 
             DurationToSleepWhenIdle = new[]
             {
@@ -27,10 +28,15 @@ namespace Shuttle.Esb
             };
         }
 
-        public IQueue WorkQueue { get; set; }
-        public string WorkQueueUri { get; set; }
-        public IQueue ErrorQueue { get; set; }
-        public string ErrorQueueUri { get; set; }
+        public IBrokerEndpoint BrokerEndpoint { get; set; }
+        public string Uri { get; set; }
+        public IBrokerEndpoint ErrorBrokerEndpoint { get; set; }
+        public string ErrorUri { get; set; }
+        public bool Distribute { get; set; }
+        public int DistributeSendCount { get; set; }
+        public IBrokerEndpoint DeferredBrokerEndpoint { get; set; }
+        public string DeferredUri { get; set; }
+        public DeferredMessageProcessor DeferredMessageProcessor { get; set; }
 
         public int ThreadCount
         {
@@ -46,5 +52,7 @@ namespace Shuttle.Esb
         public int MaximumFailureCount { get; set; }
         public TimeSpan[] DurationToIgnoreOnFailure { get; set; }
         public TimeSpan[] DurationToSleepWhenIdle { get; set; }
+
+        public bool HasDeferredBrokerEndpoint => DeferredBrokerEndpoint != null;
     }
 }

@@ -27,11 +27,11 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
             var transportMessage = state.GetTransportMessage();
-            var workQueue = state.GetWorkQueue();
+            var brokerEndpoint = state.GetBrokerEndpoint();
 
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
+            Guard.AgainstNull(brokerEndpoint, nameof(brokerEndpoint));
 
             if (!transportMessage.IsIgnoring())
             {
@@ -40,19 +40,19 @@ namespace Shuttle.Esb
 
             using (var stream = receivedMessage.Stream.Copy())
             {
-                if (state.GetDeferredQueue() == null)
+                if (state.GetDeferredBrokerEndpoint() == null)
                 {
-                    workQueue.Enqueue(transportMessage, stream);
+                    brokerEndpoint.Enqueue(transportMessage, stream);
                 }
                 else
                 {
-                    state.GetDeferredQueue().Enqueue(transportMessage, stream);
+                    state.GetDeferredBrokerEndpoint().Enqueue(transportMessage, stream);
 
                     _configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                 }
             }
 
-            workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            brokerEndpoint.Acknowledge(receivedMessage.AcknowledgementToken);
 
             if (_log.IsTraceEnabled)
             {

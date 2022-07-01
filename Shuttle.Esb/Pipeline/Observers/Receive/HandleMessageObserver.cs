@@ -67,15 +67,15 @@ namespace Shuttle.Esb
                     _events.OnMessageNotHandled(this,
                         new MessageNotHandledEventArgs(
                             pipelineEvent,
-                            state.GetWorkQueue(),
-                            state.GetErrorQueue(),
+                            state.GetBrokerEndpoint(),
+                            state.GetErrorBrokerEndpoint(),
                             transportMessage,
                             message));
 
                     if (!_configuration.RemoveMessagesNotHandled)
                     {
                         var error = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName,
-                            transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
+                            transportMessage.MessageId, state.GetErrorBrokerEndpoint().Uri.Secured());
 
                         _log.Error(error);
 
@@ -83,7 +83,7 @@ namespace Shuttle.Esb
 
                         using (var stream = _serializer.Serialize(transportMessage))
                         {
-                            state.GetErrorQueue().Enqueue(transportMessage, stream);
+                            state.GetErrorBrokerEndpoint().Enqueue(transportMessage, stream);
                         }
                     }
                     else
@@ -104,8 +104,8 @@ namespace Shuttle.Esb
                         pipelineEvent,
                         transportMessage,
                         message,
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
+                        state.GetBrokerEndpoint(),
+                        state.GetErrorBrokerEndpoint(),
                         exception));
 
                 throw exception;

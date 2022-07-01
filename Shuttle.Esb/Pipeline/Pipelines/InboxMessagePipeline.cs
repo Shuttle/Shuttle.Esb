@@ -22,9 +22,9 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 
-            State.SetWorkQueue(configuration.Inbox.WorkQueue);
-            State.SetDeferredQueue(configuration.Inbox.DeferredQueue);
-            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
+            State.SetBrokerEndpoint(configuration.Inbox.BrokerEndpoint);
+            State.SetDeferredBrokerEndpoint(configuration.Inbox.DeferredBrokerEndpoint);
+            State.SetErrorBrokerEndpoint(configuration.Inbox.ErrorBrokerEndpoint);
 
             State.SetDurationToIgnoreOnFailure(configuration.Inbox.DurationToIgnoreOnFailure);
             State.SetMaximumFailureCount(configuration.Inbox.MaximumFailureCount);

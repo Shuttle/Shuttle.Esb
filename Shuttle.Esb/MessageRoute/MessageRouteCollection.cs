@@ -51,11 +51,11 @@ namespace Shuttle.Esb
                 .Equals(uri, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public IMessageRoute Find(IQueue queue)
+        public IMessageRoute Find(IBrokerEndpoint brokerEndpoint)
         {
-            Guard.AgainstNull(queue, nameof(queue));
+            Guard.AgainstNull(brokerEndpoint, nameof(brokerEndpoint));
 
-            return Find(queue.Uri.ToString());
+            return Find(brokerEndpoint.Uri.ToString());
         }
 
         public IEnumerator<IMessageRoute> GetEnumerator()

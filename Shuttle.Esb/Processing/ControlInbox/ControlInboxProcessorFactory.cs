@@ -24,7 +24,7 @@ namespace Shuttle.Esb
 
         public IProcessor Create()
         {
-            return new ControlInboxProcessor(_events, new ThreadActivity(_configuration.ControlInbox),
+            return new ControlInboxProcessor(_events, new ThreadActivity(_configuration.Control),
                 _pipelineFactory);
         }
     }

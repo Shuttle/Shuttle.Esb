@@ -69,9 +69,9 @@ A bit of configuration is going to be needed to help things along:
 	</appSettings>
 
 	<serviceBus>
-		<inbox workQueueUri="azuremq://azure/shuttle-server-work" 
-		       deferredQueueUri="azuremq://azure/shuttle-server-deferred"
-		       errorQueueUri="azuremq://azure/shuttle-error" />
+		<inbox uri="azuremq://azure/shuttle-server-work" 
+		       deferredUri="azuremq://azure/shuttle-server-deferred"
+		       errorUri="azuremq://azure/shuttle-error" />
 	</serviceBus>
 </configuration>
 ```

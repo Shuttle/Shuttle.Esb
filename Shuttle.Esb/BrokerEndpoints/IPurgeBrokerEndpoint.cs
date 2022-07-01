@@ -1,6 +1,6 @@
 namespace Shuttle.Esb
 {
-    public interface IPurgeQueue
+    public interface IPurgeBrokerEndpoint
     {
         void Purge();
     }

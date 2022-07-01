@@ -5,17 +5,17 @@ namespace Shuttle.Esb
 {
     public class DeserializationExceptionEventArgs : PipelineEventEventArgs
     {
-        public DeserializationExceptionEventArgs(IPipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
+        public DeserializationExceptionEventArgs(IPipelineEvent pipelineEvent, IBrokerEndpoint workBrokerEndpoint, IBrokerEndpoint errorBrokerEndpoint,
             Exception exception)
             : base(pipelineEvent)
         {
-            WorkQueue = workQueue;
-            ErrorQueue = errorQueue;
+            WorkBrokerEndpoint = workBrokerEndpoint;
+            ErrorBrokerEndpoint = errorBrokerEndpoint;
             Exception = exception;
         }
 
-        public IQueue WorkQueue { get; }
-        public IQueue ErrorQueue { get; }
+        public IBrokerEndpoint WorkBrokerEndpoint { get; }
+        public IBrokerEndpoint ErrorBrokerEndpoint { get; }
         public Exception Exception { get; }
     }
 }

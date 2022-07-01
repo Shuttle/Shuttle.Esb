@@ -43,12 +43,12 @@ namespace Shuttle.Esb
         {
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
-            var workQueue = state.GetWorkQueue();
-            var errorQueue = state.GetErrorQueue();
+            var brokerEndpoint = state.GetBrokerEndpoint();
+            var errorBrokerEndpoint = state.GetErrorBrokerEndpoint();
 
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(errorQueue, nameof(errorQueue));
+            Guard.AgainstNull(brokerEndpoint, nameof(brokerEndpoint));
+            Guard.AgainstNull(errorBrokerEndpoint, nameof(errorBrokerEndpoint));
 
             TransportMessage transportMessage;
 
@@ -63,12 +63,12 @@ namespace Shuttle.Esb
             catch (Exception ex)
             {
                 _log.Error(ex.ToString());
-                _log.Error(string.Format(Resources.TransportMessageDeserializationException, workQueue.Uri.Secured(),
+                _log.Error(string.Format(Resources.TransportMessageDeserializationException, brokerEndpoint.Uri.Secured(),
                     ex));
 
                 if (_configuration.RemoveCorruptMessages)
                 {
-                    state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                    state.GetBrokerEndpoint().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }
                 else
                 {
@@ -83,8 +83,8 @@ namespace Shuttle.Esb
                 _events.OnTransportMessageDeserializationException(this,
                     new DeserializationExceptionEventArgs(
                         pipelineEvent,
-                        workQueue,
-                        errorQueue,
+                        brokerEndpoint,
+                        errorBrokerEndpoint,
                         ex));
 
                 pipelineEvent.Pipeline.Abort();

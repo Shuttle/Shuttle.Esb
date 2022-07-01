@@ -11,13 +11,13 @@ namespace Shuttle.Esb
         private readonly IMessageSender _messageSender;
 
         public HandlerContext(ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
+            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
             TransportMessage transportMessage, T message, CancellationToken cancellationToken)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(message, nameof(message));
 
-            _messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionManager,
+            _messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionService,
                 transportMessage);
 
             TransportMessage = transportMessage;

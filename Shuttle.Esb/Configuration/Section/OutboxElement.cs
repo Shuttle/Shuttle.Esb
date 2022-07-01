@@ -7,11 +7,11 @@ namespace Shuttle.Esb
 {
     public class OutboxElement : ConfigurationElement
     {
-        [ConfigurationProperty("workQueueUri", IsRequired = true)]
-        public string WorkQueueUri => (string) this["workQueueUri"];
+        [ConfigurationProperty("uri", IsRequired = true)]
+        public string Uri => (string) this["uri"];
 
-        [ConfigurationProperty("errorQueueUri", IsRequired = true)]
-        public string ErrorQueueUri => (string) this["errorQueueUri"];
+        [ConfigurationProperty("errorUri", IsRequired = true)]
+        public string ErrorUri => (string) this["errorUri"];
 
         [TypeConverter(typeof(StringDurationArrayConverter))]
         [ConfigurationProperty("durationToSleepWhenIdle", IsRequired = false)]

@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public class WorkerStartedEvent
     {
-        public string InboxWorkQueueUri { get; set; }
+        public string Uri { get; set; }
         public DateTime DateStarted { get; set; }
     }
 }

@@ -23,8 +23,8 @@ namespace Shuttle.Esb
             Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
             Guard.AgainstNull(distributorExceptionObserver, nameof(distributorExceptionObserver));
 
-            State.SetWorkQueue(configuration.Inbox.WorkQueue);
-            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
+            State.SetBrokerEndpoint(configuration.Inbox.BrokerEndpoint);
+            State.SetErrorBrokerEndpoint(configuration.Inbox.ErrorBrokerEndpoint);
 
             RegisterStage("Distribute")
                 .WithEvent<OnGetMessage>()

@@ -22,8 +22,8 @@ namespace Shuttle.Esb
         public Guid MessageReceivedId { get; set; }
         public Guid MessageId { get; set; }
         public string CorrelationId { get; set; }
-        public string SenderInboxWorkQueueUri { get; set; }
-        public string RecipientInboxWorkQueueUri { get; set; }
+        public string SenderUri { get; set; }
+        public string RecipientUri { get; set; }
         public string PrincipalIdentityName { get; set; }
         public DateTime IgnoreTillDate { get; set; }
         public DateTime SendDate { get; set; }
