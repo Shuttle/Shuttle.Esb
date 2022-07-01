@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Linq;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
@@ -8,6 +10,8 @@ namespace Shuttle.Esb
         public ValidateOptionsResult Validate(string name, ServiceBusSettings settings)
         {
             Guard.AgainstNull(settings, nameof(settings));
+
+            var reflectionService = new ReflectionService();
 
             if (settings.Inbox != null)
             {
@@ -47,6 +51,19 @@ namespace Shuttle.Esb
                 if (string.IsNullOrWhiteSpace(settings.ControlInbox.ErrorQueueUri))
                 {
                     return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+                }
+            }
+
+            if (settings.BrokerEndpointsFactories != null)
+            {
+                foreach (var type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>())
+                {
+                    if (reflectionService.GetType(type) != null)
+                    {
+                        continue;
+                    }
+
+                    return ValidateOptionsResult.Fail(string.Format(Resources.UnknownTypeException, type));
                 }
             }
 

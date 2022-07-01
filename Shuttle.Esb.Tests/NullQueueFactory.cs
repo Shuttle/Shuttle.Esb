@@ -18,10 +18,5 @@ namespace Shuttle.Esb.Tests
 
             return new NullQueue(uri);
         }
-
-        public bool CanCreate(Uri uri)
-        {
-            return uri.Scheme.Equals(Scheme, StringComparison.InvariantCultureIgnoreCase);
-        }
     }
 }

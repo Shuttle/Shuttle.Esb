@@ -12,8 +12,8 @@ namespace Shuttle.Esb
         [ConfigurationProperty("messageRoutes", IsRequired = false, DefaultValue = null)]
         public MessageRouteElementCollection MessageRoutes => (MessageRouteElementCollection) this["messageRoutes"];
 
-        [ConfigurationProperty("queueFactories", IsRequired = false, DefaultValue = null)]
-        public QueueFactoriesElement QueueFactories => (QueueFactoriesElement) this["queueFactories"];
+        [ConfigurationProperty("brokerEndpointFactories", IsRequired = false, DefaultValue = null)]
+        public BrokerEndpointFactoriesElement BrokerEndpointEndpointFactories => (BrokerEndpointFactoriesElement) this["brokerEndpointFactories"];
 
         [ConfigurationProperty("inbox", IsRequired = false, DefaultValue = null)]
         public InboxElement Inbox => (InboxElement) this["inbox"];

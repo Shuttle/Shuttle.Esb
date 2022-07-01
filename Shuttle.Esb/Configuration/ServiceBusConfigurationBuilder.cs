@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,8 @@ namespace Shuttle.Esb
         public const string SectionName = "Shuttle:ServiceBus";
 
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+
+        private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
         private readonly ReflectionService _reflectionService = new ReflectionService();
         private readonly IServiceCollection _services;
 
@@ -88,12 +92,20 @@ namespace Shuttle.Esb
                                 ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
                         };
                 }
+
+                if (settings.BrokerEndpointsFactories != null)
+                {
+                    _configuration.ScanForQueueFactories = settings.BrokerEndpointsFactories.Scan;
+
+                    foreach (var type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>())
+                    {
+                        _configuration.AddQueueFactoryType(_reflectionService.GetType(type));
+                    }
+                }
             });
 
             _services = services;
         }
-
-        private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
 
         public ServiceBusConfigurationBuilder AddMessageHandlers(Assembly assembly)
         {
@@ -176,6 +188,141 @@ namespace Shuttle.Esb
                 }
 
                 Apply(settings, options);
+            });
+
+            return this;
+        }
+
+        public ServiceBusConfigurationBuilder ReadConfiguration()
+        {
+            _services.AddOptions<ServiceBusSettings>().Configure(settings =>
+            {
+                var section = ServiceBusSection.Get();
+
+                if (section == null)
+                {
+                    return;
+                }
+
+                settings.CreateQueues = section.CreateQueues;
+                settings.CacheIdentity = section.CacheIdentity;
+                settings.RegisterHandlers = section.RegisterHandlers;
+                settings.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
+                settings.RemoveCorruptMessages = section.RemoveCorruptMessages;
+                settings.CompressionAlgorithm = section.CompressionAlgorithm;
+                settings.EncryptionAlgorithm = section.EncryptionAlgorithm;
+
+                if (section.Inbox != null)
+                {
+                    settings.Inbox = new InboxSettings
+                    {
+                        WorkQueueUri = section.Inbox.WorkQueueUri,
+                        DeferredQueueUri = section.Inbox.DeferredQueueUri,
+                        ErrorQueueUri = section.Inbox.ErrorQueueUri,
+                        ThreadCount = section.Inbox.ThreadCount,
+                        MaximumFailureCount = section.Inbox.MaximumFailureCount,
+                        DurationToIgnoreOnFailure =
+                            section.Inbox.DurationToIgnoreOnFailure ??
+                            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+                        DurationToSleepWhenIdle =
+                            section.Inbox.DurationToSleepWhenIdle ??
+                            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
+                        Distribute = section.Inbox.Distribute,
+                        DistributeSendCount = section.Inbox.DistributeSendCount
+                    };
+                }
+
+                if (section.ControlInbox != null)
+                {
+                    settings.ControlInbox = new ControlInboxSettings
+                    {
+                        WorkQueueUri = section.ControlInbox.WorkQueueUri,
+                        ErrorQueueUri = section.ControlInbox.ErrorQueueUri,
+                        ThreadCount = section.ControlInbox.ThreadCount,
+                        MaximumFailureCount = section.ControlInbox.MaximumFailureCount,
+                        DurationToIgnoreOnFailure =
+                            section.ControlInbox.DurationToIgnoreOnFailure ??
+                            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+                        DurationToSleepWhenIdle =
+                            section.ControlInbox.DurationToSleepWhenIdle ??
+                            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
+                    };
+                }
+
+                if (section.Outbox != null)
+                {
+                    settings.Outbox =
+                        new OutboxSettings
+                        {
+                            WorkQueueUri = section.Outbox.WorkQueueUri,
+                            ErrorQueueUri = section.Outbox.ErrorQueueUri,
+                            MaximumFailureCount = section.Outbox.MaximumFailureCount,
+                            DurationToIgnoreOnFailure =
+                                section.Outbox.DurationToIgnoreOnFailure ??
+                                ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
+                            DurationToSleepWhenIdle =
+                                section.Outbox.DurationToSleepWhenIdle ??
+                                ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
+                            ThreadCount = section.Outbox.ThreadCount
+                        };
+                }
+
+                if (section.MessageRoutes != null)
+                {
+                    var messageRoutes = new List<MessageRouteSettings>();
+                    
+                    foreach (MessageRouteElement mapElement in ServiceBusSection.Get().MessageRoutes)
+                    {
+                        var specifications = new List<MessageRouteSettings.SpecificationSettings>();
+
+                        foreach (SpecificationElement specificationElement in mapElement)
+                        {
+                            specifications.Add(new MessageRouteSettings.SpecificationSettings
+                            {
+                                Name = specificationElement.Name,
+                                Value = specificationElement.Value
+                            });
+                        }
+
+                        if (specifications.Any())
+                        {
+                            messageRoutes.Add(new MessageRouteSettings
+                            {
+                                Uri = mapElement.Uri,
+                                Specifications = specifications.ToArray()
+                            });
+                        }
+                    }
+
+                    settings.MessageRoutes = messageRoutes.ToArray();
+                }
+
+                if (section.Worker != null)
+                {
+                    settings.Worker = new WorkerSettings
+                    {
+                        DistributorControlWorkQueueUri = section.Worker.DistributorControlWorkQueueUri,
+                        ThreadAvailableNotificationIntervalSeconds =
+                            section.Worker.ThreadAvailableNotificationIntervalSeconds
+                    };
+                }
+
+                if (section.BrokerEndpointEndpointFactories != null)
+                {
+                    var types = new List<string>();
+
+                    foreach (BrokerEndpointFactoryElement queueFactoryElement in ServiceBusSection.Get().BrokerEndpointEndpointFactories)
+                    {
+                        types.Add(queueFactoryElement.Type);
+                    }
+
+
+                    settings.BrokerEndpointsFactories = new BrokerEndpointsFactoriesSettings
+                    {
+                        Scan = section.BrokerEndpointEndpointFactories.Scan,
+                        Types = types.ToArray()
+                    };
+                }
             });
 
             return this;
