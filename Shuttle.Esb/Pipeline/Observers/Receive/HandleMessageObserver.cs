@@ -83,7 +83,7 @@ namespace Shuttle.Esb
 
                         using (var stream = _serializer.Serialize(transportMessage))
                         {
-                            state.GetErrorBrokerEndpoint().Enqueue(transportMessage, stream);
+                            state.GetErrorBrokerEndpoint().Send(transportMessage, stream);
                         }
                     }
                     else

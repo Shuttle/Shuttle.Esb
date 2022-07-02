@@ -5,6 +5,12 @@ namespace Shuttle.Esb
 {
     public static class BrokerEndpointExtensions
     {
+
+        public static bool IsQueue(this IBrokerEndpoint brokerEndpoint)
+        {
+            return brokerEndpoint is IQueue;
+        }
+
         public static bool AttemptCreate(this IBrokerEndpoint brokerEndpoint)
         {
             var operation = brokerEndpoint as ICreateBrokerEndpoint;

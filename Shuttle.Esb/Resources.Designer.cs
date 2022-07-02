@@ -70,7 +70,7 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Queue factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Broker endpoint factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
         /// </summary>
         public static string BrokerEndpointFactoryCreatedNull {
             get {

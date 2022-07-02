@@ -15,8 +15,8 @@ namespace Shuttle.Esb
         private string _compressionAlgorithm;
         private DateTime _ignoreTillDate;
         private bool _local;
-        private string _recipientInboxWorkQueueUri;
-        private string _sendInboxWorkQueueUri;
+        private string _recipientUri;
+        private string _senderUri;
         private TransportMessage _transportMessageReceived;
 
         public TransportMessageConfigurator(object message)
@@ -29,7 +29,7 @@ namespace Shuttle.Esb
             _correlationId = string.Empty;
             _ignoreTillDate = DateTime.MinValue;
             _expiryDate = DateTime.MaxValue;
-            _recipientInboxWorkQueueUri = null;
+            _recipientUri = null;
             _local = false;
         }
 
@@ -54,12 +54,12 @@ namespace Shuttle.Esb
             {
                 RecipientUri = _local
                     ? configuration.Inbox.BrokerEndpoint.Uri.ToString()
-                    : _recipientInboxWorkQueueUri,
-                SenderUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
+                    : _recipientUri,
+                SenderUri = string.IsNullOrEmpty(_senderUri)
                     ? configuration.HasInbox
                         ? configuration.Inbox.BrokerEndpoint.Uri.ToString()
                         : string.Empty
-                    : _sendInboxWorkQueueUri,
+                    : _senderUri,
                 PrincipalIdentityName = identity != null
                     ? identity.Name
                     : AnonymousName,
@@ -146,7 +146,7 @@ namespace Shuttle.Esb
         {
             _local = false;
 
-            _recipientInboxWorkQueueUri = uri;
+            _recipientUri = uri;
 
             return this;
         }
@@ -163,7 +163,7 @@ namespace Shuttle.Esb
 
         public TransportMessageConfigurator WithSender(string uri)
         {
-            _sendInboxWorkQueueUri = uri;
+            _senderUri = uri;
 
             return this;
         }

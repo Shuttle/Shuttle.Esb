@@ -55,11 +55,11 @@ namespace Shuttle.Esb
 
                     if (action.Retry)
                     {
-                        state.GetBrokerEndpoint().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        state.GetBrokerEndpoint().Send(transportMessage, _serializer.Serialize(transportMessage));
                     }
                     else
                     {
-                        state.GetErrorBrokerEndpoint().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        state.GetErrorBrokerEndpoint().Send(transportMessage, _serializer.Serialize(transportMessage));
                     }
 
                     state.GetBrokerEndpoint().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);

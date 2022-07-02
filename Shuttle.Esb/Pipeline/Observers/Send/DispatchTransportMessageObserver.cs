@@ -56,12 +56,12 @@ namespace Shuttle.Esb
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientUri, "uri");
 
             var queue = !_configuration.HasOutbox
-                ? _brokerEndpointService.GetBrokerEndpoint(transportMessage.RecipientUri)
+                ? _brokerEndpointService.Get(transportMessage.RecipientUri)
                 : _configuration.Outbox.BrokerEndpoint;
 
             using (var stream = state.GetTransportMessageStream().Copy())
             {
-                queue.Enqueue(transportMessage, stream);
+                queue.Send(transportMessage, stream);
             }
         }
     }
