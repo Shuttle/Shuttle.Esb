@@ -15,9 +15,9 @@ namespace Shuttle.Esb.Tests
             var configurator = new TransportMessageConfigurator(this);
             var configuration = new ServiceBusConfiguration
             {
-                Inbox = new InboxConfiguration
+                Inbox = new InboxQueueConfiguration
                 {
-                    BrokerEndpoint = new NullBrokerEndpoint("null-queue://./work-queue")
+                    WorkQueue = new NullQueue("null-queue://./work-queue")
                 }
             };
 
@@ -25,12 +25,12 @@ namespace Shuttle.Esb.Tests
 
 
             Assert.AreEqual("null-queue://./work-queue",
-                configurator.TransportMessage(configuration, identityProvider.Object).SenderUri);
+                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
 
             configurator.WithSender("null-queue://./another-queue");
 
             Assert.AreEqual("null-queue://./another-queue",
-                configurator.TransportMessage(configuration, identityProvider.Object).SenderUri);
+                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
         }
     }
 }

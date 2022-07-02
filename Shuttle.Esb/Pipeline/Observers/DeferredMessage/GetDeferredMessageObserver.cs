@@ -21,7 +21,7 @@ namespace Shuttle.Esb
         public void Execute(OnGetMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-            var queue = state.GetDeferredBrokerEndpoint();
+            var queue = state.GetDeferredQueue();
 
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -30,7 +30,7 @@ namespace Shuttle.Esb
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)
             {
-                _events.OnBrokerEndpointEmpty(this, new BrokerEndpointEmptyEventArgs(pipelineEvent, queue));
+                _events.OnQueueEmpty(this, new QueueEmptyEventArgs(pipelineEvent, queue));
 
                 pipelineEvent.Pipeline.Abort();
             }

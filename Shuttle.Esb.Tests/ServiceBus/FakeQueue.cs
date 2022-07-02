@@ -5,11 +5,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Esb.Tests
 {
-    public class FakeBrokerEndpoint : IBrokerEndpoint
+    public class FakeQueue : IQueue
     {
         private readonly ISerializer _serializer = new DefaultSerializer();
 
-        public FakeBrokerEndpoint(int messagesToReturn)
+        public FakeQueue(int messagesToReturn)
         {
             MessagesToReturn = messagesToReturn;
         }

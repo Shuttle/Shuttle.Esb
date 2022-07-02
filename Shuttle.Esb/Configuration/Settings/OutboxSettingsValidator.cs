@@ -9,14 +9,14 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(options, nameof(options));
 
-            if (string.IsNullOrWhiteSpace(options.Uri))
+            if (string.IsNullOrWhiteSpace(options.WorkQueueUri))
             {
-                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Outbox.Uri"));
+                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
             }
 
-            if (string.IsNullOrWhiteSpace(options.ErrorUri))
+            if (string.IsNullOrWhiteSpace(options.ErrorQueueUri))
             {
-                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredBrokerEndpointUriMissing, "Outbox.ErrorUri"));
+                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
             }
 
             return ValidateOptionsResult.Success;

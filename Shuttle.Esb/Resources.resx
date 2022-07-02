@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DuplicateBrokerEndpointFactoryReplaced" xml:space="preserve">
-    <value>A broker endpoint factory for scheme '{0}' already existed.  Removed broker endpoint factory type '{1}' to register broker endpoint factory type '{2}'.</value>
+  <data name="DuplicateQueueFactoryReplaced" xml:space="preserve">
+    <value>A queue factory for scheme '{0}' already existed.  Removed queue factory type '{1}' to register queue factory type '{2}'.</value>
     <comment>{0} = scheme, {1} = full factory type name removed, {2} full threadActivityFactory type name registered</comment>
   </data>
   <data name="InvalidSchemeException" xml:space="preserve">
@@ -141,17 +141,17 @@
     <value>No route could be found for message of type '{0}'.</value>
     <comment>{0} = full type name of message</comment>
   </data>
-  <data name="BrokerEndpointFactoryNotFoundException" xml:space="preserve">
-    <value>No broker endpoint factory has been registered for scheme '{0}'.</value>
+  <data name="QueueFactoryNotFoundException" xml:space="preserve">
+    <value>No queue factory has been registered for scheme '{0}'.</value>
     <comment>{0} = scheme (key)</comment>
   </data>
   <data name="UriFormatException" xml:space="preserve">
     <value>Expected uri format '{0}' but received '{1}'.</value>
     <comment>{0} = valid uri format, {1} = invalid uri format</comment>
   </data>
-  <data name="NotImplementedOnBrokerEndpoint" xml:space="preserve">
-    <value>Broker endpoint '{0}' does not implement interface '{1}'.</value>
-    <comment>{0} = full type name of broker endpoint, {1} = interface not implemented</comment>
+  <data name="NotImplementedOnQueue" xml:space="preserve">
+    <value>Queue '{0}' does not implement interface '{1}'.</value>
+    <comment>{0} = full type name of queue, {1} = interface not implemented</comment>
   </data>
   <data name="TypeListMessageRouteSpecificationUnknownType" xml:space="preserve">
     <value>Cannot get type '{0}' for TypeListMessageRouteSpecification.</value>
@@ -164,13 +164,13 @@
   <data name="RequeueWithNoInbox" xml:space="preserve">
     <value>You have tried to requeue a message but no inbox has been configured.</value>
   </data>
-  <data name="TraceMessageDelivered" xml:space="preserve">
-    <value>Message type '{0}' with id '{1}' delivered to broker endpoint '{2}'.</value>
-    <comment>{0} = full type name of message, {1} = message id, {2} = broker queue uri</comment>
+  <data name="TraceMessageEnqueued" xml:space="preserve">
+    <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
+    <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
   </data>
-  <data name="RequiredBrokerEndpointUriMissing" xml:space="preserve">
-    <value>Required broker endpoint uri '{0}' has not been configured..</value>
-    <comment>{0} = name of the required broker endpoint uri</comment>
+  <data name="RequiredQueueUriMissing" xml:space="preserve">
+    <value>Required queue uri '{0}' has not been configured.  Please check your  application configuration or your code if you implemented it explicitly.</value>
+    <comment>{0} = name of the required queue uri</comment>
   </data>
   <data name="ReplyWithoutCurrentMessage" xml:space="preserve">
     <value>There is no current message.  Cannot reply.</value>
@@ -186,8 +186,8 @@
     <value>Unknown message route specification '{0}'.  Cannot create the specification.</value>
     <comment>{0} = specification name</comment>
   </data>
-  <data name="ReplyWithoutSenderInboxWorkUri" xml:space="preserve">
-    <value>The current message has no SenderIndexWorkUri.  Cannot reply.</value>
+  <data name="ReplyWithoutSenderInboxWorkQueueUri" xml:space="preserve">
+    <value>The current message has no SenderIndexWorkQueueUri.  Cannot reply.</value>
   </data>
   <data name="TraceTransportMessageDeferred" xml:space="preserve">
     <value>Transport message with id '{0}' will be deferred until '{1}'.</value>
@@ -253,19 +253,19 @@
     <value>[message handler registered] : message type = '{0}' / handler type = '{1}'</value>
     <comment>{0} = full name of message type, {1} = full name of handler type</comment>
   </data>
-  <data name="BrokerEndpointFactoryInstantiationException" xml:space="preserve">
-    <value>Broker endpoint factory type '{0}' could not be instantiated.  Exception: {1}</value>
-    <comment>{0} = full type name of broker endpoint factory type to be instanced, {1} = exception messages</comment>
+  <data name="QueueFactoryInstantiationException" xml:space="preserve">
+    <value>Queue factory type '{0}' could not be instantiated.  Exception: {1}</value>
+    <comment>{0} = full type name of queue factory type to be instanced, {1} = exception messages</comment>
   </data>
   <data name="UnknownTypeException" xml:space="preserve">
     <value>Could not get type: {0}</value>
     <comment>{0} = type descriptor that cannot be found</comment>
   </data>
-  <data name="FindBrokerEndpointException" xml:space="preserve">
-    <value>An exception occurred trying to find a broker endpoint.  Candidate broker endpoint type = '{0}'.  Candidate uri = '{1}'.  Comparison uri = '{2}'.  All exception messages = '{3}'.</value>
+  <data name="FindQueueException" xml:space="preserve">
+    <value>An exception occurred trying to find a queue.  Candidate queue type = '{0}'.  Candidate uri = '{1}'.  Comparison uri = '{2}'.  All exception messages = '{3}'.</value>
     <comment>{0} = candidate queue type, {1} = candidate uri, {2} = comparison uri, {3} = all exception messages</comment>
   </data>
-  <data name="BrokerEndpointFactoryCreatedNull" xml:space="preserve">
+  <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
     <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
     <comment>{0} = the queue factory type name, {1} = the uri that the threadActivityFactory was requested to create the queue for</comment>
   </data>
@@ -302,7 +302,7 @@
   <data name="ServiceBusInstanceNotStarted" xml:space="preserve">
     <value>The service bus instance has not yet been started.</value>
   </data>
-  <data name="BrokerEndpointFactoryRegistered" xml:space="preserve">
+  <data name="QueueFactoryRegistered" xml:space="preserve">
     <value>[queue factory registered] : scheme = '{0}' / type '{1}' </value>
     <comment>{0} = scheme, {1} = full factory type name registered</comment>
   </data>

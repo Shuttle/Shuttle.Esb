@@ -6,8 +6,8 @@ namespace Shuttle.Esb
 {
     public interface IStartupConfigurationObserver : 
         IPipelineObserver<OnConfigureUriResolver>, 
-        IPipelineObserver<OnConfigureBrokerEndpoints>, 
-        IPipelineObserver<OnCreatePhysicalBrokerEndpoints>, 
+        IPipelineObserver<OnConfigureQueues>, 
+        IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnConfigureMessageRouteProvider>
     {
     }
@@ -16,18 +16,18 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageRouteProvider _messageRouteProvider;
-        private readonly IBrokerEndpointService _brokerEndpointService;
+        private readonly IQueueManager _queueManager;
         private readonly IUriResolver _uriResolver;
 
-        public StartupConfigurationObserver(IServiceBusConfiguration configuration, IBrokerEndpointService brokerEndpointService,
+        public StartupConfigurationObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
             IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(brokerEndpointService, nameof(brokerEndpointService));
+            Guard.AgainstNull(queueManager, nameof(queueManager));
             Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
-            _brokerEndpointService = brokerEndpointService;
+            _queueManager = queueManager;
             _messageRouteProvider = messageRouteProvider;
             _uriResolver = uriResolver;
             _configuration = configuration;
@@ -55,48 +55,48 @@ namespace Shuttle.Esb
             }
         }
 
-        public void Execute(OnConfigureBrokerEndpoints pipelineEvent)
+        public void Execute(OnConfigureQueues pipelineEvent)
         {
-            if (_configuration.HasControl)
+            if (_configuration.HasControlInbox)
             {
-                _configuration.Control.BrokerEndpoint = _configuration.Control.BrokerEndpoint ??
-                                                        _brokerEndpointService.CreateBrokerEndpoint(
-                                                            _configuration.Control.Uri);
+                _configuration.ControlInbox.WorkQueue = _configuration.ControlInbox.WorkQueue ??
+                                                        _queueManager.CreateQueue(
+                                                            _configuration.ControlInbox.WorkQueueUri);
 
-                _configuration.Control.ErrorBrokerEndpoint = _configuration.Control.ErrorBrokerEndpoint ??
-                                                         _brokerEndpointService.CreateBrokerEndpoint(
-                                                             _configuration.Control.ErrorUri);
+                _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ??
+                                                         _queueManager.CreateQueue(
+                                                             _configuration.ControlInbox.ErrorQueueUri);
             }
 
             if (_configuration.HasInbox)
             {
-                _configuration.Inbox.BrokerEndpoint = _configuration.Inbox.BrokerEndpoint ??
-                                                 _brokerEndpointService.CreateBrokerEndpoint(_configuration.Inbox.Uri);
+                _configuration.Inbox.WorkQueue = _configuration.Inbox.WorkQueue ??
+                                                 _queueManager.CreateQueue(_configuration.Inbox.WorkQueueUri);
 
-                _configuration.Inbox.DeferredBrokerEndpoint = _configuration.Inbox.DeferredBrokerEndpoint ?? (
-                                                         string.IsNullOrEmpty(_configuration.Inbox.DeferredUri)
+                _configuration.Inbox.DeferredQueue = _configuration.Inbox.DeferredQueue ?? (
+                                                         string.IsNullOrEmpty(_configuration.Inbox.DeferredQueueUri)
                                                              ? null
-                                                             : _brokerEndpointService
-                                                                 .CreateBrokerEndpoint(_configuration.Inbox.DeferredUri));
+                                                             : _queueManager
+                                                                 .CreateQueue(_configuration.Inbox.DeferredQueueUri));
 
-                _configuration.Inbox.ErrorBrokerEndpoint = _configuration.Inbox.ErrorBrokerEndpoint ??
-                                                  _brokerEndpointService.CreateBrokerEndpoint(_configuration.Inbox.ErrorUri);
+                _configuration.Inbox.ErrorQueue = _configuration.Inbox.ErrorQueue ??
+                                                  _queueManager.CreateQueue(_configuration.Inbox.ErrorQueueUri);
             }
 
             if (_configuration.HasOutbox)
             {
-                _configuration.Outbox.BrokerEndpoint = _configuration.Outbox.BrokerEndpoint ??
-                                                  _brokerEndpointService.CreateBrokerEndpoint(_configuration.Outbox.Uri);
+                _configuration.Outbox.WorkQueue = _configuration.Outbox.WorkQueue ??
+                                                  _queueManager.CreateQueue(_configuration.Outbox.WorkQueueUri);
 
-                _configuration.Outbox.ErrorBrokerEndpoint = _configuration.Outbox.ErrorBrokerEndpoint ??
-                                                   _brokerEndpointService.CreateBrokerEndpoint(_configuration.Outbox.ErrorUri);
+                _configuration.Outbox.ErrorQueue = _configuration.Outbox.ErrorQueue ??
+                                                   _queueManager.CreateQueue(_configuration.Outbox.ErrorQueueUri);
             }
 
             if (_configuration.IsWorker)
             {
-                _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint =
-                    _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint ??
-                    _brokerEndpointService.CreateBrokerEndpoint(_configuration.Worker.DistributorControlUri);
+                _configuration.Worker.DistributorControlInboxWorkQueue =
+                    _configuration.Worker.DistributorControlInboxWorkQueue ??
+                    _queueManager.CreateQueue(_configuration.Worker.DistributorControlInboxWorkQueueUri);
             }
         }
 
@@ -108,14 +108,14 @@ namespace Shuttle.Esb
             }
         }
 
-        public void Execute(OnCreatePhysicalBrokerEndpoints pipelineEvent)
+        public void Execute(OnCreatePhysicalQueues pipelineEvent)
         {
-            if (!_configuration.CreateBrokerEndpoints)
+            if (!_configuration.CreateQueues)
             {
                 return;
             }
 
-            _brokerEndpointService.CreatePhysicalBrokerEndpoint(_configuration);
+            _queueManager.CreatePhysicalQueues(_configuration);
         }
     }
 }

@@ -3,7 +3,7 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public class ControlInboxProcessor : BrokerEndpointProcessor<ControlInboxMessagePipeline>
+    public class ControlInboxProcessor : QueueProcessor<ControlInboxMessagePipeline>
     {
         public ControlInboxProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
             IPipelineFactory pipelineFactory) :

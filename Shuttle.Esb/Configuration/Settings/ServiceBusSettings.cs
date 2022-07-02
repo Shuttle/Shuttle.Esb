@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public class ServiceBusSettings
     {
-        public bool CreateBrokerEndpoints { get; set; } = true;
+        public bool CreateQueues { get; set; } = true;
         public bool CacheIdentity { get; set; } = true;
         public bool RegisterHandlers { get; set; } = true;
         public bool RemoveMessagesNotHandled { get; set; }

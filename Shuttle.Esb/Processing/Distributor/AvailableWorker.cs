@@ -7,13 +7,13 @@ namespace Shuttle.Esb
         public AvailableWorker(WorkerThreadAvailableCommand command)
         {
             Identifier = command.Identifier;
-            Uri = command.Uri;
+            InboxWorkQueueUri = command.InboxWorkQueueUri;
             ManagedThreadId = command.ManagedThreadId;
             WorkerSendDate = command.DateSent;
         }
 
         public Guid Identifier { get; }
-        public string Uri { get; }
+        public string InboxWorkQueueUri { get; }
         public int ManagedThreadId { get; }
         public DateTime WorkerSendDate { get; }
     }

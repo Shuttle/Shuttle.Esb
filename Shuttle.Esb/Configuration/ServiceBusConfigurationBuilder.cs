@@ -14,7 +14,6 @@ namespace Shuttle.Esb
         public const string SectionName = "Shuttle:ServiceBus";
 
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-        private static readonly Type BrokerEndpointFactoryType = typeof(IBrokerEndpointFactory);
 
         private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
         private readonly ReflectionService _reflectionService = new ReflectionService();
@@ -29,11 +28,11 @@ namespace Shuttle.Esb
                 if (settings.Inbox != null)
                 {
                     _configuration.Inbox =
-                        new InboxConfiguration
+                        new InboxQueueConfiguration
                         {
-                            Uri = settings.Inbox.Uri,
-                            DeferredUri = settings.Inbox.DeferredUri,
-                            ErrorUri = settings.Inbox.ErrorUri,
+                            WorkQueueUri = settings.Inbox.WorkQueueUri,
+                            DeferredQueueUri = settings.Inbox.DeferredQueueUri,
+                            ErrorQueueUri = settings.Inbox.ErrorQueueUri,
                             ThreadCount = settings.Inbox.ThreadCount,
                             MaximumFailureCount = settings.Inbox.MaximumFailureCount,
                             DurationToIgnoreOnFailure =
@@ -50,10 +49,10 @@ namespace Shuttle.Esb
                 if (settings.Outbox != null)
                 {
                     _configuration.Outbox =
-                        new OutboxConfiguration
+                        new OutboxQueueConfiguration
                         {
-                            Uri = settings.Outbox.Uri,
-                            ErrorUri = settings.Outbox.ErrorUri,
+                            WorkQueueUri = settings.Outbox.WorkQueueUri,
+                            ErrorQueueUri = settings.Outbox.ErrorQueueUri,
                             MaximumFailureCount = settings.Outbox.MaximumFailureCount,
                             DurationToIgnoreOnFailure =
                                 settings.Outbox.DurationToIgnoreOnFailure ??
@@ -69,8 +68,8 @@ namespace Shuttle.Esb
                 {
                     _configuration.Worker = new WorkerConfiguration
                     {
-                        DistributorControlUri =
-                            settings.Worker.DistributorControlUri,
+                        DistributorControlInboxWorkQueueUri =
+                            settings.Worker.DistributorControlWorkQueueUri,
                         ThreadAvailableNotificationIntervalSeconds =
                             settings.Worker.ThreadAvailableNotificationIntervalSeconds
                     };
@@ -78,11 +77,11 @@ namespace Shuttle.Esb
 
                 if (settings.ControlInbox != null)
                 {
-                    _configuration.Control =
-                        new ControlConfiguration
+                    _configuration.ControlInbox =
+                        new ControlInboxQueueConfiguration
                         {
-                            Uri = settings.ControlInbox.Uri,
-                            ErrorUri = settings.ControlInbox.ErrorUri,
+                            WorkQueueUri = settings.ControlInbox.WorkQueueUri,
+                            ErrorQueueUri = settings.ControlInbox.ErrorQueueUri,
                             ThreadCount = settings.ControlInbox.ThreadCount,
                             MaximumFailureCount = settings.ControlInbox.MaximumFailureCount,
                             DurationToIgnoreOnFailure =
@@ -96,28 +95,11 @@ namespace Shuttle.Esb
 
                 if (settings.BrokerEndpointsFactories != null)
                 {
-                    var added = new List<Type>();
+                    _configuration.ScanForQueueFactories = settings.BrokerEndpointsFactories.Scan;
 
-                    _configuration.ScanForBrokerEndpointFactories = settings.BrokerEndpointsFactories.Scan;
-
-                    var types = (from type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>()
-                        select _reflectionService.GetType(type)).ToList();
-
-                    if (_configuration.ScanForBrokerEndpointFactories)
+                    foreach (var type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>())
                     {
-                        types.AddRange(_reflectionService.GetTypesAssignableTo<IBrokerEndpointFactory>().ToList());
-                    }
-
-                    foreach (var type in types)
-                    {
-                        if (added.Contains(type))
-                        {
-                            continue;
-                        }
-
-                        _services.AddSingleton(BrokerEndpointFactoryType, type);
-
-                        added.Add(type);
+                        _configuration.AddQueueFactoryType(_reflectionService.GetType(type));
                     }
                 }
             });
@@ -182,7 +164,7 @@ namespace Shuttle.Esb
             options.Inbox = settings.Inbox;
             options.CacheIdentity = settings.CacheIdentity;
             options.CompressionAlgorithm = settings.CompressionAlgorithm;
-            options.CreateBrokerEndpoints = settings.CreateBrokerEndpoints;
+            options.CreateQueues = settings.CreateQueues;
             options.EncryptionAlgorithm = settings.EncryptionAlgorithm;
             options.MessageRoutes = settings.MessageRoutes;
             options.Outbox = settings.Outbox;
@@ -222,7 +204,7 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                settings.CreateBrokerEndpoints = section.CreateBrokerEndpoints;
+                settings.CreateQueues = section.CreateQueues;
                 settings.CacheIdentity = section.CacheIdentity;
                 settings.RegisterHandlers = section.RegisterHandlers;
                 settings.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
@@ -234,9 +216,9 @@ namespace Shuttle.Esb
                 {
                     settings.Inbox = new InboxSettings
                     {
-                        Uri = section.Inbox.Uri,
-                        DeferredUri = section.Inbox.DeferredUri,
-                        ErrorUri = section.Inbox.ErrorUri,
+                        WorkQueueUri = section.Inbox.WorkQueueUri,
+                        DeferredQueueUri = section.Inbox.DeferredQueueUri,
+                        ErrorQueueUri = section.Inbox.ErrorQueueUri,
                         ThreadCount = section.Inbox.ThreadCount,
                         MaximumFailureCount = section.Inbox.MaximumFailureCount,
                         DurationToIgnoreOnFailure =
@@ -250,19 +232,19 @@ namespace Shuttle.Esb
                     };
                 }
 
-                if (section.Control != null)
+                if (section.ControlInbox != null)
                 {
                     settings.ControlInbox = new ControlInboxSettings
                     {
-                        Uri = section.Control.Uri,
-                        ErrorUri = section.Control.ErrorUri,
-                        ThreadCount = section.Control.ThreadCount,
-                        MaximumFailureCount = section.Control.MaximumFailureCount,
+                        WorkQueueUri = section.ControlInbox.WorkQueueUri,
+                        ErrorQueueUri = section.ControlInbox.ErrorQueueUri,
+                        ThreadCount = section.ControlInbox.ThreadCount,
+                        MaximumFailureCount = section.ControlInbox.MaximumFailureCount,
                         DurationToIgnoreOnFailure =
-                            section.Control.DurationToIgnoreOnFailure ??
+                            section.ControlInbox.DurationToIgnoreOnFailure ??
                             ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
                         DurationToSleepWhenIdle =
-                            section.Control.DurationToSleepWhenIdle ??
+                            section.ControlInbox.DurationToSleepWhenIdle ??
                             ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
                     };
                 }
@@ -272,8 +254,8 @@ namespace Shuttle.Esb
                     settings.Outbox =
                         new OutboxSettings
                         {
-                            Uri = section.Outbox.Uri,
-                            ErrorUri = section.Outbox.ErrorUri,
+                            WorkQueueUri = section.Outbox.WorkQueueUri,
+                            ErrorQueueUri = section.Outbox.ErrorQueueUri,
                             MaximumFailureCount = section.Outbox.MaximumFailureCount,
                             DurationToIgnoreOnFailure =
                                 section.Outbox.DurationToIgnoreOnFailure ??
@@ -319,7 +301,7 @@ namespace Shuttle.Esb
                 {
                     settings.Worker = new WorkerSettings
                     {
-                        DistributorControlUri = section.Worker.DistributorControlUri,
+                        DistributorControlWorkQueueUri = section.Worker.DistributorControlWorkQueueUri,
                         ThreadAvailableNotificationIntervalSeconds =
                             section.Worker.ThreadAvailableNotificationIntervalSeconds
                     };
@@ -354,10 +336,6 @@ namespace Shuttle.Esb
                 {
                     AddMessageHandlers(assembly);
                 }
-            }
-            else
-            {
-                AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
 
             return _configuration;

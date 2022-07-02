@@ -2,9 +2,9 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public interface IOutboxConfiguration :
-        IWorkConfiguration,
-        IErrorConfiguration,
+    public interface IOutboxQueueConfiguration :
+        IWorkQueueConfiguration,
+        IErrorQueueConfiguration,
         IMessageFailureConfiguration,
         IThreadActivityConfiguration
     {

@@ -6,7 +6,7 @@ namespace Shuttle.Esb
 {
     public interface IShutdownProcessingObserver : 
         IPipelineObserver<OnStopping>, 
-        IPipelineObserver<OnDisposeBrokerEndpoints>, 
+        IPipelineObserver<OnDisposeQueues>, 
         IPipelineObserver<OnStopped>
     {
     }
@@ -15,46 +15,46 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
-        private readonly IBrokerEndpointService _brokerEndpointService;
+        private readonly IQueueManager _queueManager;
 
         public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IBrokerEndpointService brokerEndpointService)
+            IQueueManager queueManager)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(events, nameof(events));
 
             _configuration = configuration;
             _events = events;
-            _brokerEndpointService = brokerEndpointService;
+            _queueManager = queueManager;
         }
 
-        public void Execute(OnDisposeBrokerEndpoints pipelineEvent)
+        public void Execute(OnDisposeQueues pipelineEvent)
         {
-            if (_configuration.HasControl)
+            if (_configuration.HasControlInbox)
             {
-                _configuration.Control.BrokerEndpoint.AttemptDispose();
-                _configuration.Control.ErrorBrokerEndpoint.AttemptDispose();
+                _configuration.ControlInbox.WorkQueue.AttemptDispose();
+                _configuration.ControlInbox.ErrorQueue.AttemptDispose();
             }
 
             if (_configuration.HasInbox)
             {
-                _configuration.Inbox.BrokerEndpoint.AttemptDispose();
-                _configuration.Inbox.DeferredBrokerEndpoint.AttemptDispose();
-                _configuration.Inbox.ErrorBrokerEndpoint.AttemptDispose();
+                _configuration.Inbox.WorkQueue.AttemptDispose();
+                _configuration.Inbox.DeferredQueue.AttemptDispose();
+                _configuration.Inbox.ErrorQueue.AttemptDispose();
             }
 
             if (_configuration.HasOutbox)
             {
-                _configuration.Outbox.BrokerEndpoint.AttemptDispose();
-                _configuration.Outbox.ErrorBrokerEndpoint.AttemptDispose();
+                _configuration.Outbox.WorkQueue.AttemptDispose();
+                _configuration.Outbox.ErrorQueue.AttemptDispose();
             }
 
             if (_configuration.IsWorker)
             {
-                _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint.AttemptDispose();
+                _configuration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
             }
 
-            _brokerEndpointService.AttemptDispose();
+            _queueManager.AttemptDispose();
         }
 
         public void Execute(OnStopped pipelineEvent)

@@ -31,8 +31,8 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
 
             Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
-            Guard.AgainstNull(state.GetBrokerEndpoint(), "brokerEndpoint");
-            Guard.AgainstNull(state.GetErrorBrokerEndpoint(), "errorBrokerEndpoint");
+            Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
+            Guard.AgainstNull(state.GetErrorQueue(), "errorQueue");
 
             var transportMessage = state.GetTransportMessage();
 
@@ -51,8 +51,8 @@ namespace Shuttle.Esb
             {
                 transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-                state.GetErrorBrokerEndpoint().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
-                state.GetBrokerEndpoint().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
 
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();
@@ -60,8 +60,8 @@ namespace Shuttle.Esb
                 _events.OnMessageDeserializationException(this,
                     new DeserializationExceptionEventArgs(
                         pipelineEvent,
-                        state.GetBrokerEndpoint(),
-                        state.GetErrorBrokerEndpoint(),
+                        state.GetWorkQueue(),
+                        state.GetErrorQueue(),
                         ex));
 
                 return;

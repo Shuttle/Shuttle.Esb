@@ -15,8 +15,8 @@ namespace Shuttle.Esb.Tests
 
             Assert.IsNotNull(section);
 
-            Assert.AreEqual("msmq://./inbox-work", section.Inbox.Uri);
-            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorUri);
+            Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
+            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
 
             Assert.AreEqual(25, section.Inbox.ThreadCount);
             Assert.AreEqual(25, section.Inbox.MaximumFailureCount);
@@ -36,8 +36,8 @@ namespace Shuttle.Esb.Tests
 
             Assert.IsNotNull(section);
 
-            Assert.AreEqual("msmq://./inbox-work", section.Inbox.Uri);
-            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorUri);
+            Assert.AreEqual("msmq://./inbox-work", section.Inbox.WorkQueueUri);
+            Assert.AreEqual("msmq://./inbox-error", section.Inbox.ErrorQueueUri);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Shuttle.Esb
         event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException;
         event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
 
-        event EventHandler<BrokerEndpointEmptyEventArgs> BrokerEndpointEmpty;
+        event EventHandler<QueueEmptyEventArgs> QueueEmpty;
         event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
         event EventHandler<HandlerExceptionEventArgs> HandlerException;
 
@@ -27,7 +27,7 @@ namespace Shuttle.Esb
         void OnAfterPipelineExceptionHandled(object sender, PipelineExceptionEventArgs args);
         void OnTransportMessageDeserializationException(object sender, DeserializationExceptionEventArgs args);
         void OnMessageDeserializationException(object sender, DeserializationExceptionEventArgs args);
-        void OnBrokerEndpointEmpty(object sender, BrokerEndpointEmptyEventArgs args);
+        void OnQueueEmpty(object sender, QueueEmptyEventArgs args);
         void OnMessageNotHandled(object sender, MessageNotHandledEventArgs args);
         void OnHandlerException(object sender, HandlerExceptionEventArgs args);
 

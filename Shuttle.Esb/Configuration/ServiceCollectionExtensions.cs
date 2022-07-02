@@ -35,9 +35,9 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>();
             services.TryAddSingleton<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
             services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
-            services.TryAddSingleton<IBrokerEndpointService, BrokerEndpointService>();
-            services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();
-            services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
+            services.TryAddSingleton<IQueueManager, QueueManager>();
+            services.TryAddSingleton<IWorkerAvailabilityManager, WorkerAvailabilityManager>();
+            services.TryAddSingleton<ISubscriptionManager, NullSubscriptionManager>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
             services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();

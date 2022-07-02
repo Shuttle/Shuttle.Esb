@@ -22,8 +22,8 @@ namespace Shuttle.Esb
                 return;
             }
 
-            State.SetBrokerEndpoint(configuration.Outbox.BrokerEndpoint);
-            State.SetErrorBrokerEndpoint(configuration.Outbox.ErrorBrokerEndpoint);
+            State.SetWorkQueue(configuration.Outbox.WorkQueue);
+            State.SetErrorQueue(configuration.Outbox.ErrorQueue);
 
             State.SetDurationToIgnoreOnFailure(configuration.Outbox.DurationToIgnoreOnFailure);
             State.SetMaximumFailureCount(configuration.Outbox.MaximumFailureCount);

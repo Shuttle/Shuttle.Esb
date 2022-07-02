@@ -3,7 +3,7 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public class OutboxProcessor : BrokerEndpointProcessor<OutboxPipeline>
+    public class OutboxProcessor : QueueProcessor<OutboxPipeline>
     {
         public OutboxProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
             IPipelineFactory pipelineFactory)

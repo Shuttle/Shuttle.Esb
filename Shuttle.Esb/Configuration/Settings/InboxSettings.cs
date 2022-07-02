@@ -7,8 +7,8 @@ namespace Shuttle.Esb
     {
         public const string SectionName = "Shuttle:ServiceBus:Inbox";
 
-        public string DeferredUri { get; set; }
-        public IBrokerEndpoint DeferredBrokerEndpoint { get; set; }
+        public string DeferredQueueUri { get; set; }
+        public IQueue DeferredQueue { get; set; }
         public TimeSpan[] DurationToSleepWhenIdle { get; set; }
         public TimeSpan[] DurationToIgnoreOnFailure { get; set; }
         public bool Distribute { get; set; } = false;
@@ -20,7 +20,7 @@ namespace Shuttle.Esb
 
             base.Apply(settings);
 
-            DeferredUri = settings.DeferredUri;
+            DeferredQueueUri = settings.DeferredQueueUri;
             Distribute = settings.Distribute;
             DistributeSendCount = settings.DistributeSendCount;
             DurationToIgnoreOnFailure = settings.DurationToIgnoreOnFailure;

@@ -13,27 +13,27 @@ namespace Shuttle.Esb
         private readonly HashSet<string> _messageTypesPublishedWarning = new HashSet<string>();
 
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly ISubscriptionManager _subscriptionManager;
 
         private readonly ITransportMessageFactory _transportMessageFactory;
         private readonly TransportMessage _transportMessageReceived;
 
         public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
-            ISubscriptionService subscriptionService)
-            : this(transportMessageFactory, pipelineFactory, subscriptionService, null)
+            ISubscriptionManager subscriptionManager)
+            : this(transportMessageFactory, pipelineFactory, subscriptionManager, null)
         {
         }
 
         public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
-            ISubscriptionService subscriptionService, TransportMessage transportMessageReceived)
+            ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
+            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
 
             _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
-            _subscriptionService = subscriptionService;
+            _subscriptionManager = subscriptionManager;
             _transportMessageReceived = transportMessageReceived;
 
             _log = Log.For(this);
@@ -80,18 +80,18 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(message, nameof(message));
 
-            var uris = _subscriptionService.GetSubscriberUris(message).ToList();
+            var subscribers = _subscriptionManager.GetSubscribedUris(message).ToList();
 
-            if (uris.Count > 0)
+            if (subscribers.Count > 0)
             {
-                var result = new List<TransportMessage>(uris.Count);
+                var result = new List<TransportMessage>(subscribers.Count);
 
-                foreach (var uri in uris)
+                foreach (var subscriber in subscribers)
                 {
                     var transportMessage =
                         _transportMessageFactory.Create(message, configure, _transportMessageReceived);
 
-                    transportMessage.RecipientUri = uri.ToString();
+                    transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
                     Dispatch(transportMessage);
 

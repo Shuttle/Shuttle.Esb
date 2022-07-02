@@ -5,9 +5,9 @@ namespace Shuttle.Esb
         public const string AvailableWorker = "AvailableWorker";
         public const string CancellationToken = "CancellationToken";
         public const string DeferredMessageReturned = "DeferredMessageReturned";
-        public const string DeferredBrokerEndpoint = "DeferredBrokerEndpoint";
+        public const string DeferredQueue = "DeferredQueue";
         public const string DurationToIgnoreOnFailure = "DurationToIgnoreOnFailure";
-        public const string ErrorBrokerEndpoint = "ErrorBrokerEndpoint";
+        public const string ErrorQueue = "ErrorQueue";
         public const string ShouldProcess = "ShouldProcess";
         public const string HandlerContext = "HandlerContext";
         public const string MaximumFailureCount = "MaximumFailureCount";
@@ -21,6 +21,6 @@ namespace Shuttle.Esb
         public const string TransportMessageReceived = "TransportMessageReceived";
         public const string TransportMessageStream = "TransportMessageStream";
         public const string Working = "Working";
-        public const string BrokerEndpoint = "BrokerEndpoint";
+        public const string WorkQueue = "WorkQueue";
     }
 }

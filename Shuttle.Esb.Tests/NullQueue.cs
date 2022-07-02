@@ -3,14 +3,14 @@ using System.IO;
 
 namespace Shuttle.Esb.Tests
 {
-    public class NullBrokerEndpoint : IBrokerEndpoint
+    public class NullQueue : IQueue
     {
-        public NullBrokerEndpoint(string uri)
+        public NullQueue(string uri)
             : this(new Uri(uri))
         {
         }
 
-        public NullBrokerEndpoint(Uri uri)
+        public NullQueue(Uri uri)
         {
             Uri = uri;
         }

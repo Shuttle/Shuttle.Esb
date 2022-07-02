@@ -1,6 +1,6 @@
 namespace Shuttle.Esb
 {
-    public interface IWorkerAvailabilityService
+    public interface IWorkerAvailabilityManager
     {
         AvailableWorker GetAvailableWorker();
         void ReturnAvailableWorker(AvailableWorker availableWorker);

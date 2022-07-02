@@ -17,19 +17,19 @@ namespace Shuttle.Esb
             state.Replace(StateKeys.CancellationToken, cancellationToken);
         }
 
-        public static IBrokerEndpoint GetBrokerEndpoint(this IState state)
+        public static IQueue GetWorkQueue(this IState state)
         {
-            return state.Get<IBrokerEndpoint>(StateKeys.BrokerEndpoint);
+            return state.Get<IQueue>(StateKeys.WorkQueue);
         }
 
-        public static IBrokerEndpoint GetDeferredBrokerEndpoint(this IState state)
+        public static IQueue GetDeferredQueue(this IState state)
         {
-            return state.Get<IBrokerEndpoint>(StateKeys.DeferredBrokerEndpoint);
+            return state.Get<IQueue>(StateKeys.DeferredQueue);
         }
 
-        public static IBrokerEndpoint GetErrorBrokerEndpoint(this IState state)
+        public static IQueue GetErrorQueue(this IState state)
         {
-            return state.Get<IBrokerEndpoint>(StateKeys.ErrorBrokerEndpoint);
+            return state.Get<IQueue>(StateKeys.ErrorQueue);
         }
 
         public static int GetMaximumFailureCount(this IState state)
@@ -152,19 +152,19 @@ namespace Shuttle.Esb
             return state.Get<object>(StateKeys.MessageHandler);
         }
 
-        public static void SetBrokerEndpoint(this IState state, IBrokerEndpoint brokerEndpoint)
+        public static void SetWorkQueue(this IState state, IQueue queue)
         {
-            state.Add(StateKeys.BrokerEndpoint, brokerEndpoint);
+            state.Add(StateKeys.WorkQueue, queue);
         }
 
-        public static void SetDeferredBrokerEndpoint(this IState state, IBrokerEndpoint brokerEndpoint)
+        public static void SetDeferredQueue(this IState state, IQueue queue)
         {
-            state.Add(StateKeys.DeferredBrokerEndpoint, brokerEndpoint);
+            state.Add(StateKeys.DeferredQueue, queue);
         }
 
-        public static void SetErrorBrokerEndpoint(this IState state, IBrokerEndpoint brokerEndpoint)
+        public static void SetErrorQueue(this IState state, IQueue queue)
         {
-            state.Add(StateKeys.ErrorBrokerEndpoint, brokerEndpoint);
+            state.Add(StateKeys.ErrorQueue, queue);
         }
 
         public static void SetMaximumFailureCount(this IState state, int count)

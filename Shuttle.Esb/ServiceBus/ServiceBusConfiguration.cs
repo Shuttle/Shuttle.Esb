@@ -24,36 +24,36 @@ namespace Shuttle.Esb
             new StringDurationArrayConverter()
                 .ConvertFrom("250ms*4,500ms*2,1s");
 
+        private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
-        private readonly List<Type> _brokerEndpointFactoryTypes = new List<Type>();
+        private readonly List<Type> _queueFactoryTypes = new List<Type>();
         private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
 
         public ServiceBusConfiguration()
         {
-            ScanForBrokerEndpointFactories = true;
-            CreateBrokerEndpoints = true;
+            ScanForQueueFactories = true;
+            CreateQueues = true;
             CacheIdentity = true;
             RegisterHandlers = true;
             RemoveMessagesNotHandled = false;
         }
 
-        public IInboxConfiguration Inbox { get; set; }
-        public IControlConfiguration Control { get; set; }
-        public IOutboxConfiguration Outbox { get; set; }
+        public IInboxQueueConfiguration Inbox { get; set; }
+        public IControlInboxQueueConfiguration ControlInbox { get; set; }
+        public IOutboxQueueConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
 
-        public bool CreateBrokerEndpoints { get; set; }
+        public bool CreateQueues { get; set; }
         public bool CacheIdentity { get; set; }
         public bool RegisterHandlers { get; set; }
-        public IEnumerable<Type> BrokerEndpointFactoryTypes => _brokerEndpointFactoryTypes.AsReadOnly();
 
         public bool HasInbox => Inbox != null;
 
         public bool HasOutbox => Outbox != null;
 
-        public bool HasControl => Control != null;
+        public bool HasControlInbox => ControlInbox != null;
 
         public bool RemoveMessagesNotHandled { get; set; }
         public bool RemoveCorruptMessages { get; set; }
@@ -88,19 +88,16 @@ namespace Shuttle.Esb
             _compressionAlgorithms.Add(algorithm);
         }
 
-        public void AddBrokerEndpointFactoryType(Type type)
+        public IEnumerable<Type> QueueFactoryTypes => new ReadOnlyCollection<Type>(_queueFactoryTypes);
+
+        public void AddQueueFactoryType(Type type)
         {
             Guard.AgainstNull(type, nameof(type));
 
-            if (_brokerEndpointFactoryTypes.Contains(type))
-            {
-                return;
-            }
-
-            _brokerEndpointFactoryTypes.Add(type);
+            _queueFactoryTypes.Add(type);
         }
 
-        public bool ScanForBrokerEndpointFactories { get; set; }
+        public bool ScanForQueueFactories { get; set; }
 
         public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
             new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);

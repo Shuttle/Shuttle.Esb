@@ -23,9 +23,9 @@ namespace Shuttle.Esb.Tests
             policy.Setup(m => m.EvaluateMessageHandlingFailure(It.IsAny<OnPipelineException>()))
                 .Returns(new MessageFailureAction(true, TimeSpan.Zero));
 
-            var errorBrokerEndpoint = new Mock<IBrokerEndpoint>();
+            var errorQueue = new Mock<IQueue>();
 
-            errorBrokerEndpoint.Setup(m => m.Uri).Returns(new Uri("queue://some-queue"));
+            errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://some-queue"));
 
             var observer = new ReceiveExceptionObserver(
                 new Mock<IServiceBusEvents>().Object,
@@ -44,11 +44,11 @@ namespace Shuttle.Esb.Tests
 
             pipeline.State.Add(StateKeys.ReceivedMessage, new ReceivedMessage(Stream.Null, Guid.NewGuid()));
             pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
-            pipeline.State.Add(StateKeys.BrokerEndpoint, new Mock<IBrokerEndpoint>().Object);
-            pipeline.State.Add(StateKeys.ErrorBrokerEndpoint, errorBrokerEndpoint.Object);
+            pipeline.State.Add(StateKeys.WorkQueue, new Mock<IQueue>().Object);
+            pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
             pipeline.Execute();
 
-            errorBrokerEndpoint.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
+            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
         }
     }
 }

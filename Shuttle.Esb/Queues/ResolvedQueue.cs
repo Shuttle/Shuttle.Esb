@@ -4,16 +4,16 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class ResolvedBrokerEndpoint : IBrokerEndpoint
+    public class ResolvedQueue : IQueue
     {
-        private readonly IBrokerEndpoint _brokerEndpoint;
+        private readonly IQueue _queue;
 
-        public ResolvedBrokerEndpoint(IBrokerEndpoint brokerEndpoint, Uri uri)
+        public ResolvedQueue(IQueue queue, Uri uri)
         {
-            Guard.AgainstNull(brokerEndpoint, nameof(brokerEndpoint));
+            Guard.AgainstNull(queue, nameof(queue));
             Guard.AgainstNull(uri, nameof(uri));
 
-            _brokerEndpoint = brokerEndpoint;
+            _queue = queue;
             Uri = uri;
         }
 
@@ -21,27 +21,27 @@ namespace Shuttle.Esb
 
         public bool IsEmpty()
         {
-            return _brokerEndpoint.IsEmpty();
+            return _queue.IsEmpty();
         }
 
         public void Enqueue(TransportMessage transportMessage, Stream stream)
         {
-            _brokerEndpoint.Enqueue(transportMessage, stream);
+            _queue.Enqueue(transportMessage, stream);
         }
 
         public ReceivedMessage GetMessage()
         {
-            return _brokerEndpoint.GetMessage();
+            return _queue.GetMessage();
         }
 
         public void Acknowledge(object acknowledgementToken)
         {
-            _brokerEndpoint.Acknowledge(acknowledgementToken);
+            _queue.Acknowledge(acknowledgementToken);
         }
 
         public void Release(object acknowledgementToken)
         {
-            _brokerEndpoint.Release(acknowledgementToken);
+            _queue.Release(acknowledgementToken);
         }
     }
 }

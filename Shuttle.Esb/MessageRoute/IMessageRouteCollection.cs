@@ -10,6 +10,6 @@ namespace Shuttle.Esb
         List<IMessageRoute> FindAll(string messageType);
         IMessageRoute Find(Uri uri);
         IMessageRoute Find(string uri);
-        IMessageRoute Find(IBrokerEndpoint brokerEndpoint);
+        IMessageRoute Find(IQueue queue);
     }
 }

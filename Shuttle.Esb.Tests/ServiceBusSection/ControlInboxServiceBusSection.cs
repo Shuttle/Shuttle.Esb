@@ -15,19 +15,19 @@ namespace Shuttle.Esb.Tests
 
             Assert.IsNotNull(section);
 
-            Assert.AreEqual("msmq://./control-inbox-work", section.Control.Uri);
-            Assert.AreEqual("msmq://./control-inbox-error", section.Control.ErrorUri);
+            Assert.AreEqual("msmq://./control-inbox-work", section.ControlInbox.WorkQueueUri);
+            Assert.AreEqual("msmq://./control-inbox-error", section.ControlInbox.ErrorQueueUri);
 
 
-            Assert.AreEqual(25, section.Control.ThreadCount);
-            Assert.AreEqual(25, section.Control.MaximumFailureCount);
+            Assert.AreEqual(25, section.ControlInbox.ThreadCount);
+            Assert.AreEqual(25, section.ControlInbox.MaximumFailureCount);
 
-            Assert.AreEqual(TimeSpan.FromMilliseconds(250), section.Control.DurationToSleepWhenIdle[0]);
-            Assert.AreEqual(TimeSpan.FromSeconds(10), section.Control.DurationToSleepWhenIdle[1]);
-            Assert.AreEqual(TimeSpan.FromSeconds(30), section.Control.DurationToSleepWhenIdle[2]);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(250), section.ControlInbox.DurationToSleepWhenIdle[0]);
+            Assert.AreEqual(TimeSpan.FromSeconds(10), section.ControlInbox.DurationToSleepWhenIdle[1]);
+            Assert.AreEqual(TimeSpan.FromSeconds(30), section.ControlInbox.DurationToSleepWhenIdle[2]);
 
-            Assert.AreEqual(TimeSpan.FromMinutes(30), section.Control.DurationToIgnoreOnFailure[0]);
-            Assert.AreEqual(TimeSpan.FromHours(1), section.Control.DurationToIgnoreOnFailure[1]);
+            Assert.AreEqual(TimeSpan.FromMinutes(30), section.ControlInbox.DurationToIgnoreOnFailure[0]);
+            Assert.AreEqual(TimeSpan.FromHours(1), section.ControlInbox.DurationToIgnoreOnFailure[1]);
         }
     }
 }

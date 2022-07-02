@@ -2,8 +2,8 @@ namespace Shuttle.Esb
 {
     public interface IWorkerConfiguration
     {
-        IBrokerEndpoint DistributorControlInboxWorkBrokerEndpoint { get; set; }
-        string DistributorControlUri { get; }
+        IQueue DistributorControlInboxWorkQueue { get; set; }
+        string DistributorControlInboxWorkQueueUri { get; }
         int ThreadAvailableNotificationIntervalSeconds { get; }
     }
 }

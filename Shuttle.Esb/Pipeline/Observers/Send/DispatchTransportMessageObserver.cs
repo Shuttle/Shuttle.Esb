@@ -15,17 +15,17 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly IIdempotenceService _idempotenceService;
         private readonly ILog _log;
-        private readonly IBrokerEndpointService _brokerEndpointService;
+        private readonly IQueueManager _queueManager;
 
-        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IBrokerEndpointService brokerEndpointService,
+        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
             IIdempotenceService idempotenceService)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(brokerEndpointService, nameof(brokerEndpointService));
+            Guard.AgainstNull(queueManager, nameof(queueManager));
             Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
             _configuration = configuration;
-            _brokerEndpointService = brokerEndpointService;
+            _queueManager = queueManager;
             _idempotenceService = idempotenceService;
             _log = Log.For(this);
         }
@@ -53,11 +53,11 @@ namespace Shuttle.Esb
             }
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNullOrEmptyString(transportMessage.RecipientUri, "uri");
+            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
             var queue = !_configuration.HasOutbox
-                ? _brokerEndpointService.GetBrokerEndpoint(transportMessage.RecipientUri)
-                : _configuration.Outbox.BrokerEndpoint;
+                ? _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
+                : _configuration.Outbox.WorkQueue;
 
             using (var stream = state.GetTransportMessageStream().Copy())
             {

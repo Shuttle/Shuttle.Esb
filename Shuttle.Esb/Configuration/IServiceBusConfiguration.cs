@@ -8,28 +8,28 @@ namespace Shuttle.Esb
     public interface IServiceBusConfiguration
     {
         bool HasInbox { get; }
-        bool HasControl { get; }
+        bool HasControlInbox { get; }
         bool HasOutbox { get; }
 
         bool IsWorker { get; }
         bool RemoveMessagesNotHandled { get; }
         bool RemoveCorruptMessages { get; }
 
-        IControlConfiguration Control { get; }
-        IInboxConfiguration Inbox { get; }
-        IOutboxConfiguration Outbox { get; }
+        IControlInboxQueueConfiguration ControlInbox { get; }
+        IInboxQueueConfiguration Inbox { get; }
+        IOutboxQueueConfiguration Outbox { get; }
         IWorkerConfiguration Worker { get; }
 
         string EncryptionAlgorithm { get; }
         string CompressionAlgorithm { get; }
 
-        bool CreateBrokerEndpoints { get; }
+        bool CreateQueues { get; }
         bool CacheIdentity { get; }
         bool RegisterHandlers { get; }
 
-        IEnumerable<Type> BrokerEndpointFactoryTypes { get; }
+        IEnumerable<Type> QueueFactoryTypes { get; }
 
-        bool ScanForBrokerEndpointFactories { get; }
+        bool ScanForQueueFactories { get; set; }
 
         IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
 
@@ -40,7 +40,7 @@ namespace Shuttle.Esb
 
         ICompressionAlgorithm FindCompressionAlgorithm(string name);
         void AddCompressionAlgorithm(ICompressionAlgorithm algorithm);
-        void AddBrokerEndpointFactoryType(Type type);
+        void AddQueueFactoryType(Type type);
         void AddMessageRoute(MessageRouteConfiguration messageRoute);
         void AddUriMapping(Uri sourceUri, Uri targetUri);
     }

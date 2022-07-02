@@ -52,7 +52,7 @@ namespace Shuttle.Esb
                     {
                         if (receivedMessage != null)
                         {
-                            state.GetBrokerEndpoint().Release(receivedMessage.AcknowledgementToken);
+                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
 
                             _log.Error(string.Format(Resources.ReceivePipelineExceptionMessageReleased,
                                 pipelineEvent.Pipeline.Exception.AllMessages()));
@@ -92,7 +92,7 @@ namespace Shuttle.Esb
                                 currentRetryCount,
                                 state.GetMaximumFailureCount()));
 
-                            state.GetBrokerEndpoint().Enqueue(transportMessage, stream);
+                            state.GetWorkQueue().Enqueue(transportMessage, stream);
                         }
                         else
                         {
@@ -102,13 +102,13 @@ namespace Shuttle.Esb
                                 transportMessage.MessageType,
                                 transportMessage.MessageId,
                                 state.GetMaximumFailureCount(),
-                                state.GetErrorBrokerEndpoint().Uri.Secured()));
+                                state.GetErrorQueue().Uri.Secured()));
 
-                            state.GetErrorBrokerEndpoint().Enqueue(transportMessage, stream);
+                            state.GetErrorQueue().Enqueue(transportMessage, stream);
                         }
                     }
 
-                    state.GetBrokerEndpoint().Acknowledge(receivedMessage.AcknowledgementToken);
+                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
                 }
                 finally
                 {

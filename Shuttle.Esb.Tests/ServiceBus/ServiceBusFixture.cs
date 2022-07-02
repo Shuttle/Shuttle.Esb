@@ -14,7 +14,7 @@ namespace Shuttle.Esb.Tests
         public void Should_be_able_to_handle_expired_message()
         {
             var handlerInvoker = new FakeMessageHandlerInvoker();
-            var endpoint = new FakeBrokerEndpoint(2);
+            var fakeQueue = new FakeQueue(2);
 
             var services = new ServiceCollection();
 
@@ -28,10 +28,10 @@ namespace Shuttle.Esb.Tests
             {
                 builder.Configure(configuration =>
                 {
-                    configuration.Inbox = new InboxConfiguration
+                    configuration.Inbox = new InboxQueueConfiguration
                     {
-                        BrokerEndpoint = endpoint,
-                        ErrorBrokerEndpoint = endpoint,
+                        WorkQueue = fakeQueue,
+                        ErrorQueue = fakeQueue,
                         ThreadCount = 1
                     };
                 });
@@ -41,7 +41,7 @@ namespace Shuttle.Esb.Tests
             {
                 var timeout = DateTime.Now.AddSeconds(1);
 
-                while (endpoint.MessageCount < 2 && DateTime.Now < timeout)
+                while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
                 {
                     Thread.Sleep(5);
                 }
@@ -49,7 +49,7 @@ namespace Shuttle.Esb.Tests
 
             Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"),
                 "FakeHandlerInvoker was not invoked exactly once.");
-            Assert.AreEqual(2, endpoint.MessageCount, "FakeBrokerEndpoint was not invoked exactly twice.");
+            Assert.AreEqual(2, fakeQueue.MessageCount, "FakeQueue was not invoked exactly twice.");
         }
     }
 }

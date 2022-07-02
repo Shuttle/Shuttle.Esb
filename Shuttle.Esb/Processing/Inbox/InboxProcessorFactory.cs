@@ -10,21 +10,21 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
         public InboxProcessorFactory(IServiceBus bus, IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IWorkerAvailabilityService workerAvailabilityService, IPipelineFactory pipelineFactory)
+            IWorkerAvailabilityManager workerAvailabilityManager, IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(bus, nameof(bus));
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(events, nameof(events));
-            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _bus = bus;
             _configuration = configuration;
             _events = events;
-            _workerAvailabilityService = workerAvailabilityService;
+            _workerAvailabilityManager = workerAvailabilityManager;
             _pipelineFactory = pipelineFactory;
         }
 
@@ -34,7 +34,7 @@ namespace Shuttle.Esb
 
             return new InboxProcessor(_configuration, _events, _configuration.IsWorker
                 ? (IThreadActivity) new WorkerThreadActivity(_bus, _configuration, threadActivity)
-                : threadActivity, _workerAvailabilityService, _pipelineFactory);
+                : threadActivity, _workerAvailabilityManager, _pipelineFactory);
         }
     }
 }

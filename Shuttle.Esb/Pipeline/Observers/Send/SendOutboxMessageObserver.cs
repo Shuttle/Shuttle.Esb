@@ -10,13 +10,13 @@ namespace Shuttle.Esb
 
     public class SendOutboxMessageObserver : ISendOutboxMessageObserver
     {
-        private readonly IBrokerEndpointService _brokerEndpointService;
+        private readonly IQueueManager _queueManager;
 
-        public SendOutboxMessageObserver(IBrokerEndpointService brokerEndpointService)
+        public SendOutboxMessageObserver(IQueueManager queueManager)
         {
-            Guard.AgainstNull(brokerEndpointService, nameof(brokerEndpointService));
+            Guard.AgainstNull(queueManager, nameof(queueManager));
 
-            _brokerEndpointService = brokerEndpointService;
+            _queueManager = queueManager;
         }
 
         public void Execute(OnDispatchTransportMessage pipelineEvent)
@@ -27,9 +27,9 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNullOrEmptyString(transportMessage.RecipientUri, "uri");
+            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-            var queue = _brokerEndpointService.GetBrokerEndpoint(transportMessage.RecipientUri);
+            var queue = _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
 
             using (var stream = receivedMessage.Stream.Copy())
             {

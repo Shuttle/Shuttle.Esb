@@ -6,21 +6,21 @@ namespace Shuttle.Esb
     public class HandlerExceptionEventArgs : PipelineEventEventArgs
     {
         public HandlerExceptionEventArgs(IPipelineEvent pipelineEvent,
-            TransportMessage transportMessage, object message, IBrokerEndpoint workBrokerEndpoint,
-            IBrokerEndpoint errorBrokerEndpoint, Exception exception)
+            TransportMessage transportMessage, object message, IQueue workQueue,
+            IQueue errorQueue, Exception exception)
             : base(pipelineEvent)
         {
             TransportMessage = transportMessage;
             Message = message;
-            WorkBrokerEndpoint = workBrokerEndpoint;
-            ErrorBrokerEndpoint = errorBrokerEndpoint;
+            WorkQueue = workQueue;
+            ErrorQueue = errorQueue;
             Exception = exception;
         }
 
         public TransportMessage TransportMessage { get; }
         public object Message { get; }
-        public IBrokerEndpoint WorkBrokerEndpoint { get; }
-        public IBrokerEndpoint ErrorBrokerEndpoint { get; }
+        public IQueue WorkQueue { get; }
+        public IQueue ErrorQueue { get; }
         public Exception Exception { get; }
     }
 }

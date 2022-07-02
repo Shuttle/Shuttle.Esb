@@ -20,19 +20,19 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _outboxThreadPool;
 
         public ServiceBus(IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
+            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
             ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
+            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
 
             _configuration = configuration;
             _pipelineFactory = pipelineFactory;
             _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
 
-            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionService);
+            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionManager);
         }
 
         public IServiceBus Start()
@@ -41,6 +41,8 @@ namespace Shuttle.Esb
             {
                 throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
             }
+
+            ConfigurationInvariant();
 
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
@@ -76,7 +78,7 @@ namespace Shuttle.Esb
 
             if (_configuration.HasInbox)
             {
-                if (_configuration.Inbox.HasDeferredBrokerEndpoint)
+                if (_configuration.Inbox.HasDeferredQueue)
                 {
                     _deferredMessageThreadPool.Dispose();
                 }
@@ -84,7 +86,7 @@ namespace Shuttle.Esb
                 _inboxThreadPool.Dispose();
             }
 
-            if (_configuration.HasControl)
+            if (_configuration.HasControlInbox)
             {
                 _controlThreadPool.Dispose();
             }
@@ -151,6 +153,51 @@ namespace Shuttle.Esb
             }
 
             throw new InvalidOperationException(Resources.ServiceBusInstanceNotStarted);
+        }
+
+        private void ConfigurationInvariant()
+        {
+            Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
+                Resources.WorkerRequiresInboxException);
+
+            // DONE
+            //if (_configuration.HasInbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
+            //}
+
+            // DONE
+            //if (_configuration.HasOutbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.Outbox.ErrorQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
+            //}
+
+            // DONE
+            //if (_configuration.HasControlInbox)
+            //{
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.ControlInbox.WorkQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+
+            //    Guard.Against<EsbConfigurationException>(
+            //        _configuration.ControlInbox.ErrorQueue == null &&
+            //        string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
+            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
+            //}
         }
     }
 }

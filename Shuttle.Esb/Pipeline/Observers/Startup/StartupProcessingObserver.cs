@@ -21,22 +21,22 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
         private static readonly TimeSpan JoinTimeout = TimeSpan.FromSeconds(1);
 
         public StartupProcessingObserver(IServiceBus bus, IServiceBusConfiguration configuration,
-            IServiceBusEvents events, IWorkerAvailabilityService workerAvailabilityService,
+            IServiceBusEvents events, IWorkerAvailabilityManager workerAvailabilityManager,
             IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(bus, nameof(bus));
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(events, nameof(events));
-            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _bus = bus;
-            _workerAvailabilityService = workerAvailabilityService;
+            _workerAvailabilityManager = workerAvailabilityManager;
             _pipelineFactory = pipelineFactory;
             _configuration = configuration;
             _events = events;
@@ -44,7 +44,7 @@ namespace Shuttle.Esb
 
         public void Execute(OnStartControlInboxProcessing pipelineEvent)
         {
-            if (!_configuration.HasControl)
+            if (!_configuration.HasControlInbox)
             {
                 return;
             }
@@ -53,14 +53,14 @@ namespace Shuttle.Esb
                 "ControlInboxThreadPool",
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
-                    _configuration.Control.ThreadCount,
+                    _configuration.ControlInbox.ThreadCount,
                     JoinTimeout,
                     new ControlInboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
         {
-            if (!_configuration.HasInbox || !_configuration.Inbox.HasDeferredBrokerEndpoint)
+            if (!_configuration.HasInbox || !_configuration.Inbox.HasDeferredQueue)
             {
                 return;
             }
@@ -94,7 +94,7 @@ namespace Shuttle.Esb
                         "InboxProcessor",
                         _configuration.Inbox.ThreadCount,
                         JoinTimeout,
-                        new InboxProcessorFactory(_bus, _configuration, _events, _workerAvailabilityService,
+                        new InboxProcessorFactory(_bus, _configuration, _events, _workerAvailabilityManager,
                             _pipelineFactory))
                     .Start());
         }

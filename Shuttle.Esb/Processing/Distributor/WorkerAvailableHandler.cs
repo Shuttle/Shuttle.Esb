@@ -5,15 +5,15 @@ namespace Shuttle.Esb
     public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
     {
         private readonly IServiceBusConfiguration _configuration;
-        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
-        public WorkerAvailableHandler(IServiceBusConfiguration configuration, IWorkerAvailabilityService workerAvailabilityService)
+        public WorkerAvailableHandler(IServiceBusConfiguration configuration, IWorkerAvailabilityManager workerAvailabilityManager)
         {
-            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
             Guard.AgainstNull(configuration, nameof(configuration));
 
             _configuration = configuration;
-            _workerAvailabilityService = workerAvailabilityService;
+            _workerAvailabilityManager = workerAvailabilityManager;
         }
 
         public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
@@ -22,11 +22,11 @@ namespace Shuttle.Esb
                 ? _configuration.Inbox.DistributeSendCount
                 : 5;
 
-            _workerAvailabilityService.RemoveByThread(context.Message);
+            _workerAvailabilityManager.RemoveByThread(context.Message);
 
             for (var i = 0; i < distributeSendCount; i++)
             {
-                _workerAvailabilityService.WorkerAvailable(context.Message);
+                _workerAvailabilityManager.WorkerAvailable(context.Message);
             }
         }
     }

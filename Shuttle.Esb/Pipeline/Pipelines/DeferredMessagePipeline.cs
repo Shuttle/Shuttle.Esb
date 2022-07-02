@@ -15,9 +15,9 @@ namespace Shuttle.Esb
             Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
             Guard.AgainstNull(processDeferredMessageObserver, nameof(processDeferredMessageObserver));
 
-            State.SetBrokerEndpoint(configuration.Inbox.BrokerEndpoint);
-            State.SetErrorBrokerEndpoint(configuration.Inbox.ErrorBrokerEndpoint);
-            State.SetDeferredBrokerEndpoint(configuration.Inbox.DeferredBrokerEndpoint);
+            State.SetWorkQueue(configuration.Inbox.WorkQueue);
+            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
+            State.SetDeferredQueue(configuration.Inbox.DeferredQueue);
 
             RegisterStage("Process")
                 .WithEvent<OnGetMessage>()

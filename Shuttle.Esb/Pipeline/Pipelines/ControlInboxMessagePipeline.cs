@@ -22,15 +22,15 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 
-            if (!configuration.HasControl)
+            if (!configuration.HasControlInbox)
             {
                 return;
             }
 
-            State.SetBrokerEndpoint(configuration.Control.BrokerEndpoint);
-            State.SetErrorBrokerEndpoint(configuration.Control.ErrorBrokerEndpoint);
-            State.SetDurationToIgnoreOnFailure(configuration.Control.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(configuration.Control.MaximumFailureCount);
+            State.SetWorkQueue(configuration.ControlInbox.WorkQueue);
+            State.SetErrorQueue(configuration.ControlInbox.ErrorQueue);
+            State.SetDurationToIgnoreOnFailure(configuration.ControlInbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(configuration.ControlInbox.MaximumFailureCount);
         }
     }
 }

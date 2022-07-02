@@ -6,14 +6,14 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public abstract class BrokerEndpointProcessor<TPipeline> : IProcessor
+    public abstract class QueueProcessor<TPipeline> : IProcessor
         where TPipeline : IPipeline
     {
         private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IThreadActivity _threadActivity;
 
-        protected BrokerEndpointProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
+        protected QueueProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
             IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(events, nameof(events));

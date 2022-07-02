@@ -11,20 +11,20 @@ namespace Shuttle.Esb
 
     public class DistributorMessageObserver : IDistributorMessageObserver
     {
-        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
 
-        public DistributorMessageObserver(IWorkerAvailabilityService workerAvailabilityService)
+        public DistributorMessageObserver(IWorkerAvailabilityManager workerAvailabilityManager)
         {
-            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
+            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
 
-            _workerAvailabilityService = workerAvailabilityService;
+            _workerAvailabilityManager = workerAvailabilityManager;
         }
 
         public void Execute(OnAbortPipeline pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
-            _workerAvailabilityService.ReturnAvailableWorker(state.GetAvailableWorker());
+            _workerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
         }
 
         public void Execute(OnHandleDistributeMessage pipelineEvent)
@@ -32,7 +32,7 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
-            transportMessage.RecipientUri = state.GetAvailableWorker().Uri;
+            transportMessage.RecipientInboxWorkQueueUri = state.GetAvailableWorker().InboxWorkQueueUri;
 
             state.SetTransportMessage(transportMessage);
             state.SetTransportMessageReceived(null);

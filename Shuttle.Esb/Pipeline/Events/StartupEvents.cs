@@ -14,19 +14,23 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigureBrokerEndpoints : PipelineEvent
+    public class OnAfterConfigureQueueManager : PipelineEvent
     {
     }
 
-    public class OnAfterConfigureBrokerEndpoints : PipelineEvent
+    public class OnConfigureQueues : PipelineEvent
     {
     }
 
-    public class OnCreatePhysicalBrokerEndpoints : PipelineEvent
+    public class OnAfterConfigureQueues : PipelineEvent
     {
     }
 
-    public class OnAfterCreatePhysicalBrokerEndpoints : PipelineEvent
+    public class OnCreatePhysicalQueues : PipelineEvent
+    {
+    }
+
+    public class OnAfterCreatePhysicalQueues : PipelineEvent
     {
     }
 

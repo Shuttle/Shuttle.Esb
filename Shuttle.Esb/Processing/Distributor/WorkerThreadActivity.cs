@@ -37,18 +37,18 @@ namespace Shuttle.Esb
                 _bus.Send(new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
-                        Uri = _configuration.Inbox.BrokerEndpoint.Uri.ToString(),
+                        InboxWorkQueueUri = _configuration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.Now
                     },
-                    c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkBrokerEndpoint));
+                    c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
 
                 if (_log.IsVerboseEnabled)
                 {
                     _log.Verbose(string.Format(Resources.DebugWorkerAvailable,
                         _identifier,
-                        _configuration.Inbox.BrokerEndpoint.Uri.Secured(),
-                        _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint.Uri.Secured()));
+                        _configuration.Inbox.WorkQueue.Uri.Secured(),
+                        _configuration.Worker.DistributorControlInboxWorkQueue.Uri.Secured()));
                 }
 
                 _nextNotificationDate =
