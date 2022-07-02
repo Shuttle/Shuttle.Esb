@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
@@ -10,30 +9,26 @@ namespace Shuttle.Esb
 {
     public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
     {
+        event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+        event EventHandler<HandlerExceptionEventArgs> HandlerException;
     }
 
     public class HandleMessageObserver : IHandleMessageObserver
     {
         private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
-        private readonly ILog _log;
         private readonly IMessageHandlerInvoker _messageHandlerInvoker;
         private readonly ISerializer _serializer;
 
-        public HandleMessageObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
+        public HandleMessageObserver(IServiceBusConfiguration configuration,
             IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(messageHandlerInvoker, nameof(messageHandlerInvoker));
             Guard.AgainstNull(serializer, nameof(serializer));
 
             _configuration = configuration;
-            _events = events;
             _messageHandlerInvoker = messageHandlerInvoker;
             _serializer = serializer;
-
-            _log = Log.For(this);
         }
 
         public void Execute(OnHandleMessage pipelineEvent)
@@ -64,33 +59,20 @@ namespace Shuttle.Esb
                 }
                 else
                 {
-                    _events.OnMessageNotHandled(this,
-                        new MessageNotHandledEventArgs(
-                            pipelineEvent,
-                            state.GetWorkQueue(),
-                            state.GetErrorQueue(),
-                            transportMessage,
-                            message));
+                    MessageNotHandled.Invoke(this,
+                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
+                            transportMessage, message));
 
                     if (!_configuration.RemoveMessagesNotHandled)
                     {
-                        var error = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName,
-                            transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
-
-                        _log.Error(error);
-
-                        transportMessage.RegisterFailure(error);
+                        transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure,
+                            message.GetType().FullName,
+                            transportMessage.MessageId, state.GetErrorQueue().Uri.Secured()));
 
                         using (var stream = _serializer.Serialize(transportMessage))
                         {
                             state.GetErrorQueue().Enqueue(transportMessage, stream);
                         }
-                    }
-                    else
-                    {
-                        _log.Warning(string.Format(Resources.MessageNotHandledIgnored,
-                            message.GetType().FullName,
-                            transportMessage.MessageId));
                     }
                 }
             }
@@ -98,18 +80,20 @@ namespace Shuttle.Esb
             {
                 var exception = ex.TrimLeading<TargetInvocationException>();
 
-                _events.OnHandlerException(
-                    this,
-                    new HandlerExceptionEventArgs(
-                        pipelineEvent,
-                        transportMessage,
-                        message,
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
-                        exception));
+                HandlerException.Invoke(this,
+                    new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(),
+                        state.GetErrorQueue(), exception));
 
                 throw exception;
             }
         }
+
+        public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled = delegate
+        {
+        };
+
+        public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate
+        {
+        };
     }
 }

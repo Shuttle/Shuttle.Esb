@@ -1,6 +1,5 @@
 ﻿using System;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -14,20 +13,18 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IIdempotenceService _idempotenceService;
-        private readonly ILog _log;
-        private readonly IQueueManager _queueManager;
+        private readonly IQueueService _queueService;
 
-        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
+        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IQueueService queueService,
             IIdempotenceService idempotenceService)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(queueManager, nameof(queueManager));
+            Guard.AgainstNull(queueService, nameof(queueService));
             Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
             _configuration = configuration;
-            _queueManager = queueManager;
+            _queueService = queueService;
             _idempotenceService = idempotenceService;
-            _log = Log.For(this);
         }
 
         public void Execute(OnDispatchTransportMessage pipelineEvent)
@@ -38,17 +35,10 @@ namespace Shuttle.Esb
 
             if (transportMessageReceived != null)
             {
-                try
+                if (_idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
+                    state.GetTransportMessageStream()))
                 {
-                    if (_idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
-                        state.GetTransportMessageStream()))
-                    {
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
+                    return;
                 }
             }
 
@@ -56,7 +46,7 @@ namespace Shuttle.Esb
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
             var queue = !_configuration.HasOutbox
-                ? _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
+                ? _queueService.Get(transportMessage.RecipientInboxWorkQueueUri)
                 : _configuration.Outbox.WorkQueue;
 
             using (var stream = state.GetTransportMessageStream().Copy())

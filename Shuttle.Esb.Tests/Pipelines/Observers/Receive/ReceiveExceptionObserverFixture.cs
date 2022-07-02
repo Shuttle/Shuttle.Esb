@@ -27,9 +27,7 @@ namespace Shuttle.Esb.Tests
 
             errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://some-queue"));
 
-            var observer = new ReceiveExceptionObserver(
-                new Mock<IServiceBusEvents>().Object,
-                policy.Object,
+            var observer = new ReceiveExceptionObserver(policy.Object,
                 new Mock<ISerializer>().Object);
 
             var pipeline = new Pipeline()

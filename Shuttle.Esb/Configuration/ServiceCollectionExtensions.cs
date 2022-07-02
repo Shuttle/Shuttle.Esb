@@ -27,7 +27,6 @@ namespace Shuttle.Esb
 
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();
             services.TryAddSingleton<IProcessService, ProcessService>();
-            services.TryAddSingleton<IServiceBusEvents, ServiceBusEvents>();
             services.TryAddSingleton<ISerializer, DefaultSerializer>();
             services.TryAddSingleton<IServiceBusPolicy, DefaultServiceBusPolicy>();
             services.TryAddSingleton<IMessageRouteProvider, DefaultMessageRouteProvider>();
@@ -35,8 +34,9 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>();
             services.TryAddSingleton<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
             services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
-            services.TryAddSingleton<IQueueManager, QueueManager>();
-            services.TryAddSingleton<IWorkerAvailabilityManager, WorkerAvailabilityManager>();
+            services.TryAddSingleton<IQueueService, QueueService>();
+            services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
+            services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();
             services.TryAddSingleton<ISubscriptionManager, NullSubscriptionManager>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();

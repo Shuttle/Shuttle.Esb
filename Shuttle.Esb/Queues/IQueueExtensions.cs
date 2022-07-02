@@ -6,6 +6,11 @@ namespace Shuttle.Esb
 {
     public static class QueueExtensions
     {
+        public static bool CanCreate(this IQueueFactory factory, Uri uri)
+        {
+            return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
+        }
+
         public static bool AttemptCreate(this IQueue queue)
         {
             var operation = queue as ICreateQueue;

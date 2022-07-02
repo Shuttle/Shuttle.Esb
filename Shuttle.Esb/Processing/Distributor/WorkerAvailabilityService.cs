@@ -1,26 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
-using Shuttle.Core.Logging;
 
 namespace Shuttle.Esb
 {
-    public class WorkerAvailabilityManager : IWorkerAvailabilityManager
+    public class WorkerAvailabilityService : IWorkerAvailabilityService
     {
-        private static readonly object _padlock = new object();
-
-        private readonly ILog _log;
+        private static readonly object Lock = new object();
 
         private readonly Dictionary<string, List<AvailableWorker>> _workers =
             new Dictionary<string, List<AvailableWorker>>();
 
-        public WorkerAvailabilityManager()
-        {
-            _log = Log.For(this);
-        }
-
         public AvailableWorker GetAvailableWorker()
         {
-            lock (_padlock)
+            lock (Lock)
             {
                 KeyValuePair<string, List<AvailableWorker>>? worker = null;
 
@@ -59,14 +51,9 @@ namespace Shuttle.Esb
 
         public void WorkerAvailable(WorkerThreadAvailableCommand message)
         {
-            lock (_padlock)
+            lock (Lock)
             {
                 GetAvailableWorkers(message.InboxWorkQueueUri).Add(new AvailableWorker(message));
-            }
-
-            if (_log.IsTraceEnabled)
-            {
-                _log.Trace(string.Format("AvailableWorker: {0}", message.InboxWorkQueueUri));
             }
         }
 
@@ -77,7 +64,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            lock (_padlock)
+            lock (Lock)
             {
                 GetAvailableWorkers(availableWorker.InboxWorkQueueUri).Add(availableWorker);
             }
@@ -85,7 +72,7 @@ namespace Shuttle.Esb
 
         public void WorkerStarted(WorkerStartedEvent message)
         {
-            lock (_padlock)
+            lock (Lock)
             {
                 _workers[message.InboxWorkQueueUri] = GetAvailableWorkers(message.InboxWorkQueueUri)
                     .Where(availableWorker => availableWorker.WorkerSendDate < message.DateStarted)
@@ -95,7 +82,7 @@ namespace Shuttle.Esb
 
         public void RemoveByThread(WorkerThreadAvailableCommand message)
         {
-            lock (_padlock)
+            lock (Lock)
             {
                 GetAvailableWorkers(message.InboxWorkQueueUri)
                     .RemoveAll(candidate => candidate.ManagedThreadId == message.ManagedThreadId);

@@ -1,5 +1,4 @@
 ﻿using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
@@ -12,29 +11,21 @@ namespace Shuttle.Esb
 
     public class ReceiveExceptionObserver : IReceiveExceptionObserver
     {
-        private readonly IServiceBusEvents _events;
-        private readonly ILog _log;
-
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
 
-        public ReceiveExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
+        public ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(policy, nameof(policy));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _policy = policy;
             _serializer = serializer;
-            _log = Log.For(this);
         }
 
         public void Execute(OnPipelineException pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-
-            _events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
             try
             {
@@ -53,14 +44,6 @@ namespace Shuttle.Esb
                         if (receivedMessage != null)
                         {
                             state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
-
-                            _log.Error(string.Format(Resources.ReceivePipelineExceptionMessageReleased,
-                                pipelineEvent.Pipeline.Exception.AllMessages()));
-                        }
-                        else
-                        {
-                            _log.Error(string.Format(Resources.ReceivePipelineExceptionMessageNotReceived,
-                                pipelineEvent.Pipeline.Exception.AllMessages()));
                         }
 
                         return;
@@ -74,36 +57,16 @@ namespace Shuttle.Esb
 
                     using (var stream = _serializer.Serialize(transportMessage))
                     {
-                        var handler = state.GetMessageHandler();
-                        var handlerFullTypeName = handler != null ? handler.GetType().FullName : "(handler is null)";
-                        var currentRetryCount = transportMessage.FailureMessages.Count;
-
                         var retry = !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>()
                                     &&
                                     action.Retry;
 
                         if (retry)
                         {
-                            _log.Warning(string.Format(Resources.MessageHandlerExceptionWillRetry,
-                                handlerFullTypeName,
-                                pipelineEvent.Pipeline.Exception.AllMessages(),
-                                transportMessage.MessageType,
-                                transportMessage.MessageId,
-                                currentRetryCount,
-                                state.GetMaximumFailureCount()));
-
                             state.GetWorkQueue().Enqueue(transportMessage, stream);
                         }
                         else
                         {
-                            _log.Error(string.Format(Resources.MessageHandlerExceptionFailure,
-                                handlerFullTypeName,
-                                pipelineEvent.Pipeline.Exception.AllMessages(),
-                                transportMessage.MessageType,
-                                transportMessage.MessageId,
-                                state.GetMaximumFailureCount(),
-                                state.GetErrorQueue().Uri.Secured()));
-
                             state.GetErrorQueue().Enqueue(transportMessage, stream);
                         }
                     }
@@ -113,8 +76,6 @@ namespace Shuttle.Esb
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    _events.OnAfterPipelineExceptionHandled(this,
-                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }
             finally

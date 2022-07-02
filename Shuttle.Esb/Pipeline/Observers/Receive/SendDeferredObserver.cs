@@ -1,14 +1,12 @@
-﻿using System;
-using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
+﻿using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
 using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
 {
-    public interface ISendDeferredObserver : 
-        IPipelineObserver<OnSendDeferred>, 
+    public interface ISendDeferredObserver :
+        IPipelineObserver<OnSendDeferred>,
         IPipelineObserver<OnAfterSendDeferred>
     {
     }
@@ -16,7 +14,6 @@ namespace Shuttle.Esb
     public class SendDeferredObserver : ISendDeferredObserver
     {
         private readonly IIdempotenceService _idempotenceService;
-        private readonly ILog _log;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly ISerializer _serializer;
 
@@ -30,8 +27,6 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
             _serializer = serializer;
             _idempotenceService = idempotenceService;
-
-            _log = Log.For(this);
         }
 
         public void Execute(OnAfterSendDeferred pipelineEvent)
@@ -50,14 +45,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            try
-            {
-                _idempotenceService.ProcessingCompleted(transportMessage);
-            }
-            catch (Exception ex)
-            {
-                _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-            }
+            _idempotenceService.ProcessingCompleted(transportMessage);
         }
 
         public void Execute(OnSendDeferred pipelineEvent)
@@ -71,30 +59,23 @@ namespace Shuttle.Esb
 
             var transportMessage = state.GetTransportMessage();
 
-            try
+            foreach (var stream in _idempotenceService.GetDeferredMessages(transportMessage))
             {
-                foreach (var stream in _idempotenceService.GetDeferredMessages(transportMessage))
+                var deferredTransportMessage =
+                    (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream);
+
+                var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
+
+                try
                 {
-                    var deferredTransportMessage =
-                        (TransportMessage) _serializer.Deserialize(typeof(TransportMessage), stream);
-
-                    var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
-
-                    try
-                    {
-                        messagePipeline.Execute(deferredTransportMessage, null);
-                    }
-                    finally
-                    {
-                        _pipelineFactory.ReleasePipeline(messagePipeline);
-                    }
-
-                    _idempotenceService.DeferredMessageSent(transportMessage, deferredTransportMessage);
+                    messagePipeline.Execute(deferredTransportMessage, null);
                 }
-            }
-            catch (Exception ex)
-            {
-                _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
+                finally
+                {
+                    _pipelineFactory.ReleasePipeline(messagePipeline);
+                }
+
+                _idempotenceService.DeferredMessageSent(transportMessage, deferredTransportMessage);
             }
         }
     }

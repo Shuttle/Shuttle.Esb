@@ -10,19 +10,17 @@ namespace Shuttle.Esb
 {
     public interface IDeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
     {
+        event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
     }
 
     public class DeserializeMessageObserver : IDeserializeMessageObserver
     {
-        private readonly IServiceBusEvents _events;
         private readonly ISerializer _serializer;
 
-        public DeserializeMessageObserver(IServiceBusEvents events, ISerializer serializer)
+        public DeserializeMessageObserver(ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _serializer = serializer;
         }
 
@@ -57,11 +55,8 @@ namespace Shuttle.Esb
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();
 
-                _events.OnMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(
-                        pipelineEvent,
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
+                MessageDeserializationException.Invoke(this,
+                    new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
                         ex));
 
                 return;
@@ -69,5 +64,9 @@ namespace Shuttle.Esb
 
             state.SetMessage(message);
         }
+
+        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate
+        {
+        };
     }
 }

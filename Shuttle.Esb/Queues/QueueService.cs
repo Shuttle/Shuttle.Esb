@@ -1,68 +1,38 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class QueueManager : IQueueManager, IDisposable
+    public class QueueService : IQueueService, IDisposable
     {
         private static readonly object Padlock = new object();
 
-        private readonly ILog _log;
-        private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
         private readonly List<IQueue> _queues = new List<IQueue>();
+        private readonly IQueueFactoryService _queueFactoryService;
         private readonly IUriResolver _uriResolver;
 
-        public QueueManager(IUriResolver uriResolver, IEnumerable<IQueueFactory> queueFactories = null)
+        public QueueService(IQueueFactoryService queueFactoryService, IUriResolver uriResolver)
         {
+            Guard.AgainstNull(queueFactoryService, nameof(queueFactoryService));
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
+            _queueFactoryService = queueFactoryService;
             _uriResolver = uriResolver;
-
-            _queueFactories.AddRange(queueFactories ?? Enumerable.Empty<IQueueFactory>());
-
-            _log = Log.For(this);
         }
 
         public void Dispose()
         {
-            foreach (var queueFactory in _queueFactories)
-            {
-                queueFactory.AttemptDispose();
-            }
-
             foreach (var queue in _queues)
             {
                 queue.AttemptDispose();
             }
 
-            _queueFactories.Clear();
             _queues.Clear();
         }
 
-        public IQueueFactory GetQueueFactory(string scheme)
-        {
-            return Uri.TryCreate(scheme, UriKind.Absolute, out var uri)
-                ? GetQueueFactory(uri)
-                : _queueFactories.Find(
-                    factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        public IQueueFactory GetQueueFactory(Uri uri)
-        {
-            foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
-            {
-                return factory;
-            }
-
-            throw new QueueFactoryNotFoundException(uri.Scheme);
-        }
-
-        public IQueue GetQueue(string uri)
+        public IQueue Get(string uri)
         {
             Guard.AgainstNullOrEmptyString(uri, "uri");
 
@@ -97,12 +67,12 @@ namespace Shuttle.Esb
                             uri));
                     }
 
-                    queue = new ResolvedQueue(CreateQueue(GetQueueFactory(resolvedQueueUri), resolvedQueueUri),
+                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri), resolvedQueueUri),
                         queueUri);
                 }
                 else
                 {
-                    queue = CreateQueue(GetQueueFactory(queueUri), queueUri);
+                    queue = CreateQueue(_queueFactoryService.Get(queueUri), queueUri);
                 }
 
                 _queues.Add(queue);
@@ -111,7 +81,7 @@ namespace Shuttle.Esb
             }
         }
 
-        public bool ContainsQueue(string uri)
+        public bool Contains(string uri)
         {
             return FindQueue(uri) != null;
         }
@@ -124,47 +94,14 @@ namespace Shuttle.Esb
                 candidate => Find(candidate, uri));
         }
 
-        public IQueue CreateQueue(string uri)
+        public IQueue Create(string uri)
         {
-            return CreateQueue(new Uri(uri));
+            return Create(new Uri(uri));
         }
 
-        public IQueue CreateQueue(Uri uri)
+        public IQueue Create(Uri uri)
         {
-            return GetQueueFactory(uri).Create(uri);
-        }
-
-        public IEnumerable<IQueueFactory> QueueFactories()
-        {
-            return new ReadOnlyCollection<IQueueFactory>(_queueFactories);
-        }
-
-        public void RegisterQueueFactory(IQueueFactory queueFactory)
-        {
-            Guard.AgainstNull(queueFactory, nameof(queueFactory));
-
-            var factory = GetQueueFactory(queueFactory.Scheme);
-
-            if (factory != null)
-            {
-                _queueFactories.Remove(factory);
-
-                _log.Warning(string.Format(Resources.DuplicateQueueFactoryReplaced, queueFactory.Scheme,
-                    factory.GetType().FullName, queueFactory.GetType().FullName));
-            }
-
-            _queueFactories.Add(queueFactory);
-
-            if (Log.IsTraceEnabled)
-            {
-                _log.Trace(string.Format(Resources.QueueFactoryRegistered, queueFactory.Scheme,
-                    queueFactory.GetType().FullName));
-            }
-        }
-
-        public bool ContainsQueueFactory(string scheme)
-        {
-            return GetQueueFactory(scheme) != null;
+            return _queueFactoryService.Get(uri).Create(uri);
         }
 
         public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
@@ -206,22 +143,8 @@ namespace Shuttle.Esb
             {
                 return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
             }
-            catch (Exception ex)
+            catch
             {
-                var candidateTypeName = "(candidate is null)";
-                var candidateUri = "(candidate is null)";
-
-                if (candidate != null)
-                {
-                    candidateTypeName = candidate.GetType().FullName;
-                    candidateUri = candidate.Uri != null
-                        ? candidate.Uri.ToString()
-                        : "(candidate.Uri is null)";
-                }
-
-                _log.Error(string.Format(Resources.FindQueueException, candidateTypeName, candidateUri,
-                    uri ?? "(comparison uri is null)", ex.Message));
-
                 return false;
             }
         }

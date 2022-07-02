@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
@@ -12,7 +11,6 @@ namespace Shuttle.Esb
         private readonly IServiceBusConfiguration _configuration;
         private readonly Guid _identifier = Guid.NewGuid();
 
-        private readonly ILog _log;
         private readonly ThreadActivity _threadActivity;
 
         private DateTime _nextNotificationDate = DateTime.Now;
@@ -26,8 +24,6 @@ namespace Shuttle.Esb
             _bus = bus;
             _configuration = configuration;
             _threadActivity = threadActivity;
-
-            _log = Log.For(this);
         }
 
         public void Waiting(CancellationToken cancellationToken)
@@ -42,14 +38,6 @@ namespace Shuttle.Esb
                         DateSent = DateTime.Now
                     },
                     c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
-
-                if (_log.IsVerboseEnabled)
-                {
-                    _log.Verbose(string.Format(Resources.DebugWorkerAvailable,
-                        _identifier,
-                        _configuration.Inbox.WorkQueue.Uri.Secured(),
-                        _configuration.Worker.DistributorControlInboxWorkQueue.Uri.Secured()));
-                }
 
                 _nextNotificationDate =
                     DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);

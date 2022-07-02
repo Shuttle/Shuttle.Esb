@@ -11,17 +11,14 @@ namespace Shuttle.Esb
 
     public class DistributorExceptionObserver : IDistributorExceptionObserver
     {
-        private readonly IServiceBusEvents _events;
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
 
-        public DistributorExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
+        public DistributorExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(policy, nameof(policy));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _policy = policy;
             _serializer = serializer;
         }
@@ -29,8 +26,6 @@ namespace Shuttle.Esb
         public void Execute(OnPipelineException pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-
-            _events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
 
             try
             {
@@ -67,8 +62,6 @@ namespace Shuttle.Esb
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    _events.OnAfterPipelineExceptionHandled(this,
-                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }
             finally

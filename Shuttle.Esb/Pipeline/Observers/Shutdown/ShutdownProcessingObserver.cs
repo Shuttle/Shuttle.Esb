@@ -4,31 +4,29 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public interface IShutdownProcessingObserver : 
-        IPipelineObserver<OnStopping>, 
-        IPipelineObserver<OnDisposeQueues>, 
-        IPipelineObserver<OnStopped>
+    public interface IShutdownProcessingObserver : IPipelineObserver<OnStopping>
     {
     }
 
     public class ShutdownProcessingObserver : IShutdownProcessingObserver
     {
         private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
-        private readonly IQueueManager _queueManager;
+        private readonly IQueueFactoryService _queueFactoryService;
+        private readonly IQueueService _queueService;
 
-        public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IQueueManager queueManager)
+        public ShutdownProcessingObserver(IServiceBusConfiguration configuration,
+            IQueueFactoryService queueFactoryService, IQueueService queueService)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(queueFactoryService, nameof(queueFactoryService));
+            Guard.AgainstNull(queueService, nameof(queueService));
 
             _configuration = configuration;
-            _events = events;
-            _queueManager = queueManager;
+            _queueFactoryService = queueFactoryService;
+            _queueService = queueService;
         }
 
-        public void Execute(OnDisposeQueues pipelineEvent)
+        public void Execute(OnStopping pipelineEvent)
         {
             if (_configuration.HasControlInbox)
             {
@@ -54,17 +52,8 @@ namespace Shuttle.Esb
                 _configuration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
             }
 
-            _queueManager.AttemptDispose();
-        }
-
-        public void Execute(OnStopped pipelineEvent)
-        {
-            _events.OnStopped(this, new PipelineEventEventArgs(pipelineEvent));
-        }
-
-        public void Execute(OnStopping pipelineEvent)
-        {
-            _events.OnStopping(this, new PipelineEventEventArgs(pipelineEvent));
+            _queueService.AttemptDispose();
+            _queueFactoryService.AttemptDispose();
         }
     }
 }

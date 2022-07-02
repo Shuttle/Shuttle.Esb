@@ -5,9 +5,9 @@ namespace Shuttle.Esb
 {
     public class ControlInboxProcessor : QueueProcessor<ControlInboxMessagePipeline>
     {
-        public ControlInboxProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
+        public ControlInboxProcessor(IThreadActivity threadActivity,
             IPipelineFactory pipelineFactory) :
-            base(events, threadActivity, pipelineFactory)
+            base(threadActivity, pipelineFactory)
         {
         }
     }

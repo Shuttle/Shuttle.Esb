@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
 
@@ -9,7 +8,6 @@ namespace Shuttle.Esb
 {
     public class DeferredMessageProcessor : IProcessor
     {
-        private readonly ILog _log;
         private readonly object _messageDeferredLock = new object();
 
         private readonly IPipelineFactory _pipelineFactory;
@@ -22,7 +20,6 @@ namespace Shuttle.Esb
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
             _pipelineFactory = pipelineFactory;
-            _log = Log.For(this);
         }
 
         public void Execute(CancellationToken cancellationToken)
@@ -73,9 +70,6 @@ namespace Shuttle.Esb
 
                         _checkpointMessageId = transportMessage.MessageId;
 
-                        _log.Trace(string.Format(Resources.TraceDeferredCheckpointMessageId,
-                            transportMessage.MessageId));
-
                         return;
                     }
                 }
@@ -87,10 +81,6 @@ namespace Shuttle.Esb
 
                 _ignoreTillDate = DateTime.MaxValue;
                 _checkpointMessageId = Guid.Empty;
-
-                _log.Trace(_nextDeferredProcessDate.Equals(DateTime.MaxValue)
-                    ? Resources.TraceDeferredProcessingHalted
-                    : string.Format(Resources.TraceDeferredProcessingReset, _nextDeferredProcessDate.ToString("O")));
             }
             finally
             {

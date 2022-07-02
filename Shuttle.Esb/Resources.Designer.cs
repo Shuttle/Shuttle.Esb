@@ -115,15 +115,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A queue factory for scheme &apos;{0}&apos; already existed.  Removed queue factory type &apos;{1}&apos; to register queue factory type &apos;{2}&apos;..
-        /// </summary>
-        public static string DuplicateQueueFactoryReplaced {
-            get {
-                return ResourceManager.GetString("DuplicateQueueFactoryReplaced", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Encountered a fatal exception accessing the idempotence service type &apos;{0}&apos;.  Without the idempotence service operational the integrity of the message processing cannot be guaranteed.  The pipeline has been aborted.  Exception: {1}.
         /// </summary>
         public static string FatalIdempotenceServiceException {

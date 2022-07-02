@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public class MessageSender : IMessageSender
     {
-        private readonly ILog _log;
         private readonly HashSet<string> _messageTypesPublishedWarning = new HashSet<string>();
 
         private readonly IPipelineFactory _pipelineFactory;
@@ -35,8 +33,6 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
             _subscriptionManager = subscriptionManager;
             _transportMessageReceived = transportMessageReceived;
-
-            _log = Log.For(this);
         }
 
         public void Dispatch(TransportMessage transportMessage)
@@ -103,8 +99,6 @@ namespace Shuttle.Esb
 
             if (!_messageTypesPublishedWarning.Contains(message.GetType().FullName))
             {
-                _log.Warning(string.Format(Resources.WarningPublishWithoutSubscribers, message.GetType().FullName));
-
                 _messageTypesPublishedWarning.Add(message.GetType().FullName);
             }
 

@@ -28,7 +28,6 @@ namespace Shuttle.Esb.Tests.Shared
 
             var observer = new DeserializeTransportMessageObserver(
                 configuration.Object,
-                new Mock<IServiceBusEvents>().Object,
                 serializer.Object,
                 new Mock<IEnvironmentService>().Object,
                 processService.Object);
@@ -70,7 +69,6 @@ namespace Shuttle.Esb.Tests.Shared
 
             var observer = new DeserializeTransportMessageObserver(
                 configuration.Object,
-                new Mock<IServiceBusEvents>().Object,
                 serializer.Object,
                 new Mock<IEnvironmentService>().Object,
                 processService.Object);

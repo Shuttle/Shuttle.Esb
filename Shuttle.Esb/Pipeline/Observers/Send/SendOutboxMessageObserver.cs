@@ -10,13 +10,13 @@ namespace Shuttle.Esb
 
     public class SendOutboxMessageObserver : ISendOutboxMessageObserver
     {
-        private readonly IQueueManager _queueManager;
+        private readonly IQueueService _queueService;
 
-        public SendOutboxMessageObserver(IQueueManager queueManager)
+        public SendOutboxMessageObserver(IQueueService queueService)
         {
-            Guard.AgainstNull(queueManager, nameof(queueManager));
+            Guard.AgainstNull(queueService, nameof(queueService));
 
-            _queueManager = queueManager;
+            _queueService = queueService;
         }
 
         public void Execute(OnDispatchTransportMessage pipelineEvent)
@@ -29,7 +29,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-            var queue = _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri);
+            var queue = _queueService.Get(transportMessage.RecipientInboxWorkQueueUri);
 
             using (var stream = receivedMessage.Stream.Copy())
             {
