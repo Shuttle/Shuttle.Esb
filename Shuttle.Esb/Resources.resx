@@ -266,7 +266,7 @@
     <comment>{0} = candidate queue type, {1} = candidate uri, {2} = comparison uri, {3} = all exception messages</comment>
   </data>
   <data name="BrokerEndpointFactoryCreatedNull" xml:space="preserve">
-    <value>Broker endpoint factory with type '{0}' create returned (null) for uri '{1}'.</value>
+    <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
     <comment>{0} = the queue factory type name, {1} = the uri that the threadActivityFactory was requested to create the queue for</comment>
   </data>
   <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">

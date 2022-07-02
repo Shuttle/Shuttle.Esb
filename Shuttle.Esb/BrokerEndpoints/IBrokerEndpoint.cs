@@ -9,7 +9,9 @@ namespace Shuttle.Esb
 
         bool IsEmpty();
 
-        void Send(TransportMessage message, Stream stream);
-        ReceivedMessage Receive();
+        void Enqueue(TransportMessage message, Stream stream);
+        ReceivedMessage GetMessage();
+        void Acknowledge(object acknowledgementToken);
+        void Release(object acknowledgementToken);
     }
 }

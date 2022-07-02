@@ -22,12 +22,12 @@ namespace Shuttle.Esb.Tests
             return true;
         }
 
-        public void Send(TransportMessage transportMessage, Stream stream)
+        public void Enqueue(TransportMessage transportMessage, Stream stream)
         {
             throw new NotImplementedException();
         }
 
-        public ReceivedMessage Receive()
+        public ReceivedMessage GetMessage()
         {
             throw new NotImplementedException();
         }

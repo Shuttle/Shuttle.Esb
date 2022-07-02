@@ -60,43 +60,43 @@ namespace Shuttle.Esb
             if (_configuration.HasControl)
             {
                 _configuration.Control.BrokerEndpoint = _configuration.Control.BrokerEndpoint ??
-                                                        _brokerEndpointService.Create(
+                                                        _brokerEndpointService.CreateBrokerEndpoint(
                                                             _configuration.Control.Uri);
 
                 _configuration.Control.ErrorBrokerEndpoint = _configuration.Control.ErrorBrokerEndpoint ??
-                                                         _brokerEndpointService.Create(
+                                                         _brokerEndpointService.CreateBrokerEndpoint(
                                                              _configuration.Control.ErrorUri);
             }
 
             if (_configuration.HasInbox)
             {
                 _configuration.Inbox.BrokerEndpoint = _configuration.Inbox.BrokerEndpoint ??
-                                                 _brokerEndpointService.Create(_configuration.Inbox.Uri);
+                                                 _brokerEndpointService.CreateBrokerEndpoint(_configuration.Inbox.Uri);
 
                 _configuration.Inbox.DeferredBrokerEndpoint = _configuration.Inbox.DeferredBrokerEndpoint ?? (
                                                          string.IsNullOrEmpty(_configuration.Inbox.DeferredUri)
                                                              ? null
                                                              : _brokerEndpointService
-                                                                 .Create(_configuration.Inbox.DeferredUri));
+                                                                 .CreateBrokerEndpoint(_configuration.Inbox.DeferredUri));
 
                 _configuration.Inbox.ErrorBrokerEndpoint = _configuration.Inbox.ErrorBrokerEndpoint ??
-                                                  _brokerEndpointService.Create(_configuration.Inbox.ErrorUri);
+                                                  _brokerEndpointService.CreateBrokerEndpoint(_configuration.Inbox.ErrorUri);
             }
 
             if (_configuration.HasOutbox)
             {
                 _configuration.Outbox.BrokerEndpoint = _configuration.Outbox.BrokerEndpoint ??
-                                                  _brokerEndpointService.Create(_configuration.Outbox.Uri);
+                                                  _brokerEndpointService.CreateBrokerEndpoint(_configuration.Outbox.Uri);
 
                 _configuration.Outbox.ErrorBrokerEndpoint = _configuration.Outbox.ErrorBrokerEndpoint ??
-                                                   _brokerEndpointService.Create(_configuration.Outbox.ErrorUri);
+                                                   _brokerEndpointService.CreateBrokerEndpoint(_configuration.Outbox.ErrorUri);
             }
 
             if (_configuration.IsWorker)
             {
                 _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint =
                     _configuration.Worker.DistributorControlInboxWorkBrokerEndpoint ??
-                    _brokerEndpointService.Create(_configuration.Worker.DistributorControlUri);
+                    _brokerEndpointService.CreateBrokerEndpoint(_configuration.Worker.DistributorControlUri);
             }
         }
 
@@ -115,7 +115,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            _brokerEndpointService.CreatePhysical(_configuration);
+            _brokerEndpointService.CreatePhysicalBrokerEndpoint(_configuration);
         }
     }
 }

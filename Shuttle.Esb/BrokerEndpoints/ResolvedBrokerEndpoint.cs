@@ -24,14 +24,24 @@ namespace Shuttle.Esb
             return _brokerEndpoint.IsEmpty();
         }
 
-        public void Send(TransportMessage transportMessage, Stream stream)
+        public void Enqueue(TransportMessage transportMessage, Stream stream)
         {
-            _brokerEndpoint.Send(transportMessage, stream);
+            _brokerEndpoint.Enqueue(transportMessage, stream);
         }
 
-        public ReceivedMessage Receive()
+        public ReceivedMessage GetMessage()
         {
-            return _brokerEndpoint.Receive();
+            return _brokerEndpoint.GetMessage();
+        }
+
+        public void Acknowledge(object acknowledgementToken)
+        {
+            _brokerEndpoint.Acknowledge(acknowledgementToken);
+        }
+
+        public void Release(object acknowledgementToken)
+        {
+            _brokerEndpoint.Release(acknowledgementToken);
         }
     }
 }

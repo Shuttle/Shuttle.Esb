@@ -25,7 +25,7 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(queue, nameof(queue));
 
-            var receivedMessage = queue.Receive();
+            var receivedMessage = queue.GetMessage();
 
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)

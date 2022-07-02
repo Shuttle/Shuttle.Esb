@@ -25,11 +25,11 @@ namespace Shuttle.Esb.Tests
             return false;
         }
 
-        public void Send(TransportMessage message, Stream stream)
+        public void Enqueue(TransportMessage message, Stream stream)
         {
         }
 
-        public ReceivedMessage Receive()
+        public ReceivedMessage GetMessage()
         {
             if (MessageCount == MessagesToReturn)
             {

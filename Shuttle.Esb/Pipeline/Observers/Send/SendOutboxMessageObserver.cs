@@ -29,11 +29,11 @@ namespace Shuttle.Esb
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientUri, "uri");
 
-            var queue = _brokerEndpointService.Get(transportMessage.RecipientUri);
+            var queue = _brokerEndpointService.GetBrokerEndpoint(transportMessage.RecipientUri);
 
             using (var stream = receivedMessage.Stream.Copy())
             {
-                queue.Send(transportMessage, stream);
+                queue.Enqueue(transportMessage, stream);
             }
         }
     }

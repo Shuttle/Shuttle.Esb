@@ -42,11 +42,11 @@ namespace Shuttle.Esb
             {
                 if (state.GetDeferredBrokerEndpoint() == null)
                 {
-                    brokerEndpoint.Send(transportMessage, stream);
+                    brokerEndpoint.Enqueue(transportMessage, stream);
                 }
                 else
                 {
-                    state.GetDeferredBrokerEndpoint().Send(transportMessage, stream);
+                    state.GetDeferredBrokerEndpoint().Enqueue(transportMessage, stream);
 
                     _configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                 }

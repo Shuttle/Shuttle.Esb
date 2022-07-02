@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Logging;
 using Shuttle.Core.Reflection;
@@ -11,32 +13,56 @@ namespace Shuttle.Esb
         private static readonly object Padlock = new object();
 
         private readonly ILog _log;
+        private readonly List<IBrokerEndpointFactory> _brokerEndpointFactories = new List<IBrokerEndpointFactory>();
         private readonly List<IBrokerEndpoint> _brokerEndpoints = new List<IBrokerEndpoint>();
-        private readonly IBrokerEndpointFactoryService _brokerEndpointFactoryService;
         private readonly IUriResolver _uriResolver;
 
-        public BrokerEndpointService(IBrokerEndpointFactoryService brokerEndpointFactoryService, IUriResolver uriResolver)
+        public BrokerEndpointService(IUriResolver uriResolver, IEnumerable<IBrokerEndpointFactory> queueFactories = null)
         {
-            Guard.AgainstNull(brokerEndpointFactoryService, nameof(brokerEndpointFactoryService));
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
-            _brokerEndpointFactoryService = brokerEndpointFactoryService;
             _uriResolver = uriResolver;
+
+            _brokerEndpointFactories.AddRange(queueFactories ?? Enumerable.Empty<IBrokerEndpointFactory>());
 
             _log = Log.For(this);
         }
 
         public void Dispose()
         {
+            foreach (var brokerEndpointFactory in _brokerEndpointFactories)
+            {
+                brokerEndpointFactory.AttemptDispose();
+            }
+
             foreach (var queue in _brokerEndpoints)
             {
                 queue.AttemptDispose();
             }
 
+            _brokerEndpointFactories.Clear();
             _brokerEndpoints.Clear();
         }
 
-        public IBrokerEndpoint Get(string uri)
+        public IBrokerEndpointFactory GetBrokerEndpointFactory(string scheme)
+        {
+            return Uri.TryCreate(scheme, UriKind.Absolute, out var uri)
+                ? GetBrokerEndpointFactory(uri)
+                : _brokerEndpointFactories.Find(
+                    factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public IBrokerEndpointFactory GetBrokerEndpointFactory(Uri uri)
+        {
+            foreach (var factory in _brokerEndpointFactories.Where(factory => factory.CanCreate(uri)))
+            {
+                return factory;
+            }
+
+            throw new BrokerEndpointFactoryNotFoundException(uri.Scheme);
+        }
+
+        public IBrokerEndpoint GetBrokerEndpoint(string uri)
         {
             Guard.AgainstNullOrEmptyString(uri, "uri");
 
@@ -71,13 +97,12 @@ namespace Shuttle.Esb
                             uri));
                     }
 
-                    var brokerEndpoint = CreateBrokerEndpoint(_brokerEndpointFactoryService.Get(resolvedUri), resolvedUri);
-
-                    queue = brokerEndpoint.IsQueue() ? new ResolvedBrokerEndpointQueue((IQueue)brokerEndpoint, queueUri) : new ResolvedBrokerEndpoint(brokerEndpoint, queueUri);
+                    queue = new ResolvedBrokerEndpoint(CreateBrokerEndpoint(GetBrokerEndpointFactory(resolvedUri), resolvedUri),
+                        queueUri);
                 }
                 else
                 {
-                    queue = CreateBrokerEndpoint(_brokerEndpointFactoryService.Get(queueUri), queueUri);
+                    queue = CreateBrokerEndpoint(GetBrokerEndpointFactory(queueUri), queueUri);
                 }
 
                 _brokerEndpoints.Add(queue);
@@ -86,7 +111,7 @@ namespace Shuttle.Esb
             }
         }
 
-        public bool Contains(string uri)
+        public bool ContainsBrokerEndpoint(string uri)
         {
             return FindBrokerEndpoint(uri) != null;
         }
@@ -99,17 +124,50 @@ namespace Shuttle.Esb
                 candidate => Find(candidate, uri));
         }
 
-        public IBrokerEndpoint Create(string uri)
+        public IBrokerEndpoint CreateBrokerEndpoint(string uri)
         {
-            return Create(new Uri(uri));
+            return CreateBrokerEndpoint(new Uri(uri));
         }
 
-        public IBrokerEndpoint Create(Uri uri)
+        public IBrokerEndpoint CreateBrokerEndpoint(Uri uri)
         {
-            return _brokerEndpointFactoryService.Get(uri).Create(uri);
+            return GetBrokerEndpointFactory(uri).Create(uri);
         }
 
-        public void CreatePhysical(IServiceBusConfiguration configuration)
+        public IEnumerable<IBrokerEndpointFactory> BrokerEndpointFactories()
+        {
+            return new ReadOnlyCollection<IBrokerEndpointFactory>(_brokerEndpointFactories);
+        }
+
+        public void RegisterBrokerEndpointFactory(IBrokerEndpointFactory brokerEndpointFactory)
+        {
+            Guard.AgainstNull(brokerEndpointFactory, nameof(brokerEndpointFactory));
+
+            var factory = GetBrokerEndpointFactory(brokerEndpointFactory.Scheme);
+
+            if (factory != null)
+            {
+                _brokerEndpointFactories.Remove(factory);
+
+                _log.Warning(string.Format(Resources.DuplicateBrokerEndpointFactoryReplaced, brokerEndpointFactory.Scheme,
+                    factory.GetType().FullName, brokerEndpointFactory.GetType().FullName));
+            }
+
+            _brokerEndpointFactories.Add(brokerEndpointFactory);
+
+            if (Log.IsTraceEnabled)
+            {
+                _log.Trace(string.Format(Resources.BrokerEndpointFactoryRegistered, brokerEndpointFactory.Scheme,
+                    brokerEndpointFactory.GetType().FullName));
+            }
+        }
+
+        public bool ContainsBrokerEndpointFactory(string scheme)
+        {
+            return GetBrokerEndpointFactory(scheme) != null;
+        }
+
+        public void CreatePhysicalBrokerEndpoint(IServiceBusConfiguration configuration)
         {
             if (configuration.HasInbox)
             {

@@ -76,7 +76,7 @@ namespace Shuttle.Esb
             return transportMessage;
         }
 
-        public static bool HasSenderUri(this TransportMessage transportMessage)
+        public static bool HasSenderInboxWorkQueueUri(this TransportMessage transportMessage)
         {
             return !string.IsNullOrEmpty(transportMessage.SenderUri);
         }

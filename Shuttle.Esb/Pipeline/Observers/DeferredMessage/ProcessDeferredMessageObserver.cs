@@ -31,7 +31,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            brokerEndpoint.Send(transportMessage, receivedMessage.Stream);
+            brokerEndpoint.Enqueue(transportMessage, receivedMessage.Stream);
             deferredBrokerEndpoint.Acknowledge(receivedMessage.AcknowledgementToken);
 
             state.SetDeferredMessageReturned(true);

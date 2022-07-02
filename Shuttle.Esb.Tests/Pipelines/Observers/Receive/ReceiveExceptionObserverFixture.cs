@@ -48,7 +48,7 @@ namespace Shuttle.Esb.Tests
             pipeline.State.Add(StateKeys.ErrorBrokerEndpoint, errorBrokerEndpoint.Object);
             pipeline.Execute();
 
-            errorBrokerEndpoint.Verify(m => m.Send(transportMessage, It.IsAny<Stream>()), Times.Once);
+            errorBrokerEndpoint.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
         }
     }
 }
