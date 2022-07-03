@@ -16,6 +16,7 @@ namespace Shuttle.Esb.Tests
         }
 
         public Uri Uri { get; }
+        public bool IsStream => false;
 
         public bool IsEmpty()
         {

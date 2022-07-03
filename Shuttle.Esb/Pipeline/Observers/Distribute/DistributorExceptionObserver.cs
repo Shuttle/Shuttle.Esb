@@ -44,10 +44,9 @@ namespace Shuttle.Esb
                     }
 
                     var workQueue = state.GetWorkQueue();
-                    var isStream = workQueue is IStream;
                     var receivedMessage = state.GetReceivedMessage();
 
-                    if (!isStream)
+                    if (!workQueue.IsStream)
                     {
                         var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
 

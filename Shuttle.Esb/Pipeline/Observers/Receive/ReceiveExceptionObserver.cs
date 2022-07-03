@@ -41,7 +41,6 @@ namespace Shuttle.Esb
                     var workQueue = state.GetWorkQueue();
                     var errorQueue = state.GetErrorQueue();
                     var handlerContext = (IHandlerContext)state.GetHandlerContext();
-                    var isStream = workQueue is IStream;
 
                     if (transportMessage == null)
                     {
@@ -64,11 +63,11 @@ namespace Shuttle.Esb
                                 action.Retry
                                 &&
                                 handlerContext.ExceptionHandler.ShouldRetry
-                                && !isStream;
+                                && !workQueue.IsStream;
 
                     var poison = !retry && errorQueue != null &&
                                  (
-                                     !isStream ||
+                                     !workQueue.IsStream ||
                                      !handlerContext.ExceptionHandler.ShouldBlock
                                  );
 

@@ -10,12 +10,6 @@ Start a new **Console Application** project and select a Shuttle.Esb queue imple
 PM> Install-Package Shuttle.Esb.AzureMQ
 ```
 
-Now we'll need select one of the [supported containers](https://shuttle.github.io/shuttle-core/container/shuttle-core-container.html#implementations):
-
-```
-PM> Install-Package Shuttle.Core.Autofac
-```
-
 We'll also need to host our endpoint using a [worker service](https://shuttle.github.io/shuttle-core/service-hosting/shuttle-core-workerservice.html):
 
 ```

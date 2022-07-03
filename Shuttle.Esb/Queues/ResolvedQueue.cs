@@ -15,9 +15,11 @@ namespace Shuttle.Esb
 
             _queue = queue;
             Uri = uri;
+            IsStream = queue.IsStream;
         }
 
         public Uri Uri { get; }
+        public bool IsStream { get; }
 
         public bool IsEmpty()
         {

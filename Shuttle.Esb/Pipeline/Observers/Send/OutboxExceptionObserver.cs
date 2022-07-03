@@ -39,7 +39,6 @@ namespace Shuttle.Esb
                     var receivedMessage = state.GetReceivedMessage();
                     var transportMessage = state.GetTransportMessage();
                     var workQueue = state.GetWorkQueue();
-                    var isStream = workQueue is IStream;
 
                     if (transportMessage == null)
                     {
@@ -51,7 +50,7 @@ namespace Shuttle.Esb
                         return;
                     }
 
-                    if (!isStream)
+                    if (!workQueue.IsStream)
                     {
                         var action = _policy.EvaluateOutboxFailure(pipelineEvent);
 
