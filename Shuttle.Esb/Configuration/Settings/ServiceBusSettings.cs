@@ -17,6 +17,6 @@ namespace Shuttle.Esb
         public ControlInboxSettings ControlInbox { get; set; }
         public MessageRouteSettings[] MessageRoutes { get; set; }
         public WorkerSettings Worker { get; set; }
-        public BrokerEndpointsFactoriesSettings BrokerEndpointsFactories { get; set; }
+        public QueueFactoriesSettings QueueFactories { get; set; }
     }
 }

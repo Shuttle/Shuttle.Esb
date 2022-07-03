@@ -93,11 +93,11 @@ namespace Shuttle.Esb
                         };
                 }
 
-                if (settings.BrokerEndpointsFactories != null)
+                if (settings.QueueFactories != null)
                 {
-                    _configuration.ScanForQueueFactories = settings.BrokerEndpointsFactories.Scan;
+                    _configuration.ScanForQueueFactories = settings.QueueFactories.Scan;
 
-                    foreach (var type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>())
+                    foreach (var type in settings.QueueFactories.Types ?? Enumerable.Empty<string>())
                     {
                         _configuration.AddQueueFactoryType(_reflectionService.GetType(type));
                     }
@@ -307,19 +307,19 @@ namespace Shuttle.Esb
                     };
                 }
 
-                if (section.BrokerEndpointEndpointFactories != null)
+                if (section.QueueFactories != null)
                 {
                     var types = new List<string>();
 
-                    foreach (BrokerEndpointFactoryElement queueFactoryElement in ServiceBusSection.Get().BrokerEndpointEndpointFactories)
+                    foreach (QueueFactoryElement queueFactoryElement in ServiceBusSection.Get().QueueFactories)
                     {
                         types.Add(queueFactoryElement.Type);
                     }
 
 
-                    settings.BrokerEndpointsFactories = new BrokerEndpointsFactoriesSettings
+                    settings.QueueFactories = new QueueFactoriesSettings
                     {
-                        Scan = section.BrokerEndpointEndpointFactories.Scan,
+                        Scan = section.QueueFactories.Scan,
                         Types = types.ToArray()
                     };
                 }
@@ -336,6 +336,10 @@ namespace Shuttle.Esb
                 {
                     AddMessageHandlers(assembly);
                 }
+            }
+            else
+            {
+                AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
 
             return _configuration;

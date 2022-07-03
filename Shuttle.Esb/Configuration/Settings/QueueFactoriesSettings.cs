@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Esb
 {
-    public class BrokerEndpointsFactoriesSettings
+    public class QueueFactoriesSettings
     {
         public bool Scan { get; set; }
 

@@ -54,9 +54,9 @@ namespace Shuttle.Esb
                 }
             }
 
-            if (settings.BrokerEndpointsFactories != null)
+            if (settings.QueueFactories != null)
             {
-                foreach (var type in settings.BrokerEndpointsFactories.Types ?? Enumerable.Empty<string>())
+                foreach (var type in settings.QueueFactories.Types ?? Enumerable.Empty<string>())
                 {
                     if (reflectionService.GetType(type) != null)
                     {

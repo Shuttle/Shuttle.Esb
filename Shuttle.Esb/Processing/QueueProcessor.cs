@@ -12,8 +12,7 @@ namespace Shuttle.Esb
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IThreadActivity _threadActivity;
 
-        protected QueueProcessor(IThreadActivity threadActivity,
-            IPipelineFactory pipelineFactory)
+        protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));

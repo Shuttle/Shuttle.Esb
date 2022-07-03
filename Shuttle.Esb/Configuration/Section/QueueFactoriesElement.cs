@@ -3,14 +3,14 @@ using System.Configuration;
 
 namespace Shuttle.Esb
 {
-    public class BrokerEndpointFactoriesElement : ConfigurationElementCollection
+    public class QueueFactoriesElement : ConfigurationElementCollection
     {
         [ConfigurationProperty("scan", IsRequired = false, DefaultValue = true)]
         public bool Scan => (bool) this["scan"];
 
         protected override ConfigurationElement CreateNewElement()
         {
-            return new BrokerEndpointFactoryElement();
+            return new QueueFactoryElement();
         }
 
         protected override object GetElementKey(ConfigurationElement element)

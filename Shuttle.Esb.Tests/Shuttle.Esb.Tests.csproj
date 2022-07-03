@@ -52,13 +52,13 @@
     <None Update="ServiceBusSection\files\Outbox-Required.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ServiceBusSection\files\BrokerEndpointFactories-EmptyTypes.config">
+    <None Update="ServiceBusSection\files\QueueFactories-EmptyTypes.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ServiceBusSection\files\BrokerEndpointFactories-Grouped.config">
+    <None Update="ServiceBusSection\files\QueueFactories-Grouped.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ServiceBusSection\files\BrokerEndpointFactories.config">
+    <None Update="ServiceBusSection\files\QueueFactories.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="ServiceBusSection\files\Shared-Grouped.config">
