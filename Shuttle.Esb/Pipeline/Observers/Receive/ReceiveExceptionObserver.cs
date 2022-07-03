@@ -38,12 +38,16 @@ namespace Shuttle.Esb
                 {
                     var transportMessage = state.GetTransportMessage();
                     var receivedMessage = state.GetReceivedMessage();
+                    var workQueue = state.GetWorkQueue();
+                    var errorQueue = state.GetErrorQueue();
+                    var handlerContext = (IHandlerContext)state.GetHandlerContext();
+                    var isStream = workQueue is IStream;
 
                     if (transportMessage == null)
                     {
                         if (receivedMessage != null)
                         {
-                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
                         }
 
                         return;
@@ -55,23 +59,40 @@ namespace Shuttle.Esb
                         pipelineEvent.Pipeline.Exception.AllMessages(),
                         action.TimeSpanToIgnoreRetriedMessage);
 
-                    using (var stream = _serializer.Serialize(transportMessage))
+                    var retry = !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>()
+                                &&
+                                action.Retry
+                                &&
+                                handlerContext.ExceptionHandler.ShouldRetry
+                                && !isStream;
+
+                    var poison = !retry && errorQueue != null &&
+                                 (
+                                     !isStream ||
+                                     !handlerContext.ExceptionHandler.ShouldBlock
+                                 );
+
+                    if (retry || poison)
                     {
-                        var retry = !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>()
-                                    &&
-                                    action.Retry;
+                        using (var stream = _serializer.Serialize(transportMessage))
+                        {
+                            if (retry)
+                            {
+                                workQueue.Enqueue(transportMessage, stream);
+                            }
 
-                        if (retry)
-                        {
-                            state.GetWorkQueue().Enqueue(transportMessage, stream);
+                            if (poison)
+                            {
+                                errorQueue.Enqueue(transportMessage, stream);
+                            }
                         }
-                        else
-                        {
-                            state.GetErrorQueue().Enqueue(transportMessage, stream);
-                        }
+
+                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                     }
-
-                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
+                    else
+                    {
+                        workQueue.Release(receivedMessage.AcknowledgementToken);
+                    }
                 }
                 finally
                 {

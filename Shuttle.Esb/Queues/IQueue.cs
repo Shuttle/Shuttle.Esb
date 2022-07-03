@@ -6,9 +6,7 @@ namespace Shuttle.Esb
     public interface IQueue
     {
         Uri Uri { get; }
-
         bool IsEmpty();
-
         void Enqueue(TransportMessage message, Stream stream);
         ReceivedMessage GetMessage();
         void Acknowledge(object acknowledgementToken);

@@ -38,32 +38,41 @@ namespace Shuttle.Esb
                 {
                     var receivedMessage = state.GetReceivedMessage();
                     var transportMessage = state.GetTransportMessage();
+                    var workQueue = state.GetWorkQueue();
+                    var isStream = workQueue is IStream;
 
                     if (transportMessage == null)
                     {
                         if (receivedMessage != null)
                         {
-                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
                         }
 
                         return;
                     }
 
-                    var action = _policy.EvaluateOutboxFailure(pipelineEvent);
-
-                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-                        action.TimeSpanToIgnoreRetriedMessage);
-
-                    if (action.Retry)
+                    if (!isStream)
                     {
-                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        var action = _policy.EvaluateOutboxFailure(pipelineEvent);
+
+                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                            action.TimeSpanToIgnoreRetriedMessage);
+
+                        if (action.Retry)
+                        {
+                            workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+                        else
+                        {
+                            state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+
+                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                     }
                     else
                     {
-                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        workQueue.Release(receivedMessage.AcknowledgementToken);
                     }
-
-                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
                 }
                 finally
                 {

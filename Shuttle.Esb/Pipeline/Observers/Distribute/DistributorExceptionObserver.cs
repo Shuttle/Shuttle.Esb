@@ -43,21 +43,32 @@ namespace Shuttle.Esb
                         return;
                     }
 
-                    var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
+                    var workQueue = state.GetWorkQueue();
+                    var isStream = workQueue is IStream;
+                    var receivedMessage = state.GetReceivedMessage();
 
-                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-                        action.TimeSpanToIgnoreRetriedMessage);
-
-                    if (action.Retry)
+                    if (!isStream)
                     {
-                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
+
+                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                            action.TimeSpanToIgnoreRetriedMessage);
+
+                        if (action.Retry)
+                        {
+                            workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+                        else
+                        {
+                            state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+
+                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                     }
                     else
                     {
-                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        workQueue.Release(receivedMessage.AcknowledgementToken);
                     }
-
-                    state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }
                 finally
                 {
