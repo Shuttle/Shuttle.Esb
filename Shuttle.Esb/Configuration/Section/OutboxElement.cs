@@ -1,7 +1,5 @@
 using System;
-using System.ComponentModel;
 using System.Configuration;
-using Shuttle.Core.TimeSpanTypeConverters;
 
 namespace Shuttle.Esb
 {
@@ -13,11 +11,9 @@ namespace Shuttle.Esb
         [ConfigurationProperty("errorQueueUri", IsRequired = true)]
         public string ErrorQueueUri => (string) this["errorQueueUri"];
 
-        [TypeConverter(typeof(StringDurationArrayConverter))]
         [ConfigurationProperty("durationToSleepWhenIdle", IsRequired = false)]
         public TimeSpan[] DurationToSleepWhenIdle => (TimeSpan[]) this["durationToSleepWhenIdle"];
 
-        [TypeConverter(typeof(StringDurationArrayConverter))]
         [ConfigurationProperty("durationToIgnoreOnFailure", IsRequired = false)]
         public TimeSpan[] DurationToIgnoreOnFailure => (TimeSpan[]) this["durationToIgnoreOnFailure"];
 

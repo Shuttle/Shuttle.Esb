@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
-using Shuttle.Core.TimeSpanTypeConverters;
 
 namespace Shuttle.Esb
 {
@@ -20,11 +19,16 @@ namespace Shuttle.Esb
         };
 
         public static readonly TimeSpan[] DefaultDurationToSleepWhenIdle =
-            (TimeSpan[])
-            new StringDurationArrayConverter()
-                .ConvertFrom("250ms*4,500ms*2,1s");
+        {
+            TimeSpan.FromMilliseconds(250),
+            TimeSpan.FromMilliseconds(250),
+            TimeSpan.FromMilliseconds(250),
+            TimeSpan.FromMilliseconds(250),
+            TimeSpan.FromMilliseconds(500),
+            TimeSpan.FromMilliseconds(500),
+            TimeSpan.FromSeconds(1)
+        };
 
-        private static readonly object Padlock = new object();
         private readonly List<ICompressionAlgorithm> _compressionAlgorithms = new List<ICompressionAlgorithm>();
         private readonly List<IEncryptionAlgorithm> _encryptionAlgorithms = new List<IEncryptionAlgorithm>();
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
@@ -33,11 +37,10 @@ namespace Shuttle.Esb
 
         public ServiceBusConfiguration()
         {
-            ScanForQueueFactories = true;
-            CreateQueues = true;
-            CacheIdentity = true;
-            RegisterHandlers = true;
-            RemoveMessagesNotHandled = false;
+            ShouldCreateQueues = true;
+            ShouldCacheIdentity = true;
+            ShouldAddMessageHandlers = true;
+            ShouldRemoveMessagesNotHandled = false;
         }
 
         public IInboxQueueConfiguration Inbox { get; set; }
@@ -45,9 +48,9 @@ namespace Shuttle.Esb
         public IOutboxQueueConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
 
-        public bool CreateQueues { get; set; }
-        public bool CacheIdentity { get; set; }
-        public bool RegisterHandlers { get; set; }
+        public bool ShouldCreateQueues { get; set; }
+        public bool ShouldCacheIdentity { get; set; }
+        public bool ShouldAddMessageHandlers { get; set; }
 
         public bool HasInbox => Inbox != null;
 
@@ -55,8 +58,8 @@ namespace Shuttle.Esb
 
         public bool HasControlInbox => ControlInbox != null;
 
-        public bool RemoveMessagesNotHandled { get; set; }
-        public bool RemoveCorruptMessages { get; set; }
+        public bool ShouldRemoveMessagesNotHandled { get; set; }
+        public bool ShouldRemoveCorruptMessages { get; set; }
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 
@@ -87,17 +90,6 @@ namespace Shuttle.Esb
 
             _compressionAlgorithms.Add(algorithm);
         }
-
-        public IEnumerable<Type> QueueFactoryTypes => new ReadOnlyCollection<Type>(_queueFactoryTypes);
-
-        public void AddQueueFactoryType(Type type)
-        {
-            Guard.AgainstNull(type, nameof(type));
-
-            _queueFactoryTypes.Add(type);
-        }
-
-        public bool ScanForQueueFactories { get; set; }
 
         public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
             new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);

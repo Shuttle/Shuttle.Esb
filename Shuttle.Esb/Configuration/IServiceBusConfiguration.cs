@@ -12,8 +12,8 @@ namespace Shuttle.Esb
         bool HasOutbox { get; }
 
         bool IsWorker { get; }
-        bool RemoveMessagesNotHandled { get; }
-        bool RemoveCorruptMessages { get; }
+        bool ShouldRemoveMessagesNotHandled { get; }
+        bool ShouldRemoveCorruptMessages { get; }
 
         IControlInboxQueueConfiguration ControlInbox { get; }
         IInboxQueueConfiguration Inbox { get; }
@@ -23,13 +23,9 @@ namespace Shuttle.Esb
         string EncryptionAlgorithm { get; }
         string CompressionAlgorithm { get; }
 
-        bool CreateQueues { get; }
-        bool CacheIdentity { get; }
-        bool RegisterHandlers { get; }
-
-        IEnumerable<Type> QueueFactoryTypes { get; }
-
-        bool ScanForQueueFactories { get; set; }
+        bool ShouldCreateQueues { get; }
+        bool ShouldCacheIdentity { get; }
+        bool ShouldAddMessageHandlers { get; }
 
         IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
 
@@ -40,7 +36,6 @@ namespace Shuttle.Esb
 
         ICompressionAlgorithm FindCompressionAlgorithm(string name);
         void AddCompressionAlgorithm(ICompressionAlgorithm algorithm);
-        void AddQueueFactoryType(Type type);
         void AddMessageRoute(MessageRouteConfiguration messageRoute);
         void AddUriMapping(Uri sourceUri, Uri targetUri);
     }

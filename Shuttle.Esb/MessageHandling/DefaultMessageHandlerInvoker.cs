@@ -130,7 +130,7 @@ namespace Shuttle.Esb
 
                 if (!instances.TryGetValue(managedThreadId, out var handler))
                 {
-                    handler = _provider.GetRequiredService(MessageHandlerType.MakeGenericType(messageType));
+                    handler = _provider.GetService(MessageHandlerType.MakeGenericType(messageType));
                     instances.Add(managedThreadId, handler);
                 }
 

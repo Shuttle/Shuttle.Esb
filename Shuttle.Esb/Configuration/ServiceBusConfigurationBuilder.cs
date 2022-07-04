@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
@@ -92,16 +91,6 @@ namespace Shuttle.Esb
                                 ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
                         };
                 }
-
-                if (settings.QueueFactories != null)
-                {
-                    _configuration.ScanForQueueFactories = settings.QueueFactories.Scan;
-
-                    foreach (var type in settings.QueueFactories.Types ?? Enumerable.Empty<string>())
-                    {
-                        _configuration.AddQueueFactoryType(_reflectionService.GetType(type));
-                    }
-                }
             });
 
             _services = services;
@@ -173,7 +162,7 @@ namespace Shuttle.Esb
             options.RemoveMessagesNotHandled = settings.RemoveMessagesNotHandled;
         }
 
-        public ServiceBusConfigurationBuilder ReadSettings(string key = null)
+        public ServiceBusConfigurationBuilder AddSettings(string key = null)
         {
             _services.AddOptions<ServiceBusSettings>().Configure<IConfiguration>((options, configuration) =>
             {
@@ -193,144 +182,16 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public ServiceBusConfigurationBuilder ReadConfiguration()
-        {
-            _services.AddOptions<ServiceBusSettings>().Configure(settings =>
-            {
-                var section = ServiceBusSection.Get();
-
-                if (section == null)
-                {
-                    return;
-                }
-
-                settings.CreateQueues = section.CreateQueues;
-                settings.CacheIdentity = section.CacheIdentity;
-                settings.RegisterHandlers = section.RegisterHandlers;
-                settings.RemoveMessagesNotHandled = section.RemoveMessagesNotHandled;
-                settings.RemoveCorruptMessages = section.RemoveCorruptMessages;
-                settings.CompressionAlgorithm = section.CompressionAlgorithm;
-                settings.EncryptionAlgorithm = section.EncryptionAlgorithm;
-
-                if (section.Inbox != null)
-                {
-                    settings.Inbox = new InboxSettings
-                    {
-                        WorkQueueUri = section.Inbox.WorkQueueUri,
-                        DeferredQueueUri = section.Inbox.DeferredQueueUri,
-                        ErrorQueueUri = section.Inbox.ErrorQueueUri,
-                        ThreadCount = section.Inbox.ThreadCount,
-                        MaximumFailureCount = section.Inbox.MaximumFailureCount,
-                        DurationToIgnoreOnFailure =
-                            section.Inbox.DurationToIgnoreOnFailure ??
-                            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
-                        DurationToSleepWhenIdle =
-                            section.Inbox.DurationToSleepWhenIdle ??
-                            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-                        Distribute = section.Inbox.Distribute,
-                        DistributeSendCount = section.Inbox.DistributeSendCount
-                    };
-                }
-
-                if (section.ControlInbox != null)
-                {
-                    settings.ControlInbox = new ControlInboxSettings
-                    {
-                        WorkQueueUri = section.ControlInbox.WorkQueueUri,
-                        ErrorQueueUri = section.ControlInbox.ErrorQueueUri,
-                        ThreadCount = section.ControlInbox.ThreadCount,
-                        MaximumFailureCount = section.ControlInbox.MaximumFailureCount,
-                        DurationToIgnoreOnFailure =
-                            section.ControlInbox.DurationToIgnoreOnFailure ??
-                            ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
-                        DurationToSleepWhenIdle =
-                            section.ControlInbox.DurationToSleepWhenIdle ??
-                            ServiceBusConfiguration.DefaultDurationToSleepWhenIdle
-                    };
-                }
-
-                if (section.Outbox != null)
-                {
-                    settings.Outbox =
-                        new OutboxSettings
-                        {
-                            WorkQueueUri = section.Outbox.WorkQueueUri,
-                            ErrorQueueUri = section.Outbox.ErrorQueueUri,
-                            MaximumFailureCount = section.Outbox.MaximumFailureCount,
-                            DurationToIgnoreOnFailure =
-                                section.Outbox.DurationToIgnoreOnFailure ??
-                                ServiceBusConfiguration.DefaultDurationToIgnoreOnFailure,
-                            DurationToSleepWhenIdle =
-                                section.Outbox.DurationToSleepWhenIdle ??
-                                ServiceBusConfiguration.DefaultDurationToSleepWhenIdle,
-                            ThreadCount = section.Outbox.ThreadCount
-                        };
-                }
-
-                if (section.MessageRoutes != null)
-                {
-                    var messageRoutes = new List<MessageRouteSettings>();
-                    
-                    foreach (MessageRouteElement mapElement in ServiceBusSection.Get().MessageRoutes)
-                    {
-                        var specifications = new List<MessageRouteSettings.SpecificationSettings>();
-
-                        foreach (SpecificationElement specificationElement in mapElement)
-                        {
-                            specifications.Add(new MessageRouteSettings.SpecificationSettings
-                            {
-                                Name = specificationElement.Name,
-                                Value = specificationElement.Value
-                            });
-                        }
-
-                        if (specifications.Any())
-                        {
-                            messageRoutes.Add(new MessageRouteSettings
-                            {
-                                Uri = mapElement.Uri,
-                                Specifications = specifications.ToArray()
-                            });
-                        }
-                    }
-
-                    settings.MessageRoutes = messageRoutes.ToArray();
-                }
-
-                if (section.Worker != null)
-                {
-                    settings.Worker = new WorkerSettings
-                    {
-                        DistributorControlWorkQueueUri = section.Worker.DistributorControlWorkQueueUri,
-                        ThreadAvailableNotificationIntervalSeconds =
-                            section.Worker.ThreadAvailableNotificationIntervalSeconds
-                    };
-                }
-
-                if (section.QueueFactories != null)
-                {
-                    var types = new List<string>();
-
-                    foreach (QueueFactoryElement queueFactoryElement in ServiceBusSection.Get().QueueFactories)
-                    {
-                        types.Add(queueFactoryElement.Type);
-                    }
-
-
-                    settings.QueueFactories = new QueueFactoriesSettings
-                    {
-                        Scan = section.QueueFactories.Scan,
-                        Types = types.ToArray()
-                    };
-                }
-            });
-
-            return this;
-        }
-
         internal IServiceBusConfiguration GetConfiguration()
         {
-            if (_configuration.RegisterHandlers)
+            AddMessageHandlers(_configuration);
+
+            return _configuration;
+        }
+
+        private void AddMessageHandlers(IServiceBusConfiguration configuration)
+        {
+            if (configuration.ShouldAddMessageHandlers)
             {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
@@ -341,8 +202,6 @@ namespace Shuttle.Esb
             {
                 AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
-
-            return _configuration;
         }
 
         public ServiceBusConfigurationBuilder Configure(Action<ServiceBusConfiguration> configure)
@@ -357,6 +216,8 @@ namespace Shuttle.Esb
         public ServiceBusConfigurationBuilder Configure(IServiceBusConfiguration configuration)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
+
+            AddMessageHandlers(configuration);
 
             _services.AddSingleton(configuration);
 

@@ -17,14 +17,7 @@ namespace Shuttle.Esb
             {
                 if (string.IsNullOrWhiteSpace(settings.Inbox.WorkQueueUri))
                 {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing,
-                        "Inbox.WorkQueueUri"));
-                }
-
-                if (string.IsNullOrWhiteSpace(settings.Inbox.ErrorQueueUri))
-                {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing,
-                        "Inbox.ErrorQueueUri"));
+                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
                 }
             }
 
@@ -34,11 +27,6 @@ namespace Shuttle.Esb
                 {
                     return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
                 }
-
-                if (string.IsNullOrWhiteSpace(settings.Outbox.ErrorQueueUri))
-                {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
-                }
             }
 
             if (settings.ControlInbox != null)
@@ -46,24 +34,6 @@ namespace Shuttle.Esb
                 if (string.IsNullOrWhiteSpace(settings.ControlInbox.WorkQueueUri))
                 {
                     return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
-                }
-
-                if (string.IsNullOrWhiteSpace(settings.ControlInbox.ErrorQueueUri))
-                {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
-                }
-            }
-
-            if (settings.QueueFactories != null)
-            {
-                foreach (var type in settings.QueueFactories.Types ?? Enumerable.Empty<string>())
-                {
-                    if (reflectionService.GetType(type) != null)
-                    {
-                        continue;
-                    }
-
-                    return ValidateOptionsResult.Fail(string.Format(Resources.UnknownTypeException, type));
                 }
             }
 

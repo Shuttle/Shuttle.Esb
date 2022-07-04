@@ -62,13 +62,12 @@ namespace Shuttle.Esb
                                 &&
                                 action.Retry
                                 &&
-                                handlerContext.ExceptionHandler.ShouldRetry
+                                (handlerContext == null || handlerContext.ExceptionHandler.ShouldRetry)
                                 && !workQueue.IsStream;
 
                     var poison = !retry && errorQueue != null &&
                                  (
-                                     !workQueue.IsStream ||
-                                     !handlerContext.ExceptionHandler.ShouldBlock
+                                     !workQueue.IsStream || handlerContext == null || handlerContext.ExceptionHandler.ShouldBlock
                                  );
 
                     if (retry || poison)

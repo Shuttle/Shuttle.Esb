@@ -40,13 +40,11 @@ namespace Shuttle.Esb
 
         public int ThreadCount
         {
-            get { return _threadCount; }
-            set
-            {
+            get => _threadCount;
+            set =>
                 _threadCount = value > 0
                     ? value
                     : 5;
-            }
         }
 
         public int MaximumFailureCount { get; set; }

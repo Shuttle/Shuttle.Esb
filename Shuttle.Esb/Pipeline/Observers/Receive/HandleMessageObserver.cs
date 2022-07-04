@@ -63,7 +63,7 @@ namespace Shuttle.Esb
                         new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
                             transportMessage, message));
 
-                    if (!_configuration.RemoveMessagesNotHandled)
+                    if (!_configuration.ShouldRemoveMessagesNotHandled)
                     {
                         transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure,
                             message.GetType().FullName,

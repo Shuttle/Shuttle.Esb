@@ -160,44 +160,27 @@ namespace Shuttle.Esb
             Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox,
                 Resources.WorkerRequiresInboxException);
 
-            // DONE
-            //if (_configuration.HasInbox)
-            //{
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+            if (_configuration.HasInbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Inbox.WorkQueueUri),
+                    string.Format(Resources.RequiredQueueUriMissing, "Inbox.WorkQueueUri"));
+            }
 
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.Inbox.ErrorQueue == null && string.IsNullOrEmpty(_configuration.Inbox.ErrorQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "Inbox.ErrorQueueUri"));
-            //}
+            if (_configuration.HasOutbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
+                    string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
+            }
 
-            // DONE
-            //if (_configuration.HasOutbox)
-            //{
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_configuration.Outbox.WorkQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.WorkQueueUri"));
-
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.Outbox.ErrorQueue == null &&
-            //        string.IsNullOrEmpty(_configuration.Outbox.ErrorQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "Outbox.ErrorQueueUri"));
-            //}
-
-            // DONE
-            //if (_configuration.HasControlInbox)
-            //{
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.ControlInbox.WorkQueue == null &&
-            //        string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
-
-            //    Guard.Against<EsbConfigurationException>(
-            //        _configuration.ControlInbox.ErrorQueue == null &&
-            //        string.IsNullOrEmpty(_configuration.ControlInbox.ErrorQueueUri),
-            //        string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.ErrorQueueUri"));
-            //}
+            if (_configuration.HasControlInbox)
+            {
+                Guard.Against<EsbConfigurationException>(
+                    _configuration.ControlInbox.WorkQueue == null &&
+                    string.IsNullOrEmpty(_configuration.ControlInbox.WorkQueueUri),
+                    string.Format(Resources.RequiredQueueUriMissing, "ControlInbox.WorkQueueUri"));
+            }
         }
     }
 }

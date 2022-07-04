@@ -7,8 +7,8 @@ namespace Shuttle.Esb
         public bool CreateQueues { get; set; } = true;
         public bool CacheIdentity { get; set; } = true;
         public bool RegisterHandlers { get; set; } = true;
-        public bool RemoveMessagesNotHandled { get; set; }
-        public bool RemoveCorruptMessages { get; set; }
+        public bool RemoveMessagesNotHandled { get; set; } = false;
+        public bool RemoveCorruptMessages { get; set; } = true;
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 
@@ -17,6 +17,5 @@ namespace Shuttle.Esb
         public ControlInboxSettings ControlInbox { get; set; }
         public MessageRouteSettings[] MessageRoutes { get; set; }
         public WorkerSettings Worker { get; set; }
-        public QueueFactoriesSettings QueueFactories { get; set; }
     }
 }

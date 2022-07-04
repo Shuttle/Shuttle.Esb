@@ -16,14 +16,14 @@ namespace Shuttle.Esb
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusConfigurationBuilder> options = null)
+        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusConfigurationBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
-            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(builder, nameof(builder));
 
-            var builder = new ServiceBusConfigurationBuilder(services);
+            var configurationBuilder = new ServiceBusConfigurationBuilder(services);
 
-            options?.Invoke(builder);
+            builder?.Invoke(configurationBuilder);
 
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();
             services.TryAddSingleton<IProcessService, ProcessService>();
@@ -90,9 +90,11 @@ namespace Shuttle.Esb
                 }
             }
 
-            if (!services.Contains(ServiceDescriptor.Singleton<IServiceBusConfiguration, ServiceBusConfiguration>()))
+            var serviceBusConfigurationType = typeof(IServiceBusConfiguration);
+            
+            if (services.All(item => item.ServiceType != serviceBusConfigurationType))
             {
-                services.AddSingleton(builder.GetConfiguration());
+                services.AddSingleton(configurationBuilder.GetConfiguration());
             }
 
             services.AddSingleton<IServiceBus, ServiceBus>();

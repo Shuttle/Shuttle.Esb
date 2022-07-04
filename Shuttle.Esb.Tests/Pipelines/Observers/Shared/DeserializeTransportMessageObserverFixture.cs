@@ -20,7 +20,7 @@ namespace Shuttle.Esb.Tests.Shared
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            configuration.Setup(m => m.RemoveCorruptMessages).Returns(false);
+            configuration.Setup(m => m.ShouldRemoveCorruptMessages).Returns(false);
             workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
             errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();
@@ -61,7 +61,7 @@ namespace Shuttle.Esb.Tests.Shared
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            configuration.Setup(m => m.RemoveCorruptMessages).Returns(true);
+            configuration.Setup(m => m.ShouldRemoveCorruptMessages).Returns(true);
             workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
             errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();

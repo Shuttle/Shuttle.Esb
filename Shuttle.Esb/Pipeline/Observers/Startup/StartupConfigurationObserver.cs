@@ -110,7 +110,7 @@ namespace Shuttle.Esb
 
         public void Execute(OnCreatePhysicalQueues pipelineEvent)
         {
-            if (!_configuration.CreateQueues)
+            if (!_configuration.ShouldCreateQueues)
             {
                 return;
             }

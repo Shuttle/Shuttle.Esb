@@ -59,7 +59,7 @@ namespace Shuttle.Esb
                 TransportMessageDeserializationException(this,
                     new DeserializationExceptionEventArgs(pipelineEvent, workQueue, errorQueue, ex));
 
-                if (_configuration.RemoveCorruptMessages)
+                if (_configuration.ShouldRemoveCorruptMessages)
                 {
                     state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }

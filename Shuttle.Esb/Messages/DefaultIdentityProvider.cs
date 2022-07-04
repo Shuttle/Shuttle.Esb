@@ -13,7 +13,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 
-            _cache = configuration.CacheIdentity;
+            _cache = configuration.ShouldCacheIdentity;
 
             if (_cache)
             {

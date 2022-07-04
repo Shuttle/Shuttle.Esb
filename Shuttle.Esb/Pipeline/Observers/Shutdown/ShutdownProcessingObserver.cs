@@ -11,18 +11,14 @@ namespace Shuttle.Esb
     public class ShutdownProcessingObserver : IShutdownProcessingObserver
     {
         private readonly IServiceBusConfiguration _configuration;
-        private readonly IQueueFactoryService _queueFactoryService;
         private readonly IQueueService _queueService;
 
-        public ShutdownProcessingObserver(IServiceBusConfiguration configuration,
-            IQueueFactoryService queueFactoryService, IQueueService queueService)
+        public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IQueueService queueService)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(queueFactoryService, nameof(queueFactoryService));
             Guard.AgainstNull(queueService, nameof(queueService));
 
             _configuration = configuration;
-            _queueFactoryService = queueFactoryService;
             _queueService = queueService;
         }
 
@@ -53,7 +49,6 @@ namespace Shuttle.Esb
             }
 
             _queueService.AttemptDispose();
-            _queueFactoryService.AttemptDispose();
         }
     }
 }
