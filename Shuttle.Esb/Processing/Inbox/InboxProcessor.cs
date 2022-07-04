@@ -10,22 +10,25 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
         public InboxProcessor(IServiceBusConfiguration configuration,
             IThreadActivity threadActivity, IWorkerAvailabilityService workerAvailabilityService,
-            IPipelineFactory pipelineFactory)
+            IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
             _configuration = configuration;
             _threadActivity = threadActivity;
             _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
+            _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         [DebuggerNonUserCode]
@@ -41,6 +44,8 @@ namespace Shuttle.Esb
             if (_configuration.Inbox.Distribute && availableWorker == null)
             {
                 _threadActivity.Waiting(cancellationToken);
+
+                _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(null));
 
                 return;
             }
@@ -67,10 +72,14 @@ namespace Shuttle.Esb
                 if (messagePipeline.State.GetWorking())
                 {
                     _threadActivity.Working();
+
+                    _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(messagePipeline));
                 }
                 else
                 {
                     _threadActivity.Waiting(cancellationToken);
+
+                    _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
                 }
             }
             finally

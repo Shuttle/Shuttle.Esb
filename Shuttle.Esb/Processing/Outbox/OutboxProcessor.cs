@@ -5,8 +5,8 @@ namespace Shuttle.Esb
 {
     public class OutboxProcessor : QueueProcessor<OutboxPipeline>
     {
-        public OutboxProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
-            : base(threadActivity, pipelineFactory)
+        public OutboxProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
+            : base(threadActivity, pipelineFactory, pipelineThreadActivity)
         {
         }
     }

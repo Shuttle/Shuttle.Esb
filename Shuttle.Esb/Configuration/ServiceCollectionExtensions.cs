@@ -16,14 +16,14 @@ namespace Shuttle.Esb
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusConfigurationBuilder> options)
+        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusConfigurationBuilder> options = null)
         {
             Guard.AgainstNull(services, nameof(services));
             Guard.AgainstNull(options, nameof(options));
 
             var builder = new ServiceBusConfigurationBuilder(services);
 
-            options.Invoke(builder);
+            options?.Invoke(builder);
 
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();
             services.TryAddSingleton<IProcessService, ProcessService>();
@@ -41,6 +41,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
             services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();
+            services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
             
             var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 
@@ -89,7 +90,10 @@ namespace Shuttle.Esb
                 }
             }
 
-            services.AddSingleton(builder.GetConfiguration());
+            if (!services.Contains(ServiceDescriptor.Singleton<IServiceBusConfiguration, ServiceBusConfiguration>()))
+            {
+                services.AddSingleton(builder.GetConfiguration());
+            }
 
             services.AddSingleton<IServiceBus, ServiceBus>();
 

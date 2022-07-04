@@ -10,15 +10,18 @@ namespace Shuttle.Esb
         where TPipeline : IPipeline
     {
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
 
-        protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory)
+        protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
             _threadActivity = threadActivity;
             _pipelineFactory = pipelineFactory;
+            _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         [DebuggerNonUserCode]
@@ -41,10 +44,14 @@ namespace Shuttle.Esb
                 if (messagePipeline.State.GetWorking())
                 {
                     _threadActivity.Working();
+
+                    _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(messagePipeline));
                 }
                 else
                 {
                     _threadActivity.Waiting(cancellationToken);
+
+                    _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
                 }
             }
             finally

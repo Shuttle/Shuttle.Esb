@@ -353,5 +353,14 @@ namespace Shuttle.Esb
 
             return this;
         }
+
+        public ServiceBusConfigurationBuilder Configure(IServiceBusConfiguration configuration)
+        {
+            Guard.AgainstNull(configuration, nameof(configuration));
+
+            _services.AddSingleton(configuration);
+
+            return this;
+        }
     }
 }

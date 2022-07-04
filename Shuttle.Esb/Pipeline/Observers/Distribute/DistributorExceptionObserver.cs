@@ -29,6 +29,8 @@ namespace Shuttle.Esb
 
             try
             {
+                state.ResetWorking();
+
                 if (pipelineEvent.Pipeline.ExceptionHandled)
                 {
                     return;
@@ -44,6 +46,7 @@ namespace Shuttle.Esb
                     }
 
                     var workQueue = state.GetWorkQueue();
+                    var errorQueue = state.GetErrorQueue();
                     var receivedMessage = state.GetReceivedMessage();
 
                     if (!workQueue.IsStream)
@@ -53,13 +56,13 @@ namespace Shuttle.Esb
                         transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
                             action.TimeSpanToIgnoreRetriedMessage);
 
-                        if (action.Retry)
+                        if (action.Retry || errorQueue == null)
                         {
                             workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
                         }
                         else
                         {
-                            state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                            errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
                         }
 
                         workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
