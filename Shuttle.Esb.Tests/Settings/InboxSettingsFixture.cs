@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class InboxServiceBusSettings : ServiceBusSettingsFixture
+    public class InboxSettingsFixture : SettingsFixture
     {
         [Test]
         public void Should_be_able_to_load_a_full_configuration()

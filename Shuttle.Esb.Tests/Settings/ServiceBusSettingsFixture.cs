@@ -1,20 +1,21 @@
-using System;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
 {
-    public class ServiceBusSettingsFixture
+    [TestFixture]
+    public class ServiceBusSettingsFixture : SettingsFixture
     {
-        protected Esb.ServiceBusSettings GetSettings()
+        [Test]
+        public void Should_be_able_to_load_shared_configuration()
         {
-            var result = new Esb.ServiceBusSettings();
+            var settings = GetSettings();
 
-            new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Settings\appsettings.json")).Build()
-                .GetSection(Esb.ServiceBusSettings.SectionName).Bind(result);
+            Assert.IsNotNull(settings);
 
-            return result;
+            Assert.IsTrue(settings.RemoveMessagesNotHandled);
+            Assert.IsTrue(settings.RemoveCorruptMessages);
+            Assert.AreEqual("GZip", settings.CompressionAlgorithm);
+            Assert.AreEqual("3DES", settings.EncryptionAlgorithm);
         }
     }
 }

@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class WorkerServiceBusSettings : ServiceBusSettingsFixture
+    public class WorkerSettingsFixture : SettingsFixture
     {
         [Test]
         public void Should_be_able_to_load_a_valid_configuration()
