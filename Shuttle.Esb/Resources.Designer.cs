@@ -88,15 +88,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [worker available ({0})] worker inbox = {1} / distributor control inbox = {2}.
-        /// </summary>
-        public static string DebugWorkerAvailable {
-            get {
-                return ResourceManager.GetString("DebugWorkerAvailable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Handler type &apos;{0}&apos; has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you..
         /// </summary>
         public static string DefaultMessageHandlerFactoryNoDefaultConstructor {
@@ -124,15 +115,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An exception occurred trying to find a queue.  Candidate queue type = &apos;{0}&apos;.  Candidate uri = &apos;{1}&apos;.  Comparison uri = &apos;{2}&apos;.  All exception messages = &apos;{3}&apos;..
-        /// </summary>
-        public static string FindQueueException {
-            get {
-                return ResourceManager.GetString("FindQueueException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
         /// </summary>
         public static string HandlerMessageMethodMissingException {
@@ -156,24 +138,6 @@ namespace Shuttle.Esb {
         public static string MappingInvalidUriException {
             get {
                 return ResourceManager.GetString("MappingInvalidUriException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Message handler type &apos;{0}&apos; raised exception &apos;{1}&apos;.  Message type &apos;{2}&apos; with id &apos;{3}&apos; has reached the maximum number of retries ({4}).  The message has been moved to error queue &apos;{5}&apos;.
-        /// </summary>
-        public static string MessageHandlerExceptionFailure {
-            get {
-                return ResourceManager.GetString("MessageHandlerExceptionFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Message handler type &apos;{0}&apos; raised exception &apos;{1}&apos;.  Handling of message type &apos;{2}&apos; with id &apos;{3}&apos; will be retried.  It is retry number: {4} / {5}.
-        /// </summary>
-        public static string MessageHandlerExceptionWillRetry {
-            get {
-                return ResourceManager.GetString("MessageHandlerExceptionWillRetry", resourceCulture);
             }
         }
         
@@ -219,24 +183,6 @@ namespace Shuttle.Esb {
         public static string MessageRouteNotFound {
             get {
                 return ResourceManager.GetString("MessageRouteNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Compression algorithm &apos;{0}&apos; has not been registered..
-        /// </summary>
-        public static string MissingCompressionAlgorithmException {
-            get {
-                return ResourceManager.GetString("MissingCompressionAlgorithmException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Encryption algorithm &apos;{0}&apos; has not been registered..
-        /// </summary>
-        public static string MissingEncryptionAlgorithmException {
-            get {
-                return ResourceManager.GetString("MissingEncryptionAlgorithmException", resourceCulture);
             }
         }
         
@@ -300,33 +246,6 @@ namespace Shuttle.Esb {
         public static string QueueFactoryNotFoundException {
             get {
                 return ResourceManager.GetString("QueueFactoryNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [queue factory registered] : scheme = &apos;{0}&apos; / type &apos;{1}&apos; .
-        /// </summary>
-        public static string QueueFactoryRegistered {
-            get {
-                return ResourceManager.GetString("QueueFactoryRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There has been an exception in the ReceiveMessagePipeline.  No message has been received.  Exception: {0}.
-        /// </summary>
-        public static string ReceivePipelineExceptionMessageNotReceived {
-            get {
-                return ResourceManager.GetString("ReceivePipelineExceptionMessageNotReceived", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There has been an exception in the ReceiveMessagePipeline.  The message has been released.  Exception: {0}.
-        /// </summary>
-        public static string ReceivePipelineExceptionMessageReleased {
-            get {
-                return ResourceManager.GetString("ReceivePipelineExceptionMessageReleased", resourceCulture);
             }
         }
         
@@ -439,33 +358,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deferred checkpoint set to message id &apos;{0}&apos;.
-        /// </summary>
-        public static string TraceDeferredCheckpointMessageId {
-            get {
-                return ResourceManager.GetString("TraceDeferredCheckpointMessageId", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Deferred processing has been halted since the deferred queue is empty.  Once another message is deferred the processing will restart..
-        /// </summary>
-        public static string TraceDeferredProcessingHalted {
-            get {
-                return ResourceManager.GetString("TraceDeferredProcessingHalted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Deferred processing has completed a cycle and will process again at date &apos;{0}&apos;..
-        /// </summary>
-        public static string TraceDeferredProcessingReset {
-            get {
-                return ResourceManager.GetString("TraceDeferredProcessingReset", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; equeuing on queue &apos;{2}&apos;..
         /// </summary>
         public static string TraceMessageEnqueued {
@@ -534,15 +426,6 @@ namespace Shuttle.Esb {
         public static string UriNameNotFoundException {
             get {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [publishing] : no subscribers / event message type = &apos;{0}&apos;.
-        /// </summary>
-        public static string WarningPublishWithoutSubscribers {
-            get {
-                return ResourceManager.GetString("WarningPublishWithoutSubscribers", resourceCulture);
             }
         }
         

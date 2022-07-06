@@ -63,34 +63,6 @@ namespace Shuttle.Esb
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 
-        public IEncryptionAlgorithm FindEncryptionAlgorithm(string name)
-        {
-            return
-                _encryptionAlgorithms.Find(
-                    algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        public void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm)
-        {
-            Guard.AgainstNull(algorithm, nameof(algorithm));
-
-            _encryptionAlgorithms.Add(algorithm);
-        }
-
-        public ICompressionAlgorithm FindCompressionAlgorithm(string name)
-        {
-            return
-                _compressionAlgorithms.Find(
-                    algorithm => algorithm.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        public void AddCompressionAlgorithm(ICompressionAlgorithm algorithm)
-        {
-            Guard.AgainstNull(algorithm, nameof(algorithm));
-
-            _compressionAlgorithms.Add(algorithm);
-        }
-
         public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
             new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);
 

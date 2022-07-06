@@ -1,4 +1,5 @@
 ﻿using System;
+using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -10,13 +11,13 @@ namespace Shuttle.Esb
 
     public class CompressMessageObserver : ICompressMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly ICompressionService _compressionService;
 
-        public CompressMessageObserver(IServiceBusConfiguration configuration)
+        public CompressMessageObserver(ICompressionService compressionService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(compressionService, nameof(compressionService));
 
-            _configuration = configuration;
+            _compressionService = compressionService;
         }
 
         public void Execute(OnCompressMessage pipelineEvent)
@@ -29,15 +30,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            var algorithm = _configuration.FindCompressionAlgorithm(transportMessage.CompressionAlgorithm);
-
-            if (algorithm == null)
-            {
-                throw new InvalidOperationException(string.Format(Resources.MissingCompressionAlgorithmException,
-                    transportMessage.CompressionAlgorithm));
-            }
-
-            transportMessage.Message = algorithm.Compress(transportMessage.Message);
+            transportMessage.Message = _compressionService.Compress(transportMessage.CompressionAlgorithm, transportMessage.Message);
         }
     }
 }

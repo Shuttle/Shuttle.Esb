@@ -259,14 +259,6 @@
   <data name="ServiceBusInstanceNotStarted" xml:space="preserve">
     <value>The service bus instance has not yet been started.</value>
   </data>
-  <data name="MissingCompressionAlgorithmException" xml:space="preserve">
-    <value>Compression algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
-  <data name="MissingEncryptionAlgorithmException" xml:space="preserve">
-    <value>Encryption algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
   <data name="ConfigurationResolverMissing" xml:space="preserve">
     <value>The IServiceBusConfiguration.Resolver has not been assigned.</value>
   </data>

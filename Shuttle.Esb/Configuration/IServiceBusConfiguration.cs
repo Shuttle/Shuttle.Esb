@@ -28,14 +28,7 @@ namespace Shuttle.Esb
         bool ShouldAddMessageHandlers { get; }
 
         IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
-
         IEnumerable<UriMappingConfiguration> UriMapping { get; }
-
-        IEncryptionAlgorithm FindEncryptionAlgorithm(string name);
-        void AddEncryptionAlgorithm(IEncryptionAlgorithm algorithm);
-
-        ICompressionAlgorithm FindCompressionAlgorithm(string name);
-        void AddCompressionAlgorithm(ICompressionAlgorithm algorithm);
         void AddMessageRoute(MessageRouteConfiguration messageRoute);
         void AddUriMapping(Uri sourceUri, Uri targetUri);
     }

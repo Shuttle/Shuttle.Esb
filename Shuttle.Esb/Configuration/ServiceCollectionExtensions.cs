@@ -3,7 +3,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
 using Shuttle.Core.Reflection;
@@ -42,6 +44,8 @@ namespace Shuttle.Esb
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
             services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();
             services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
+            services.TryAddSingleton<IEncryptionService, EncryptionService>();
+            services.TryAddSingleton<ICompressionService, CompressionService>();
             
             var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 
