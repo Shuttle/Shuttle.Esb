@@ -8,11 +8,11 @@ namespace Shuttle.Esb.Tests
     {
         protected ServiceBusSettings GetSettings()
         {
-            var result = new Esb.ServiceBusSettings();
+            var result = new ServiceBusSettings();
 
             new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Settings\appsettings.json")).Build()
-                .GetSection(Esb.ServiceBusSettings.SectionName).Bind(result);
+                .GetSection(ServiceBusSettings.SectionName).Bind(result);
 
             return result;
         }
