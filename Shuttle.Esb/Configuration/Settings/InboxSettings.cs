@@ -5,8 +5,6 @@ namespace Shuttle.Esb
 {
     public class InboxSettings : ProcessorSettings
     {
-        public const string SectionName = "Shuttle:ServiceBus:Inbox";
-
         public string DeferredQueueUri { get; set; }
         public IQueue DeferredQueue { get; set; }
         public TimeSpan[] DurationToSleepWhenIdle { get; set; }

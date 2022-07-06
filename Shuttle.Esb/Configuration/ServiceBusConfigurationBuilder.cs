@@ -10,8 +10,6 @@ namespace Shuttle.Esb
 {
     public class ServiceBusConfigurationBuilder
     {
-        public const string SectionName = "Shuttle:ServiceBus";
-
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
 
         private readonly ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
@@ -166,7 +164,7 @@ namespace Shuttle.Esb
         {
             _services.AddOptions<ServiceBusSettings>().Configure<IConfiguration>((options, configuration) =>
             {
-                var sectionName = key ?? SectionName;
+                var sectionName = key ?? ServiceBusSettings.SectionName;
 
                 var settings = configuration.GetRequiredSection(sectionName).Get<ServiceBusSettings>();
 

@@ -1,9 +1,9 @@
-﻿using System.Configuration;
-
-namespace Shuttle.Esb
+﻿namespace Shuttle.Esb
 {
     public class ServiceBusSettings
     {
+        public const string SectionName = "Shuttle:ServiceBus";
+
         public bool CreateQueues { get; set; } = true;
         public bool CacheIdentity { get; set; } = true;
         public bool RegisterHandlers { get; set; } = true;
