@@ -43,7 +43,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(identityProvider, nameof(identityProvider));
 
-            if (_local && !configuration.HasInbox)
+            if (_local && !configuration.HasInbox())
             {
                 throw new InvalidOperationException(Resources.SendToSelfException);
             }
@@ -56,7 +56,7 @@ namespace Shuttle.Esb
                     ? configuration.Inbox.WorkQueue.Uri.ToString()
                     : _recipientInboxWorkQueueUri,
                 SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
-                    ? configuration.HasInbox
+                    ? configuration.HasInbox()
                         ? configuration.Inbox.WorkQueue.Uri.ToString()
                         : string.Empty
                     : _sendInboxWorkQueueUri,

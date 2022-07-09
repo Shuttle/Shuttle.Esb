@@ -12,7 +12,7 @@ namespace Shuttle.Esb.Tests
             var settings = GetSettings();
 
             Assert.IsNotNull(settings);
-            Assert.AreEqual(2, settings.MessageRoutes.Length);
+            Assert.AreEqual(2, settings.MessageRoutes.Count);
 
             foreach (var messageRouteSettings in settings.MessageRoutes)
             {

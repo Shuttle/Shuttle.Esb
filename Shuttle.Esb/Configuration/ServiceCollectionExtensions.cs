@@ -18,12 +18,12 @@ namespace Shuttle.Esb
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusConfigurationBuilder> builder = null)
+        public static IServiceCollection AddServiceBus(this IServiceCollection services, Action<ServiceBusBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
             Guard.AgainstNull(builder, nameof(builder));
 
-            var configurationBuilder = new ServiceBusConfigurationBuilder(services);
+            var configurationBuilder = new ServiceBusBuilder(services);
 
             builder?.Invoke(configurationBuilder);
 
@@ -93,6 +93,22 @@ namespace Shuttle.Esb
                         type.Name));
                 }
             }
+
+            services.AddOptions<ServiceBusOptions>().Configure(options =>
+            {
+                options.Inbox = configurationBuilder.Options.Inbox;
+                options.Outbox = configurationBuilder.Options.Outbox;
+                options.ControlInbox = configurationBuilder.Options.ControlInbox;
+
+                options.Worker = configurationBuilder.Options.Worker;
+
+                options.RegisterHandlers = configurationBuilder.Options.RegisterHandlers;
+                options.CacheIdentity = configurationBuilder.Options.CacheIdentity;
+                options.CompressionAlgorithm = configurationBuilder.Options.CompressionAlgorithm;
+                options.CreateQueues = configurationBuilder.Options.CreateQueues;
+                options.EncryptionAlgorithm = configurationBuilder.Options.EncryptionAlgorithm;
+                options.RemoveCorruptMessages = configurationBuilder.Options.RemoveCorruptMessages;
+            });
 
             var serviceBusConfigurationType = typeof(IServiceBusConfiguration);
             

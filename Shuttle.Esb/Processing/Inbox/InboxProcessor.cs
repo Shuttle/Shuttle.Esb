@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -8,23 +9,23 @@ namespace Shuttle.Esb
 {
     public class InboxProcessor : IProcessor
     {
-        private readonly IServiceBusConfiguration _configuration;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly ServiceBusOptions _options;
 
-        public InboxProcessor(IServiceBusConfiguration configuration,
+        public InboxProcessor(ServiceBusOptions options,
             IThreadActivity threadActivity, IWorkerAvailabilityService workerAvailabilityService,
             IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(options, nameof(options));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _configuration = configuration;
+            _options = options;
             _threadActivity = threadActivity;
             _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
@@ -41,7 +42,7 @@ namespace Shuttle.Esb
         {
             var availableWorker = _workerAvailabilityService.GetAvailableWorker();
 
-            if (_configuration.Inbox.Distribute && availableWorker == null)
+            if (_options.Inbox.Distribute && availableWorker == null)
             {
                 _threadActivity.Waiting(cancellationToken);
 

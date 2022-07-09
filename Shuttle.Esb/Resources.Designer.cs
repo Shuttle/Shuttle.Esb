@@ -286,11 +286,20 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Required queue uri &apos;{0}&apos; has not been configured.  Please check your  application configuration or your code if you implemented it explicitly..
+        ///   Looks up a localized string similar to Required options &apos;{0}&apos; have not been provided..
         /// </summary>
-        public static string RequiredQueueUriMissing {
+        public static string RequiredOptionsMissingException {
             get {
-                return ResourceManager.GetString("RequiredQueueUriMissing", resourceCulture);
+                return ResourceManager.GetString("RequiredOptionsMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Required queue uri &apos;{0}&apos; has not been configured.  Please check your application settings or your code if you implemented it explicitly..
+        /// </summary>
+        public static string RequiredQueueUriMissingException {
+            get {
+                return ResourceManager.GetString("RequiredQueueUriMissingException", resourceCulture);
             }
         }
         

@@ -1,25 +1,27 @@
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
     public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
     {
-        private readonly IServiceBusConfiguration _configuration;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly ServiceBusOptions _options;
 
-        public WorkerAvailableHandler(IServiceBusConfiguration configuration, IWorkerAvailabilityService workerAvailabilityService)
+        public WorkerAvailableHandler(IOptions<ServiceBusOptions> options, IWorkerAvailabilityService workerAvailabilityService)
         {
+            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(options.Value, nameof(options.Value));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
-            Guard.AgainstNull(configuration, nameof(configuration));
 
-            _configuration = configuration;
+            _options = options.Value;
             _workerAvailabilityService = workerAvailabilityService;
         }
 
         public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
-            var distributeSendCount = _configuration.Inbox.DistributeSendCount > 0
-                ? _configuration.Inbox.DistributeSendCount
+            var distributeSendCount = _options.Inbox.DistributeSendCount > 0
+                ? _options.Inbox.DistributeSendCount
                 : 5;
 
             _workerAvailabilityService.RemoveByThread(context.Message);

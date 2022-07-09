@@ -26,20 +26,18 @@ namespace Shuttle.Esb.Tests
             services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
             services.AddServiceBus(builder =>
             {
-                builder.Configure(configuration =>
+                builder.Configuration.Inbox = new InboxQueueConfiguration
                 {
-                    configuration.Inbox = new InboxQueueConfiguration
-                    {
-                        WorkQueue = fakeQueue,
-                        ErrorQueue = fakeQueue,
-                        ThreadCount = 1
-                    };
-                });
+                    WorkQueue = fakeQueue,
+                    ErrorQueue = fakeQueue
+                };
+
+                builder.Options.Inbox.ThreadCount = 1;
             });
 
-            using (var bus = services.BuildServiceProvider().GetRequiredService<IServiceBus>().Start())
+            using (services.BuildServiceProvider().GetRequiredService<IServiceBus>().Start())
             {
-                var timeout = DateTime.Now.AddSeconds(1);
+                var timeout = DateTime.Now.AddSeconds(1000);
 
                 while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
                 {

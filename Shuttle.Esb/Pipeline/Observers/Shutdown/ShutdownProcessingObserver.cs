@@ -24,20 +24,20 @@ namespace Shuttle.Esb
 
         public void Execute(OnStopping pipelineEvent)
         {
-            if (_configuration.HasControlInbox)
+            if (_configuration.HasControlInbox())
             {
                 _configuration.ControlInbox.WorkQueue.AttemptDispose();
                 _configuration.ControlInbox.ErrorQueue.AttemptDispose();
             }
 
-            if (_configuration.HasInbox)
+            if (_configuration.HasInbox())
             {
                 _configuration.Inbox.WorkQueue.AttemptDispose();
                 _configuration.Inbox.DeferredQueue.AttemptDispose();
                 _configuration.Inbox.ErrorQueue.AttemptDispose();
             }
 
-            if (_configuration.HasOutbox)
+            if (_configuration.HasOutbox())
             {
                 _configuration.Outbox.WorkQueue.AttemptDispose();
                 _configuration.Outbox.ErrorQueue.AttemptDispose();

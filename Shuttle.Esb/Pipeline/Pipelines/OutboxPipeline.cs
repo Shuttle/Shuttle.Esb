@@ -1,15 +1,18 @@
-﻿using Shuttle.Core.Contract;
+﻿using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public class OutboxPipeline : Pipeline
     {
-        public OutboxPipeline(IServiceBusConfiguration configuration, IGetWorkMessageObserver getWorkMessageObserver,
+        public OutboxPipeline(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration, IGetWorkMessageObserver getWorkMessageObserver,
             IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
             ISendOutboxMessageObserver sendOutboxMessageObserver,
             IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
         {
+            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(options.Value, nameof(options.Value));
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
             Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
@@ -17,7 +20,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
             Guard.AgainstNull(outboxExceptionObserver, nameof(outboxExceptionObserver));
 
-            if (!configuration.HasOutbox)
+            if (!configuration.HasOutbox())
             {
                 return;
             }
@@ -25,8 +28,8 @@ namespace Shuttle.Esb
             State.SetWorkQueue(configuration.Outbox.WorkQueue);
             State.SetErrorQueue(configuration.Outbox.ErrorQueue);
 
-            State.SetDurationToIgnoreOnFailure(configuration.Outbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(configuration.Outbox.MaximumFailureCount);
+            State.SetDurationToIgnoreOnFailure(options.Value.Outbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(options.Value.Outbox.MaximumFailureCount);
 
             RegisterStage("Read")
                 .WithEvent<OnGetMessage>()

@@ -1,11 +1,12 @@
-﻿using Shuttle.Core.Contract;
+﻿using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
 using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
 {
     public class ControlInboxMessagePipeline : ReceiveMessagePipeline
     {
-        public ControlInboxMessagePipeline(IServiceBusConfiguration configuration,
+        public ControlInboxMessagePipeline(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration,
             IGetWorkMessageObserver getWorkMessageObserver,
             IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
             IDeferTransportMessageObserver deferTransportMessageObserver,
@@ -20,17 +21,19 @@ namespace Shuttle.Esb
                 assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, acknowledgeMessageObserver,
                 sendDeferredObserver, receiveExceptionObserver, transactionScopeObserver)
         {
+            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(options.Value, nameof(options.Value));
             Guard.AgainstNull(configuration, nameof(configuration));
 
-            if (!configuration.HasControlInbox)
+            if (!configuration.HasControlInbox())
             {
                 return;
             }
 
             State.SetWorkQueue(configuration.ControlInbox.WorkQueue);
             State.SetErrorQueue(configuration.ControlInbox.ErrorQueue);
-            State.SetDurationToIgnoreOnFailure(configuration.ControlInbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(configuration.ControlInbox.MaximumFailureCount);
+            State.SetDurationToIgnoreOnFailure(options.Value.ControlInbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(options.Value.ControlInbox.MaximumFailureCount);
         }
     }
 }

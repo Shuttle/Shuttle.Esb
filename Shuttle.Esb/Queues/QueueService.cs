@@ -106,22 +106,22 @@ namespace Shuttle.Esb
 
         public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
         {
-            if (configuration.HasInbox)
+            if (configuration.HasInbox())
             {
                 CreateQueues(configuration.Inbox);
 
-                if (configuration.Inbox.HasDeferredQueue)
+                if (configuration.Inbox.HasDeferredQueue())
                 {
                     configuration.Inbox.DeferredQueue.AttemptCreate();
                 }
             }
 
-            if (configuration.HasOutbox)
+            if (configuration.HasOutbox())
             {
                 CreateQueues(configuration.Outbox);
             }
 
-            if (configuration.HasControlInbox)
+            if (configuration.HasControlInbox())
             {
                 CreateQueues(configuration.ControlInbox);
             }

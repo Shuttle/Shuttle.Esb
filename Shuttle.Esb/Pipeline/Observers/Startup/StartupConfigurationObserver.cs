@@ -1,13 +1,14 @@
 using System;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public interface IStartupConfigurationObserver : 
-        IPipelineObserver<OnConfigureUriResolver>, 
-        IPipelineObserver<OnConfigureQueues>, 
-        IPipelineObserver<OnCreatePhysicalQueues>, 
+    public interface IStartupConfigurationObserver :
+        IPipelineObserver<OnConfigureUriResolver>,
+        IPipelineObserver<OnConfigureQueues>,
+        IPipelineObserver<OnCreatePhysicalQueues>,
         IPipelineObserver<OnConfigureMessageRouteProvider>
     {
     }
@@ -16,17 +17,20 @@ namespace Shuttle.Esb
     {
         private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageRouteProvider _messageRouteProvider;
+        private readonly ServiceBusOptions _options;
         private readonly IQueueService _queueService;
         private readonly IUriResolver _uriResolver;
 
-        public StartupConfigurationObserver(IServiceBusConfiguration configuration, IQueueService queueService,
-            IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
+        public StartupConfigurationObserver(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration, IQueueService queueService, IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
         {
+            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(options.Value, nameof(options.Value));
             Guard.AgainstNull(configuration, nameof(configuration));
             Guard.AgainstNull(queueService, nameof(queueService));
             Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
+            _options = options.Value;
             _queueService = queueService;
             _messageRouteProvider = messageRouteProvider;
             _uriResolver = uriResolver;
@@ -57,42 +61,52 @@ namespace Shuttle.Esb
 
         public void Execute(OnConfigureQueues pipelineEvent)
         {
-            if (_configuration.HasControlInbox)
+            if (_options.HasControlInbox())
             {
                 _configuration.ControlInbox.WorkQueue = _configuration.ControlInbox.WorkQueue ??
                                                         _queueService.Create(
-                                                            _configuration.ControlInbox.WorkQueueUri);
+                                                            _options.ControlInbox.WorkQueueUri);
 
-                _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ??
-                                                         _queueService.Create(
-                                                             _configuration.ControlInbox.ErrorQueueUri);
+                _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_options.ControlInbox.ErrorQueueUri)
+                        ? null
+                        : _queueService.Create(
+                            _options.ControlInbox.ErrorQueueUri)
+                );
             }
 
-            if (_configuration.HasInbox)
+            if (_options.HasInbox())
             {
                 _configuration.Inbox.WorkQueue = _configuration.Inbox.WorkQueue ??
-                                                 _queueService.Create(_configuration.Inbox.WorkQueueUri);
+                                                 _queueService.Create(_options.Inbox.WorkQueueUri);
 
                 _configuration.Inbox.DeferredQueue = _configuration.Inbox.DeferredQueue ?? (
-                                                         string.IsNullOrEmpty(_configuration.Inbox.DeferredQueueUri)
-                                                             ? null
-                                                             : _queueService
-                                                                 .Create(_configuration.Inbox.DeferredQueueUri));
+                    string.IsNullOrWhiteSpace(_options.Inbox.DeferredQueueUri)
+                        ? null
+                        : _queueService
+                            .Create(_options.Inbox.DeferredQueueUri)
+                );
 
-                _configuration.Inbox.ErrorQueue = _configuration.Inbox.ErrorQueue ??
-                                                  _queueService.Create(_configuration.Inbox.ErrorQueueUri);
+                _configuration.Inbox.ErrorQueue = _configuration.Inbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_options.Inbox.ErrorQueueUri)
+                        ? null
+                        : _queueService.Create(_options.Inbox.ErrorQueueUri)
+                );
             }
 
-            if (_configuration.HasOutbox)
+            if (_options.HasOutbox())
             {
                 _configuration.Outbox.WorkQueue = _configuration.Outbox.WorkQueue ??
-                                                  _queueService.Create(_configuration.Outbox.WorkQueueUri);
+                                                  _queueService.Create(_options.Outbox.WorkQueueUri);
 
-                _configuration.Outbox.ErrorQueue = _configuration.Outbox.ErrorQueue ??
-                                                   _queueService.Create(_configuration.Outbox.ErrorQueueUri);
+                _configuration.Outbox.ErrorQueue = _configuration.Outbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_options.Outbox.ErrorQueueUri)
+                        ? null
+                        : _queueService.Create(_options.Outbox.ErrorQueueUri)
+                );
             }
 
-            if (_configuration.IsWorker)
+            if (_options.IsWorker())
             {
                 _configuration.Worker.DistributorControlInboxWorkQueue =
                     _configuration.Worker.DistributorControlInboxWorkQueue ??
