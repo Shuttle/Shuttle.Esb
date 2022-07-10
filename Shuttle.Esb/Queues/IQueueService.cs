@@ -7,7 +7,7 @@ namespace Shuttle.Esb
         IQueue Get(string uri);
         IQueue Create(string uri);
         IQueue Create(Uri uri);
-        void CreatePhysicalQueues(IServiceBusConfiguration configuration);
+        void CreatePhysicalQueues(IServiceBusConfiguration serviceBusConfiguration);
         bool Contains(string uri);
     }
 }

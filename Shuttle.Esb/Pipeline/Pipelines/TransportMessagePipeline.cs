@@ -31,11 +31,11 @@ namespace Shuttle.Esb
             RegisterObserver(encryptMessageObserver);
         }
 
-        public bool Execute(TransportMessageConfigurator configurator)
+        public bool Execute(TransportMessageBuilder builder)
         {
-            Guard.AgainstNull(configurator, nameof(configurator));
+            Guard.AgainstNull(builder, nameof(builder));
 
-            State.SetTransportMessageContext(configurator);
+            State.SetTransportMessageContext(builder);
 
             return base.Execute();
         }

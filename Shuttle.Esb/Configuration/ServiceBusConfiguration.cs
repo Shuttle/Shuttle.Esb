@@ -10,27 +10,10 @@ namespace Shuttle.Esb
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
         private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
 
-        public ServiceBusConfiguration()
-        {
-            ShouldCreateQueues = true;
-            ShouldCacheIdentity = true;
-            ShouldAddMessageHandlers = true;
-            ShouldRemoveMessagesNotHandled = false;
-        }
-
         public IInboxConfiguration Inbox { get; set; }
         public IControlInboxConfiguration ControlInbox { get; set; }
         public IOutboxConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
-
-        public bool ShouldCreateQueues { get; set; }
-        public bool ShouldCacheIdentity { get; set; }
-        public bool ShouldAddMessageHandlers { get; set; }
-
-        public bool ShouldRemoveMessagesNotHandled { get; set; }
-        public bool ShouldRemoveCorruptMessages { get; set; }
-        public string EncryptionAlgorithm { get; set; }
-        public string CompressionAlgorithm { get; set; }
 
         public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
             new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);
@@ -49,7 +32,5 @@ namespace Shuttle.Esb
         {
             _uriMapping.Add(new UriMappingConfiguration(sourceUri, targetUri));
         }
-
-        public bool IsWorker => Worker != null;
     }
 }

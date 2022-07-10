@@ -11,7 +11,7 @@ namespace Shuttle.Esb
     public class ServiceBus : IServiceBus
     {
         private readonly ICancellationTokenSource _cancellationTokenSource;
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IMessageSender _messageSender;
         private readonly IPipelineFactory _pipelineFactory;
 
@@ -21,19 +21,19 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _outboxThreadPool;
         private readonly ServiceBusOptions _options;
 
-        public ServiceBus(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration, ITransportMessageFactory transportMessageFactory,
+        public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
             IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
             ICancellationTokenSource cancellationTokenSource)
         {
-            Guard.AgainstNull(options, nameof(options));
-            Guard.AgainstNull(options.Value, nameof(options.Value));
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
 
-            _options = options.Value;
-            _configuration = configuration;
+            _options = serviceBusOptions.Value;
+            _serviceBusConfiguration = serviceBusConfiguration;
             _pipelineFactory = pipelineFactory;
             _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
 
@@ -81,9 +81,9 @@ namespace Shuttle.Esb
 
             _cancellationTokenSource.Renew();
 
-            if (_configuration.HasInbox())
+            if (_serviceBusConfiguration.HasInbox())
             {
-                if (_configuration.Inbox.HasDeferredQueue())
+                if (_serviceBusConfiguration.Inbox.HasDeferredQueue())
                 {
                     _deferredMessageThreadPool.Dispose();
                 }
@@ -91,12 +91,12 @@ namespace Shuttle.Esb
                 _inboxThreadPool.Dispose();
             }
 
-            if (_configuration.HasControlInbox())
+            if (_serviceBusConfiguration.HasControlInbox())
             {
                 _controlThreadPool.Dispose();
             }
 
-            if (_configuration.HasOutbox())
+            if (_serviceBusConfiguration.HasOutbox())
             {
                 _outboxThreadPool.Dispose();
             }
@@ -129,7 +129,7 @@ namespace Shuttle.Esb
             return _messageSender.Send(message);
         }
 
-        public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> configure)
         {
             StartedGuard();
 
@@ -143,7 +143,7 @@ namespace Shuttle.Esb
             return _messageSender.Publish(message);
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure)
         {
             StartedGuard();
 
@@ -162,13 +162,13 @@ namespace Shuttle.Esb
 
         private void ConfigurationInvariant()
         {
-            Guard.Against<WorkerException>(_configuration.IsWorker && !_configuration.HasInbox(),
+            Guard.Against<WorkerException>(_serviceBusConfiguration.IsWorker() && !_serviceBusConfiguration.HasInbox(),
                 Resources.WorkerRequiresInboxException);
 
-            if (_configuration.HasInbox())
+            if (_serviceBusConfiguration.HasInbox())
             {
                 Guard.Against<EsbConfigurationException>(
-                    _configuration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_options.Inbox.WorkQueueUri),
+                    _serviceBusConfiguration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_options.Inbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
 
                 Guard.Against<EsbConfigurationException>(
@@ -176,10 +176,10 @@ namespace Shuttle.Esb
                     string.Format(Resources.RequiredOptionsMissingException, "Inbox"));
             }
 
-            if (_configuration.HasOutbox())
+            if (_serviceBusConfiguration.HasOutbox())
             {
                 Guard.Against<EsbConfigurationException>(
-                    _configuration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_options.Outbox.WorkQueueUri),
+                    _serviceBusConfiguration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_options.Outbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
 
                 Guard.Against<EsbConfigurationException>(
@@ -187,10 +187,10 @@ namespace Shuttle.Esb
                     string.Format(Resources.RequiredOptionsMissingException, "Outbox"));
             }
 
-            if (_configuration.HasControlInbox())
+            if (_serviceBusConfiguration.HasControlInbox())
             {
                 Guard.Against<EsbConfigurationException>(
-                    _configuration.ControlInbox.WorkQueue == null &&
+                    _serviceBusConfiguration.ControlInbox.WorkQueue == null &&
                     string.IsNullOrEmpty(_options.ControlInbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
 

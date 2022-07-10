@@ -4,25 +4,32 @@ namespace Shuttle.Esb
 {
     public static class ServiceBusConfigurationExtensions
     {
-        public static bool HasInbox(this IServiceBusConfiguration configuration)
+        public static bool HasInbox(this IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            return configuration.Inbox != null;
+            return serviceBusConfiguration.Inbox != null;
         }
 
-        public static bool HasControlInbox(this IServiceBusConfiguration configuration)
+        public static bool HasControlInbox(this IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            return configuration.ControlInbox != null;
+            return serviceBusConfiguration.ControlInbox != null;
         }
 
-        public static bool HasOutbox(this IServiceBusConfiguration configuration)
+        public static bool HasOutbox(this IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            return configuration.Outbox != null;
+            return serviceBusConfiguration.Outbox != null;
+        }
+
+        public static bool IsWorker(this IServiceBusConfiguration serviceBusConfiguration)
+        {
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
+
+            return serviceBusConfiguration.Worker != null;
         }
     }
 }

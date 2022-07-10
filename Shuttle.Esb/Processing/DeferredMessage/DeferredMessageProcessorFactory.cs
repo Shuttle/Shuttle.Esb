@@ -6,14 +6,14 @@ namespace Shuttle.Esb
     public class DeferredMessageProcessorFactory : IProcessorFactory
     {
         private static readonly object Padlock = new object();
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private bool _instanced;
 
-        public DeferredMessageProcessorFactory(IServiceBusConfiguration configuration)
+        public DeferredMessageProcessorFactory(IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            _configuration = configuration;
+            _serviceBusConfiguration = serviceBusConfiguration;
         }
 
         public IProcessor Create()
@@ -27,7 +27,7 @@ namespace Shuttle.Esb
 
                 _instanced = true;
 
-                return _configuration.Inbox.DeferredMessageProcessor;
+                return _serviceBusConfiguration.Inbox.DeferredMessageProcessor;
             }
         }
     }

@@ -12,13 +12,13 @@ namespace Shuttle.Esb
 
     public class DeferTransportMessageObserver : IDeferTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
 
-        public DeferTransportMessageObserver(IServiceBusConfiguration configuration)
+        public DeferTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            _configuration = configuration;
+            _serviceBusConfiguration = serviceBusConfiguration;
         }
 
         public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
@@ -47,7 +47,7 @@ namespace Shuttle.Esb
                 {
                     state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
-                    _configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+                    _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                 }
             }
 

@@ -7,22 +7,22 @@ namespace Shuttle.Esb
 {
     public class WorkerThreadActivity : IThreadActivity
     {
-        private readonly IServiceBus _bus;
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBus _serviceBus;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly Guid _identifier = Guid.NewGuid();
 
         private readonly ThreadActivity _threadActivity;
 
         private DateTime _nextNotificationDate = DateTime.Now;
 
-        public WorkerThreadActivity(IServiceBus bus, IServiceBusConfiguration configuration,
+        public WorkerThreadActivity(IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration,
             ThreadActivity threadActivity)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
 
-            _bus = bus;
-            _configuration = configuration;
+            _serviceBus = serviceBus;
+            _serviceBusConfiguration = serviceBusConfiguration;
             _threadActivity = threadActivity;
         }
 
@@ -30,17 +30,17 @@ namespace Shuttle.Esb
         {
             if (ShouldNotifyDistributor())
             {
-                _bus.Send(new WorkerThreadAvailableCommand
+                _serviceBus.Send(new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
-                        InboxWorkQueueUri = _configuration.Inbox.WorkQueue.Uri.ToString(),
+                        InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.Now
                     },
-                    c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
+                    c => c.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
 
                 _nextNotificationDate =
-                    DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
+                    DateTime.Now.AddSeconds(_serviceBusConfiguration.Worker.ThreadAvailableNotificationIntervalSeconds);
             }
 
             _threadActivity.Waiting(cancellationToken);

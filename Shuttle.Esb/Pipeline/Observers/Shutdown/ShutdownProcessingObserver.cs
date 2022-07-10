@@ -10,42 +10,42 @@ namespace Shuttle.Esb
 
     public class ShutdownProcessingObserver : IShutdownProcessingObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IQueueService _queueService;
 
-        public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IQueueService queueService)
+        public ShutdownProcessingObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(queueService, nameof(queueService));
 
-            _configuration = configuration;
+            _serviceBusConfiguration = serviceBusConfiguration;
             _queueService = queueService;
         }
 
         public void Execute(OnStopping pipelineEvent)
         {
-            if (_configuration.HasControlInbox())
+            if (_serviceBusConfiguration.HasControlInbox())
             {
-                _configuration.ControlInbox.WorkQueue.AttemptDispose();
-                _configuration.ControlInbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.ControlInbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.ControlInbox.ErrorQueue.AttemptDispose();
             }
 
-            if (_configuration.HasInbox())
+            if (_serviceBusConfiguration.HasInbox())
             {
-                _configuration.Inbox.WorkQueue.AttemptDispose();
-                _configuration.Inbox.DeferredQueue.AttemptDispose();
-                _configuration.Inbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.DeferredQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.ErrorQueue.AttemptDispose();
             }
 
-            if (_configuration.HasOutbox())
+            if (_serviceBusConfiguration.HasOutbox())
             {
-                _configuration.Outbox.WorkQueue.AttemptDispose();
-                _configuration.Outbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.Outbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Outbox.ErrorQueue.AttemptDispose();
             }
 
-            if (_configuration.IsWorker)
+            if (_serviceBusConfiguration.IsWorker())
             {
-                _configuration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
             }
 
             _queueService.AttemptDispose();

@@ -8,8 +8,8 @@ namespace Shuttle.Esb
         void Dispatch(TransportMessage transportMessage);
 
         TransportMessage Send(object message);
-        TransportMessage Send(object message, Action<TransportMessageConfigurator> configure);
+        TransportMessage Send(object message, Action<TransportMessageBuilder> configure);
         IEnumerable<TransportMessage> Publish(object message);
-        IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure);
+        IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure);
     }
 }

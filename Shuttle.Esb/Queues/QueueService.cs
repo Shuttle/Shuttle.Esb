@@ -104,26 +104,26 @@ namespace Shuttle.Esb
             return _queueFactoryService.Get(uri).Create(uri);
         }
 
-        public void CreatePhysicalQueues(IServiceBusConfiguration configuration)
+        public void CreatePhysicalQueues(IServiceBusConfiguration serviceBusConfiguration)
         {
-            if (configuration.HasInbox())
+            if (serviceBusConfiguration.HasInbox())
             {
-                CreateQueues(configuration.Inbox);
+                CreateQueues(serviceBusConfiguration.Inbox);
 
-                if (configuration.Inbox.HasDeferredQueue())
+                if (serviceBusConfiguration.Inbox.HasDeferredQueue())
                 {
-                    configuration.Inbox.DeferredQueue.AttemptCreate();
+                    serviceBusConfiguration.Inbox.DeferredQueue.AttemptCreate();
                 }
             }
 
-            if (configuration.HasOutbox())
+            if (serviceBusConfiguration.HasOutbox())
             {
-                CreateQueues(configuration.Outbox);
+                CreateQueues(serviceBusConfiguration.Outbox);
             }
 
-            if (configuration.HasControlInbox())
+            if (serviceBusConfiguration.HasControlInbox())
             {
-                CreateQueues(configuration.ControlInbox);
+                CreateQueues(serviceBusConfiguration.ControlInbox);
             }
         }
 

@@ -5,19 +5,19 @@ namespace Shuttle.Esb
 {
     public class DeferredMessagePipeline : Pipeline
     {
-        public DeferredMessagePipeline(IServiceBusConfiguration configuration,
+        public DeferredMessagePipeline(IServiceBusConfiguration serviceBusConfiguration,
             IGetDeferredMessageObserver getDeferredMessageObserver,
             IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
             IProcessDeferredMessageObserver processDeferredMessageObserver)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(getDeferredMessageObserver, nameof(getDeferredMessageObserver));
             Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
             Guard.AgainstNull(processDeferredMessageObserver, nameof(processDeferredMessageObserver));
 
-            State.SetWorkQueue(configuration.Inbox.WorkQueue);
-            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
-            State.SetDeferredQueue(configuration.Inbox.DeferredQueue);
+            State.SetWorkQueue(serviceBusConfiguration.Inbox.WorkQueue);
+            State.SetErrorQueue(serviceBusConfiguration.Inbox.ErrorQueue);
+            State.SetDeferredQueue(serviceBusConfiguration.Inbox.DeferredQueue);
 
             RegisterStage("Process")
                 .WithEvent<OnGetMessage>()

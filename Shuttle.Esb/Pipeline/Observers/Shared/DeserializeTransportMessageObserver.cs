@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
@@ -14,20 +15,21 @@ namespace Shuttle.Esb
 
     public class DeserializeTransportMessageObserver : IDeserializeTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IEnvironmentService _environmentService;
         private readonly IProcessService _processService;
         private readonly ISerializer _serializer;
 
-        public DeserializeTransportMessageObserver(IServiceBusConfiguration configuration,
+        public DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions,
             ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(serializer, nameof(serializer));
             Guard.AgainstNull(environmentService, nameof(environmentService));
             Guard.AgainstNull(processService, nameof(processService));
 
-            _configuration = configuration;
+            _serviceBusOptions = serviceBusOptions.Value;
             _serializer = serializer;
             _environmentService = environmentService;
             _processService = processService;
@@ -59,7 +61,7 @@ namespace Shuttle.Esb
                 TransportMessageDeserializationException(this,
                     new DeserializationExceptionEventArgs(pipelineEvent, workQueue, errorQueue, ex));
 
-                if (_configuration.ShouldRemoveCorruptMessages)
+                if (_serviceBusOptions.RemoveCorruptMessages)
                 {
                     state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }

@@ -12,20 +12,20 @@ namespace Shuttle.Esb
 
         public ServiceBusConfiguration Configuration
         {
-            get => _configuration;
-            set => _configuration = value ?? throw new ArgumentNullException(nameof(value));
+            get => _serviceBusConfiguration;
+            set => _serviceBusConfiguration = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public ServiceBusOptions Options
         {
-            get => _options;
-            set => _options = value ?? throw new ArgumentNullException(nameof(value));
+            get => _serviceBusOptions;
+            set => _serviceBusOptions = value ?? throw new ArgumentNullException(nameof(value));
         }
 
 
         private readonly ReflectionService _reflectionService = new ReflectionService();
-        private ServiceBusConfiguration _configuration = new ServiceBusConfiguration();
-        private ServiceBusOptions _options = new ServiceBusOptions();
+        private ServiceBusConfiguration _serviceBusConfiguration = new ServiceBusConfiguration();
+        private ServiceBusOptions _serviceBusOptions = new ServiceBusOptions();
 
         public ServiceBusBuilder(IServiceCollection services)
         {
@@ -77,14 +77,14 @@ namespace Shuttle.Esb
 
         internal IServiceBusConfiguration GetConfiguration()
         {
-            AddMessageHandlers(Configuration);
+            AddMessageHandlers();
 
             return Configuration;
         }
 
-        private void AddMessageHandlers(IServiceBusConfiguration configuration)
+        private void AddMessageHandlers()
         {
-            if (configuration.ShouldAddMessageHandlers)
+            if (Options.AddMessageHandlers)
             {
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {

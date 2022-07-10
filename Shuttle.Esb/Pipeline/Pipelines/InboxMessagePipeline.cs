@@ -6,7 +6,7 @@ namespace Shuttle.Esb
 {
     public class InboxMessagePipeline : ReceiveMessagePipeline
     {
-        public InboxMessagePipeline(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration,
+        public InboxMessagePipeline(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration,
             IGetWorkMessageObserver getWorkMessageObserver,
             IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
             IDeferTransportMessageObserver deferTransportMessageObserver,
@@ -21,16 +21,16 @@ namespace Shuttle.Esb
                 assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, acknowledgeMessageObserver,
                 sendDeferredObserver, receiveExceptionObserver, transactionScopeObserver)
         {
-            Guard.AgainstNull(options, nameof(options));
-            Guard.AgainstNull(options.Value, nameof(options.Value));
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            State.SetWorkQueue(configuration.Inbox.WorkQueue);
-            State.SetDeferredQueue(configuration.Inbox.DeferredQueue);
-            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
+            State.SetWorkQueue(serviceBusConfiguration.Inbox.WorkQueue);
+            State.SetDeferredQueue(serviceBusConfiguration.Inbox.DeferredQueue);
+            State.SetErrorQueue(serviceBusConfiguration.Inbox.ErrorQueue);
 
-            State.SetDurationToIgnoreOnFailure(options.Value.Inbox.DurationToIgnoreOnFailure);
-            State.SetMaximumFailureCount(options.Value.Inbox.MaximumFailureCount);
+            State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Inbox.DurationToIgnoreOnFailure);
+            State.SetMaximumFailureCount(serviceBusOptions.Value.Inbox.MaximumFailureCount);
         }
     }
 }

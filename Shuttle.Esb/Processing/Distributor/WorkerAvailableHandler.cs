@@ -8,13 +8,13 @@ namespace Shuttle.Esb
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
         private readonly ServiceBusOptions _options;
 
-        public WorkerAvailableHandler(IOptions<ServiceBusOptions> options, IWorkerAvailabilityService workerAvailabilityService)
+        public WorkerAvailableHandler(IOptions<ServiceBusOptions> serviceBusOptions, IWorkerAvailabilityService workerAvailabilityService)
         {
-            Guard.AgainstNull(options, nameof(options));
-            Guard.AgainstNull(options.Value, nameof(options.Value));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
 
-            _options = options.Value;
+            _options = serviceBusOptions.Value;
             _workerAvailabilityService = workerAvailabilityService;
         }
 

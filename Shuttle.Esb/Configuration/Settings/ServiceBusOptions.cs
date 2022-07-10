@@ -28,11 +28,11 @@ namespace Shuttle.Esb
             TimeSpan.FromSeconds(5)
         }.AsReadOnly(); 
         
-        public bool CreateQueues { get; set; } = true;
+        public bool CreatePhysicalQueues { get; set; } = true;
         public bool CacheIdentity { get; set; } = true;
-        public bool RegisterHandlers { get; set; } = true;
+        public bool AddMessageHandlers { get; set; } = true;
         public bool RemoveMessagesNotHandled { get; set; } = false;
-        public bool RemoveCorruptMessages { get; set; } = true;
+        public bool RemoveCorruptMessages { get; set; } = false;
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
 

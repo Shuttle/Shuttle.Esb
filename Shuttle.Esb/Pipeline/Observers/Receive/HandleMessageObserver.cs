@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
@@ -15,18 +16,19 @@ namespace Shuttle.Esb
 
     public class HandleMessageObserver : IHandleMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
         private readonly IMessageHandlerInvoker _messageHandlerInvoker;
         private readonly ISerializer _serializer;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public HandleMessageObserver(IServiceBusConfiguration configuration,
+        public HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions,
             IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(messageHandlerInvoker, nameof(messageHandlerInvoker));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _configuration = configuration;
+            _serviceBusOptions = serviceBusOptions.Value;
             _messageHandlerInvoker = messageHandlerInvoker;
             _serializer = serializer;
         }
@@ -63,7 +65,7 @@ namespace Shuttle.Esb
                         new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
                             transportMessage, message));
 
-                    if (!_configuration.ShouldRemoveMessagesNotHandled)
+                    if (!_serviceBusOptions.RemoveMessagesNotHandled)
                     {
                         transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure,
                             message.GetType().FullName,

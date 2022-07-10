@@ -102,10 +102,10 @@ namespace Shuttle.Esb
 
                 options.Worker = configurationBuilder.Options.Worker;
 
-                options.RegisterHandlers = configurationBuilder.Options.RegisterHandlers;
+                options.AddMessageHandlers = configurationBuilder.Options.AddMessageHandlers;
                 options.CacheIdentity = configurationBuilder.Options.CacheIdentity;
                 options.CompressionAlgorithm = configurationBuilder.Options.CompressionAlgorithm;
-                options.CreateQueues = configurationBuilder.Options.CreateQueues;
+                options.CreatePhysicalQueues = configurationBuilder.Options.CreatePhysicalQueues;
                 options.EncryptionAlgorithm = configurationBuilder.Options.EncryptionAlgorithm;
                 options.RemoveCorruptMessages = configurationBuilder.Options.RemoveCorruptMessages;
             });

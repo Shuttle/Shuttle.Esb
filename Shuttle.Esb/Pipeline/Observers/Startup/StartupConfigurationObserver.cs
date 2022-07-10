@@ -15,33 +15,33 @@ namespace Shuttle.Esb
 
     public class StartupConfigurationObserver : IStartupConfigurationObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IMessageRouteProvider _messageRouteProvider;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IQueueService _queueService;
         private readonly IUriResolver _uriResolver;
 
-        public StartupConfigurationObserver(IOptions<ServiceBusOptions> options, IServiceBusConfiguration configuration, IQueueService queueService, IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
+        public StartupConfigurationObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService, IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
         {
-            Guard.AgainstNull(options, nameof(options));
-            Guard.AgainstNull(options.Value, nameof(options.Value));
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(queueService, nameof(queueService));
             Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
             Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
-            _options = options.Value;
+            _serviceBusOptions = serviceBusOptions.Value;
             _queueService = queueService;
             _messageRouteProvider = messageRouteProvider;
             _uriResolver = uriResolver;
-            _configuration = configuration;
+            _serviceBusConfiguration = serviceBusConfiguration;
         }
 
         public void Execute(OnConfigureMessageRouteProvider pipelineEvent)
         {
             var specificationFactory = new MessageRouteSpecificationFactory();
 
-            foreach (var configuration in _configuration.MessageRoutes)
+            foreach (var configuration in _serviceBusConfiguration.MessageRoutes)
             {
                 var messageRoute = _messageRouteProvider.Find(configuration.Uri);
 
@@ -61,62 +61,62 @@ namespace Shuttle.Esb
 
         public void Execute(OnConfigureQueues pipelineEvent)
         {
-            if (_options.HasControlInbox())
+            if (_serviceBusOptions.HasControlInbox())
             {
-                _configuration.ControlInbox.WorkQueue = _configuration.ControlInbox.WorkQueue ??
+                _serviceBusConfiguration.ControlInbox.WorkQueue = _serviceBusConfiguration.ControlInbox.WorkQueue ??
                                                         _queueService.Create(
-                                                            _options.ControlInbox.WorkQueueUri);
+                                                            _serviceBusOptions.ControlInbox.WorkQueueUri);
 
-                _configuration.ControlInbox.ErrorQueue = _configuration.ControlInbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_options.ControlInbox.ErrorQueueUri)
+                _serviceBusConfiguration.ControlInbox.ErrorQueue = _serviceBusConfiguration.ControlInbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_serviceBusOptions.ControlInbox.ErrorQueueUri)
                         ? null
                         : _queueService.Create(
-                            _options.ControlInbox.ErrorQueueUri)
+                            _serviceBusOptions.ControlInbox.ErrorQueueUri)
                 );
             }
 
-            if (_options.HasInbox())
+            if (_serviceBusOptions.HasInbox())
             {
-                _configuration.Inbox.WorkQueue = _configuration.Inbox.WorkQueue ??
-                                                 _queueService.Create(_options.Inbox.WorkQueueUri);
+                _serviceBusConfiguration.Inbox.WorkQueue = _serviceBusConfiguration.Inbox.WorkQueue ??
+                                                 _queueService.Create(_serviceBusOptions.Inbox.WorkQueueUri);
 
-                _configuration.Inbox.DeferredQueue = _configuration.Inbox.DeferredQueue ?? (
-                    string.IsNullOrWhiteSpace(_options.Inbox.DeferredQueueUri)
+                _serviceBusConfiguration.Inbox.DeferredQueue = _serviceBusConfiguration.Inbox.DeferredQueue ?? (
+                    string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.DeferredQueueUri)
                         ? null
                         : _queueService
-                            .Create(_options.Inbox.DeferredQueueUri)
+                            .Create(_serviceBusOptions.Inbox.DeferredQueueUri)
                 );
 
-                _configuration.Inbox.ErrorQueue = _configuration.Inbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_options.Inbox.ErrorQueueUri)
+                _serviceBusConfiguration.Inbox.ErrorQueue = _serviceBusConfiguration.Inbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.ErrorQueueUri)
                         ? null
-                        : _queueService.Create(_options.Inbox.ErrorQueueUri)
+                        : _queueService.Create(_serviceBusOptions.Inbox.ErrorQueueUri)
                 );
             }
 
-            if (_options.HasOutbox())
+            if (_serviceBusOptions.HasOutbox())
             {
-                _configuration.Outbox.WorkQueue = _configuration.Outbox.WorkQueue ??
-                                                  _queueService.Create(_options.Outbox.WorkQueueUri);
+                _serviceBusConfiguration.Outbox.WorkQueue = _serviceBusConfiguration.Outbox.WorkQueue ??
+                                                  _queueService.Create(_serviceBusOptions.Outbox.WorkQueueUri);
 
-                _configuration.Outbox.ErrorQueue = _configuration.Outbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_options.Outbox.ErrorQueueUri)
+                _serviceBusConfiguration.Outbox.ErrorQueue = _serviceBusConfiguration.Outbox.ErrorQueue ?? (
+                    string.IsNullOrWhiteSpace(_serviceBusOptions.Outbox.ErrorQueueUri)
                         ? null
-                        : _queueService.Create(_options.Outbox.ErrorQueueUri)
+                        : _queueService.Create(_serviceBusOptions.Outbox.ErrorQueueUri)
                 );
             }
 
-            if (_options.IsWorker())
+            if (_serviceBusOptions.IsWorker())
             {
-                _configuration.Worker.DistributorControlInboxWorkQueue =
-                    _configuration.Worker.DistributorControlInboxWorkQueue ??
-                    _queueService.Create(_configuration.Worker.DistributorControlInboxWorkQueueUri);
+                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue =
+                    _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue ??
+                    _queueService.Create(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueueUri);
             }
         }
 
         public void Execute(OnConfigureUriResolver pipelineEvent)
         {
-            foreach (var configuration in _configuration.UriMapping)
+            foreach (var configuration in _serviceBusConfiguration.UriMapping)
             {
                 _uriResolver.Add(configuration.SourceUri, configuration.TargetUri);
             }
@@ -124,12 +124,12 @@ namespace Shuttle.Esb
 
         public void Execute(OnCreatePhysicalQueues pipelineEvent)
         {
-            if (!_configuration.ShouldCreateQueues)
+            if (!_serviceBusOptions.CreatePhysicalQueues)
             {
                 return;
             }
 
-            _queueService.CreatePhysicalQueues(_configuration);
+            _queueService.CreatePhysicalQueues(_serviceBusConfiguration);
         }
     }
 }

@@ -11,18 +11,18 @@ namespace Shuttle.Esb
 
     public class DispatchTransportMessageObserver : IDispatchTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IIdempotenceService _idempotenceService;
         private readonly IQueueService _queueService;
 
-        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IQueueService queueService,
+        public DispatchTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService,
             IIdempotenceService idempotenceService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(queueService, nameof(queueService));
             Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
-            _configuration = configuration;
+            _serviceBusConfiguration = serviceBusConfiguration;
             _queueService = queueService;
             _idempotenceService = idempotenceService;
         }
@@ -45,9 +45,9 @@ namespace Shuttle.Esb
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-            var queue = !_configuration.HasOutbox()
+            var queue = !_serviceBusConfiguration.HasOutbox()
                 ? _queueService.Get(transportMessage.RecipientInboxWorkQueueUri)
-                : _configuration.Outbox.WorkQueue;
+                : _serviceBusConfiguration.Outbox.WorkQueue;
 
             using (var stream = state.GetTransportMessageStream().Copy())
             {

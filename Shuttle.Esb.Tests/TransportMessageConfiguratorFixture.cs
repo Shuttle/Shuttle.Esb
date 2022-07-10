@@ -11,9 +11,10 @@ namespace Shuttle.Esb.Tests
         [Test]
         public void Should_be_able_to_set_sender()
         {
+            var serviceBusOptions = new ServiceBusOptions();
             var identityProvider = new Mock<IIdentityProvider>();
-            var configurator = new TransportMessageConfigurator(this);
-            var configuration = new ServiceBusConfiguration
+            var builder = new TransportMessageBuilder(this);
+            var serviceBusConfiguration = new ServiceBusConfiguration
             {
                 Inbox = new InboxConfiguration
                 {
@@ -25,12 +26,12 @@ namespace Shuttle.Esb.Tests
 
 
             Assert.AreEqual("null-queue://./work-queue",
-                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
+                builder.TransportMessage(serviceBusOptions, serviceBusConfiguration, identityProvider.Object).SenderInboxWorkQueueUri);
 
-            configurator.WithSender("null-queue://./another-queue");
+            builder.WithSender("null-queue://./another-queue");
 
             Assert.AreEqual("null-queue://./another-queue",
-                configurator.TransportMessage(configuration, identityProvider.Object).SenderInboxWorkQueueUri);
+                builder.TransportMessage(serviceBusOptions, serviceBusConfiguration, identityProvider.Object).SenderInboxWorkQueueUri);
         }
     }
 }

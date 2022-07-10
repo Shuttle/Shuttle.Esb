@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -13,21 +14,23 @@ namespace Shuttle.Esb.Tests.Shared
         [Test]
         public void Should_be_able_to_kill_process_when_corrupt_message_is_received()
         {
-            var configuration = new Mock<IServiceBusConfiguration>();
+            var serviceBusOptions = Options.Create(new ServiceBusOptions
+            {
+                RemoveCorruptMessages = false
+            });
             var workQueue = new Mock<IQueue>();
             var errorQueue = new Mock<IQueue>();
             var serializer = new Mock<ISerializer>();
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            configuration.Setup(m => m.ShouldRemoveCorruptMessages).Returns(false);
             workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
             errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();
             processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
             var observer = new DeserializeTransportMessageObserver(
-                configuration.Object,
+                serviceBusOptions,
                 serializer.Object,
                 new Mock<IEnvironmentService>().Object,
                 processService.Object);
@@ -54,21 +57,23 @@ namespace Shuttle.Esb.Tests.Shared
         [Test]
         public void Should_be_able_to_acknowledge_message_when_corrupt_message_is_received()
         {
-            var configuration = new Mock<IServiceBusConfiguration>();
+            var serviceBusOptions = Options.Create(new ServiceBusOptions
+            {
+                RemoveCorruptMessages = true
+            });
             var workQueue = new Mock<IQueue>();
             var errorQueue = new Mock<IQueue>();
             var serializer = new Mock<ISerializer>();
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            configuration.Setup(m => m.ShouldRemoveCorruptMessages).Returns(true);
             workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
             errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();
             processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
             var observer = new DeserializeTransportMessageObserver(
-                configuration.Object,
+                serviceBusOptions,
                 serializer.Object,
                 new Mock<IEnvironmentService>().Object,
                 processService.Object);

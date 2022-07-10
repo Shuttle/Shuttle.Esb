@@ -5,7 +5,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class TransportMessageConfigurator
+    public class TransportMessageBuilder
     {
         private static readonly string AnonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
         private string _correlationId;
@@ -19,7 +19,7 @@ namespace Shuttle.Esb
         private string _sendInboxWorkQueueUri;
         private TransportMessage _transportMessageReceived;
 
-        public TransportMessageConfigurator(object message)
+        public TransportMessageBuilder(object message)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -38,12 +38,13 @@ namespace Shuttle.Esb
 
         public bool HasTransportMessageReceived => _transportMessageReceived != null;
 
-        public TransportMessage TransportMessage(IServiceBusConfiguration configuration,
-            IIdentityProvider identityProvider)
+        public TransportMessage TransportMessage(ServiceBusOptions serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IIdentityProvider identityProvider)
         {
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(identityProvider, nameof(identityProvider));
 
-            if (_local && !configuration.HasInbox())
+            if (_local && !serviceBusConfiguration.HasInbox())
             {
                 throw new InvalidOperationException(Resources.SendToSelfException);
             }
@@ -53,11 +54,11 @@ namespace Shuttle.Esb
             var result = new TransportMessage
             {
                 RecipientInboxWorkQueueUri = _local
-                    ? configuration.Inbox.WorkQueue.Uri.ToString()
+                    ? serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString()
                     : _recipientInboxWorkQueueUri,
                 SenderInboxWorkQueueUri = string.IsNullOrEmpty(_sendInboxWorkQueueUri)
-                    ? configuration.HasInbox()
-                        ? configuration.Inbox.WorkQueue.Uri.ToString()
+                    ? serviceBusConfiguration.HasInbox()
+                        ? serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString()
                         : string.Empty
                     : _sendInboxWorkQueueUri,
                 PrincipalIdentityName = identity != null
@@ -68,8 +69,8 @@ namespace Shuttle.Esb
                 Priority = _priority,
                 MessageType = Message.GetType().FullName,
                 AssemblyQualifiedName = Message.GetType().AssemblyQualifiedName,
-                EncryptionAlgorithm = _encryptionAlgorithm ?? configuration.EncryptionAlgorithm,
-                CompressionAlgorithm = _compressionAlgorithm ?? configuration.CompressionAlgorithm,
+                EncryptionAlgorithm = _encryptionAlgorithm ?? serviceBusOptions.EncryptionAlgorithm,
+                CompressionAlgorithm = _compressionAlgorithm ?? serviceBusOptions.CompressionAlgorithm,
                 MessageReceivedId = HasTransportMessageReceived ? _transportMessageReceived.MessageId : Guid.Empty,
                 CorrelationId = _correlationId,
                 SendDate = DateTime.Now
@@ -90,59 +91,59 @@ namespace Shuttle.Esb
             _correlationId = transportMessageReceived.CorrelationId;
         }
 
-        public TransportMessageConfigurator Defer(DateTime ignoreTillDate)
+        public TransportMessageBuilder Defer(DateTime ignoreTillDate)
         {
             _ignoreTillDate = ignoreTillDate;
 
             return this;
         }
 
-        public TransportMessageConfigurator WillExpire(DateTime expiryDate)
+        public TransportMessageBuilder WillExpire(DateTime expiryDate)
         {
             _expiryDate = expiryDate;
 
             return this;
         }
 
-        public TransportMessageConfigurator WithPriority(int priority)
+        public TransportMessageBuilder WithPriority(int priority)
         {
             _priority = priority;
 
             return this;
         }
 
-        public TransportMessageConfigurator WithEncryption(string encryption)
+        public TransportMessageBuilder WithEncryption(string encryption)
         {
             _encryptionAlgorithm = encryption;
 
             return this;
         }
 
-        public TransportMessageConfigurator WithCompression(string compression)
+        public TransportMessageBuilder WithCompression(string compression)
         {
             _compressionAlgorithm = compression;
 
             return this;
         }
 
-        public TransportMessageConfigurator WithCorrelationId(string correlationId)
+        public TransportMessageBuilder WithCorrelationId(string correlationId)
         {
             _correlationId = correlationId;
 
             return this;
         }
 
-        public TransportMessageConfigurator WithRecipient(IQueue queue)
+        public TransportMessageBuilder WithRecipient(IQueue queue)
         {
             return WithRecipient(queue.Uri.ToString());
         }
 
-        public TransportMessageConfigurator WithRecipient(Uri uri)
+        public TransportMessageBuilder WithRecipient(Uri uri)
         {
             return WithRecipient(uri.ToString());
         }
 
-        public TransportMessageConfigurator WithRecipient(string uri)
+        public TransportMessageBuilder WithRecipient(string uri)
         {
             _local = false;
 
@@ -151,31 +152,31 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public TransportMessageConfigurator WithSender(IQueue queue)
+        public TransportMessageBuilder WithSender(IQueue queue)
         {
             return WithSender(queue.Uri.ToString());
         }
 
-        public TransportMessageConfigurator WithSender(Uri uri)
+        public TransportMessageBuilder WithSender(Uri uri)
         {
             return WithSender(uri.ToString());
         }
 
-        public TransportMessageConfigurator WithSender(string uri)
+        public TransportMessageBuilder WithSender(string uri)
         {
             _sendInboxWorkQueueUri = uri;
 
             return this;
         }
 
-        public TransportMessageConfigurator Local()
+        public TransportMessageBuilder Local()
         {
             _local = true;
 
             return this;
         }
 
-        public TransportMessageConfigurator Reply()
+        public TransportMessageBuilder Reply()
         {
             if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
             {

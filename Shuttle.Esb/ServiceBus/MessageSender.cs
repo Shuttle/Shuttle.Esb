@@ -56,7 +56,7 @@ namespace Shuttle.Esb
             return Send(message, null);
         }
 
-        public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> configure)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -72,7 +72,7 @@ namespace Shuttle.Esb
             return Publish(message, null);
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure)
         {
             Guard.AgainstNull(message, nameof(message));
 

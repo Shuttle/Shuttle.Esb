@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -9,11 +10,12 @@ namespace Shuttle.Esb
         private static IIdentity _identity;
         private readonly bool _cache;
 
-        public DefaultIdentityProvider(IServiceBusConfiguration configuration)
+        public DefaultIdentityProvider(IOptions<ServiceBusOptions> serviceBusOptions)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
 
-            _cache = configuration.ShouldCacheIdentity;
+            _cache = serviceBusOptions.Value.CacheIdentity;
 
             if (_cache)
             {

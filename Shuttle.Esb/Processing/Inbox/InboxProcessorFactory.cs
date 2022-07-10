@@ -1,5 +1,3 @@
-using System;
-using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -12,20 +10,28 @@ namespace Shuttle.Esb
 
     public class InboxProcessorFactory : IInboxProcessorFactory
     {
+        private readonly ServiceBusOptions _options;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
+        private readonly IServiceBus _serviceBus;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
-        private readonly ServiceBusOptions _options;
 
         public InboxProcessorFactory(ServiceBusOptions options,
-            IWorkerAvailabilityService workerAvailabilityService, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
+            IServiceBusConfiguration serviceBusConfiguration, IServiceBus serviceBus,
+            IWorkerAvailabilityService workerAvailabilityService, IPipelineFactory pipelineFactory,
+            IPipelineThreadActivity pipelineThreadActivity)
         {
             Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
+            Guard.AgainstNull(serviceBus, nameof(serviceBus));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
             _options = options;
+            _serviceBusConfiguration = serviceBusConfiguration;
+            _serviceBus = serviceBus;
             _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
             _pipelineThreadActivity = pipelineThreadActivity;
@@ -33,9 +39,14 @@ namespace Shuttle.Esb
 
         public IProcessor Create()
         {
-            var threadActivity = new ThreadActivity(_options.Inbox?.DurationToSleepWhenIdle ?? ServiceBusOptions.DefaultDurationToSleepWhenIdle);
+            var threadActivity = new ThreadActivity(_options.Inbox?.DurationToSleepWhenIdle ??
+                                                    ServiceBusOptions.DefaultDurationToSleepWhenIdle);
+            var inboxProcessorThreadActivity = _serviceBusConfiguration.IsWorker()
+                ? (IThreadActivity)new WorkerThreadActivity(_serviceBus, _serviceBusConfiguration, threadActivity)
+                : threadActivity;
 
-            return new InboxProcessor(_options, threadActivity, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity);
+            return new InboxProcessor(_options, inboxProcessorThreadActivity, _workerAvailabilityService,
+                _pipelineFactory, _pipelineThreadActivity);
         }
     }
 }

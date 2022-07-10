@@ -40,7 +40,7 @@ namespace Shuttle.Esb
             return _messageSender.Send(message);
         }
 
-        public TransportMessage Send(object message, Action<TransportMessageConfigurator> configure)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> configure)
         {
             return _messageSender.Send(message, configure);
         }
@@ -50,7 +50,7 @@ namespace Shuttle.Esb
             return _messageSender.Publish(message);
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageConfigurator> configure)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure)
         {
             return _messageSender.Publish(message, configure);
         }
