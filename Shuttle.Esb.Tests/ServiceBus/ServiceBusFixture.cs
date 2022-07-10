@@ -26,7 +26,7 @@ namespace Shuttle.Esb.Tests
             services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
             services.AddServiceBus(builder =>
             {
-                builder.Configuration.Inbox = new InboxQueueConfiguration
+                builder.Configuration.Inbox = new InboxConfiguration
                 {
                     WorkQueue = fakeQueue,
                     ErrorQueue = fakeQueue

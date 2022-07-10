@@ -15,7 +15,7 @@ namespace Shuttle.Esb.Tests
             var configurator = new TransportMessageConfigurator(this);
             var configuration = new ServiceBusConfiguration
             {
-                Inbox = new InboxQueueConfiguration
+                Inbox = new InboxConfiguration
                 {
                     WorkQueue = new NullQueue("null-queue://./work-queue")
                 }

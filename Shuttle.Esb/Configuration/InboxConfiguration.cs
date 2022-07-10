@@ -2,7 +2,7 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public class InboxQueueConfiguration : IInboxQueueConfiguration
+    public class InboxConfiguration : IInboxConfiguration
     {
         public IQueue WorkQueue { get; set; }
         public IQueue ErrorQueue { get; set; }

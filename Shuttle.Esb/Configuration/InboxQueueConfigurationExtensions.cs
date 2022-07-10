@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public static class InboxQueueConfigurationExtensions
     {
-        public static bool HasDeferredQueue(this IInboxQueueConfiguration configuration)
+        public static bool HasDeferredQueue(this IInboxConfiguration configuration)
         {
             Guard.AgainstNull(configuration, nameof(configuration));
 

@@ -2,11 +2,11 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public class ControlInboxQueueConfiguration : IControlInboxQueueConfiguration
+    public class ControlInboxConfiguration : IControlInboxConfiguration
     {
         private int _threadCount;
 
-        public ControlInboxQueueConfiguration()
+        public ControlInboxConfiguration()
         {
             ThreadCount = 1;
             MaximumFailureCount = 5;

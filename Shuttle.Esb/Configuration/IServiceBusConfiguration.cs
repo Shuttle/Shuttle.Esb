@@ -9,9 +9,9 @@ namespace Shuttle.Esb
         bool ShouldRemoveMessagesNotHandled { get; }
         bool ShouldRemoveCorruptMessages { get; }
 
-        IControlInboxQueueConfiguration ControlInbox { get; }
-        IInboxQueueConfiguration Inbox { get; }
-        IOutboxQueueConfiguration Outbox { get; }
+        IControlInboxConfiguration ControlInbox { get; }
+        IInboxConfiguration Inbox { get; }
+        IOutboxConfiguration Outbox { get; }
         IWorkerConfiguration Worker { get; }
 
         string EncryptionAlgorithm { get; }

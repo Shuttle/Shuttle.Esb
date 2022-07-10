@@ -17,7 +17,7 @@ namespace Shuttle.Esb.Tests
             var pipelineFactory = new Mock<IPipelineFactory>();
             var configuration = new Mock<IServiceBusConfiguration>();
 
-            configuration.Setup(m => m.Inbox).Returns(new InboxQueueConfiguration
+            configuration.Setup(m => m.Inbox).Returns(new InboxConfiguration
             {
                 DeferredMessageProcessor = new DeferredMessageProcessor(pipelineFactory.Object)
             });
