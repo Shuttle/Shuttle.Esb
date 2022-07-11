@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Shuttle.Esb
 {
-    public class NullSubscriptionManager : ISubscriptionManager
+    public class NullSubscriptionService : ISubscriptionService
     {
         public void Subscribe(IEnumerable<string> messageTypeFullNames)
         {

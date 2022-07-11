@@ -12,7 +12,9 @@ namespace Shuttle.Esb
 
         IEnumerable<MessageRouteConfiguration> MessageRoutes { get; }
         IEnumerable<UriMappingConfiguration> UriMapping { get; }
+        IEnumerable<Type> Modules { get; }
         void AddMessageRoute(MessageRouteConfiguration messageRoute);
         void AddUriMapping(Uri sourceUri, Uri targetUri);
+        void AddModule(Type type);
     }
 }

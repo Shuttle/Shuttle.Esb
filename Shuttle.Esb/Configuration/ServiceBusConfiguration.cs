@@ -9,14 +9,14 @@ namespace Shuttle.Esb
     {
         private readonly List<MessageRouteConfiguration> _messageRoutes = new List<MessageRouteConfiguration>();
         private readonly List<UriMappingConfiguration> _uriMapping = new List<UriMappingConfiguration>();
+        private readonly List<Type> _modules = new List<Type>();
 
         public IInboxConfiguration Inbox { get; set; }
         public IControlInboxConfiguration ControlInbox { get; set; }
         public IOutboxConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
 
-        public IEnumerable<MessageRouteConfiguration> MessageRoutes =>
-            new ReadOnlyCollection<MessageRouteConfiguration>(_messageRoutes);
+        public IEnumerable<MessageRouteConfiguration> MessageRoutes => _messageRoutes.AsReadOnly();
 
         public void AddMessageRoute(MessageRouteConfiguration messageRoute)
         {
@@ -25,12 +25,20 @@ namespace Shuttle.Esb
             _messageRoutes.Add(messageRoute);
         }
 
-        public IEnumerable<UriMappingConfiguration> UriMapping =>
-            new ReadOnlyCollection<UriMappingConfiguration>(_uriMapping);
+        public IEnumerable<UriMappingConfiguration> UriMapping => _uriMapping.AsReadOnly();
 
         public void AddUriMapping(Uri sourceUri, Uri targetUri)
         {
             _uriMapping.Add(new UriMappingConfiguration(sourceUri, targetUri));
+        }
+
+        public IEnumerable<Type> Modules => _modules.AsReadOnly();
+
+        public void AddModule(Type type)
+        {
+            Guard.AgainstNull(type, nameof(type));
+
+            _modules.Add(type);
         }
     }
 }

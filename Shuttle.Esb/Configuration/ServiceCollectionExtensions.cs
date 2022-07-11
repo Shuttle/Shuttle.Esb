@@ -39,7 +39,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IQueueService, QueueService>();
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
             services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();
-            services.TryAddSingleton<ISubscriptionManager, NullSubscriptionManager>();
+            services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
             services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
@@ -95,6 +96,24 @@ namespace Shuttle.Esb
             {
                 AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
+        }
+
+        public ServiceBusBuilder AddModule<T>() where T : class
+        {
+            AddModule(typeof(T));
+
+            return this;
+        }
+
+        public ServiceBusBuilder AddModule(Type type) 
+        {
+            Guard.AgainstNull(type, nameof(type));
+
+            Configuration.AddModule(type);
+
+            Services.TryAddSingleton(type, type);
+
+            return this;
         }
     }
 }

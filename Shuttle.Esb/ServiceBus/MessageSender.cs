@@ -11,27 +11,27 @@ namespace Shuttle.Esb
         private readonly HashSet<string> _messageTypesPublishedWarning = new HashSet<string>();
 
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionManager _subscriptionManager;
+        private readonly ISubscriptionService _subscriptionService;
 
         private readonly ITransportMessageFactory _transportMessageFactory;
         private readonly TransportMessage _transportMessageReceived;
 
         public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
-            ISubscriptionManager subscriptionManager)
-            : this(transportMessageFactory, pipelineFactory, subscriptionManager, null)
+            ISubscriptionService subscriptionService)
+            : this(transportMessageFactory, pipelineFactory, subscriptionService, null)
         {
         }
 
         public MessageSender(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory,
-            ISubscriptionManager subscriptionManager, TransportMessage transportMessageReceived)
+            ISubscriptionService subscriptionService, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
+            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
 
             _transportMessageFactory = transportMessageFactory;
             _pipelineFactory = pipelineFactory;
-            _subscriptionManager = subscriptionManager;
+            _subscriptionService = subscriptionService;
             _transportMessageReceived = transportMessageReceived;
         }
 
@@ -76,7 +76,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(message, nameof(message));
 
-            var subscribers = _subscriptionManager.GetSubscribedUris(message).ToList();
+            var subscribers = _subscriptionService.GetSubscribedUris(message).ToList();
 
             if (subscribers.Count > 0)
             {

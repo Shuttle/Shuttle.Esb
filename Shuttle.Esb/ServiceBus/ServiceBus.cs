@@ -22,7 +22,7 @@ namespace Shuttle.Esb
         private readonly ServiceBusOptions _options;
 
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionManager subscriptionManager,
+            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
             ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
@@ -30,14 +30,14 @@ namespace Shuttle.Esb
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionManager, nameof(subscriptionManager));
+            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
 
             _options = serviceBusOptions.Value;
             _serviceBusConfiguration = serviceBusConfiguration;
             _pipelineFactory = pipelineFactory;
             _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
 
-            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionManager);
+            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionService);
         }
 
         public IServiceBus Start()
