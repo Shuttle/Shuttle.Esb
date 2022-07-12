@@ -38,6 +38,11 @@ namespace Shuttle.Esb
 
             foreach (var messageRoute in options.MessageRoutes)
             {
+                if (!Uri.TryCreate(messageRoute.Uri, UriKind.RelativeOrAbsolute, out _))
+                {
+                    return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, messageRoute.Uri, "MessageRoute.Uri"));
+                }
+
                 if (!(messageRoute.Specifications ?? Enumerable.Empty<MessageRouteOptions.SpecificationOptions>())
                     .Any())
                 {

@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -6,57 +5,27 @@ using Shuttle.Core.Pipelines;
 namespace Shuttle.Esb
 {
     public interface IStartupConfigurationObserver :
-        IPipelineObserver<OnConfigureUriResolver>,
         IPipelineObserver<OnConfigureQueues>,
-        IPipelineObserver<OnCreatePhysicalQueues>,
-        IPipelineObserver<OnConfigureMessageRouteProvider>
+        IPipelineObserver<OnCreatePhysicalQueues>
     {
     }
 
     public class StartupConfigurationObserver : IStartupConfigurationObserver
     {
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
-        private readonly IMessageRouteProvider _messageRouteProvider;
         private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IQueueService _queueService;
-        private readonly IUriResolver _uriResolver;
 
-        public StartupConfigurationObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService, IMessageRouteProvider messageRouteProvider, IUriResolver uriResolver)
+        public StartupConfigurationObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(queueService, nameof(queueService));
-            Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
-            Guard.AgainstNull(uriResolver, nameof(uriResolver));
 
             _serviceBusOptions = serviceBusOptions.Value;
             _queueService = queueService;
-            _messageRouteProvider = messageRouteProvider;
-            _uriResolver = uriResolver;
             _serviceBusConfiguration = serviceBusConfiguration;
-        }
-
-        public void Execute(OnConfigureMessageRouteProvider pipelineEvent)
-        {
-            var specificationFactory = new MessageRouteSpecificationFactory();
-
-            foreach (var configuration in _serviceBusConfiguration.MessageRoutes)
-            {
-                var messageRoute = _messageRouteProvider.Find(configuration.Uri);
-
-                if (messageRoute == null)
-                {
-                    messageRoute = new MessageRoute(new Uri(configuration.Uri));
-
-                    _messageRouteProvider.Add(messageRoute);
-                }
-
-                foreach (var specification in configuration.Specifications)
-                {
-                    messageRoute.AddSpecification(specificationFactory.Create(specification.Name, specification.Value));
-                }
-            }
         }
 
         public void Execute(OnConfigureQueues pipelineEvent)
@@ -111,14 +80,6 @@ namespace Shuttle.Esb
                 _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue =
                     _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue ??
                     _queueService.Create(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueueUri);
-            }
-        }
-
-        public void Execute(OnConfigureUriResolver pipelineEvent)
-        {
-            foreach (var configuration in _serviceBusConfiguration.UriMapping)
-            {
-                _uriResolver.Add(configuration.SourceUri, configuration.TargetUri);
             }
         }
 

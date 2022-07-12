@@ -16,8 +16,6 @@ namespace Shuttle.Esb
         public IOutboxConfiguration Outbox { get; set; }
         public IWorkerConfiguration Worker { get; set; }
 
-        public IEnumerable<MessageRouteConfiguration> MessageRoutes => _messageRoutes.AsReadOnly();
-
         public void AddMessageRoute(MessageRouteConfiguration messageRoute)
         {
             Guard.AgainstNull(messageRoute, nameof(messageRoute));

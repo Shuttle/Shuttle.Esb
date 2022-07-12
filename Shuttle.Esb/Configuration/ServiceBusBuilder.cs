@@ -60,15 +60,6 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public ServiceBusBuilder AddMessageRoute(MessageRouteConfiguration messageRoute)
-        {
-            Guard.AgainstNull(messageRoute, nameof(messageRoute));
-
-            Configuration.AddMessageRoute(messageRoute);
-
-            return this;
-        }
-
         public ServiceBusBuilder AddUriMapping(Uri sourceUri, Uri targetUri)
         {
             Configuration.AddUriMapping(sourceUri, targetUri);

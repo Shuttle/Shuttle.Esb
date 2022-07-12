@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
@@ -14,7 +15,7 @@ namespace Shuttle.Esb.Tests
             const string firstMessageType = "first-message-type";
             const string secondMessageType = "second-message-type";
 
-            var provider = new DefaultMessageRouteProvider();
+            var provider = new DefaultMessageRouteProvider(Options.Create(new ServiceBusOptions()));
 
             Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
 

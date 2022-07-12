@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -9,6 +9,31 @@ namespace Shuttle.Esb
     public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
     {
         private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
+
+        public DefaultMessageRouteProvider(IOptions<ServiceBusOptions> serviceBusOptions)
+        {
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+
+            var specificationFactory = new MessageRouteSpecificationFactory();
+
+            foreach (var messageRouteOptions in serviceBusOptions.Value.MessageRoutes)
+            {
+                var messageRoute = _messageRoutes.Find(messageRouteOptions.Uri);
+
+                if (messageRoute == null)
+                {
+                    messageRoute = new MessageRoute(new Uri(messageRouteOptions.Uri));
+
+                    _messageRoutes.Add(messageRoute);
+                }
+
+                foreach (var specification in messageRouteOptions.Specifications)
+                {
+                    messageRoute.AddSpecification(specificationFactory.Create(specification.Name, specification.Value));
+                }
+            }
+        }
 
         public IEnumerable<string> GetRouteUris(string messageType)
         {
@@ -38,17 +63,6 @@ namespace Shuttle.Esb
             }
         }
 
-        public IMessageRoute Find(string uri)
-        {
-            return _messageRoutes.Find(uri);
-        }
-
-        public bool Any()
-        {
-            return _messageRoutes.Any();
-        }
-
-        public IEnumerable<IMessageRoute> MessageRoutes => new ReadOnlyCollection<IMessageRoute>(
-            new List<IMessageRoute>(_messageRoutes));
+        public IEnumerable<IMessageRoute> MessageRoutes => new List<IMessageRoute>(_messageRoutes).AsReadOnly();
     }
 }

@@ -14,15 +14,10 @@ namespace Shuttle.Esb
 
             RegisterStage("Configuration")
                 .WithEvent<OnInitializing>()
-                .WithEvent<OnConfigureUriResolver>()
-                .WithEvent<OnAfterConfigureUriResolver>()
-                .WithEvent<OnAfterConfigureQueueManager>()
                 .WithEvent<OnConfigureQueues>()
                 .WithEvent<OnAfterConfigureQueues>()
                 .WithEvent<OnCreatePhysicalQueues>()
-                .WithEvent<OnAfterCreatePhysicalQueues>()
-                .WithEvent<OnConfigureMessageRouteProvider>()
-                .WithEvent<OnAfterConfigureMessageRouteProvider>();
+                .WithEvent<OnAfterCreatePhysicalQueues>();
 
             RegisterStage("Start")
                 .WithEvent<OnStarting>()
