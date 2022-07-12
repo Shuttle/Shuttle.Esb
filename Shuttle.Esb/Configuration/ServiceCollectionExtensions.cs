@@ -109,10 +109,8 @@ namespace Shuttle.Esb
                 options.EncryptionAlgorithm = configurationBuilder.Options.EncryptionAlgorithm;
                 options.RemoveCorruptMessages = configurationBuilder.Options.RemoveCorruptMessages;
 
-                foreach (var mapping in options.UriMappings)
-                {
-                    configurationBuilder.Configuration.AddUriMapping(new Uri(mapping.SourceUri), new Uri(mapping.TargetUri));
-                }
+                options.UriMappings = configurationBuilder.Options.UriMappings;
+                options.MessageRoutes = configurationBuilder.Options.MessageRoutes;
             });
 
             var serviceBusConfigurationType = typeof(IServiceBusConfiguration);

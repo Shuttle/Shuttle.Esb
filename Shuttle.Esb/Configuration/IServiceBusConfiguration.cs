@@ -10,10 +10,7 @@ namespace Shuttle.Esb
         IOutboxConfiguration Outbox { get; }
         IWorkerConfiguration Worker { get; }
 
-        IEnumerable<UriMappingConfiguration> UriMapping { get; }
         IEnumerable<Type> Modules { get; }
-        void AddMessageRoute(MessageRouteConfiguration messageRoute);
-        void AddUriMapping(Uri sourceUri, Uri targetUri);
         void AddModule(Type type);
     }
 }

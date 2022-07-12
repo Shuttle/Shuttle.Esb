@@ -60,13 +60,6 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public ServiceBusBuilder AddUriMapping(Uri sourceUri, Uri targetUri)
-        {
-            Configuration.AddUriMapping(sourceUri, targetUri);
-
-            return this;
-        }
-
         internal IServiceBusConfiguration GetConfiguration()
         {
             AddMessageHandlers();

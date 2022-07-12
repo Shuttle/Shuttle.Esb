@@ -4,9 +4,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Shuttle.Esb.Tests
 {
-    public class SettingsFixture
+    public class OptionsFixture
     {
-        protected ServiceBusOptions GetSettings()
+        protected ServiceBusOptions GetOptions()
         {
             var result = new ServiceBusOptions();
 
