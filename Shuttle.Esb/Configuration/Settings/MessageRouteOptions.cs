@@ -8,9 +8,9 @@ namespace Shuttle.Esb
     {
         public string Uri { get; set; }
 
-        public List<SpecificationSettings> Specifications { get; set; } = new List<SpecificationSettings>();
+        public List<SpecificationOptions> Specifications { get; set; } = new List<SpecificationOptions>();
 
-        public class SpecificationSettings
+        public class SpecificationOptions
         {
             public string Name { get; set; }
             public string Value { get; set; }
