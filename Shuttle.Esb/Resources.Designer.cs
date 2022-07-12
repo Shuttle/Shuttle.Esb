@@ -133,6 +133,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The value &apos;{0}&apos; is not a valid URI for &apos;{1}&apos;..
+        /// </summary>
+        public static string InvalidUriException {
+            get {
+                return ResourceManager.GetString("InvalidUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The uri specified as the &apos;{0}&apos; is not a valid uri.  The value configured is &apos;{1}&apos;..
         /// </summary>
         public static string MappingInvalidUriException {
@@ -183,6 +192,15 @@ namespace Shuttle.Esb {
         public static string MessageRouteNotFound {
             get {
                 return ResourceManager.GetString("MessageRouteNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If a message route is defined it requires at least one specification..
+        /// </summary>
+        public static string MessageRoutesRequireSpecificationException {
+            get {
+                return ResourceManager.GetString("MessageRoutesRequireSpecificationException", resourceCulture);
             }
         }
         

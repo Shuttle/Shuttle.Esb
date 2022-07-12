@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
@@ -32,6 +33,28 @@ namespace Shuttle.Esb
                 if (string.IsNullOrWhiteSpace(options.ControlInbox.WorkQueueUri))
                 {
                     return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
+                }
+            }
+
+            foreach (var messageRoute in options.MessageRoutes)
+            {
+                if (!(messageRoute.Specifications ?? Enumerable.Empty<MessageRouteOptions.SpecificationOptions>())
+                    .Any())
+                {
+                    return ValidateOptionsResult.Fail(Resources.MessageRoutesRequireSpecificationException);
+                }
+            }
+
+            foreach (var uriMapping in options.UriMappings)
+            {
+                if (!Uri.TryCreate(uriMapping.SourceUri, UriKind.RelativeOrAbsolute, out _))
+                {
+                    return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, uriMapping.SourceUri, nameof(uriMapping.SourceUri)));
+                }
+
+                if (!Uri.TryCreate(uriMapping.TargetUri, UriKind.RelativeOrAbsolute, out _))
+                {
+                    return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, uriMapping.TargetUri, nameof(uriMapping.TargetUri)));
                 }
             }
 

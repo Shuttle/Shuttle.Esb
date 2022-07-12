@@ -19,9 +19,9 @@ namespace Shuttle.Esb.Tests
             var services = new ServiceCollection();
 
             services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
-            services.AddTransactionScope(options =>
+            services.AddTransactionScope(builder =>
             {
-                options.Disable();
+                builder.Options.Enabled = false;
             });
             services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
             services.AddServiceBus(builder =>

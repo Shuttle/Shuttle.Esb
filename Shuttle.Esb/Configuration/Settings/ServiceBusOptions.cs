@@ -41,5 +41,6 @@ namespace Shuttle.Esb
         public ControlInboxOptions ControlInbox { get; set; } = new ControlInboxOptions();
         public List<MessageRouteOptions> MessageRoutes { get; set; } = new List<MessageRouteOptions>();
         public WorkerOptions Worker { get; set; } = new WorkerOptions();
+        public List<UriMappingOptions> UriMappings { get; set; } = new List<UriMappingOptions>();
     }
 }

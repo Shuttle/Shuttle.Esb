@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Shuttle.Esb
+﻿namespace Shuttle.Esb
 {
     public class InboxOptions : ProcessorOptions
     {

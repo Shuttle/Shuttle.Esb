@@ -278,4 +278,11 @@
     <value>Required options '{0}' have not been provided.</value>
     <comment>0 = options name</comment>
   </data>
+  <data name="MessageRoutesRequireSpecificationException" xml:space="preserve">
+    <value>If a message route is defined it requires at least one specification.</value>
+  </data>
+  <data name="InvalidUriException" xml:space="preserve">
+    <value>The value '{0}' is not a valid URI for '{1}'.</value>
+    <comment>0 = invalid URI string, 1 = URI name/type</comment>
+  </data>
 </root>
