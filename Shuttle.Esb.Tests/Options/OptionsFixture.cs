@@ -18,7 +18,7 @@ namespace Shuttle.Esb.Tests
             result.ControlInbox.DurationToIgnoreOnFailure.Clear();
 
             new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Settings\appsettings.json")).Build()
+                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Options\appsettings.json")).Build()
                 .GetSection(ServiceBusOptions.SectionName).Bind(result);
 
             return result;

@@ -196,16 +196,8 @@
     <value>Type '{0}' is not registered with the serializer so it cannot be serialized.  Please use [SerialierInstance].AddKnownType to add the type before attempting to serialize or deserialize a TransportMessage containing this type in the object graph of the message property.</value>
     <comment>0 = type name that is unknown.</comment>
   </data>
-  <data name="FatalIdempotenceServiceException" xml:space="preserve">
-    <value>Encountered a fatal exception accessing the idempotence service type '{0}'.  Without the idempotence service operational the integrity of the message processing cannot be guaranteed.  The pipeline has been aborted.  Exception: {1}</value>
-    <comment>0 = full type name of the idempotence service, 1 = compact exception message</comment>
-  </data>
   <data name="DeferredMessageProcessorInstanceException" xml:space="preserve">
     <value>Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread.</value>
-  </data>
-  <data name="DefaultMessageHandlerFactoryNoDefaultConstructor" xml:space="preserve">
-    <value>Handler type '{0}' has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you.</value>
-    <comment>0 = full type name of message handler</comment>
   </data>
   <data name="SendToSelfException" xml:space="preserve">
     <value>You cannot send a message to this endpoint (Local) since this endpoint has no inbox.</value>
@@ -236,10 +228,6 @@
   <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
     <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
     <comment>0 = the queue factory type name, 1 = the uri that the threadActivityFactory was requested to create the queue for</comment>
-  </data>
-  <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">
-    <value>A configurator wih type name '{0}' has already been registered.</value>
-    <comment>0 = full type name of the configurator</comment>
   </data>
   <data name="PipelineExecutionException" xml:space="preserve">
     <value>Could not execute pipeline '{0}'.  Exception: {1}</value>

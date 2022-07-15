@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -26,7 +27,13 @@ namespace Shuttle.Esb
         {
             if (!ShouldProcessDeferred())
             {
-                ThreadSleep.While(1000, cancellationToken);
+                try
+                {
+                    Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                }
 
                 return;
             }

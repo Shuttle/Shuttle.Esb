@@ -167,34 +167,34 @@ namespace Shuttle.Esb
 
             if (_serviceBusConfiguration.HasInbox())
             {
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _serviceBusConfiguration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_options.Inbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _options.Inbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Inbox"));
             }
 
             if (_serviceBusConfiguration.HasOutbox())
             {
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _serviceBusConfiguration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_options.Outbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _options.Outbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Outbox"));
             }
 
             if (_serviceBusConfiguration.HasControlInbox())
             {
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _serviceBusConfiguration.ControlInbox.WorkQueue == null &&
                     string.IsNullOrEmpty(_options.ControlInbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
 
-                Guard.Against<EsbConfigurationException>(
+                Guard.Against<InvalidOperationException>(
                     _options.ControlInbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
             }

@@ -30,7 +30,7 @@ namespace Shuttle.Esb
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessageConfigurator =
-                state.Get<TransportMessageBuilder>(StateKeys.TransportMessageConfigurator);
+                state.Get<TransportMessageBuilder>(StateKeys.TransportMessageBuilder);
 
             Guard.AgainstNull(transportMessageConfigurator, nameof(transportMessageConfigurator));
             Guard.AgainstNull(transportMessageConfigurator.Message, "transportMessageConfigurator.Message");

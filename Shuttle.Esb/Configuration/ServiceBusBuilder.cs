@@ -62,24 +62,7 @@ namespace Shuttle.Esb
 
         internal IServiceBusConfiguration GetConfiguration()
         {
-            AddMessageHandlers();
-
             return Configuration;
-        }
-
-        private void AddMessageHandlers()
-        {
-            if (Options.AddMessageHandlers)
-            {
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    AddMessageHandlers(assembly);
-                }
-            }
-            else
-            {
-                AddMessageHandlers(typeof(ServiceBus).Assembly);
-            }
         }
 
         public ServiceBusBuilder AddModule<T>() where T : class

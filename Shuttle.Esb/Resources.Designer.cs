@@ -79,38 +79,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A configurator wih type name &apos;{0}&apos; has already been registered..
-        /// </summary>
-        public static string ConfiguratorAlreadyRegisteredException {
-            get {
-                return ResourceManager.GetString("ConfiguratorAlreadyRegisteredException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you..
-        /// </summary>
-        public static string DefaultMessageHandlerFactoryNoDefaultConstructor {
-            get {
-                return ResourceManager.GetString("DefaultMessageHandlerFactoryNoDefaultConstructor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread..
         /// </summary>
         public static string DeferredMessageProcessorInstanceException {
             get {
                 return ResourceManager.GetString("DeferredMessageProcessorInstanceException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Encountered a fatal exception accessing the idempotence service type &apos;{0}&apos;.  Without the idempotence service operational the integrity of the message processing cannot be guaranteed.  The pipeline has been aborted.  Exception: {1}.
-        /// </summary>
-        public static string FatalIdempotenceServiceException {
-            get {
-                return ResourceManager.GetString("FatalIdempotenceServiceException", resourceCulture);
             }
         }
         

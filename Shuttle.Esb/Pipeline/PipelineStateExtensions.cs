@@ -115,7 +115,7 @@ namespace Shuttle.Esb
 
         public static void SetTransportMessageContext(this IState state, TransportMessageBuilder builder)
         {
-            state.Replace(StateKeys.TransportMessageConfigurator, builder);
+            state.Replace(StateKeys.TransportMessageBuilder, builder);
         }
 
         public static void SetAvailableWorker(this IState state, AvailableWorker value)

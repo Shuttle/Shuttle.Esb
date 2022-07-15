@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class TransportMessageConfiguratorFixture
+    public class TransportMessageBuilderFixture
     {
         [Test]
         public void Should_be_able_to_set_sender()

@@ -17,7 +17,7 @@ namespace Shuttle.Esb
         public const string ProcessingStatus = "ProcessingStatus";
         public const string ReceivedMessage = "ReceivedMessage";
         public const string TransportMessage = "TransportMessage";
-        public const string TransportMessageConfigurator = "TransportMessageConfigurator";
+        public const string TransportMessageBuilder = "TransportMessageBuilder";
         public const string TransportMessageReceived = "TransportMessageReceived";
         public const string TransportMessageStream = "TransportMessageStream";
         public const string Working = "Working";
