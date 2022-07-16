@@ -9,8 +9,5 @@ namespace Shuttle.Esb
         IInboxConfiguration Inbox { get; }
         IOutboxConfiguration Outbox { get; }
         IWorkerConfiguration Worker { get; }
-
-        IEnumerable<Type> Modules { get; }
-        void AddModule(Type type);
     }
 }

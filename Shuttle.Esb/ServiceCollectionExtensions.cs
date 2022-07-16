@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -64,6 +65,10 @@ namespace Shuttle.Esb
                 options.Outbox = serviceBusBuilder.Options.Outbox;
                 options.ControlInbox = serviceBusBuilder.Options.ControlInbox;
 
+                ApplyDefaults(options.Inbox);
+                ApplyDefaults(options.Outbox);
+                ApplyDefaults(options.ControlInbox);
+
                 options.Worker = serviceBusBuilder.Options.Worker;
 
                 options.AddMessageHandlers = serviceBusBuilder.Options.AddMessageHandlers;
@@ -99,6 +104,24 @@ namespace Shuttle.Esb
             services.AddSingleton<IServiceBus, ServiceBus>();
 
             return services;
+        }
+
+        private static void ApplyDefaults(ProcessorOptions processorOptions)
+        {
+            if (processorOptions == null)
+            {
+                return;
+            }
+            
+            if (!(processorOptions.DurationToIgnoreOnFailure ?? Enumerable.Empty<TimeSpan>()).Any())
+            {
+                processorOptions.DurationToIgnoreOnFailure = new List<TimeSpan>(ServiceBusOptions.DefaultDurationToIgnoreOnFailure);
+            }
+
+            if (!(processorOptions.DurationToSleepWhenIdle ?? Enumerable.Empty<TimeSpan>()).Any())
+            {
+                processorOptions.DurationToSleepWhenIdle = new List<TimeSpan>(ServiceBusOptions.DefaultDurationToSleepWhenIdle);
+            }
         }
     }
 }

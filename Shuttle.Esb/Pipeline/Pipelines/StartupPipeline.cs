@@ -5,12 +5,12 @@ namespace Shuttle.Esb
 {
     public class StartupPipeline : Pipeline
     {
-        public StartupPipeline(IStartupConfigurationObserver startupConfigurationObserver,
-            IStartupProcessingObserver startupProcessingObserver, IStartupModulesObserver startupModulesObserver)
+        public StartupPipeline(
+            IStartupConfigurationObserver startupConfigurationObserver,
+            IStartupProcessingObserver startupProcessingObserver)
         {
             Guard.AgainstNull(startupConfigurationObserver, nameof(startupConfigurationObserver));
             Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver));
-            Guard.AgainstNull(startupModulesObserver, nameof(startupModulesObserver));
 
             RegisterStage("Configuration")
                 .WithEvent<OnInitializing>()
@@ -35,7 +35,6 @@ namespace Shuttle.Esb
 
             RegisterObserver(startupConfigurationObserver);
             RegisterObserver(startupProcessingObserver);
-            RegisterObserver(startupModulesObserver);
         }
     }
 }

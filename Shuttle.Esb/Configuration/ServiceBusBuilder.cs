@@ -64,23 +64,5 @@ namespace Shuttle.Esb
         {
             return Configuration;
         }
-
-        public ServiceBusBuilder AddModule<T>() where T : class
-        {
-            AddModule(typeof(T));
-
-            return this;
-        }
-
-        public ServiceBusBuilder AddModule(Type type) 
-        {
-            Guard.AgainstNull(type, nameof(type));
-
-            Configuration.AddModule(type);
-
-            Services.TryAddSingleton(type, type);
-
-            return this;
-        }
     }
 }

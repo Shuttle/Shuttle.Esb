@@ -11,7 +11,7 @@ namespace Shuttle.Esb
         public string ErrorQueueUri { get; set; }
         public int MaximumFailureCount { get; set; } = 5;
         public int ThreadCount { get; set; } = 1;
-        public List<TimeSpan> DurationToSleepWhenIdle { get; set; } = ServiceBusOptions.DefaultDurationToSleepWhenIdle.ToList();
-        public List<TimeSpan> DurationToIgnoreOnFailure { get; set; } = ServiceBusOptions.DefaultDurationToIgnoreOnFailure.ToList();
+        public List<TimeSpan> DurationToSleepWhenIdle { get; set; } = new List<TimeSpan>();
+        public List<TimeSpan> DurationToIgnoreOnFailure { get; set; } = new List<TimeSpan>();
     }
 }
