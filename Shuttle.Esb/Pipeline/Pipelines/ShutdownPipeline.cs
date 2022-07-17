@@ -10,9 +10,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(shutdownProcessingObserver, nameof(shutdownProcessingObserver));
 
             RegisterStage("Shutdown")
-                .WithEvent<OnStopping>()
-                .WithEvent<OnDisposeQueues>()
-                .WithEvent<OnAfterDisposeQueues>();
+                .WithEvent<OnStopping>();
 
             RegisterStage("Final")
                 .WithEvent<OnStopped>();
