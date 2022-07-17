@@ -86,7 +86,7 @@ namespace Shuttle.Esb
 
             if (services.All(item => item.ServiceType != serviceBusConfigurationType))
             {
-                services.AddSingleton(serviceBusBuilder.Configuration);
+                services.AddSingleton<IServiceBusConfiguration>(serviceBusBuilder.Configuration);
             }
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
