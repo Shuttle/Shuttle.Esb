@@ -59,10 +59,5 @@ namespace Shuttle.Esb
 
             return this;
         }
-
-        internal IServiceBusConfiguration GetConfiguration()
-        {
-            return Configuration;
-        }
     }
 }
