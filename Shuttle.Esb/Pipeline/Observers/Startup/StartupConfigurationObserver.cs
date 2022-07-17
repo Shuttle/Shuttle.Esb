@@ -12,11 +12,12 @@ namespace Shuttle.Esb
 
     public class StartupConfigurationObserver : IStartupConfigurationObserver
     {
+        private readonly IQueueService _queueService;
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly ServiceBusOptions _serviceBusOptions;
-        private readonly IQueueService _queueService;
 
-        public StartupConfigurationObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
+        public StartupConfigurationObserver(IOptions<ServiceBusOptions> serviceBusOptions,
+            IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
@@ -32,54 +33,64 @@ namespace Shuttle.Esb
         {
             if (_serviceBusOptions.HasControlInbox())
             {
-                _serviceBusConfiguration.ControlInbox.WorkQueue = _serviceBusConfiguration.ControlInbox.WorkQueue ??
-                                                        _queueService.Create(
-                                                            _serviceBusOptions.ControlInbox.WorkQueueUri);
-
-                _serviceBusConfiguration.ControlInbox.ErrorQueue = _serviceBusConfiguration.ControlInbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_serviceBusOptions.ControlInbox.ErrorQueueUri)
-                        ? null
-                        : _queueService.Create(
-                            _serviceBusOptions.ControlInbox.ErrorQueueUri)
-                );
+                _serviceBusConfiguration.ControlInbox = new ControlInboxConfiguration
+                {
+                    WorkQueue = _serviceBusConfiguration.ControlInbox?.WorkQueue ??
+                                _queueService.Create(_serviceBusOptions.ControlInbox.WorkQueueUri),
+                    ErrorQueue = _serviceBusConfiguration.ControlInbox?.ErrorQueue ??
+                                 (
+                                     string.IsNullOrWhiteSpace(_serviceBusOptions.ControlInbox.ErrorQueueUri)
+                                         ? null
+                                         : _queueService.Create(_serviceBusOptions.ControlInbox.ErrorQueueUri)
+                                 )
+                };
             }
 
             if (_serviceBusOptions.HasInbox())
             {
-                _serviceBusConfiguration.Inbox.WorkQueue = _serviceBusConfiguration.Inbox.WorkQueue ??
-                                                 _queueService.Create(_serviceBusOptions.Inbox.WorkQueueUri);
+                _serviceBusConfiguration.Inbox = new InboxConfiguration
+                {
+                    WorkQueue = _serviceBusConfiguration.Inbox?.WorkQueue ??
+                                _queueService.Create(_serviceBusOptions.Inbox.WorkQueueUri),
+                    DeferredQueue = _serviceBusConfiguration.Inbox?.DeferredQueue ??
+                                    (
+                                        string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.DeferredQueueUri)
+                                            ? null
+                                            : _queueService
+                                                .Create(_serviceBusOptions.Inbox.DeferredQueueUri)
+                                    ),
+                    ErrorQueue = _serviceBusConfiguration.Inbox?.ErrorQueue ??
+                                 (
+                                     string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.ErrorQueueUri)
+                                         ? null
+                                         : _queueService.Create(_serviceBusOptions.Inbox.ErrorQueueUri)
+                                 )
+                };
 
-                _serviceBusConfiguration.Inbox.DeferredQueue = _serviceBusConfiguration.Inbox.DeferredQueue ?? (
-                    string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.DeferredQueueUri)
-                        ? null
-                        : _queueService
-                            .Create(_serviceBusOptions.Inbox.DeferredQueueUri)
-                );
+                if (_serviceBusOptions.HasOutbox())
+                {
+                    _serviceBusConfiguration.Outbox = new OutboxConfiguration
+                    {
+                        WorkQueue = _serviceBusConfiguration.Outbox?.WorkQueue ??
+                                    _queueService.Create(_serviceBusOptions.Outbox.WorkQueueUri),
+                        ErrorQueue = _serviceBusConfiguration.Outbox?.ErrorQueue ??
+                                     (
+                                         string.IsNullOrWhiteSpace(_serviceBusOptions.Outbox.ErrorQueueUri)
+                                             ? null
+                                             : _queueService.Create(_serviceBusOptions.Outbox.ErrorQueueUri)
+                                     )
+                    };
+                }
 
-                _serviceBusConfiguration.Inbox.ErrorQueue = _serviceBusConfiguration.Inbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.ErrorQueueUri)
-                        ? null
-                        : _queueService.Create(_serviceBusOptions.Inbox.ErrorQueueUri)
-                );
-            }
-
-            if (_serviceBusOptions.HasOutbox())
-            {
-                _serviceBusConfiguration.Outbox.WorkQueue = _serviceBusConfiguration.Outbox.WorkQueue ??
-                                                  _queueService.Create(_serviceBusOptions.Outbox.WorkQueueUri);
-
-                _serviceBusConfiguration.Outbox.ErrorQueue = _serviceBusConfiguration.Outbox.ErrorQueue ?? (
-                    string.IsNullOrWhiteSpace(_serviceBusOptions.Outbox.ErrorQueueUri)
-                        ? null
-                        : _queueService.Create(_serviceBusOptions.Outbox.ErrorQueueUri)
-                );
-            }
-
-            if (_serviceBusOptions.IsWorker())
-            {
-                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue =
-                    _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue ??
-                    _queueService.Create(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueueUri);
+                if (_serviceBusOptions.IsWorker())
+                {
+                    _serviceBusConfiguration.Worker = new WorkerConfiguration
+                    {
+                        DistributorControlInboxWorkQueue =
+                            _serviceBusConfiguration.Worker?.DistributorControlInboxWorkQueue ??
+                            _queueService.Create(_serviceBusOptions.Worker.DistributorControlWorkQueueUri)
+                    };
+                }
             }
         }
 
