@@ -19,7 +19,7 @@ namespace Shuttle.Esb
         private IProcessorThreadPool _deferredMessageThreadPool;
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
             IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
@@ -32,7 +32,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
 
-            _options = serviceBusOptions.Value;
+            _serviceBusOptions = serviceBusOptions.Value;
             _serviceBusConfiguration = serviceBusConfiguration;
             _pipelineFactory = pipelineFactory;
             _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
@@ -168,22 +168,22 @@ namespace Shuttle.Esb
             if (_serviceBusConfiguration.HasInbox())
             {
                 Guard.Against<InvalidOperationException>(
-                    _serviceBusConfiguration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_options.Inbox.WorkQueueUri),
+                    _serviceBusConfiguration.Inbox.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Inbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
 
                 Guard.Against<InvalidOperationException>(
-                    _options.Inbox == null,
+                    _serviceBusOptions.Inbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Inbox"));
             }
 
             if (_serviceBusConfiguration.HasOutbox())
             {
                 Guard.Against<InvalidOperationException>(
-                    _serviceBusConfiguration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_options.Outbox.WorkQueueUri),
+                    _serviceBusConfiguration.Outbox.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Outbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
 
                 Guard.Against<InvalidOperationException>(
-                    _options.Outbox == null,
+                    _serviceBusOptions.Outbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Outbox"));
             }
 
@@ -191,11 +191,11 @@ namespace Shuttle.Esb
             {
                 Guard.Against<InvalidOperationException>(
                     _serviceBusConfiguration.ControlInbox.WorkQueue == null &&
-                    string.IsNullOrEmpty(_options.ControlInbox.WorkQueueUri),
+                    string.IsNullOrEmpty(_serviceBusOptions.ControlInbox.WorkQueueUri),
                     string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
 
                 Guard.Against<InvalidOperationException>(
-                    _options.ControlInbox == null,
+                    _serviceBusOptions.ControlInbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
             }
         }

@@ -9,22 +9,22 @@ namespace Shuttle.Esb
     {
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public OutboxProcessorFactory(ServiceBusOptions options, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
+        public OutboxProcessorFactory(ServiceBusOptions serviceBusOptions, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _options = options;
+            _serviceBusOptions = serviceBusOptions;
             _pipelineFactory = pipelineFactory;
             _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         public IProcessor Create()
         {
-            return new OutboxProcessor(new ThreadActivity(_options.Outbox.DurationToSleepWhenIdle), _pipelineFactory, _pipelineThreadActivity);
+            return new OutboxProcessor(new ThreadActivity(_serviceBusOptions.Outbox.DurationToSleepWhenIdle), _pipelineFactory, _pipelineThreadActivity);
         }
     }
 }

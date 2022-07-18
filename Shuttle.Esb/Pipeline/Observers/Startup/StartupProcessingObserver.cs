@@ -17,7 +17,7 @@ namespace Shuttle.Esb
     public class StartupProcessingObserver : IStartupProcessingObserver
     {
         private readonly IServiceBus _serviceBus;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
@@ -38,7 +38,7 @@ namespace Shuttle.Esb
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
             _serviceBus = serviceBus;
-            _options = serviceBusOptions.Value;
+            _serviceBusOptions = serviceBusOptions.Value;
             _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
             _pipelineThreadActivity = pipelineThreadActivity;
@@ -56,9 +56,9 @@ namespace Shuttle.Esb
                 "ControlInboxThreadPool",
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
-                    _options.ControlInbox.ThreadCount,
+                    _serviceBusOptions.ControlInbox.ThreadCount,
                     JoinTimeout,
-                    new ControlInboxProcessorFactory(_options, _pipelineFactory, _pipelineThreadActivity)).Start());
+                    new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity)).Start());
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
@@ -90,9 +90,9 @@ namespace Shuttle.Esb
                 "InboxThreadPool",
                 new ProcessorThreadPool(
                         "InboxProcessor",
-                        _options.Inbox.ThreadCount,
+                        _serviceBusOptions.Inbox.ThreadCount,
                         JoinTimeout,
-                        new InboxProcessorFactory(_options, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity))
+                        new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity))
                     .Start());
         }
 
@@ -107,9 +107,9 @@ namespace Shuttle.Esb
                 "OutboxThreadPool",
                 new ProcessorThreadPool(
                     "OutboxProcessor",
-                    _options.Outbox.ThreadCount,
+                    _serviceBusOptions.Outbox.ThreadCount,
                     JoinTimeout,
-                    new OutboxProcessorFactory(_options, _pipelineFactory, _pipelineThreadActivity)).Start());
+                    new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity)).Start());
         }
     }
 }

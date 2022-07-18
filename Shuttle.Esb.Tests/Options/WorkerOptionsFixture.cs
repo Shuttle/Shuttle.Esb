@@ -11,8 +11,8 @@ namespace Shuttle.Esb.Tests
             var options = GetOptions();
 
             Assert.IsNotNull(options);
-            Assert.AreEqual("msmq://./distributor-server-control-inbox-work",
-                options.Worker.DistributorControlWorkQueueUri);
+            Assert.AreEqual("queue://./distributor-server-control-inbox-work",
+                options.Worker.DistributorControlInboxWorkQueueUri);
             Assert.AreEqual(5, options.Worker.ThreadAvailableNotificationIntervalSeconds);
         }
     }

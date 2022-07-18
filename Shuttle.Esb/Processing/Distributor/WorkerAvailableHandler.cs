@@ -6,7 +6,7 @@ namespace Shuttle.Esb
     public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
     {
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
         public WorkerAvailableHandler(IOptions<ServiceBusOptions> serviceBusOptions, IWorkerAvailabilityService workerAvailabilityService)
         {
@@ -14,14 +14,14 @@ namespace Shuttle.Esb
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
 
-            _options = serviceBusOptions.Value;
+            _serviceBusOptions = serviceBusOptions.Value;
             _workerAvailabilityService = workerAvailabilityService;
         }
 
         public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
-            var distributeSendCount = _options.Inbox.DistributeSendCount > 0
-                ? _options.Inbox.DistributeSendCount
+            var distributeSendCount = _serviceBusOptions.Inbox.DistributeSendCount > 0
+                ? _serviceBusOptions.Inbox.DistributeSendCount
                 : 5;
 
             _workerAvailabilityService.RemoveByThread(context.Message);

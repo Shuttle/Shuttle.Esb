@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Threading;
 
@@ -14,13 +15,16 @@ namespace Shuttle.Esb
         private readonly ThreadActivity _threadActivity;
 
         private DateTime _nextNotificationDate = DateTime.Now;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public WorkerThreadActivity(IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration,
+        public WorkerThreadActivity(ServiceBusOptions serviceBusOptions, IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration,
             ThreadActivity threadActivity)
         {
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
 
+            _serviceBusOptions = serviceBusOptions;
             _serviceBus = serviceBus;
             _serviceBusConfiguration = serviceBusConfiguration;
             _threadActivity = threadActivity;
@@ -40,7 +44,7 @@ namespace Shuttle.Esb
                     c => c.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
 
                 _nextNotificationDate =
-                    DateTime.Now.AddSeconds(_serviceBusConfiguration.Worker.ThreadAvailableNotificationIntervalSeconds);
+                    DateTime.Now.AddSeconds(_serviceBusOptions.Worker.ThreadAvailableNotificationIntervalSeconds);
             }
 
             _threadActivity.Waiting(cancellationToken);

@@ -2,7 +2,7 @@
 {
     public class WorkerOptions
     {
-        public string DistributorControlWorkQueueUri { get; set; }
+        public string DistributorControlInboxWorkQueueUri { get; set; }
         public int ThreadAvailableNotificationIntervalSeconds { get; set; }
     }
 }

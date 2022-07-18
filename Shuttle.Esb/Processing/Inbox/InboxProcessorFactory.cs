@@ -10,26 +10,26 @@ namespace Shuttle.Esb
 
     public class InboxProcessorFactory : IInboxProcessorFactory
     {
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IServiceBus _serviceBus;
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
-        public InboxProcessorFactory(ServiceBusOptions options,
+        public InboxProcessorFactory(ServiceBusOptions serviceBusOptions,
             IServiceBusConfiguration serviceBusConfiguration, IServiceBus serviceBus,
             IWorkerAvailabilityService workerAvailabilityService, IPipelineFactory pipelineFactory,
             IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(serviceBus, nameof(serviceBus));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _options = options;
+            _serviceBusOptions = serviceBusOptions;
             _serviceBusConfiguration = serviceBusConfiguration;
             _serviceBus = serviceBus;
             _workerAvailabilityService = workerAvailabilityService;
@@ -39,13 +39,13 @@ namespace Shuttle.Esb
 
         public IProcessor Create()
         {
-            var threadActivity = new ThreadActivity(_options.Inbox?.DurationToSleepWhenIdle ??
+            var threadActivity = new ThreadActivity(_serviceBusOptions.Inbox?.DurationToSleepWhenIdle ??
                                                     ServiceBusOptions.DefaultDurationToSleepWhenIdle);
             var inboxProcessorThreadActivity = _serviceBusConfiguration.IsWorker()
-                ? (IThreadActivity)new WorkerThreadActivity(_serviceBus, _serviceBusConfiguration, threadActivity)
+                ? (IThreadActivity)new WorkerThreadActivity(_serviceBusOptions, _serviceBus, _serviceBusConfiguration, threadActivity)
                 : threadActivity;
 
-            return new InboxProcessor(_options, inboxProcessorThreadActivity, _workerAvailabilityService,
+            return new InboxProcessor(_serviceBusOptions, inboxProcessorThreadActivity, _workerAvailabilityService,
                 _pipelineFactory, _pipelineThreadActivity);
         }
     }

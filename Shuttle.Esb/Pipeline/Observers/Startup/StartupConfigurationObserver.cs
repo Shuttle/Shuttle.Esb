@@ -88,7 +88,7 @@ namespace Shuttle.Esb
                     {
                         DistributorControlInboxWorkQueue =
                             _serviceBusConfiguration.Worker?.DistributorControlInboxWorkQueue ??
-                            _queueService.Create(_serviceBusOptions.Worker.DistributorControlWorkQueueUri)
+                            _queueService.Create(_serviceBusOptions.Worker.DistributorControlInboxWorkQueueUri)
                     };
                 }
             }

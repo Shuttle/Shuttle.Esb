@@ -13,19 +13,19 @@ namespace Shuttle.Esb
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
-        private readonly ServiceBusOptions _options;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public InboxProcessor(ServiceBusOptions options,
+        public InboxProcessor(ServiceBusOptions serviceBusOptions,
             IThreadActivity threadActivity, IWorkerAvailabilityService workerAvailabilityService,
             IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(options, nameof(options));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _options = options;
+            _serviceBusOptions = serviceBusOptions;
             _threadActivity = threadActivity;
             _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
@@ -42,7 +42,7 @@ namespace Shuttle.Esb
         {
             var availableWorker = _workerAvailabilityService.GetAvailableWorker();
 
-            if (_options.Inbox.Distribute && availableWorker == null)
+            if (_serviceBusOptions.Inbox.Distribute && availableWorker == null)
             {
                 _threadActivity.Waiting(cancellationToken);
 

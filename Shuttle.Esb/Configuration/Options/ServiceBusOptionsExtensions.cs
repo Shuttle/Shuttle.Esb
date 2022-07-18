@@ -29,7 +29,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(options, nameof(options));
 
-            return options.Worker != null && !string.IsNullOrWhiteSpace(options.Worker.DistributorControlWorkQueueUri);
+            return options.Worker != null && !string.IsNullOrWhiteSpace(options.Worker.DistributorControlInboxWorkQueueUri);
         }
     }
 }
