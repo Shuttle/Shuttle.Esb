@@ -40,11 +40,9 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
             var workQueue = state.GetWorkQueue();
-            var errorQueue = state.GetErrorQueue();
 
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(errorQueue, nameof(errorQueue));
 
             TransportMessage transportMessage;
 
@@ -59,7 +57,7 @@ namespace Shuttle.Esb
             catch (Exception ex)
             {
                 TransportMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(pipelineEvent, workQueue, errorQueue, ex));
+                    new DeserializationExceptionEventArgs(pipelineEvent, workQueue, state.GetErrorQueue(), ex));
 
                 if (_serviceBusOptions.RemoveCorruptMessages)
                 {

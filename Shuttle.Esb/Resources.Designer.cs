@@ -178,6 +178,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to (no error queue).
+        /// </summary>
+        public static string NoErrorQueue {
+            get {
+                return ResourceManager.GetString("NoErrorQueue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Queue &apos;{0}&apos; does not implement interface &apos;{1}&apos;..
         /// </summary>
         public static string NotImplementedOnQueue {

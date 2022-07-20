@@ -30,7 +30,6 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
             Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
-            Guard.AgainstNull(state.GetErrorQueue(), "errorQueue");
 
             var transportMessage = state.GetTransportMessage();
 
@@ -47,6 +46,14 @@ namespace Shuttle.Esb
             }
             catch (Exception ex)
             {
+                MessageDeserializationException.Invoke(this,
+                    new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(), ex));
+
+                if (state.GetWorkQueue() == null)
+                {
+                    throw;
+                }
+
                 transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
                 state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
@@ -54,10 +61,6 @@ namespace Shuttle.Esb
 
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();
-
-                MessageDeserializationException.Invoke(this,
-                    new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
-                        ex));
 
                 return;
             }

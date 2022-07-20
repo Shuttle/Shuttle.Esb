@@ -273,4 +273,7 @@
     <value>The value '{0}' is not a valid URI for '{1}'.</value>
     <comment>0 = invalid URI string, 1 = URI name/type</comment>
   </data>
+  <data name="NoErrorQueue" xml:space="preserve">
+    <value>(no error queue)</value>
+  </data>
 </root>

@@ -29,6 +29,8 @@ namespace Shuttle.Esb
 
             try
             {
+                state.ResetWorking();
+
                 if (pipelineEvent.Pipeline.ExceptionHandled)
                 {
                     return;
@@ -58,17 +60,33 @@ namespace Shuttle.Esb
                         pipelineEvent.Pipeline.Exception.AllMessages(),
                         action.TimeSpanToIgnoreRetriedMessage);
 
-                    var retry = !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>()
-                                &&
-                                action.Retry
-                                &&
-                                (handlerContext == null || handlerContext.ExceptionHandler.ShouldRetry)
-                                && !workQueue.IsStream;
+                    var retry = !workQueue.IsStream;
+                    
+                    retry = retry && !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>();
+                    retry = retry && action.Retry;
 
-                    var poison = !retry && errorQueue != null &&
-                                 (
-                                     !workQueue.IsStream || handlerContext == null || handlerContext.ExceptionHandler.ShouldBlock
-                                 );
+                    if (retry && handlerContext != null)
+                    {
+                        retry = 
+                                (
+                                    handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
+                                    handlerContext.ExceptionHandling == ExceptionHandling.Default
+                                );
+                    }
+
+                    var poison = errorQueue != null;
+
+                    poison = poison && !retry;
+
+                    if (poison && handlerContext != null)
+                    {
+                        poison = handlerContext.ExceptionHandling == ExceptionHandling.Poison;
+
+                        if (!poison)
+                        {
+                            poison = handlerContext.ExceptionHandling == ExceptionHandling.Default; // therefore, Block
+                        }
+                    }
 
                     if (retry || poison)
                     {

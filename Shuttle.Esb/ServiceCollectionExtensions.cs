@@ -21,7 +21,6 @@ namespace Shuttle.Esb
             Action<ServiceBusBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
-            Guard.AgainstNull(builder, nameof(builder));
 
             var serviceBusBuilder = new ServiceBusBuilder(services);
 

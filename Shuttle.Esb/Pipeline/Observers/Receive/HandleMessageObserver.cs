@@ -51,6 +51,8 @@ namespace Shuttle.Esb
                 return;
             }
 
+            var errorQueue = state.GetErrorQueue();
+
             try
             {
                 var messageHandlerInvokeResult = _messageHandlerInvoker.Invoke(pipelineEvent);
@@ -62,18 +64,24 @@ namespace Shuttle.Esb
                 else
                 {
                     MessageNotHandled.Invoke(this,
-                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(),
+                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue,
                             transportMessage, message));
 
                     if (!_serviceBusOptions.RemoveMessagesNotHandled)
                     {
-                        transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure,
-                            message.GetType().FullName,
-                            transportMessage.MessageId, state.GetErrorQueue().Uri.Secured()));
+                        var failure = string.Format(Resources.MessageNotHandledFailure,
+                            message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.Secured().ToString());
+
+                        if (errorQueue == null)
+                        {
+                            throw new InvalidOperationException(failure);
+                        }
+
+                        transportMessage.RegisterFailure(failure);
 
                         using (var stream = _serializer.Serialize(transportMessage))
                         {
-                            state.GetErrorQueue().Enqueue(transportMessage, stream);
+                            errorQueue.Enqueue(transportMessage, stream);
                         }
                     }
                 }
@@ -84,7 +92,7 @@ namespace Shuttle.Esb
 
                 HandlerException.Invoke(this,
                     new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(),
-                        state.GetErrorQueue(), exception));
+                        errorQueue, exception));
 
                 throw exception;
             }

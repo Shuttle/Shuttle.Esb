@@ -28,7 +28,7 @@ namespace Shuttle.Esb
         public TransportMessage TransportMessage { get; }
         public T Message { get; }
         public CancellationToken CancellationToken { get; }
-        public ExceptionHandling ExceptionHandler { get; } = new ExceptionHandling();
+        public ExceptionHandling ExceptionHandling { get; } = new ExceptionHandling();
 
         public void Dispatch(TransportMessage transportMessage)
         {
