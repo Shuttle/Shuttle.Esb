@@ -61,17 +61,15 @@ namespace Shuttle.Esb
                         action.TimeSpanToIgnoreRetriedMessage);
 
                     var retry = !workQueue.IsStream;
-                    
+
                     retry = retry && !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>();
                     retry = retry && action.Retry;
 
                     if (retry && handlerContext != null)
                     {
-                        retry = 
-                                (
-                                    handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
-                                    handlerContext.ExceptionHandling == ExceptionHandling.Default
-                                );
+                        retry =
+                            handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
+                            handlerContext.ExceptionHandling == ExceptionHandling.Default;
                     }
 
                     var poison = errorQueue != null;
@@ -80,12 +78,9 @@ namespace Shuttle.Esb
 
                     if (poison && handlerContext != null)
                     {
-                        poison = handlerContext.ExceptionHandling == ExceptionHandling.Poison;
-
-                        if (!poison)
-                        {
-                            poison = handlerContext.ExceptionHandling == ExceptionHandling.Default; // therefore, Block
-                        }
+                        poison =
+                            handlerContext.ExceptionHandling == ExceptionHandling.Poison ||
+                            handlerContext.ExceptionHandling == ExceptionHandling.Default;
                     }
 
                     if (retry || poison)

@@ -22,8 +22,7 @@ namespace Shuttle.Esb
         private readonly ServiceBusOptions _serviceBusOptions;
 
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
-            ICancellationTokenSource cancellationTokenSource)
+            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
@@ -102,6 +101,7 @@ namespace Shuttle.Esb
             }
 
             _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute();
+            _pipelineFactory.Flush();
 
             Started = false;
         }
