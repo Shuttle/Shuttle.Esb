@@ -49,6 +49,13 @@ namespace Shuttle.Esb
                 throw new InvalidOperationException(Resources.SendToSelfException);
             }
 
+            if (_ignoreTillDate > DateTime.Now &&
+                serviceBusConfiguration.HasInbox() &&
+                serviceBusConfiguration.Inbox.WorkQueue.IsStream)
+            {
+                throw new InvalidOperationException(Resources.DeferStreamException);
+            }
+
             var identity = identityProvider.Get();
 
             var result = new TransportMessage

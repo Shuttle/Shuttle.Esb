@@ -88,6 +88,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot defer messages when the inbox is a stream..
+        /// </summary>
+        public static string DeferStreamException {
+            get {
+                return ResourceManager.GetString("DeferStreamException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
         /// </summary>
         public static string HandlerMessageMethodMissingException {

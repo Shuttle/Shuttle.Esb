@@ -15,10 +15,11 @@ namespace Shuttle.Esb
         private readonly IMessageSender _messageSender;
         private readonly IPipelineFactory _pipelineFactory;
 
-        private IProcessorThreadPool _controlThreadPool;
+        private IProcessorThreadPool _controlInboxThreadPool;
         private IProcessorThreadPool _deferredMessageThreadPool;
         private IProcessorThreadPool _inboxThreadPool;
         private IProcessorThreadPool _outboxThreadPool;
+
         private readonly ServiceBusOptions _serviceBusOptions;
 
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
@@ -57,10 +58,9 @@ namespace Shuttle.Esb
                 startupPipeline.Execute();
 
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
-                _controlThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
+                _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
                 _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
-                _deferredMessageThreadPool =
-                    startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+                _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
             }
             catch
             {
@@ -92,7 +92,7 @@ namespace Shuttle.Esb
 
             if (_serviceBusConfiguration.HasControlInbox())
             {
-                _controlThreadPool.Dispose();
+                _controlInboxThreadPool.Dispose();
             }
 
             if (_serviceBusConfiguration.HasOutbox())

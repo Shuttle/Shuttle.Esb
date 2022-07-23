@@ -276,4 +276,7 @@
   <data name="NoErrorQueue" xml:space="preserve">
     <value>(no error queue)</value>
   </data>
+  <data name="DeferStreamException" xml:space="preserve">
+    <value>Cannot defer messages when the inbox is a stream.</value>
+  </data>
 </root>
