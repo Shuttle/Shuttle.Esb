@@ -35,6 +35,7 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var builder = state.GetTransportMessageBuilder();
             var message = state.GetMessage();
+            var transportMessageReceived = state.GetTransportMessageReceived();
 
             var identity = _identityProvider.Get();
 
@@ -53,13 +54,34 @@ namespace Shuttle.Esb
                 SendDate = DateTime.Now
             };
 
+            if (transportMessageReceived != null)
+            {
+                transportMessage.MessageReceivedId = transportMessageReceived.MessageId;
+                transportMessage.CorrelationId = transportMessageReceived.CorrelationId;
+            }
+
             var transportMessageBuilder = new TransportMessageBuilder(transportMessage);
 
             builder?.Invoke(transportMessageBuilder);
 
-            if (transportMessageBuilder.ShouldSendLocal && !_serviceBusConfiguration.HasInbox())
+            if (transportMessageBuilder.ShouldSendLocal)
             {
-                throw new InvalidOperationException(Resources.SendToSelfException);
+                if (!_serviceBusConfiguration.HasInbox())
+                {
+                    throw new InvalidOperationException(Resources.SendToSelfException);
+                }
+
+                transportMessage.RecipientInboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString();
+            }
+
+            if (transportMessageBuilder.ShouldReply)
+            {
+                if (transportMessageReceived == null || string.IsNullOrEmpty(transportMessageReceived.SenderInboxWorkQueueUri))
+                {
+                    throw new InvalidOperationException(Resources.SendReplyException);
+                }
+
+                transportMessage.RecipientInboxWorkQueueUri = transportMessageReceived.SenderInboxWorkQueueUri;
             }
 
             if (transportMessage.IgnoreTillDate > DateTime.Now &&

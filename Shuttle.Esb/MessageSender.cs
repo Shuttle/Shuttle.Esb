@@ -22,7 +22,7 @@ namespace Shuttle.Esb
             _subscriptionService = subscriptionService;
         }
 
-        public void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived = null)
+        public void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
@@ -38,16 +38,17 @@ namespace Shuttle.Esb
             }
         }
 
-        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
+        public TransportMessage Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
-            var transportMessage = GetTransportMessage(message, builder);
+            var transportMessage = GetTransportMessage(message, transportMessageReceived, builder);
 
-            Dispatch(transportMessage);
+            Dispatch(transportMessage, transportMessageReceived);
 
             return transportMessage;
         }
 
-        private TransportMessage GetTransportMessage(object message, Action<TransportMessageBuilder> builder)
+        private TransportMessage GetTransportMessage(object message, TransportMessage transportMessageReceived,
+            Action<TransportMessageBuilder> builder)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -55,7 +56,7 @@ namespace Shuttle.Esb
 
             try
             {
-                messagePipeline.Execute(message, builder);
+                messagePipeline.Execute(message, transportMessageReceived, builder);
 
                 return messagePipeline.State.GetTransportMessage();
             }
@@ -65,7 +66,7 @@ namespace Shuttle.Esb
             }
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        public IEnumerable<TransportMessage> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -73,7 +74,7 @@ namespace Shuttle.Esb
 
             if (subscribers.Count > 0)
             {
-                var transportMessage = GetTransportMessage(message, builder);
+                var transportMessage = GetTransportMessage(message, transportMessageReceived, builder);
 
                 var result = new List<TransportMessage>(subscribers.Count);
 
@@ -81,7 +82,7 @@ namespace Shuttle.Esb
                 {
                     transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
-                    Dispatch(transportMessage);
+                    Dispatch(transportMessage, transportMessageReceived);
                     
                     result.Add(transportMessage);
                 }

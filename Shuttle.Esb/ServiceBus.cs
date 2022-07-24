@@ -119,14 +119,14 @@ namespace Shuttle.Esb
         {
             StartedGuard();
 
-            return _messageSender.Send(message, builder);
+            return _messageSender.Send(message, null, builder);
         }
 
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
-            return _messageSender.Publish(message, builder);
+            return _messageSender.Publish(message, null, builder);
         }
 
         private void StartedGuard()

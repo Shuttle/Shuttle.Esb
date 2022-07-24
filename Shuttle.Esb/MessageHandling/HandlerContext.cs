@@ -29,12 +29,12 @@ namespace Shuttle.Esb
 
         public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return _messageSender.Send(message, builder);
+            return _messageSender.Send(message, TransportMessage, builder);
         }
 
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return _messageSender.Publish(message, builder);
+            return _messageSender.Publish(message, TransportMessage, builder);
         }
     }
 }

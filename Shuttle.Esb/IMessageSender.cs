@@ -5,8 +5,8 @@ namespace Shuttle.Esb
 {
     public interface IMessageSender
     {
-        void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived = null);
-        TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null);
-        IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null);
+        void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived);
+        TransportMessage Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder);
+        IEnumerable<TransportMessage> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder);
     }
 }

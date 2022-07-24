@@ -7,7 +7,6 @@ namespace Shuttle.Esb
     public class TransportMessageBuilder
     {
         private readonly TransportMessage _transportMessage;
-        private TransportMessage _transportMessageReceived;
 
         public TransportMessageBuilder(TransportMessage transportMessage)
         {
@@ -19,20 +18,10 @@ namespace Shuttle.Esb
         }
 
         public List<TransportHeader> Headers { get; set; }
-        public bool HasTransportMessageReceived => _transportMessageReceived != null;
 
         public bool ShouldSendLocal { get; private set; }
+        public bool ShouldReply { get; private set; }
         public bool HasRecipient => !string.IsNullOrWhiteSpace(_transportMessage.RecipientInboxWorkQueueUri);
-
-        public void Received(TransportMessage transportMessageReceived)
-        {
-            Guard.AgainstNull(transportMessageReceived, nameof(transportMessageReceived));
-
-            _transportMessageReceived = transportMessageReceived;
-            _transportMessage.CorrelationId = transportMessageReceived.CorrelationId;
-
-            Headers.Merge(transportMessageReceived.Headers);
-        }
 
         public TransportMessageBuilder Defer(DateTime ignoreTillDate)
         {
@@ -83,7 +72,7 @@ namespace Shuttle.Esb
 
         private void GuardRecipient()
         {
-            if (!HasRecipient && !ShouldSendLocal)
+            if (!HasRecipient && !ShouldSendLocal && !ShouldReply)
             {
                 return;
             }
@@ -133,14 +122,9 @@ namespace Shuttle.Esb
 
         public TransportMessageBuilder Reply()
         {
-            if (!HasTransportMessageReceived || string.IsNullOrEmpty(_transportMessageReceived.SenderInboxWorkQueueUri))
-            {
-                throw new InvalidOperationException(Resources.SendReplyException);
-            }
+            GuardRecipient();
 
-            GuardRecipient(); 
-            
-            WithRecipient(_transportMessageReceived.SenderInboxWorkQueueUri);
+            ShouldReply = true;
 
             return this;
         }

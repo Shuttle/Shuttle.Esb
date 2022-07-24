@@ -29,6 +29,8 @@ namespace Shuttle.Esb.Tests
         public class Message
         {
             public string Name { get; set; }
+            public int Count { get; set; }
+            public bool Replied { get; set; }
         }
 
         public class MessageHandler : IMessageHandler<Message>
@@ -47,6 +49,22 @@ namespace Shuttle.Esb.Tests
                 Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
                 _messageHandlerTracker.Handled();
+
+                if (context.Message.Replied)
+                {
+                    Assert.That(!context.TransportMessage.MessageReceivedId.Equals(Guid.Empty), "Should have a `MessageReceivedId` value since the message is handled after being sent from a related message.");
+
+                    return;
+                }
+
+                context.Send(new Message
+                {
+                    Replied = true,
+                    Name = $"replied-{context.Message.Count}"
+                }, builder =>
+                {
+                    builder.Reply();
+                });
             }
         }
 
@@ -70,7 +88,7 @@ namespace Shuttle.Esb.Tests
                     Uri = "memory://inbox",
                     Specifications = new List<MessageRouteOptions.SpecificationOptions>
                     {
-                        new MessageRouteOptions.SpecificationOptions
+                        new()
                         {
                             Name = "StartsWith",
                             Value = "Shuttle"
@@ -92,13 +110,14 @@ namespace Shuttle.Esb.Tests
                 {
                     serviceBus.Send(new Message
                     {
+                        Count = i + 1,
                         Name = $"message - {i + 1}"
                     });
                 }
 
                 var timeout = DateTime.Now.AddSeconds(5);
 
-                while (messageHandlerTracker.HandledCount < count &&
+                while (messageHandlerTracker.HandledCount < (count * 2) &&
                        DateTime.Now < timeout)
                 {
                     Thread.Sleep(25);
