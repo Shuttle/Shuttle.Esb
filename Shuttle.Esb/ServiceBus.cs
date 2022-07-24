@@ -22,22 +22,22 @@ namespace Shuttle.Esb
 
         private readonly ServiceBusOptions _serviceBusOptions;
 
-        public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, ICancellationTokenSource cancellationTokenSource)
+        public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions,
+            IServiceBusConfiguration serviceBusConfiguration,
+            IPipelineFactory pipelineFactory, IMessageSender messageSender,
+            ICancellationTokenSource cancellationTokenSource)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-            Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
+            Guard.AgainstNull(messageSender, nameof(messageSender));
 
             _serviceBusOptions = serviceBusOptions.Value;
             _serviceBusConfiguration = serviceBusConfiguration;
             _pipelineFactory = pipelineFactory;
             _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
-
-            _messageSender = new MessageSender(transportMessageFactory, _pipelineFactory, subscriptionService);
+            _messageSender = messageSender;
         }
 
         public IServiceBus Start()
@@ -115,39 +115,18 @@ namespace Shuttle.Esb
             _cancellationTokenSource.AttemptDispose();
         }
 
-        public void Dispatch(TransportMessage transportMessage)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
-            _messageSender.Dispatch(transportMessage);
+            return _messageSender.Send(message, builder);
         }
 
-        public TransportMessage Send(object message)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
-            return _messageSender.Send(message);
-        }
-
-        public TransportMessage Send(object message, Action<TransportMessageBuilder> configure)
-        {
-            StartedGuard();
-
-            return _messageSender.Send(message, configure);
-        }
-
-        public IEnumerable<TransportMessage> Publish(object message)
-        {
-            StartedGuard();
-
-            return _messageSender.Publish(message);
-        }
-
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure)
-        {
-            StartedGuard();
-
-            return _messageSender.Publish(message, configure);
+            return _messageSender.Publish(message, builder);
         }
 
         private void StartedGuard()

@@ -403,6 +403,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The recipient has already been set for the transport message..
+        /// </summary>
+        public static string TransportMessageRecipientException {
+            get {
+                return ResourceManager.GetString("TransportMessageRecipientException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot get type &apos;{0}&apos; for TypeListMessageRouteSpecification..
         /// </summary>
         public static string TypeListMessageRouteSpecificationUnknownType {

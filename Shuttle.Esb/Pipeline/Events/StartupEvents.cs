@@ -6,14 +6,6 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigureQueues : PipelineEvent
-    {
-    }
-
-    public class OnAfterConfigureQueues : PipelineEvent
-    {
-    }
-
     public class OnCreatePhysicalQueues : PipelineEvent
     {
     }

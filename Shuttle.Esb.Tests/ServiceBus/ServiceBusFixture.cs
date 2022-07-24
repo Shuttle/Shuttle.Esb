@@ -2,6 +2,7 @@
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Transactions;
 
@@ -16,6 +17,10 @@ namespace Shuttle.Esb.Tests
             var handlerInvoker = new FakeMessageHandlerInvoker();
             var fakeQueue = new FakeQueue(2);
 
+            var queueService = new Mock<IQueueService>();
+
+            queueService.Setup(m => m.Get(It.IsAny<string>())).Returns(fakeQueue);
+
             var services = new ServiceCollection();
 
             services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
@@ -23,21 +28,21 @@ namespace Shuttle.Esb.Tests
             {
                 builder.Options.Enabled = false;
             });
+            services.AddSingleton(queueService.Object);
             services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
             services.AddServiceBus(builder =>
             {
-                builder.Configuration.Inbox = new InboxConfiguration
+                builder.Options.Inbox = new InboxOptions
                 {
-                    WorkQueue = fakeQueue,
-                    ErrorQueue = fakeQueue
+                    WorkQueueUri = "fake://work",
+                    ErrorQueueUri = "fake://error",
+                    ThreadCount = 1
                 };
-
-                builder.Options.Inbox.ThreadCount = 1;
             });
 
             using (services.BuildServiceProvider().GetRequiredService<IServiceBus>().Start())
             {
-                var timeout = DateTime.Now.AddSeconds(1000);
+                var timeout = DateTime.Now.AddSeconds(5);
 
                 while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
                 {

@@ -31,5 +31,38 @@ namespace Shuttle.Esb
 
             return serviceBusConfiguration.Worker != null;
         }
+
+        public static void CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
+        {
+            if (serviceBusConfiguration.HasInbox())
+            {
+                CreateQueues(serviceBusConfiguration.Inbox);
+
+                if (serviceBusConfiguration.Inbox.HasDeferredQueue())
+                {
+                    serviceBusConfiguration.Inbox.DeferredQueue.AttemptCreate();
+                }
+            }
+
+            if (serviceBusConfiguration.HasOutbox())
+            {
+                CreateQueues(serviceBusConfiguration.Outbox);
+            }
+
+            if (serviceBusConfiguration.HasControlInbox())
+            {
+                CreateQueues(serviceBusConfiguration.ControlInbox);
+            }
+        }
+
+        private static void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
+        {
+            workQueueConfiguration.WorkQueue.AttemptCreate();
+
+            if (workQueueConfiguration is IErrorQueueConfiguration errorQueueConfiguration)
+            {
+                errorQueueConfiguration.ErrorQueue.AttemptCreate();
+            }
+        }
     }
 }

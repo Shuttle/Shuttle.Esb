@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Shuttle.Esb
@@ -15,9 +17,11 @@ namespace Shuttle.Esb
         TransportMessage TransportMessage { get; }
         CancellationToken CancellationToken { get; }
         ExceptionHandling ExceptionHandling { get; }
+        TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null);
+        IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null);
     }
 
-    public interface IHandlerContext<out T> : IHandlerContext, IMessageSender where T : class
+    public interface IHandlerContext<out T> : IHandlerContext where T : class
     {
         T Message { get; }
     }

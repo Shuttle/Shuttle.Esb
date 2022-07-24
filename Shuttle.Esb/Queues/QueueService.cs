@@ -104,29 +104,6 @@ namespace Shuttle.Esb
             return _queueFactoryService.Get(uri).Create(uri);
         }
 
-        public void CreatePhysicalQueues(IServiceBusConfiguration serviceBusConfiguration)
-        {
-            if (serviceBusConfiguration.HasInbox())
-            {
-                CreateQueues(serviceBusConfiguration.Inbox);
-
-                if (serviceBusConfiguration.Inbox.HasDeferredQueue())
-                {
-                    serviceBusConfiguration.Inbox.DeferredQueue.AttemptCreate();
-                }
-            }
-
-            if (serviceBusConfiguration.HasOutbox())
-            {
-                CreateQueues(serviceBusConfiguration.Outbox);
-            }
-
-            if (serviceBusConfiguration.HasControlInbox())
-            {
-                CreateQueues(serviceBusConfiguration.ControlInbox);
-            }
-        }
-
         private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
         {
             var result = queueFactory.Create(queueUri);
@@ -146,16 +123,6 @@ namespace Shuttle.Esb
             catch
             {
                 return false;
-            }
-        }
-
-        private void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
-        {
-            workQueueConfiguration.WorkQueue.AttemptCreate();
-
-            if (workQueueConfiguration is IErrorQueueConfiguration errorQueueConfiguration)
-            {
-                errorQueueConfiguration.ErrorQueue.AttemptCreate();
             }
         }
     }

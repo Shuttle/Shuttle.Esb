@@ -33,13 +33,10 @@ namespace Shuttle.Esb
             var transportMessage = state.GetTransportMessage();
             var transportMessageReceived = state.GetTransportMessageReceived();
 
-            if (transportMessageReceived != null)
+            if (transportMessageReceived != null &&
+                _idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage, state.GetTransportMessageStream()))
             {
-                if (_idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
-                    state.GetTransportMessageStream()))
-                {
-                    return;
-                }
+                return;
             }
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));

@@ -113,9 +113,14 @@ namespace Shuttle.Esb
             state.Replace(StateKeys.Message, message);
         }
 
-        public static void SetTransportMessageContext(this IState state, TransportMessageBuilder builder)
+        public static void SetTransportMessageBuilder(this IState state, Action<TransportMessageBuilder> builder)
         {
             state.Replace(StateKeys.TransportMessageBuilder, builder);
+        }
+
+        public static Action<TransportMessageBuilder> GetTransportMessageBuilder(this IState state)
+        {
+            return state.Get<Action<TransportMessageBuilder>>(StateKeys.TransportMessageBuilder);
         }
 
         public static void SetAvailableWorker(this IState state, AvailableWorker value)

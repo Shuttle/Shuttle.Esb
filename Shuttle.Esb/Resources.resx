@@ -279,4 +279,7 @@
   <data name="DeferStreamException" xml:space="preserve">
     <value>Cannot defer messages when the inbox is a stream.</value>
   </data>
+  <data name="TransportMessageRecipientException" xml:space="preserve">
+    <value>The recipient has already been set for the transport message.</value>
+  </data>
 </root>

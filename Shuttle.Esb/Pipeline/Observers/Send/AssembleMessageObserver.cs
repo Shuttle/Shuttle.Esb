@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System;
+using System.Security.Principal;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -10,6 +12,8 @@ namespace Shuttle.Esb
 
     public class AssembleMessageObserver : IAssembleMessageObserver
     {
+        private static readonly string AnonymousName = new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous").Name;
+
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IIdentityProvider _identityProvider;
         private readonly ServiceBusOptions _serviceBusOptions;
@@ -29,14 +33,43 @@ namespace Shuttle.Esb
         public void Execute(OnAssembleMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
-            var transportMessageConfigurator =
-                state.Get<TransportMessageBuilder>(StateKeys.TransportMessageBuilder);
+            var builder = state.GetTransportMessageBuilder();
+            var message = state.GetMessage();
 
-            Guard.AgainstNull(transportMessageConfigurator, nameof(transportMessageConfigurator));
-            Guard.AgainstNull(transportMessageConfigurator.Message, "transportMessageConfigurator.Message");
+            var identity = _identityProvider.Get();
 
-            state.SetTransportMessage(transportMessageConfigurator.TransportMessage(_serviceBusOptions, _serviceBusConfiguration, _identityProvider));
-            state.SetMessage(transportMessageConfigurator.Message);
+            var transportMessage = new TransportMessage
+            {
+                SenderInboxWorkQueueUri = _serviceBusConfiguration.HasInbox()
+                    ? _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString()
+                    : string.Empty,
+                PrincipalIdentityName = identity != null
+                    ? identity.Name
+                    : AnonymousName,
+                MessageType = message.GetType().FullName,
+                AssemblyQualifiedName = message.GetType().AssemblyQualifiedName,
+                EncryptionAlgorithm = _serviceBusOptions.EncryptionAlgorithm,
+                CompressionAlgorithm = _serviceBusOptions.CompressionAlgorithm,
+                SendDate = DateTime.Now
+            };
+
+            var transportMessageBuilder = new TransportMessageBuilder(transportMessage);
+
+            builder?.Invoke(transportMessageBuilder);
+
+            if (transportMessageBuilder.ShouldSendLocal && !_serviceBusConfiguration.HasInbox())
+            {
+                throw new InvalidOperationException(Resources.SendToSelfException);
+            }
+
+            if (transportMessage.IgnoreTillDate > DateTime.Now &&
+                _serviceBusConfiguration.HasInbox() &&
+                _serviceBusConfiguration.Inbox.WorkQueue.IsStream)
+            {
+                throw new InvalidOperationException(Resources.DeferStreamException);
+            }
+
+            state.SetTransportMessage(transportMessage);
         }
     }
 }

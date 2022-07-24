@@ -9,11 +9,9 @@ namespace Shuttle.Esb
 
         public static readonly IEnumerable<TimeSpan> DefaultDurationToIgnoreOnFailure = new List<TimeSpan>
         {
+            TimeSpan.FromSeconds(30),
+            TimeSpan.FromMinutes(2),
             TimeSpan.FromMinutes(5),
-            TimeSpan.FromMinutes(10),
-            TimeSpan.FromMinutes(15),
-            TimeSpan.FromMinutes(30),
-            TimeSpan.FromMinutes(60)
         }.AsReadOnly();
 
         public static readonly IEnumerable<TimeSpan> DefaultDurationToSleepWhenIdle = new List<TimeSpan>

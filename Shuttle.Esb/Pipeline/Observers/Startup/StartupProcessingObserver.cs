@@ -45,6 +45,16 @@ namespace Shuttle.Esb
             _serviceBusConfiguration = serviceBusConfiguration;
         }
 
+        public void Execute(OnCreatePhysicalQueues pipelineEvent)
+        {
+            if (!_serviceBusOptions.CreatePhysicalQueues)
+            {
+                return;
+            }
+
+            _serviceBusConfiguration.CreatePhysicalQueues();
+        }
+
         public void Execute(OnStartControlInboxProcessing pipelineEvent)
         {
             if (!_serviceBusConfiguration.HasControlInbox())

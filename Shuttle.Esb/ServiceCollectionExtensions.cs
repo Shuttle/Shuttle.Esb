@@ -53,8 +53,6 @@ namespace Shuttle.Esb
                 services.AddTransactionScope();
             }
 
-            services.TryAddSingleton<ITransportMessageFactory, TransportMessageFactory>();
-
             services.AddPipelineProcessing(typeof(ServiceBus).Assembly);
             services.AddPipelineTransaction();
 
@@ -81,12 +79,8 @@ namespace Shuttle.Esb
                 options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
             });
 
-            var serviceBusConfigurationType = typeof(IServiceBusConfiguration);
 
-            if (services.All(item => item.ServiceType != serviceBusConfigurationType))
-            {
-                services.AddSingleton<IServiceBusConfiguration>(serviceBusBuilder.Configuration);
-            }
+            services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
             {
@@ -100,6 +94,7 @@ namespace Shuttle.Esb
                 serviceBusBuilder.AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
 
+            services.AddSingleton<IMessageSender, MessageSender>();
             services.AddSingleton<IServiceBus, ServiceBus>();
 
             return services;

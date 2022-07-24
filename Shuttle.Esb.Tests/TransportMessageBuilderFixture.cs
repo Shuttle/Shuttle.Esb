@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -13,25 +14,23 @@ namespace Shuttle.Esb.Tests
         {
             var serviceBusOptions = new ServiceBusOptions();
             var identityProvider = new Mock<IIdentityProvider>();
-            var builder = new TransportMessageBuilder(this);
-            var serviceBusConfiguration = new ServiceBusConfiguration
+            var transportMessage = new TransportMessage
             {
-                Inbox = new InboxConfiguration
-                {
-                    WorkQueue = new NullQueue("null-queue://./work-queue")
-                }
+                SenderInboxWorkQueueUri = "null-queue://./work-queue"
             };
+            var builder = new TransportMessageBuilder(transportMessage);
+
+            var queueService = new Mock<IQueueService>();
+
+            queueService.Setup(m => m.Get(It.IsAny<string>())).Returns((Uri uri) => new NullQueue(uri));
 
             identityProvider.Setup(m => m.Get()).Returns(new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous"));
 
-
-            Assert.AreEqual("null-queue://./work-queue",
-                builder.TransportMessage(serviceBusOptions, serviceBusConfiguration, identityProvider.Object).SenderInboxWorkQueueUri);
+            Assert.AreEqual("null-queue://./work-queue", transportMessage.SenderInboxWorkQueueUri);
 
             builder.WithSender("null-queue://./another-queue");
 
-            Assert.AreEqual("null-queue://./another-queue",
-                builder.TransportMessage(serviceBusOptions, serviceBusConfiguration, identityProvider.Object).SenderInboxWorkQueueUri);
+            Assert.AreEqual("null-queue://./another-queue", transportMessage.SenderInboxWorkQueueUri);
         }
     }
 }

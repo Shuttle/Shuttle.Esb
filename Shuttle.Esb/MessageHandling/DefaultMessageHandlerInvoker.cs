@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -17,25 +16,18 @@ namespace Shuttle.Esb
         private static readonly object LockInvoke = new object();
         private readonly Dictionary<Type, ContextMethodInvoker> _cache = new Dictionary<Type, ContextMethodInvoker>();
         private readonly IServiceProvider _provider;
-        private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly IMessageSender _messageSender;
 
         private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers =
             new Dictionary<Type, Dictionary<int, object>>();
 
-        private readonly ITransportMessageFactory _transportMessageFactory;
-
-        public DefaultMessageHandlerInvoker(IServiceProvider provider, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, ITransportMessageFactory transportMessageFactory)
+        public DefaultMessageHandlerInvoker(IServiceProvider provider, IMessageSender messageSender)
         {
             Guard.AgainstNull(provider, nameof(provider));
-            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(subscriptionService, nameof(subscriptionService));
-            Guard.AgainstNull(transportMessageFactory, nameof(transportMessageFactory));
+            Guard.AgainstNull(messageSender, nameof(messageSender));
 
             _provider = provider;
-            _pipelineFactory = pipelineFactory;
-            _subscriptionService = subscriptionService;
-            _transportMessageFactory = transportMessageFactory;
+            _messageSender = messageSender;
         }
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
@@ -85,8 +77,7 @@ namespace Shuttle.Esb
                     }
                 }
 
-                var handlerContext = contextMethod.CreateHandlerContext(_transportMessageFactory, _pipelineFactory, _subscriptionService, transportMessage, message,
-                    state.GetCancellationToken());
+                var handlerContext = contextMethod.CreateHandlerContext(_messageSender, transportMessage, message, state.GetCancellationToken());
 
                 state.SetHandlerContext(handlerContext);
 
@@ -145,45 +136,43 @@ namespace Shuttle.Esb
 
         private readonly ConstructorInvokeHandler _constructorInvoker;
 
-        private delegate IMessageSender ConstructorInvokeHandler(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, 
-            ISubscriptionService subscriptionService, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
-
         private readonly InvokeHandler _invoker;
-
-        private delegate void InvokeHandler(object handler, IMessageSender handlerContext);
 
         public ContextMethodInvoker(Type messageType, MethodInfo methodInfo)
         {
-            var dynamicMethod = new DynamicMethod(string.Empty, typeof(IMessageSender), 
+            var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
                 new[]
                 {
-                    typeof(ITransportMessageFactory), typeof(IPipelineFactory), typeof(ISubscriptionService), 
-                    typeof(TransportMessage), typeof(object), typeof(CancellationToken)
-                }, typeof(IMessageSender).Module);
+                    typeof(IMessageSender),
+                    typeof(TransportMessage),
+                    typeof(object),
+                    typeof(CancellationToken)
+                }, HandlerContextType.Module);
 
             var il = dynamicMethod.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Ldarg_3);
-            il.Emit(OpCodes.Ldarg_S, 4);
-            il.Emit(OpCodes.Ldarg_S, 5);
 
             var contextType = HandlerContextType.MakeGenericType(messageType);
             var constructorInfo = contextType.GetConstructor(new[]
             {
-                typeof(ITransportMessageFactory), typeof(IPipelineFactory), typeof(ISubscriptionService), 
-                typeof(TransportMessage), messageType, typeof(CancellationToken)
+                typeof(IMessageSender),
+                typeof(TransportMessage),
+                messageType,
+                typeof(CancellationToken)
             });
-            
+
             il.Emit(OpCodes.Newobj, constructorInfo);
             il.Emit(OpCodes.Ret);
 
-            _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
+            _constructorInvoker =
+                (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
 
             dynamicMethod = new DynamicMethod(string.Empty,
-                typeof(void), new[] { typeof(object), typeof(IMessageSender) },
-                typeof(IMessageSender).Module);
+                typeof(void), new[] { typeof(object), typeof(object) },
+                HandlerContextType.Module);
 
             il = dynamicMethod.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
@@ -195,14 +184,18 @@ namespace Shuttle.Esb
             _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
         }
 
-        public void Invoke(object handler, IMessageSender handlerContext)
+        public void Invoke(object handler, object handlerContext)
         {
             _invoker.Invoke(handler, handlerContext);
         }
 
-        public IMessageSender CreateHandlerContext(ITransportMessageFactory transportMessageFactory, IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+        public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
         {
-            return _constructorInvoker(transportMessageFactory, pipelineFactory, subscriptionService, transportMessage, message, cancellationToken);
+            return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
         }
+
+        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+
+        private delegate void InvokeHandler(object handler, object handlerContext);
     }
 }

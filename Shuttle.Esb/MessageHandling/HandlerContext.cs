@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
@@ -10,15 +9,13 @@ namespace Shuttle.Esb
     {
         private readonly IMessageSender _messageSender;
 
-        public HandlerContext(ITransportMessageFactory transportMessageFactory,
-            IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService,
-            TransportMessage transportMessage, T message, CancellationToken cancellationToken)
+        public HandlerContext(IMessageSender messageSender, TransportMessage transportMessage, T message, CancellationToken cancellationToken)
         {
+            Guard.AgainstNull(messageSender, nameof(messageSender));
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(message, nameof(message));
 
-            _messageSender = new MessageSender(transportMessageFactory, pipelineFactory, subscriptionService,
-                transportMessage);
+            _messageSender = messageSender;
 
             TransportMessage = transportMessage;
             Message = message;
@@ -30,29 +27,14 @@ namespace Shuttle.Esb
         public CancellationToken CancellationToken { get; }
         public ExceptionHandling ExceptionHandling { get; } = new ExceptionHandling();
 
-        public void Dispatch(TransportMessage transportMessage)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
-            _messageSender.Dispatch(transportMessage);
+            return _messageSender.Send(message, builder);
         }
 
-        public TransportMessage Send(object message)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return _messageSender.Send(message);
-        }
-
-        public TransportMessage Send(object message, Action<TransportMessageBuilder> configure)
-        {
-            return _messageSender.Send(message, configure);
-        }
-
-        public IEnumerable<TransportMessage> Publish(object message)
-        {
-            return _messageSender.Publish(message);
-        }
-
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> configure)
-        {
-            return _messageSender.Publish(message, configure);
+            return _messageSender.Publish(message, builder);
         }
     }
 }

@@ -11,12 +11,6 @@ namespace Shuttle.Esb
     {
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
 
-        public ServiceBusConfiguration Configuration
-        {
-            get => _serviceBusConfiguration;
-            set => _serviceBusConfiguration = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
         public ServiceBusOptions Options
         {
             get => _serviceBusOptions;
@@ -25,7 +19,6 @@ namespace Shuttle.Esb
 
 
         private readonly ReflectionService _reflectionService = new ReflectionService();
-        private ServiceBusConfiguration _serviceBusConfiguration = new ServiceBusConfiguration();
         private ServiceBusOptions _serviceBusOptions = new ServiceBusOptions();
 
         public ServiceBusBuilder(IServiceCollection services)
