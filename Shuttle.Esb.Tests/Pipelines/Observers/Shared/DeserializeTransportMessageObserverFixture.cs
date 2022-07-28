@@ -24,8 +24,8 @@ namespace Shuttle.Esb.Tests.Shared
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
-            errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
+            workQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://work-queue"));
+            errorQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();
             processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
@@ -67,8 +67,8 @@ namespace Shuttle.Esb.Tests.Shared
             var processService = new Mock<IProcessService>();
             var process = new Mock<IProcess>();
 
-            workQueue.Setup(m => m.Uri).Returns(new Uri("queue://work-queue"));
-            errorQueue.Setup(m => m.Uri).Returns(new Uri("queue://error-queue"));
+            workQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://work-queue"));
+            errorQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://error-queue"));
             serializer.Setup(m => m.Deserialize(It.IsAny<Type>(), It.IsAny<Stream>())).Throws<Exception>();
             processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 

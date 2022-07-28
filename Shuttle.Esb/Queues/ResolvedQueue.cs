@@ -14,11 +14,11 @@ namespace Shuttle.Esb
             Guard.AgainstNull(uri, nameof(uri));
 
             _queue = queue;
-            Uri = uri;
+            Uri = new QueueUri(uri);
             IsStream = queue.IsStream;
         }
 
-        public Uri Uri { get; }
+        public QueueUri Uri { get; }
         public bool IsStream { get; }
 
         public bool IsEmpty()

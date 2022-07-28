@@ -18,7 +18,7 @@ namespace Shuttle.Esb.Tests
 
         public int MessageCount { get; private set; }
 
-        public Uri Uri { get; }
+        public QueueUri Uri { get; }
         public bool IsStream => false;
 
         public bool IsEmpty()

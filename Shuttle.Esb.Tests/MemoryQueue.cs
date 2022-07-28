@@ -28,10 +28,10 @@ namespace Shuttle.Esb.Tests
         {
             Guard.AgainstNull(uri, nameof(uri));
 
-            Uri = uri;
+            Uri = new QueueUri(uri);
         }
 
-        public Uri Uri { get; }
+        public QueueUri Uri { get; }
         public bool IsStream => false;
         public bool IsEmpty()
         {

@@ -70,7 +70,7 @@ namespace Shuttle.Esb
                     if (!_serviceBusOptions.RemoveMessagesNotHandled)
                     {
                         var failure = string.Format(Resources.MessageNotHandledFailure,
-                            message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.Secured().ToString());
+                            message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString());
 
                         if (errorQueue == null)
                         {
