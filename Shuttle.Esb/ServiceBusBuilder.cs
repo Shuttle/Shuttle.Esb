@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
@@ -16,8 +15,7 @@ namespace Shuttle.Esb
             get => _serviceBusOptions;
             set => _serviceBusOptions = value ?? throw new ArgumentNullException(nameof(value));
         }
-
-
+        
         private readonly ReflectionService _reflectionService = new ReflectionService();
         private ServiceBusOptions _serviceBusOptions = new ServiceBusOptions();
 
@@ -29,6 +27,8 @@ namespace Shuttle.Esb
         }
 
         public IServiceCollection Services { get; }
+        
+        public bool SuppressHostedService { get; set; }
 
         public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
         {

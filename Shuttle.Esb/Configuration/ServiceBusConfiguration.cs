@@ -5,65 +5,72 @@ namespace Shuttle.Esb
 {
     public class ServiceBusConfiguration : IServiceBusConfiguration
     {
-        public ServiceBusConfiguration(IOptions<ServiceBusOptions> serviceBusOptions, IQueueService queueService)
+        private readonly IQueueService _queueService;
+
+        public ServiceBusConfiguration(IQueueService queueService)
         {
-            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
-            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions));
             Guard.AgainstNull(queueService, nameof(queueService));
 
-            if (serviceBusOptions.Value.HasInbox())
+            _queueService = queueService;
+        }
+
+        public void Configure(ServiceBusOptions serviceBusOptions)
+        {
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+
+            if (serviceBusOptions.HasInbox())
             {
                 Inbox = new InboxConfiguration
                 {
-                    WorkQueue = queueService.Get(serviceBusOptions.Value.Inbox.WorkQueueUri),
+                    WorkQueue = _queueService.Get(serviceBusOptions.Inbox.WorkQueueUri),
                     DeferredQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Value.Inbox.DeferredQueueUri)
+                        string.IsNullOrWhiteSpace(serviceBusOptions.Inbox.DeferredQueueUri)
                             ? null
-                            : queueService.Get(serviceBusOptions.Value.Inbox.DeferredQueueUri),
+                            : _queueService.Get(serviceBusOptions.Inbox.DeferredQueueUri),
                     ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Value.Inbox.ErrorQueueUri)
+                        string.IsNullOrWhiteSpace(serviceBusOptions.Inbox.ErrorQueueUri)
                             ? null
-                            : queueService.Get(serviceBusOptions.Value.Inbox.ErrorQueueUri)
+                            : _queueService.Get(serviceBusOptions.Inbox.ErrorQueueUri)
                 };
             }
 
-            if (serviceBusOptions.Value.HasControlInbox())
+            if (serviceBusOptions.HasControlInbox())
             {
                 ControlInbox = new ControlInboxConfiguration
                 {
-                    WorkQueue = queueService.Get(serviceBusOptions.Value.ControlInbox.WorkQueueUri),
+                    WorkQueue = _queueService.Get(serviceBusOptions.ControlInbox.WorkQueueUri),
                     ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Value.ControlInbox.ErrorQueueUri)
+                        string.IsNullOrWhiteSpace(serviceBusOptions.ControlInbox.ErrorQueueUri)
                             ? null
-                            : queueService.Get(serviceBusOptions.Value.ControlInbox.ErrorQueueUri)
+                            : _queueService.Get(serviceBusOptions.ControlInbox.ErrorQueueUri)
                 };
             }
 
-            if (serviceBusOptions.Value.HasOutbox())
+            if (serviceBusOptions.HasOutbox())
             {
                 Outbox = new OutboxConfiguration
                 {
-                    WorkQueue = queueService.Get(serviceBusOptions.Value.Outbox.WorkQueueUri),
+                    WorkQueue = _queueService.Get(serviceBusOptions.Outbox.WorkQueueUri),
                     ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Value.Outbox.ErrorQueueUri)
+                        string.IsNullOrWhiteSpace(serviceBusOptions.Outbox.ErrorQueueUri)
                             ? null
-                            : queueService.Get(serviceBusOptions.Value.Outbox.ErrorQueueUri)
+                            : _queueService.Get(serviceBusOptions.Outbox.ErrorQueueUri)
                 };
             }
 
-            if (serviceBusOptions.Value.IsWorker())
+            if (serviceBusOptions.IsWorker())
             {
                 Worker = new WorkerConfiguration
                 {
                     DistributorControlInboxWorkQueue =
-                        queueService.Get(serviceBusOptions.Value.Worker.DistributorControlInboxWorkQueueUri)
+                        _queueService.Get(serviceBusOptions.Worker.DistributorControlInboxWorkQueueUri)
                 };
             }
         }
 
-        public IInboxConfiguration Inbox { get; }
-        public IControlInboxConfiguration ControlInbox { get; }
-        public IOutboxConfiguration Outbox { get; }
-        public IWorkerConfiguration Worker { get; }
+        public IInboxConfiguration Inbox { get; private set; }
+        public IControlInboxConfiguration ControlInbox { get; private set; }
+        public IOutboxConfiguration Outbox { get; private set; }
+        public IWorkerConfiguration Worker { get; private set; }
     }
 }

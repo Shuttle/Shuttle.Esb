@@ -7,6 +7,7 @@ using Shuttle.Core.Threading;
 namespace Shuttle.Esb
 {
     public interface IStartupProcessingObserver : 
+        IPipelineObserver<OnConfigure>, 
         IPipelineObserver<OnStartInboxProcessing>, 
         IPipelineObserver<OnStartControlInboxProcessing>, 
         IPipelineObserver<OnStartOutboxProcessing>, 
@@ -120,6 +121,13 @@ namespace Shuttle.Esb
                     _serviceBusOptions.Outbox.ThreadCount,
                     JoinTimeout,
                     new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity)).Start());
+        }
+
+        public void Execute(OnConfigure pipelineEvent)
+        {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+
+            _serviceBusConfiguration.Configure(_serviceBusOptions);
         }
     }
 }

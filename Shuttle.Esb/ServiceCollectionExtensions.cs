@@ -97,6 +97,11 @@ namespace Shuttle.Esb
             services.AddSingleton<IMessageSender, MessageSender>();
             services.AddSingleton<IServiceBus, ServiceBus>();
 
+            if (!serviceBusBuilder.SuppressHostedService)
+            {
+                services.AddHostedService<ServiceBusHostedService>();
+            }
+
             return services;
         }
 

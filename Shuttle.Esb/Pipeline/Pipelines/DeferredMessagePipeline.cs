@@ -21,6 +21,7 @@ namespace Shuttle.Esb
 
             RegisterStage("Process")
                 .WithEvent<OnGetMessage>()
+                .WithEvent<OnAfterGetMessage>()
                 .WithEvent<OnDeserializeTransportMessage>()
                 .WithEvent<OnAfterDeserializeTransportMessage>()
                 .WithEvent<OnProcessDeferredMessage>()
