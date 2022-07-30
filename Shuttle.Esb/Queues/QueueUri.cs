@@ -19,27 +19,32 @@ namespace Shuttle.Esb
             }
 
             ConfigurationName = Uri.Host;
-            Queue = Uri.Segments[1];
+            QueueName = Uri.Segments[1];
         }
 
         public QueueUri(string uri) : this(new Uri(uri))
         {
         }
 
-        public string Queue { get; }
+        public string QueueName { get; }
 
         public string ConfigurationName { get; }
 
-        public void SchemeInvariant(string scheme)
+        public QueueUri SchemeInvariant(string scheme)
         {
             Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
 
-            if (Uri.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase))
+            if (!Uri.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase))
             {
-                return;
+                throw new InvalidSchemeException(Uri.Scheme, Uri.ToString());
             }
 
-            throw new InvalidSchemeException(Uri.Scheme, Uri.ToString());
+            return this;
+        }
+
+        public override string ToString()
+        {
+            return Uri.ToString();
         }
     }
 }

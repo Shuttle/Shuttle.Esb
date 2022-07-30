@@ -70,15 +70,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The IServiceBusConfiguration.Resolver has not been assigned..
-        /// </summary>
-        public static string ConfigurationResolverMissing {
-            get {
-                return ResourceManager.GetString("ConfigurationResolverMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread..
         /// </summary>
         public static string DeferredMessageProcessorInstanceException {
@@ -93,6 +84,15 @@ namespace Shuttle.Esb {
         public static string DeferStreamException {
             get {
                 return ResourceManager.GetString("DeferStreamException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This is already a configuration registered for endpoint with name &apos;{0}&apos;..
+        /// </summary>
+        public static string DuplicateQueueConfigurationNameException {
+            get {
+                return ResourceManager.GetString("DuplicateQueueConfigurationNameException", resourceCulture);
             }
         }
         
@@ -120,24 +120,6 @@ namespace Shuttle.Esb {
         public static string InvalidUriException {
             get {
                 return ResourceManager.GetString("InvalidUriException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The uri specified as the &apos;{0}&apos; is not a valid uri.  The value configured is &apos;{1}&apos;..
-        /// </summary>
-        public static string MappingInvalidUriException {
-            get {
-                return ResourceManager.GetString("MappingInvalidUriException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [message handler registered] : message type = &apos;{0}&apos; / handler type = &apos;{1}&apos;.
-        /// </summary>
-        public static string MessageHandlerFactoryHandlerRegistered {
-            get {
-                return ResourceManager.GetString("MessageHandlerFactoryHandlerRegistered", resourceCulture);
             }
         }
         
@@ -205,29 +187,20 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Observer with type name &apos;{0}&apos; does not have an interface with name &apos;I{0}&apos;..
+        ///   Looks up a localized string similar to Queue configuration with name &apos;{0}&apos; requires a value for &apos;{1}&apos;..
         /// </summary>
-        public static string ObserverInterfaceMissingException {
+        public static string QueueConfigurationItemException {
             get {
-                return ResourceManager.GetString("ObserverInterfaceMissingException", resourceCulture);
+                return ResourceManager.GetString("QueueConfigurationItemException", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find a section named &apos;{0}&apos; in configuration file &apos;{1}&apos; that is of type &apos;{2}&apos;..
+        ///   Looks up a localized string similar to The configuration name is empty..
         /// </summary>
-        public static string OpenSectionException {
+        public static string QueueConfigurationNameException {
             get {
-                return ResourceManager.GetString("OpenSectionException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not execute pipeline &apos;{0}&apos;.  Exception: {1}.
-        /// </summary>
-        public static string PipelineExecutionException {
-            get {
-                return ResourceManager.GetString("PipelineExecutionException", resourceCulture);
+                return ResourceManager.GetString("QueueConfigurationNameException", resourceCulture);
             }
         }
         
@@ -241,56 +214,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Queue factory type &apos;{0}&apos; could not be instantiated.  Exception: {1}.
-        /// </summary>
-        public static string QueueFactoryInstantiationException {
-            get {
-                return ResourceManager.GetString("QueueFactoryInstantiationException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No queue factory has been registered for scheme &apos;{0}&apos;..
         /// </summary>
         public static string QueueFactoryNotFoundException {
             get {
                 return ResourceManager.GetString("QueueFactoryNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not register handlers from assembly &apos;{0}&apos;.  Exception messages: {1}.
-        /// </summary>
-        public static string RegisterHandlersException {
-            get {
-                return ResourceManager.GetString("RegisterHandlersException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There is no current message.  Cannot reply..
-        /// </summary>
-        public static string ReplyWithoutCurrentMessage {
-            get {
-                return ResourceManager.GetString("ReplyWithoutCurrentMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The current message has no SenderIndexWorkQueueUri.  Cannot reply..
-        /// </summary>
-        public static string ReplyWithoutSenderInboxWorkQueueUri {
-            get {
-                return ResourceManager.GetString("ReplyWithoutSenderInboxWorkQueueUri", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You have tried to requeue a message but no inbox has been configured..
-        /// </summary>
-        public static string RequeueWithNoInbox {
-            get {
-                return ResourceManager.GetString("RequeueWithNoInbox", resourceCulture);
             }
         }
         
@@ -313,15 +241,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find a section with key &apos;{0}&apos;..
-        /// </summary>
-        public static string SectionKeyMissingException {
-            get {
-                return ResourceManager.GetString("SectionKeyMissingException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Cannot send reply as the provided transport message received has no inbox work queue uri..
         /// </summary>
         public static string SendReplyException {
@@ -336,15 +255,6 @@ namespace Shuttle.Esb {
         public static string SendToSelfException {
             get {
                 return ResourceManager.GetString("SendToSelfException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not registered with the serializer so it cannot be serialized.  Please use [SerialierInstance].AddKnownType to add the type before attempting to serialize or deserialize a TransportMessage containing this type in the object graph of the message property..
-        /// </summary>
-        public static string SerializerUnknownTypeExcption {
-            get {
-                return ResourceManager.GetString("SerializerUnknownTypeExcption", resourceCulture);
             }
         }
         
@@ -367,20 +277,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have attempted to subscribe to messages but there is no inbox configured..
+        ///   Looks up a localized string similar to Attempted to subscribe to messages but there is no inbox configured..
         /// </summary>
         public static string SubscribeWithNoInboxException {
             get {
                 return ResourceManager.GetString("SubscribeWithNoInboxException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Message type &apos;{0}&apos; with id &apos;{1}&apos; equeuing on queue &apos;{2}&apos;..
-        /// </summary>
-        public static string TraceMessageEnqueued {
-            get {
-                return ResourceManager.GetString("TraceMessageEnqueued", resourceCulture);
             }
         }
         
@@ -390,15 +291,6 @@ namespace Shuttle.Esb {
         public static string TraceTransportMessageDeferred {
             get {
                 return ResourceManager.GetString("TraceTransportMessageDeferred", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not deserialize the transport message from queue &apos;{0}&apos;.  Exception reported: {1}.
-        /// </summary>
-        public static string TransportMessageDeserializationException {
-            get {
-                return ResourceManager.GetString("TransportMessageDeserializationException", resourceCulture);
             }
         }
         
@@ -426,15 +318,6 @@ namespace Shuttle.Esb {
         public static string UnknownMessageRouteSpecification {
             get {
                 return ResourceManager.GetString("UnknownMessageRouteSpecification", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not get type: {0}.
-        /// </summary>
-        public static string UnknownTypeException {
-            get {
-                return ResourceManager.GetString("UnknownTypeException", resourceCulture);
             }
         }
         
