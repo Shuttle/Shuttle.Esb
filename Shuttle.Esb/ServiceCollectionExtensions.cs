@@ -53,8 +53,12 @@ namespace Shuttle.Esb
                 services.AddTransactionScope();
             }
 
-            services.AddPipelineProcessing(typeof(ServiceBus).Assembly);
-            services.AddPipelineTransaction();
+            services.AddPipelineProcessing(pipelineProcessingBuilder =>
+            {
+                pipelineProcessingBuilder
+                    .AddAssembly(typeof(ServiceBus).Assembly)
+                    .AddTransactions();
+            });
 
             services.AddOptions<ServiceBusOptions>().Configure(options =>
             {
@@ -77,6 +81,8 @@ namespace Shuttle.Esb
 
                 options.UriMappings = serviceBusBuilder.Options.UriMappings;
                 options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
+
+                options.SubscriptionOptions = serviceBusBuilder.Options.SubscriptionOptions;
             });
 
 

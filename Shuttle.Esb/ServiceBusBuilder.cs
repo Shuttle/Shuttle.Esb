@@ -52,5 +52,40 @@ namespace Shuttle.Esb
 
             return this;
         }
+
+        public ServiceBusBuilder AddSubscription<T>()
+        {
+            AddSubscription(typeof(T));
+
+            return this;
+        }
+
+        public ServiceBusBuilder AddSubscription(Type messageType)
+        {
+            Guard.AgainstNull(messageType, nameof(messageType));
+
+            AddSubscription(messageType.FullName);
+
+            return this;
+        }
+
+        public ServiceBusBuilder AddSubscription(string messageType)
+        {
+            Guard.AgainstNullOrEmptyString(messageType, nameof(messageType));
+
+            var messageTypes = _serviceBusOptions?.SubscriptionOptions?.MessageTypes;
+
+            if (messageTypes == null)
+            {
+                throw new InvalidOperationException(Resources.AddSubscriptionException);
+            }
+
+            if (!messageTypes.Contains(messageType))
+            {
+                messageTypes.Add(messageType);
+            }
+
+            return this;
+        }
     }
 }

@@ -61,6 +61,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot add subscription as a valid instance of the `MessageTypes` list cannot be reached..
+        /// </summary>
+        public static string AddSubscriptionException {
+            get {
+                return ResourceManager.GetString("AddSubscriptionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find assembly &apos;{0}&apos; during operation &apos;{1}&apos;..
         /// </summary>
         public static string AssemblyNotFound {

@@ -233,4 +233,7 @@
   <data name="SubscribeWithNoInboxException" xml:space="preserve">
     <value>Attempted to subscribe to messages but there is no inbox configured.</value>
   </data>
+  <data name="AddSubscriptionException" xml:space="preserve">
+    <value>Cannot add subscription as a valid instance of the `MessageTypes` list cannot be reached.</value>
+  </data>
 </root>
