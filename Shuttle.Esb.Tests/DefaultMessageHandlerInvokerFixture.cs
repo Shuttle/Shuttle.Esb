@@ -78,14 +78,14 @@ namespace Shuttle.Esb.Tests
             services.AddServiceBus(builder =>
             {
                 builder.Options.Inbox.ThreadCount = 1;
-                builder.Options.Inbox.WorkQueueUri = "memory://inbox";
+                builder.Options.Inbox.WorkQueueUri = "memory://configuration/inbox";
                 builder.Options.Inbox.DurationToSleepWhenIdle = new List<TimeSpan>
                 {
                     TimeSpan.FromMilliseconds(5)
                 };
                 builder.Options.MessageRoutes.Add(new MessageRouteOptions
                 {
-                    Uri = "memory://inbox",
+                    Uri = "memory://configuration/inbox",
                     Specifications = new List<MessageRouteOptions.SpecificationOptions>
                     {
                         new()

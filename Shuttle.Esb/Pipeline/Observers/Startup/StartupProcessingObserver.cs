@@ -8,6 +8,7 @@ namespace Shuttle.Esb
 {
     public interface IStartupProcessingObserver : 
         IPipelineObserver<OnConfigure>, 
+        IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnStartInboxProcessing>, 
         IPipelineObserver<OnStartControlInboxProcessing>, 
         IPipelineObserver<OnStartOutboxProcessing>, 
