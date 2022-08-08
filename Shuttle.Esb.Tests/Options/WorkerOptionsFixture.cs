@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace Shuttle.Esb.Tests
@@ -13,7 +14,7 @@ namespace Shuttle.Esb.Tests
             Assert.IsNotNull(options);
             Assert.AreEqual("queue://./distributor-server-control-inbox-work",
                 options.Worker.DistributorControlInboxWorkQueueUri);
-            Assert.AreEqual(5, options.Worker.ThreadAvailableNotificationIntervalSeconds);
+            Assert.AreEqual(TimeSpan.FromSeconds(5), options.Worker.ThreadAvailableNotificationInterval);
         }
     }
 }

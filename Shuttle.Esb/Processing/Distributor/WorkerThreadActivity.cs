@@ -41,10 +41,9 @@ namespace Shuttle.Esb
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.Now
                     },
-                    c => c.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
+                    builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
 
-                _nextNotificationDate =
-                    DateTime.Now.AddSeconds(_serviceBusOptions.Worker.ThreadAvailableNotificationIntervalSeconds);
+                _nextNotificationDate = DateTime.Now.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
             }
 
             _threadActivity.Waiting(cancellationToken);
