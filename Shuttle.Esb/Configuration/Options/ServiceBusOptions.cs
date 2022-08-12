@@ -40,6 +40,6 @@ namespace Shuttle.Esb
         public List<MessageRouteOptions> MessageRoutes { get; set; } = new List<MessageRouteOptions>();
         public WorkerOptions Worker { get; set; } = new WorkerOptions();
         public List<UriMappingOptions> UriMappings { get; set; } = new List<UriMappingOptions>();
-        public SubscriptionOptions SubscriptionOptions { get; set; } = new SubscriptionOptions();
+        public SubscriptionOptions Subscription { get; set; } = new SubscriptionOptions();
     }
 }

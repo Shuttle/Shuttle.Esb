@@ -73,7 +73,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNullOrEmptyString(messageType, nameof(messageType));
 
-            var messageTypes = _serviceBusOptions?.SubscriptionOptions?.MessageTypes;
+            var messageTypes = _serviceBusOptions?.Subscription?.MessageTypes;
 
             if (messageTypes == null)
             {

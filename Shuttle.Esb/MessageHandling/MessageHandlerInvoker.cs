@@ -9,7 +9,7 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public class DefaultMessageHandlerInvoker : IMessageHandlerInvoker
+    public class MessageHandlerInvoker : IMessageHandlerInvoker
     {
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
         private static readonly object LockGetHandler = new object();
@@ -21,7 +21,7 @@ namespace Shuttle.Esb
         private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers =
             new Dictionary<Type, Dictionary<int, object>>();
 
-        public DefaultMessageHandlerInvoker(IServiceProvider provider, IMessageSender messageSender)
+        public MessageHandlerInvoker(IServiceProvider provider, IMessageSender messageSender)
         {
             Guard.AgainstNull(provider, nameof(provider));
             Guard.AgainstNull(messageSender, nameof(messageSender));

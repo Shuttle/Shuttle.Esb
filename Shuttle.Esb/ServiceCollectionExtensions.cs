@@ -32,7 +32,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IServiceBusPolicy, DefaultServiceBusPolicy>();
             services.TryAddSingleton<IMessageRouteProvider, DefaultMessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
-            services.TryAddSingleton<IMessageHandlerInvoker, DefaultMessageHandlerInvoker>();
+            services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddSingleton<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
             services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
             services.TryAddSingleton<IQueueService, QueueService>();
@@ -82,7 +82,7 @@ namespace Shuttle.Esb
                 options.UriMappings = serviceBusBuilder.Options.UriMappings;
                 options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
 
-                options.SubscriptionOptions = serviceBusBuilder.Options.SubscriptionOptions;
+                options.Subscription = serviceBusBuilder.Options.Subscription;
             });
 
 
