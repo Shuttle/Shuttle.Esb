@@ -25,4 +25,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pipelines\Observers\Send\" />
+  </ItemGroup>
+
 </Project>

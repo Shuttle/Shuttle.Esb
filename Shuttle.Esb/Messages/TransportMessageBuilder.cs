@@ -13,11 +13,9 @@ namespace Shuttle.Esb
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             _transportMessage = transportMessage;
-
-            Headers = new List<TransportHeader>();
         }
 
-        public List<TransportHeader> Headers { get; set; }
+        public List<TransportHeader> Headers => _transportMessage.Headers;
 
         public bool ShouldSendLocal { get; private set; }
         public bool ShouldReply { get; private set; }

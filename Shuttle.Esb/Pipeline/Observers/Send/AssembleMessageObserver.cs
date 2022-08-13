@@ -37,6 +37,8 @@ namespace Shuttle.Esb
             var message = state.GetMessage();
             var transportMessageReceived = state.GetTransportMessageReceived();
 
+            Guard.AgainstNull(message, nameof(message));
+
             var identity = _identityProvider.Get();
 
             var transportMessage = new TransportMessage
@@ -58,6 +60,7 @@ namespace Shuttle.Esb
             {
                 transportMessage.MessageReceivedId = transportMessageReceived.MessageId;
                 transportMessage.CorrelationId = transportMessageReceived.CorrelationId;
+                transportMessage.Headers.AddRange(transportMessageReceived.Headers);
             }
 
             var transportMessageBuilder = new TransportMessageBuilder(transportMessage);
