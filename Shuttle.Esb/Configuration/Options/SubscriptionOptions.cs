@@ -13,7 +13,7 @@ namespace Shuttle.Esb
     {
         public const string SectionName = "Shuttle:Subscription";
 
-        public SubscribeType SubscribeType { get; set; }
+        public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
         public string ConnectionStringName { get; set; } = "Subscription";
         public List<string> MessageTypes { get; set; } = new List<string>();
     }
