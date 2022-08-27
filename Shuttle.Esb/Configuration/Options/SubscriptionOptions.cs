@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Shuttle.Esb
 {
@@ -15,6 +16,7 @@ namespace Shuttle.Esb
 
         public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
         public string ConnectionStringName { get; set; } = "Subscription";
+        public TimeSpan CacheTimeout { get; set; } = TimeSpan.FromMinutes(5);
         public List<string> MessageTypes { get; set; } = new List<string>();
     }
 }

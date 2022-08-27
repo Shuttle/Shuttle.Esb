@@ -89,8 +89,9 @@ namespace Shuttle.Esb.Tests
                     processDeferredMessageObserver.Object
                 ));
 
-            using (new ProcessorThreadPool("DeferredMessageProcessor", 1, TimeSpan.FromSeconds(1), 
-                new DeferredMessageProcessorFactory(configuration.Object)).Start())
+            using (new ProcessorThreadPool("DeferredMessageProcessor", 1,  
+                new DeferredMessageProcessorFactory(configuration.Object),
+                new ProcessorThreadOptions()).Start())
             {
                 while (deferredMessages.Count > 0)
                 {

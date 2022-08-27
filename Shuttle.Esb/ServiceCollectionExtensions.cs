@@ -83,6 +83,7 @@ namespace Shuttle.Esb
                 options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
 
                 options.Subscription = serviceBusBuilder.Options.Subscription;
+                options.ProcessorThread = serviceBusBuilder.Options.ProcessorThread;
             });
 
 

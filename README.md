@@ -7,13 +7,13 @@ Please visit out [official documentation](https://shuttle.github.io/shuttle-esb/
 Start a new **Console Application** project and select a Shuttle.Esb queue implementation from the supported queues:
 
 ```
-PM> Install-Package Shuttle.Esb.AzureMQ
+PM> Install-Package Shuttle.Esb.AzureStorageQueues
 ```
 
-We'll also need to host our endpoint using a [worker service](https://shuttle.github.io/shuttle-core/service-hosting/shuttle-core-workerservice.html):
+We'll also make use of the [.NET genric host](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host):
 
 ```
-PM> Install-Package Shuttle.Core.WorkerService
+PM> Install-Package Microsoft.Extensions.Hosting
 ```
 
 Next we'll implement our endpoint in order to start listening on our queue:
@@ -21,59 +21,90 @@ Next we'll implement our endpoint in order to start listening on our queue:
 ``` c#
 internal class Program
 {
-	private static void Main()
-	{
-		ServiceHost.Run<Host>();
-	}
-}
-
-public class Host : IServiceHost
-{
-	private IServiceBus _bus;
-
-    public void Start()
+    private static void Main()
     {
-        var containerBuilder = new ContainerBuilder();
-        var registry = new AutofacComponentRegistry(containerBuilder);
+        Host.CreateDefaultBuilder()
+            .ConfigureServices(services =>
+            {
+                services.AddServiceBus(builder =>
+                {
+                    builder.Options.Inbox.WorkQueueUri = "azuresq://azure/work";
+                });
 
-        registry.Register<IAzureStorageConfiguration, DefaultAzureStorageConfiguration>();
-        registry.RegisterServiceBus();
-
-        _bus = new AutofacComponentResolver(containerBuilder.Build())
-            .Resolve<IServiceBus>().Start();
+                services.AddAzureStorageQueues(builder =>
+                {
+                    builder.AddOptions("azure", new AzureStorageQueueOptions
+                    {
+                        ConnectionString = "UseDevelopmentStorage=true;"
+                    });
+                });
+            })
+            .Build()
+            .Run();
     }
-
-	public void Stop()
-	{
-		_bus.Dispose();
-	}
 }
 ```
 
-A bit of configuration is going to be needed to help things along:
+Even though the options may be set directly as above, typically one would make use of a configuration provider:
 
-``` xml
-<configuration>
-	<configSections>
-		<section name="serviceBus" type="Shuttle.Esb.ServiceBusSection, Shuttle.Esb"/>
-	</configSections>
+```c#
+internal class Program
+{
+    private static void Main()
+    {
+        Host.CreateDefaultBuilder()
+            .ConfigureServices(services =>
+            {
+                var configuration = 
+                    new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .Build();
 
-	<appSettings>
-		<add key="azure" value="UseDevelopmentStorage=true;" />
-	</appSettings>
+                services.AddSingleton<IConfiguration>(configuration);
 
-	<serviceBus>
-		<inbox workQueueUri="azuremq://azure/shuttle-server-work" 
-		       deferredQueueUri="azuremq://azure/shuttle-server-deferred"
-		       errorQueueUri="azuremq://azure/shuttle-error" />
-	</serviceBus>
-</configuration>
+                services.AddServiceBus(builder =>
+                {
+                    configuration
+                        .GetSection(ServiceBusOptions.SectionName)
+                        .Bind(builder.Options);
+                });
+
+                services.AddAzureStorageQueues(builder =>
+                {
+                    builder.AddOptions("azure", new AzureStorageQueueOptions
+                    {
+                        ConnectionString = configuration
+                            .GetConnectionString("azure")
+                    });
+                });
+            })
+            .Build()
+            .Run();
+    }
+}
+```
+
+The `appsettings.json` file would be as follows:
+
+```json
+{
+  "ConnectionStrings": {
+    "azure": "UseDevelopmentStorage=true;"
+  },
+  "Shuttle": {
+    "ServiceBus": {
+      "Inbox": {
+        "WorkQueueUri": "azuresq://azure/work",
+      }
+    }
+  }
+}
 ```
 
 ### Send a command message for processing
 
 ``` c#
-bus.Send(new RegisterMemberCommand
+bus.Send(new RegisterMember
 {
     UserName = "user-name",
     EMailAddress = "user@domain.com"
@@ -82,8 +113,10 @@ bus.Send(new RegisterMemberCommand
 
 ### Publish an event message when something interesting happens
 
+Before publishing an event one would need to register an `ISubscrtiptionService` implementation such as [Shuttle.Esb.Sql.Subscription](/implementations/subscription/sql.md).
+
 ``` c#
-bus.Publish(new MemberRegisteredEvent
+bus.Publish(new MemberRegistered
 {
     UserName = "user-name"
 });
@@ -92,23 +125,26 @@ bus.Publish(new MemberRegisteredEvent
 ### Subscribe to those interesting events
 
 ``` c#
-resolver.Resolve<ISubscriptionManager>().Subscribe<MemberRegisteredEvent>();
+services.AddServiceBus(builder =>
+{
+    builder.AddSubscription<MemberRegistered>();
+});
 ```
 
 ### Handle any messages
 
 ``` c#
-public class RegisterMemberHandler : IMessageHandler<RegisterMemberCommand>
+public class RegisterMemberHandler : IMessageHandler<RegisterMember>
 {
     public RegisterMemberHandler(IDependency dependency)
     {
     }
 
-	public void ProcessMessage(IHandlerContext<RegisterMemberCommand> context)
+	public void ProcessMessage(IHandlerContext<RegisterMember> context)
 	{
         // perform member registration
 
-		context.Publish(new MemberRegisteredEvent
+		context.Publish(new MemberRegistered
 		{
 			UserName = context.Message.UserName
 		});
@@ -117,9 +153,9 @@ public class RegisterMemberHandler : IMessageHandler<RegisterMemberCommand>
 ```
 
 ``` c#
-public class MemberRegisteredHandler : IMessageHandler<MemberRegisteredEvent>
+public class MemberRegisteredHandler : IMessageHandler<MemberRegistered>
 {
-	public void ProcessMessage(IHandlerContext<MemberRegisteredEvent> context)
+	public void ProcessMessage(IHandlerContext<MemberRegistered> context)
 	{
         // processing
 	}

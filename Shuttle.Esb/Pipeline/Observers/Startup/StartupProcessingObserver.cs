@@ -69,8 +69,8 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
                     _serviceBusOptions.ControlInbox.ThreadCount,
-                    JoinTimeout,
-                    new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity)).Start());
+                    new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                    _serviceBusOptions.ProcessorThread).Start());
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
@@ -87,8 +87,8 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "DeferredMessageProcessor",
                     1,
-                    JoinTimeout,
-                    new DeferredMessageProcessorFactory(_serviceBusConfiguration)).Start());
+                    new DeferredMessageProcessorFactory(_serviceBusConfiguration),
+                    _serviceBusOptions.ProcessorThread).Start());
         }
 
         public void Execute(OnStartInboxProcessing pipelineEvent)
@@ -103,8 +103,8 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                         "InboxProcessor",
                         _serviceBusOptions.Inbox.ThreadCount,
-                        JoinTimeout,
-                        new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity))
+                        new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
+                        _serviceBusOptions.ProcessorThread)
                     .Start());
         }
 
@@ -120,8 +120,8 @@ namespace Shuttle.Esb
                 new ProcessorThreadPool(
                     "OutboxProcessor",
                     _serviceBusOptions.Outbox.ThreadCount,
-                    JoinTimeout,
-                    new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity)).Start());
+                    new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                    _serviceBusOptions.ProcessorThread).Start());
         }
 
         public void Execute(OnConfigure pipelineEvent)
