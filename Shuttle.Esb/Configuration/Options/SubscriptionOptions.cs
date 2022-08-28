@@ -12,8 +12,6 @@ namespace Shuttle.Esb
 
     public class SubscriptionOptions
     {
-        public const string SectionName = "Shuttle:Subscription";
-
         public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
         public string ConnectionStringName { get; set; } = "Subscription";
         public TimeSpan CacheTimeout { get; set; } = TimeSpan.FromMinutes(5);

@@ -42,6 +42,7 @@ namespace Shuttle.Esb
         public WorkerOptions Worker { get; set; } = new WorkerOptions();
         public List<UriMappingOptions> UriMappings { get; set; } = new List<UriMappingOptions>();
         public SubscriptionOptions Subscription { get; set; } = new SubscriptionOptions();
+        public IdempotenceOptions Idempotence { get; set; } = new IdempotenceOptions();
         public ProcessorThreadOptions ProcessorThread { get; set; } = new ProcessorThreadOptions();
     }
 }
