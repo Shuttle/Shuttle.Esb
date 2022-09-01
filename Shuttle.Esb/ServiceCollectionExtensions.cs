@@ -30,10 +30,10 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IProcessService, ProcessService>();
             services.TryAddSingleton<ISerializer, DefaultSerializer>();
             services.TryAddSingleton<IServiceBusPolicy, DefaultServiceBusPolicy>();
-            services.TryAddSingleton<IMessageRouteProvider, DefaultMessageRouteProvider>();
+            services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
             services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
-            services.TryAddSingleton<IMessageHandlingAssessor, DefaultMessageHandlingAssessor>();
+            services.TryAddSingleton<IMessageHandlingAssessor, MessageHandlingAssessor>();
             services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
             services.TryAddSingleton<IQueueService, QueueService>();
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();

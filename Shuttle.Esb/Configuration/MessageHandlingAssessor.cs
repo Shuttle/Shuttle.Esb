@@ -7,7 +7,7 @@ using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {
-    public class DefaultMessageHandlingAssessor : IMessageHandlingAssessor
+    public class MessageHandlingAssessor : IMessageHandlingAssessor
     {
         private readonly List<Func<IPipelineEvent, bool>> _assessors = new List<Func<IPipelineEvent, bool>>();
 

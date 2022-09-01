@@ -6,11 +6,11 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public sealed class DefaultMessageRouteProvider : IMessageRouteProvider
+    public sealed class MessageRouteProvider : IMessageRouteProvider
     {
         private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
-        public DefaultMessageRouteProvider(IOptions<ServiceBusOptions> serviceBusOptions)
+        public MessageRouteProvider(IOptions<ServiceBusOptions> serviceBusOptions)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));

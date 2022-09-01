@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class DefaultMessageRouteProviderFixture
+    public class MessageRouteProviderFixture
     {
         [Test]
         public void Should_be_able_to_add_or_merge_message_routes()
@@ -15,7 +15,7 @@ namespace Shuttle.Esb.Tests
             const string firstMessageType = "first-message-type";
             const string secondMessageType = "second-message-type";
 
-            var provider = new DefaultMessageRouteProvider(Options.Create(new ServiceBusOptions()));
+            var provider = new MessageRouteProvider(Options.Create(new ServiceBusOptions()));
 
             Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
 

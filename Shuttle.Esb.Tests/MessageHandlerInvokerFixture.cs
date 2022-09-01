@@ -8,7 +8,7 @@ using Shuttle.Core.Contract;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class DefaultMessageHandlerInvokerFixture
+    public class MessageHandlerInvokerFixture
     {
         public interface IMessageHandlerTracker
         {
