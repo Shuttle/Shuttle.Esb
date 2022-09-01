@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
@@ -10,30 +10,27 @@ namespace Shuttle.Esb
 {
     public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
     {
+        event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+        event EventHandler<HandlerExceptionEventArgs> HandlerException;
     }
 
     public class HandleMessageObserver : IHandleMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
-        private readonly ILog _log;
         private readonly IMessageHandlerInvoker _messageHandlerInvoker;
         private readonly ISerializer _serializer;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public HandleMessageObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
+        public HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions,
             IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(messageHandlerInvoker, nameof(messageHandlerInvoker));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _configuration = configuration;
-            _events = events;
+            _serviceBusOptions = serviceBusOptions.Value;
             _messageHandlerInvoker = messageHandlerInvoker;
             _serializer = serializer;
-
-            _log = Log.For(this);
         }
 
         public void Execute(OnHandleMessage pipelineEvent)
@@ -54,6 +51,8 @@ namespace Shuttle.Esb
                 return;
             }
 
+            var errorQueue = state.GetErrorQueue();
+
             try
             {
                 var messageHandlerInvokeResult = _messageHandlerInvoker.Invoke(pipelineEvent);
@@ -64,33 +63,26 @@ namespace Shuttle.Esb
                 }
                 else
                 {
-                    _events.OnMessageNotHandled(this,
-                        new MessageNotHandledEventArgs(
-                            pipelineEvent,
-                            state.GetWorkQueue(),
-                            state.GetErrorQueue(),
-                            transportMessage,
-                            message));
+                    MessageNotHandled.Invoke(this,
+                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue,
+                            transportMessage, message));
 
-                    if (!_configuration.RemoveMessagesNotHandled)
+                    if (!_serviceBusOptions.RemoveMessagesNotHandled)
                     {
-                        var error = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName,
-                            transportMessage.MessageId, state.GetErrorQueue().Uri.Secured());
+                        var failure = string.Format(Resources.MessageNotHandledFailure,
+                            message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString());
 
-                        _log.Error(error);
+                        if (errorQueue == null)
+                        {
+                            throw new InvalidOperationException(failure);
+                        }
 
-                        transportMessage.RegisterFailure(error);
+                        transportMessage.RegisterFailure(failure);
 
                         using (var stream = _serializer.Serialize(transportMessage))
                         {
-                            state.GetErrorQueue().Enqueue(transportMessage, stream);
+                            errorQueue.Enqueue(transportMessage, stream);
                         }
-                    }
-                    else
-                    {
-                        _log.Warning(string.Format(Resources.MessageNotHandledIgnored,
-                            message.GetType().FullName,
-                            transportMessage.MessageId));
                     }
                 }
             }
@@ -98,18 +90,20 @@ namespace Shuttle.Esb
             {
                 var exception = ex.TrimLeading<TargetInvocationException>();
 
-                _events.OnHandlerException(
-                    this,
-                    new HandlerExceptionEventArgs(
-                        pipelineEvent,
-                        transportMessage,
-                        message,
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
-                        exception));
+                HandlerException.Invoke(this,
+                    new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(),
+                        errorQueue, exception));
 
                 throw exception;
             }
         }
+
+        public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled = delegate
+        {
+        };
+
+        public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate
+        {
+        };
     }
 }

@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
     public class TransportMessagePipeline : Pipeline
     {
-        public TransportMessagePipeline(IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
+        public TransportMessagePipeline(IAssembleMessageObserver assembleMessageObserver,
+            ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver,
+            IEncryptMessageObserver encryptMessageObserver)
         {
             Guard.AgainstNull(assembleMessageObserver, nameof(assembleMessageObserver));
             Guard.AgainstNull(serializeMessageObserver, nameof(serializeMessageObserver));
@@ -31,11 +31,13 @@ namespace Shuttle.Esb
             RegisterObserver(encryptMessageObserver);
         }
 
-        public bool Execute(TransportMessageConfigurator configurator)
+        public bool Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
-            Guard.AgainstNull(configurator, nameof(configurator));
+            Guard.AgainstNull(message, nameof(message));
 
-            State.SetTransportMessageContext(configurator);
+            State.SetMessage(message);
+            State.SetTransportMessageReceived(transportMessageReceived);
+            State.SetTransportMessageBuilder(builder);
 
             return base.Execute();
         }

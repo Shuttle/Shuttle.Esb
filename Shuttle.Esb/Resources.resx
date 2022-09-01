@@ -117,123 +117,62 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DuplicateQueueFactoryReplaced" xml:space="preserve">
-    <value>A queue factory for scheme '{0}' already existed.  Removed queue factory type '{1}' to register queue factory type '{2}'.</value>
-    <comment>{0} = scheme, {1} = full factory type name removed, {2} full threadActivityFactory type name registered</comment>
-  </data>
   <data name="InvalidSchemeException" xml:space="preserve">
     <value>Only scheme '{0}' is supported.  The given uri '{1}' is not supported.</value>
-    <comment>{0} = the supported scheme, {1} = the given uri</comment>
-  </data>
-  <data name="MessageHandlerExceptionFailure" xml:space="preserve">
-    <value>Message handler type '{0}' raised exception '{1}'.  Message type '{2}' with id '{3}' has reached the maximum number of retries ({4}).  The message has been moved to error queue '{5}'</value>
-    <comment>{0} = full type name of handler, {1} = exception message, {2} = full type name of message, {3} = message id, {4} = maximum retry count, {5} = error queue uri</comment>
-  </data>
-  <data name="MessageHandlerExceptionWillRetry" xml:space="preserve">
-    <value>Message handler type '{0}' raised exception '{1}'.  Handling of message type '{2}' with id '{3}' will be retried.  It is retry number: {4} / {5}</value>
-    <comment>{0} = full type name of handler, {1} = exception message, {2} = full type name of message, {3} = message id, {4} = current retry count, {5} = maximum retry count</comment>
+    <comment>0 = the supported scheme, 1 = the given uri</comment>
   </data>
   <data name="MessageNotHandledFailure" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') has been moved to error queue '{2}'.</value>
-    <comment>{0} = full type name of the discarded message, {1}= message id, {2} = error queue uri</comment>
+    <comment>0 = full type name of the discarded message, 1= message id, 2 = error queue uri</comment>
   </data>
   <data name="MessageRouteNotFound" xml:space="preserve">
     <value>No route could be found for message of type '{0}'.</value>
-    <comment>{0} = full type name of message</comment>
+    <comment>0 = full type name of message</comment>
   </data>
   <data name="QueueFactoryNotFoundException" xml:space="preserve">
     <value>No queue factory has been registered for scheme '{0}'.</value>
-    <comment>{0} = scheme (key)</comment>
+    <comment>0 = scheme (key)</comment>
   </data>
   <data name="UriFormatException" xml:space="preserve">
     <value>Expected uri format '{0}' but received '{1}'.</value>
-    <comment>{0} = valid uri format, {1} = invalid uri format</comment>
-  </data>
-  <data name="NotImplementedOnQueue" xml:space="preserve">
-    <value>Queue '{0}' does not implement interface '{1}'.</value>
-    <comment>{0} = full type name of queue, {1} = interface not implemented</comment>
+    <comment>0 = valid uri format, 1 = invalid uri format</comment>
   </data>
   <data name="TypeListMessageRouteSpecificationUnknownType" xml:space="preserve">
     <value>Cannot get type '{0}' for TypeListMessageRouteSpecification.</value>
-    <comment>{0} = the given type name</comment>
+    <comment>0 = the given type name</comment>
   </data>
   <data name="AssemblyNotFound" xml:space="preserve">
     <value>Could not find assembly '{0}' during operation '{1}'.</value>
-    <comment>{0} = assembly name, {1} = operation name</comment>
+    <comment>0 = assembly name, 1 = operation name</comment>
   </data>
-  <data name="RequeueWithNoInbox" xml:space="preserve">
-    <value>You have tried to requeue a message but no inbox has been configured.</value>
-  </data>
-  <data name="TraceMessageEnqueued" xml:space="preserve">
-    <value>Message type '{0}' with id '{1}' equeuing on queue '{2}'.</value>
-    <comment>{0} = full type name of message, {1} = message id, {2} = queue uri</comment>
-  </data>
-  <data name="RequiredQueueUriMissing" xml:space="preserve">
-    <value>Required queue uri '{0}' has not been configured.  Please check your  application configuration or your code if you implemented it explicitly.</value>
-    <comment>{0} = name of the required queue uri</comment>
-  </data>
-  <data name="ReplyWithoutCurrentMessage" xml:space="preserve">
-    <value>There is no current message.  Cannot reply.</value>
+  <data name="RequiredQueueUriMissingException" xml:space="preserve">
+    <value>Required queue uri '{0}' has not been configured.  Please check your application settings or your code if you implemented it explicitly.</value>
+    <comment>0 = name of the required queue uri</comment>
   </data>
   <data name="WorkerRequiresInboxException" xml:space="preserve">
     <value>No inbox has been configured.  A worker requires an inbox.</value>
   </data>
   <data name="MessageRoutedToMoreThanOneEndpoint" xml:space="preserve">
     <value>Message of type '{0}' has been routed to more than one endpoint: {1}</value>
-    <comment>{0} = full type name of message, {1} = comma-delimited string containing all endpoint queue uris</comment>
+    <comment>0 = full type name of message, 1 = comma-delimited string containing all endpoint queue uris</comment>
   </data>
   <data name="UnknownMessageRouteSpecification" xml:space="preserve">
     <value>Unknown message route specification '{0}'.  Cannot create the specification.</value>
-    <comment>{0} = specification name</comment>
-  </data>
-  <data name="ReplyWithoutSenderInboxWorkQueueUri" xml:space="preserve">
-    <value>The current message has no SenderIndexWorkQueueUri.  Cannot reply.</value>
+    <comment>0 = specification name</comment>
   </data>
   <data name="TraceTransportMessageDeferred" xml:space="preserve">
     <value>Transport message with id '{0}' will be deferred until '{1}'.</value>
-    <comment>{0} = transport message id, {1} = deferred till date</comment>
+    <comment>0 = transport message id, 1 = deferred till date</comment>
   </data>
   <data name="ServiceBusInstanceAlreadyStarted" xml:space="preserve">
     <value>The service bus instance has already been started.</value>
   </data>
   <data name="MessageNotHandledIgnored" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') has been ignored.</value>
-    <comment>{0} = full type name of the discarded message, {1}= message id</comment>
-  </data>
-  <data name="WarningPublishWithoutSubscribers" xml:space="preserve">
-    <value>[publishing] : no subscribers / event message type = '{0}'</value>
-    <comment>{0} = full type name of event message</comment>
-  </data>
-  <data name="DebugWorkerAvailable" xml:space="preserve">
-    <value>[worker available ({0})] worker inbox = {1} / distributor control inbox = {2}</value>
-    <comment>{0} = worker thread identifier, {1} = worker available on queue uri, {2} = distributor control inbox uri</comment>
-  </data>
-  <data name="TransportMessageDeserializationException" xml:space="preserve">
-    <value>Could not deserialize the transport message from queue '{0}'.  Exception reported: {1}</value>
-    <comment>{0} = queue uri, {1} = exception</comment>
-  </data>
-  <data name="SerializerUnknownTypeExcption" xml:space="preserve">
-    <value>Type '{0}' is not registered with the serializer so it cannot be serialized.  Please use [SerialierInstance].AddKnownType to add the type before attempting to serialize or deserialize a TransportMessage containing this type in the object graph of the message property.</value>
-    <comment>{0} = type name that is unknown.</comment>
-  </data>
-  <data name="FatalIdempotenceServiceException" xml:space="preserve">
-    <value>Encountered a fatal exception accessing the idempotence service type '{0}'.  Without the idempotence service operational the integrity of the message processing cannot be guaranteed.  The pipeline has been aborted.  Exception: {1}</value>
-    <comment>{0} = full type name of the idempotence service, {1} = compact exception message</comment>
+    <comment>0 = full type name of the discarded message, 1= message id</comment>
   </data>
   <data name="DeferredMessageProcessorInstanceException" xml:space="preserve">
     <value>Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread.</value>
-  </data>
-  <data name="ReceivePipelineExceptionMessageNotReceived" xml:space="preserve">
-    <value>There has been an exception in the ReceiveMessagePipeline.  No message has been received.  Exception: {0}</value>
-    <comment>{0} = exception</comment>
-  </data>
-  <data name="ReceivePipelineExceptionMessageReleased" xml:space="preserve">
-    <value>There has been an exception in the ReceiveMessagePipeline.  The message has been released.  Exception: {0}</value>
-    <comment>{0} = exception</comment>
-  </data>
-  <data name="DefaultMessageHandlerFactoryNoDefaultConstructor" xml:space="preserve">
-    <value>Handler type '{0}' has no default constructor and will be ignored by the DefaultMessageHandlerFactory.  If you need to use this message handler you will need to make use of an IMessageHandlerFactory that can inject the dependency for you.</value>
-    <comment>{0} = full type name of message handler</comment>
   </data>
   <data name="SendToSelfException" xml:space="preserve">
     <value>You cannot send a message to this endpoint (Local) since this endpoint has no inbox.</value>
@@ -241,88 +180,60 @@
   <data name="SendReplyException" xml:space="preserve">
     <value>Cannot send reply as the provided transport message received has no inbox work queue uri.</value>
   </data>
-  <data name="OpenSectionException" xml:space="preserve">
-    <value>Could not find a section named '{0}' in configuration file '{1}' that is of type '{2}'.</value>
-    <comment>{0} = section name, {1} = configuration file, {2} = the section type</comment>
-  </data>
   <data name="UriNameNotFoundException" xml:space="preserve">
     <value>The IUriResolver type '{0}' could not resolve name '{1}'.</value>
-    <comment>{0} = full type name of the IUriResolver implementation, {1} = the required name</comment>
-  </data>
-  <data name="MessageHandlerFactoryHandlerRegistered" xml:space="preserve">
-    <value>[message handler registered] : message type = '{0}' / handler type = '{1}'</value>
-    <comment>{0} = full name of message type, {1} = full name of handler type</comment>
-  </data>
-  <data name="QueueFactoryInstantiationException" xml:space="preserve">
-    <value>Queue factory type '{0}' could not be instantiated.  Exception: {1}</value>
-    <comment>{0} = full type name of queue factory type to be instanced, {1} = exception messages</comment>
-  </data>
-  <data name="UnknownTypeException" xml:space="preserve">
-    <value>Could not get type: {0}</value>
-    <comment>{0} = type descriptor that cannot be found</comment>
-  </data>
-  <data name="FindQueueException" xml:space="preserve">
-    <value>An exception occurred trying to find a queue.  Candidate queue type = '{0}'.  Candidate uri = '{1}'.  Comparison uri = '{2}'.  All exception messages = '{3}'.</value>
-    <comment>{0} = candidate queue type, {1} = candidate uri, {2} = comparison uri, {3} = all exception messages</comment>
+    <comment>0 = full type name of the IUriResolver implementation, 1 = the required name</comment>
   </data>
   <data name="QueueFactoryCreatedNullQueue" xml:space="preserve">
     <value>Queue factory with type '{0}' create returned (null) for uri '{1}'.</value>
-    <comment>{0} = the queue factory type name, {1} = the uri that the threadActivityFactory was requested to create the queue for</comment>
-  </data>
-  <data name="ConfiguratorAlreadyRegisteredException" xml:space="preserve">
-    <value>A configurator wih type name '{0}' has already been registered.</value>
-    <comment>{0} = full type name of the configurator</comment>
-  </data>
-  <data name="PipelineExecutionException" xml:space="preserve">
-    <value>Could not execute pipeline '{0}'.  Exception: {1}</value>
-    <comment>{0} = pipeline name, {1} = exception message(s)</comment>
-  </data>
-  <data name="TraceDeferredCheckpointMessageId" xml:space="preserve">
-    <value>Deferred checkpoint set to message id '{0}'</value>
-    <comment>{0} = transport message id</comment>
-  </data>
-  <data name="TraceDeferredProcessingReset" xml:space="preserve">
-    <value>Deferred processing has completed a cycle and will process again at date '{0}'.</value>
-    <comment>{0} = next process date</comment>
-  </data>
-  <data name="TraceDeferredProcessingHalted" xml:space="preserve">
-    <value>Deferred processing has been halted since the deferred queue is empty.  Once another message is deferred the processing will restart.</value>
-  </data>
-  <data name="RegisterHandlersException" xml:space="preserve">
-    <value>Could not register handlers from assembly '{0}'.  Exception messages: {1}</value>
-    <comment>0 = fully qualified assembly, 1 = all messages</comment>
-  </data>
-  <data name="SubscribeWithNoInboxException" xml:space="preserve">
-    <value>You have attempted to subscribe to messages but there is no inbox configured.</value>
-  </data>
-  <data name="MappingInvalidUriException" xml:space="preserve">
-    <value>The uri specified as the '{0}' is not a valid uri.  The value configured is '{1}'.</value>
-    <comment>{0} = the uri type, {1} = the invalid uri value</comment>
+    <comment>0 = the queue factory type name, 1 = the uri that the threadActivityFactory was requested to create the queue for</comment>
   </data>
   <data name="ServiceBusInstanceNotStarted" xml:space="preserve">
     <value>The service bus instance has not yet been started.</value>
   </data>
-  <data name="QueueFactoryRegistered" xml:space="preserve">
-    <value>[queue factory registered] : scheme = '{0}' / type '{1}' </value>
-    <comment>{0} = scheme, {1} = full factory type name registered</comment>
-  </data>
-  <data name="MissingCompressionAlgorithmException" xml:space="preserve">
-    <value>Compression algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
-  <data name="MissingEncryptionAlgorithmException" xml:space="preserve">
-    <value>Encryption algorithm '{0}' has not been registered.</value>
-    <comment>{0} = algorithm name</comment>
-  </data>
-  <data name="ConfigurationResolverMissing" xml:space="preserve">
-    <value>The IServiceBusConfiguration.Resolver has not been assigned.</value>
-  </data>
-  <data name="ObserverInterfaceMissingException" xml:space="preserve">
-    <value>Observer with type name '{0}' does not have an interface with name 'I{0}'.</value>
-    <comment>{0} = observer type name</comment>
-  </data>
   <data name="HandlerMessageMethodMissingException" xml:space="preserve">
     <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
-    <comment>{0} = handler full type name, {1} = message full type name</comment>
+    <comment>0 = handler full type name, 1 = message full type name</comment>
+  </data>
+  <data name="RequiredOptionsMissingException" xml:space="preserve">
+    <value>Required options '{0}' have not been provided.</value>
+    <comment>0 = options name</comment>
+  </data>
+  <data name="MessageRoutesRequireSpecificationException" xml:space="preserve">
+    <value>If a message route is defined it requires at least one specification.</value>
+  </data>
+  <data name="InvalidUriException" xml:space="preserve">
+    <value>The value '{0}' is not a valid URI for '{1}'.</value>
+    <comment>0 = invalid URI string, 1 = URI name/type</comment>
+  </data>
+  <data name="NoErrorQueue" xml:space="preserve">
+    <value>(no error queue)</value>
+  </data>
+  <data name="DeferStreamException" xml:space="preserve">
+    <value>Cannot defer messages when the inbox is a stream.</value>
+  </data>
+  <data name="TransportMessageRecipientException" xml:space="preserve">
+    <value>The recipient has already been set for the transport message.</value>
+  </data>
+  <data name="NotImplementedOnQueue" xml:space="preserve">
+    <value>Queue '{0}' does not implement interface '{1}'.</value>
+    <comment>0 = full type name of queue, 1 = interface not implemented</comment>
+  </data>
+  <data name="DuplicateQueueConfigurationNameException" xml:space="preserve">
+    <value>This is already a configuration registered for endpoint with name '{0}'.</value>
+    <comment>0 = configuration name</comment>
+  </data>
+  <data name="QueueConfigurationNameException" xml:space="preserve">
+    <value>The configuration name is empty.</value>
+  </data>
+  <data name="QueueConfigurationItemException" xml:space="preserve">
+    <value>Queue configuration with name '{0}' requires a value for '{1}'.</value>
+    <comment>0 = configuration name, 1 = item name</comment>
+  </data>
+  <data name="SubscribeWithNoInboxException" xml:space="preserve">
+    <value>Attempted to subscribe to messages but there is no inbox configured.</value>
+  </data>
+  <data name="AddSubscriptionException" xml:space="preserve">
+    <value>Cannot add subscription as a valid instance of the `MessageTypes` list cannot be reached.</value>
   </data>
 </root>

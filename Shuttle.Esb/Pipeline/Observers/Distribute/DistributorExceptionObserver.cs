@@ -11,17 +11,14 @@ namespace Shuttle.Esb
 
     public class DistributorExceptionObserver : IDistributorExceptionObserver
     {
-        private readonly IServiceBusEvents _events;
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
 
-        public DistributorExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
+        public DistributorExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(policy, nameof(policy));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _policy = policy;
             _serializer = serializer;
         }
@@ -30,10 +27,10 @@ namespace Shuttle.Esb
         {
             var state = pipelineEvent.Pipeline.State;
 
-            _events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
-
             try
             {
+                state.ResetWorking();
+
                 if (pipelineEvent.Pipeline.ExceptionHandled)
                 {
                     return;
@@ -48,27 +45,36 @@ namespace Shuttle.Esb
                         return;
                     }
 
-                    var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
+                    var workQueue = state.GetWorkQueue();
+                    var errorQueue = state.GetErrorQueue();
+                    var receivedMessage = state.GetReceivedMessage();
 
-                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-                        action.TimeSpanToIgnoreRetriedMessage);
-
-                    if (action.Retry)
+                    if (!workQueue.IsStream)
                     {
-                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        var action = _policy.EvaluateMessageDistributionFailure(pipelineEvent);
+
+                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                            action.TimeSpanToIgnoreRetriedMessage);
+
+                        if (action.Retry || errorQueue == null)
+                        {
+                            workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+                        else
+                        {
+                            errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+
+                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                     }
                     else
                     {
-                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        workQueue.Release(receivedMessage.AcknowledgementToken);
                     }
-
-                    state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    _events.OnAfterPipelineExceptionHandled(this,
-                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }
             finally

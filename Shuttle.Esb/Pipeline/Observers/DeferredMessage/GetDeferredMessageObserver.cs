@@ -9,15 +9,6 @@ namespace Shuttle.Esb
 
     public class GetDeferredMessageObserver : IGetDeferredMessageObserver
     {
-        private readonly IServiceBusEvents _events;
-
-        public GetDeferredMessageObserver(IServiceBusEvents events)
-        {
-            Guard.AgainstNull(events, nameof(events));
-
-            _events = events;
-        }
-
         public void Execute(OnGetMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
@@ -30,8 +21,6 @@ namespace Shuttle.Esb
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)
             {
-                _events.OnQueueEmpty(this, new QueueEmptyEventArgs(pipelineEvent, queue));
-
                 pipelineEvent.Pipeline.Abort();
             }
             else

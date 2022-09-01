@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -6,26 +7,25 @@ namespace Shuttle.Esb
 {
     public class ControlInboxProcessorFactory : IProcessorFactory
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public ControlInboxProcessorFactory(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IPipelineFactory pipelineFactory)
+        public ControlInboxProcessorFactory(ServiceBusOptions serviceBusOptions,
+            IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _configuration = configuration;
-            _events = events;
+            _serviceBusOptions = serviceBusOptions;
             _pipelineFactory = pipelineFactory;
+            _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         public IProcessor Create()
         {
-            return new ControlInboxProcessor(_events, new ThreadActivity(_configuration.ControlInbox),
-                _pipelineFactory);
+            return new ControlInboxProcessor(new ThreadActivity(_serviceBusOptions.ControlInbox.DurationToSleepWhenIdle), _pipelineFactory, _pipelineThreadActivity);
         }
     }
 }

@@ -6,6 +6,5 @@ namespace Shuttle.Esb
     {
         string Scheme { get; }
         IQueue Create(Uri uri);
-        bool CanCreate(Uri uri);
     }
 }

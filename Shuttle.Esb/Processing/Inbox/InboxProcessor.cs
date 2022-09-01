@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -8,27 +9,27 @@ namespace Shuttle.Esb
 {
     public class InboxProcessor : IProcessor
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public InboxProcessor(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IThreadActivity threadActivity, IWorkerAvailabilityManager workerAvailabilityManager,
-            IPipelineFactory pipelineFactory)
+        public InboxProcessor(ServiceBusOptions serviceBusOptions,
+            IThreadActivity threadActivity, IWorkerAvailabilityService workerAvailabilityService,
+            IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _configuration = configuration;
-            _events = events;
+            _serviceBusOptions = serviceBusOptions;
             _threadActivity = threadActivity;
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
+            _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         [DebuggerNonUserCode]
@@ -39,11 +40,13 @@ namespace Shuttle.Esb
 
         public virtual void Execute(CancellationToken cancellationToken)
         {
-            var availableWorker = _workerAvailabilityManager.GetAvailableWorker();
+            var availableWorker = _workerAvailabilityService.GetAvailableWorker();
 
-            if (_configuration.Inbox.Distribute && availableWorker == null)
+            if (_serviceBusOptions.Inbox.Distribute && availableWorker == null)
             {
                 _threadActivity.Waiting(cancellationToken);
+
+                _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(null));
 
                 return;
             }
@@ -69,13 +72,13 @@ namespace Shuttle.Esb
 
                 if (messagePipeline.State.GetWorking())
                 {
-                    _events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
-
                     _threadActivity.Working();
+
+                    _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(messagePipeline));
                 }
                 else
                 {
-                    _events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(InboxMessagePipeline)));
+                    _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
 
                     _threadActivity.Waiting(cancellationToken);
                 }

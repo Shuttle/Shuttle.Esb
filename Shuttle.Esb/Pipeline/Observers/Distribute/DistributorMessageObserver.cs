@@ -11,20 +11,20 @@ namespace Shuttle.Esb
 
     public class DistributorMessageObserver : IDistributorMessageObserver
     {
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
-        public DistributorMessageObserver(IWorkerAvailabilityManager workerAvailabilityManager)
+        public DistributorMessageObserver(IWorkerAvailabilityService workerAvailabilityService)
         {
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
 
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _workerAvailabilityService = workerAvailabilityService;
         }
 
         public void Execute(OnAbortPipeline pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
-            _workerAvailabilityManager.ReturnAvailableWorker(state.GetAvailableWorker());
+            _workerAvailabilityService.ReturnAvailableWorker(state.GetAvailableWorker());
         }
 
         public void Execute(OnHandleDistributeMessage pipelineEvent)

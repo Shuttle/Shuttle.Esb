@@ -5,7 +5,7 @@ namespace Shuttle.Esb
 {
     public class DistributorPipeline : Pipeline
     {
-        public DistributorPipeline(IServiceBusConfiguration configuration,
+        public DistributorPipeline(IServiceBusConfiguration serviceBusConfiguration,
             IGetWorkMessageObserver getWorkMessageObserver,
             IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
             IDistributorMessageObserver distributorMessageObserver,
@@ -14,7 +14,7 @@ namespace Shuttle.Esb
             IAcknowledgeMessageObserver acknowledgeMessageObserver,
             IDistributorExceptionObserver distributorExceptionObserver)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
             Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
             Guard.AgainstNull(distributorMessageObserver, nameof(distributorMessageObserver));
@@ -23,8 +23,8 @@ namespace Shuttle.Esb
             Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
             Guard.AgainstNull(distributorExceptionObserver, nameof(distributorExceptionObserver));
 
-            State.SetWorkQueue(configuration.Inbox.WorkQueue);
-            State.SetErrorQueue(configuration.Inbox.ErrorQueue);
+            State.SetWorkQueue(serviceBusConfiguration.Inbox.WorkQueue);
+            State.SetErrorQueue(serviceBusConfiguration.Inbox.ErrorQueue);
 
             RegisterStage("Distribute")
                 .WithEvent<OnGetMessage>()

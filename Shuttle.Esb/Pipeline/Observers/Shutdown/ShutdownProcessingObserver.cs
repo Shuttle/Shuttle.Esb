@@ -4,67 +4,51 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public interface IShutdownProcessingObserver : 
-        IPipelineObserver<OnStopping>, 
-        IPipelineObserver<OnDisposeQueues>, 
-        IPipelineObserver<OnStopped>
+    public interface IShutdownProcessingObserver : IPipelineObserver<OnStopping>
     {
     }
 
     public class ShutdownProcessingObserver : IShutdownProcessingObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
-        private readonly IQueueManager _queueManager;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
+        private readonly IQueueService _queueService;
 
-        public ShutdownProcessingObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
-            IQueueManager queueManager)
+        public ShutdownProcessingObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
+            Guard.AgainstNull(queueService, nameof(queueService));
 
-            _configuration = configuration;
-            _events = events;
-            _queueManager = queueManager;
-        }
-
-        public void Execute(OnDisposeQueues pipelineEvent)
-        {
-            if (_configuration.HasControlInbox)
-            {
-                _configuration.ControlInbox.WorkQueue.AttemptDispose();
-                _configuration.ControlInbox.ErrorQueue.AttemptDispose();
-            }
-
-            if (_configuration.HasInbox)
-            {
-                _configuration.Inbox.WorkQueue.AttemptDispose();
-                _configuration.Inbox.DeferredQueue.AttemptDispose();
-                _configuration.Inbox.ErrorQueue.AttemptDispose();
-            }
-
-            if (_configuration.HasOutbox)
-            {
-                _configuration.Outbox.WorkQueue.AttemptDispose();
-                _configuration.Outbox.ErrorQueue.AttemptDispose();
-            }
-
-            if (_configuration.IsWorker)
-            {
-                _configuration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
-            }
-
-            _queueManager.AttemptDispose();
-        }
-
-        public void Execute(OnStopped pipelineEvent)
-        {
-            _events.OnStopped(this, new PipelineEventEventArgs(pipelineEvent));
+            _serviceBusConfiguration = serviceBusConfiguration;
+            _queueService = queueService;
         }
 
         public void Execute(OnStopping pipelineEvent)
         {
-            _events.OnStopping(this, new PipelineEventEventArgs(pipelineEvent));
+            if (_serviceBusConfiguration.HasControlInbox())
+            {
+                _serviceBusConfiguration.ControlInbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.ControlInbox.ErrorQueue.AttemptDispose();
+            }
+
+            if (_serviceBusConfiguration.HasInbox())
+            {
+                _serviceBusConfiguration.Inbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.DeferredQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.ErrorQueue.AttemptDispose();
+            }
+
+            if (_serviceBusConfiguration.HasOutbox())
+            {
+                _serviceBusConfiguration.Outbox.WorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Outbox.ErrorQueue.AttemptDispose();
+            }
+
+            if (_serviceBusConfiguration.IsWorker())
+            {
+                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
+            }
+
+            _queueService.AttemptDispose();
         }
     }
 }

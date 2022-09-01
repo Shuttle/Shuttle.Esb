@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -8,9 +9,20 @@ namespace Shuttle.Esb
     {
         private readonly Dictionary<string, Uri> _targetUris = new Dictionary<string, Uri>();
 
-        public Uri GetTarget(Uri resolverUri)
+        public DefaultUriResolver(IOptions<ServiceBusOptions> serviceBusOptions)
         {
-            if (!_targetUris.TryGetValue(resolverUri.OriginalString.ToLower(), out var result))
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+
+            foreach (var configuration in serviceBusOptions.Value.UriMappings)
+            {
+                Add(new Uri(configuration.SourceUri), new Uri(configuration.TargetUri));
+            }
+        }
+
+        public Uri GetTarget(Uri sourceUri)
+        {
+            if (!_targetUris.TryGetValue(sourceUri.OriginalString.ToLower(), out var result))
             {
 
             }
@@ -18,12 +30,12 @@ namespace Shuttle.Esb
             return result;
         }
 
-        public void Add(Uri resolverUri, Uri targetUri)
+        public void Add(Uri sourceUri, Uri targetUri)
         {
-            Guard.AgainstNull(resolverUri, nameof(resolverUri));
+            Guard.AgainstNull(sourceUri, nameof(sourceUri));
             Guard.AgainstNull(targetUri, nameof(targetUri));
 
-            _targetUris.Add(resolverUri.OriginalString.ToLower(), targetUri);
+            _targetUris.Add(sourceUri.OriginalString.ToLower(), targetUri);
         }
     }
 }

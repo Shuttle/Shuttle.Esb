@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;net5.0</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Shuttle.Core.Castle" Version="10.1.0" />
-    <PackageReference Include="Shuttle.Core.System" Version="11.0.0" />
+    <PackageReference Include="Shuttle.Core.System" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.Transactions" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,66 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ServiceBusSection\files\Control-Full-Grouped.config">
+    <None Update="Options\appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ServiceBusSection\files\Control-Full.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Empty.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Inbox-Full-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Inbox-Full.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Inbox-Required.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\MessageRoutes-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\MessageRoutes.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Outbox-Full-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Outbox-Full.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Outbox-Required.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\QueueFactories-EmptyTypes.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\QueueFactories-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\QueueFactories.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Shared-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Shared.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\UriResolver-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\UriResolver.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Worker-Grouped.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ServiceBusSection\files\Worker.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pipelines\Observers\Send\" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
@@ -11,32 +10,29 @@ namespace Shuttle.Esb
 {
     public interface IDeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>
     {
+        event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException;
     }
 
     public class DeserializeTransportMessageObserver : IDeserializeTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
-        private readonly ILog _log;
-        private readonly ISerializer _serializer;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IEnvironmentService _environmentService;
         private readonly IProcessService _processService;
+        private readonly ISerializer _serializer;
 
-        public DeserializeTransportMessageObserver(IServiceBusConfiguration configuration, IServiceBusEvents events,
+        public DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions,
             ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(serializer, nameof(serializer));
             Guard.AgainstNull(environmentService, nameof(environmentService));
             Guard.AgainstNull(processService, nameof(processService));
 
-            _configuration = configuration;
-            _events = events;
+            _serviceBusOptions = serviceBusOptions.Value;
             _serializer = serializer;
             _environmentService = environmentService;
             _processService = processService;
-            _log = Log.For(this);
         }
 
         public void Execute(OnDeserializeTransportMessage pipelineEvent)
@@ -44,11 +40,9 @@ namespace Shuttle.Esb
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
             var workQueue = state.GetWorkQueue();
-            var errorQueue = state.GetErrorQueue();
 
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(errorQueue, nameof(errorQueue));
 
             TransportMessage transportMessage;
 
@@ -57,16 +51,15 @@ namespace Shuttle.Esb
                 using (var stream = receivedMessage.Stream.Copy())
                 {
                     transportMessage =
-                        (TransportMessage) _serializer.Deserialize(typeof(TransportMessage), stream);
+                        (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream);
                 }
             }
             catch (Exception ex)
             {
-                _log.Error(ex.ToString());
-                _log.Error(string.Format(Resources.TransportMessageDeserializationException, workQueue.Uri.Secured(),
-                    ex));
+                TransportMessageDeserializationException(this,
+                    new DeserializationExceptionEventArgs(pipelineEvent, workQueue, state.GetErrorQueue(), ex));
 
-                if (_configuration.RemoveCorruptMessages)
+                if (_serviceBusOptions.RemoveCorruptMessages)
                 {
                     state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                 }
@@ -80,13 +73,6 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                _events.OnTransportMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(
-                        pipelineEvent,
-                        workQueue,
-                        errorQueue,
-                        ex));
-
                 pipelineEvent.Pipeline.Abort();
 
                 return;
@@ -97,5 +83,9 @@ namespace Shuttle.Esb
 
             transportMessage.AcceptInvariants();
         }
+
+        public event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException = delegate
+        {
+        };
     }
 }

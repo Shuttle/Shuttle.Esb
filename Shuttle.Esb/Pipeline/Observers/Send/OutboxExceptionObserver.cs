@@ -11,17 +11,14 @@ namespace Shuttle.Esb
 
     public class OutboxExceptionObserver : IOutboxExceptionObserver
     {
-        private readonly IServiceBusEvents _events;
         private readonly IServiceBusPolicy _policy;
         private readonly ISerializer _serializer;
 
-        public OutboxExceptionObserver(IServiceBusEvents events, IServiceBusPolicy policy, ISerializer serializer)
+        public OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(policy, nameof(policy));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _policy = policy;
             _serializer = serializer;
         }
@@ -30,10 +27,10 @@ namespace Shuttle.Esb
         {
             var state = pipelineEvent.Pipeline.State;
 
-            _events.OnBeforePipelineExceptionHandled(this, new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
-
             try
             {
+                state.ResetWorking();
+
                 if (pipelineEvent.Pipeline.ExceptionHandled)
                 {
                     return;
@@ -43,38 +40,45 @@ namespace Shuttle.Esb
                 {
                     var receivedMessage = state.GetReceivedMessage();
                     var transportMessage = state.GetTransportMessage();
+                    var workQueue = state.GetWorkQueue();
+                    var errorQueue = state.GetErrorQueue();
 
                     if (transportMessage == null)
                     {
                         if (receivedMessage != null)
                         {
-                            state.GetWorkQueue().Release(receivedMessage.AcknowledgementToken);
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
                         }
 
                         return;
                     }
 
-                    var action = _policy.EvaluateOutboxFailure(pipelineEvent);
-
-                    transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-                        action.TimeSpanToIgnoreRetriedMessage);
-
-                    if (action.Retry)
+                    if (!workQueue.IsStream)
                     {
-                        state.GetWorkQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        var action = _policy.EvaluateOutboxFailure(pipelineEvent);
+
+                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
+                            action.TimeSpanToIgnoreRetriedMessage);
+
+                        if (action.Retry || errorQueue == null)
+                        {
+                            workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+                        else
+                        {
+                            errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        }
+
+                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                     }
                     else
                     {
-                        state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                        workQueue.Release(receivedMessage.AcknowledgementToken);
                     }
-
-                    state.GetWorkQueue().Acknowledge(receivedMessage.AcknowledgementToken);
                 }
                 finally
                 {
                     pipelineEvent.Pipeline.MarkExceptionHandled();
-                    _events.OnAfterPipelineExceptionHandled(this,
-                        new PipelineExceptionEventArgs(pipelineEvent.Pipeline));
                 }
             }
             finally

@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
 

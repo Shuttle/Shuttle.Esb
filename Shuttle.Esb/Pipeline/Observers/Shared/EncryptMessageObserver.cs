@@ -1,5 +1,6 @@
 ﻿using System;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -10,13 +11,13 @@ namespace Shuttle.Esb
 
     public class EncryptMessageObserver : IEncryptMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IEncryptionService _encryptionService;
 
-        public EncryptMessageObserver(IServiceBusConfiguration configuration)
+        public EncryptMessageObserver(IEncryptionService encryptionService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(encryptionService, nameof(encryptionService));
 
-            _configuration = configuration;
+            _encryptionService = encryptionService;
         }
 
         public void Execute(OnEncryptMessage pipelineEvent)
@@ -29,16 +30,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            var algorithm = _configuration.FindEncryptionAlgorithm(transportMessage.EncryptionAlgorithm);
-
-            if (algorithm == null)
-            {
-                throw new InvalidOperationException(
-                    string.Format(Resources.MissingEncryptionAlgorithmException,
-                        transportMessage.EncryptionAlgorithm));
-            }
-
-            transportMessage.Message = algorithm.Encrypt(transportMessage.Message);
+            transportMessage.Message = _encryptionService.Encrypt(transportMessage.EncryptionAlgorithm, transportMessage.Message);
         }
     }
 }

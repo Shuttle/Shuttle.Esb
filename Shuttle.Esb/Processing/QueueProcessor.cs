@@ -9,20 +9,19 @@ namespace Shuttle.Esb
     public abstract class QueueProcessor<TPipeline> : IProcessor
         where TPipeline : IPipeline
     {
-        private readonly IServiceBusEvents _events;
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IThreadActivity _threadActivity;
 
-        protected QueueProcessor(IServiceBusEvents events, IThreadActivity threadActivity,
-            IPipelineFactory pipelineFactory)
+        protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _events = events;
             _threadActivity = threadActivity;
             _pipelineFactory = pipelineFactory;
+            _pipelineThreadActivity = pipelineThreadActivity;
         }
 
         [DebuggerNonUserCode]
@@ -44,13 +43,13 @@ namespace Shuttle.Esb
 
                 if (messagePipeline.State.GetWorking())
                 {
-                    _events.OnThreadWorking(this, new ThreadStateEventArgs(typeof(TPipeline)));
-
                     _threadActivity.Working();
+
+                    _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(messagePipeline));
                 }
                 else
                 {
-                    _events.OnThreadWaiting(this, new ThreadStateEventArgs(typeof(TPipeline)));
+                    _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
 
                     _threadActivity.Waiting(cancellationToken);
                 }

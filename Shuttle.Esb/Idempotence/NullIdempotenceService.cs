@@ -15,9 +15,7 @@ namespace Shuttle.Esb
         {
         }
 
-        public bool AddDeferredMessage(TransportMessage processingTransportMessage,
-            TransportMessage deferredTransportMessage,
-            Stream deferredTransportMessageStream)
+        public bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream)
         {
             return false;
         }

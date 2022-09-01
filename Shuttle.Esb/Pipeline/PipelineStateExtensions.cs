@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Shuttle.Core.Pipelines;
@@ -37,9 +38,9 @@ namespace Shuttle.Esb
             return state.Get<int>(StateKeys.MaximumFailureCount);
         }
 
-        public static TimeSpan[] GetDurationToIgnoreOnFailure(this IState state)
+        public static IEnumerable<TimeSpan> GetDurationToIgnoreOnFailure(this IState state)
         {
-            return state.Get<TimeSpan[]>(StateKeys.DurationToIgnoreOnFailure);
+            return state.Get<IEnumerable<TimeSpan>>(StateKeys.DurationToIgnoreOnFailure);
         }
 
         public static void SetTransportMessage(this IState state, TransportMessage value)
@@ -112,9 +113,14 @@ namespace Shuttle.Esb
             state.Replace(StateKeys.Message, message);
         }
 
-        public static void SetTransportMessageContext(this IState state, TransportMessageConfigurator configurator)
+        public static void SetTransportMessageBuilder(this IState state, Action<TransportMessageBuilder> builder)
         {
-            state.Replace(StateKeys.TransportMessageConfigurator, configurator);
+            state.Replace(StateKeys.TransportMessageBuilder, builder);
+        }
+
+        public static Action<TransportMessageBuilder> GetTransportMessageBuilder(this IState state)
+        {
+            return state.Get<Action<TransportMessageBuilder>>(StateKeys.TransportMessageBuilder);
         }
 
         public static void SetAvailableWorker(this IState state, AvailableWorker value)
@@ -172,7 +178,7 @@ namespace Shuttle.Esb
             state.Add(StateKeys.MaximumFailureCount, count);
         }
 
-        public static void SetDurationToIgnoreOnFailure(this IState state, TimeSpan[] timeSpans)
+        public static void SetDurationToIgnoreOnFailure(this IState state, IEnumerable<TimeSpan> timeSpans)
         {
             state.Add(StateKeys.DurationToIgnoreOnFailure, timeSpans);
         }

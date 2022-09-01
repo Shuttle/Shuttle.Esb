@@ -10,19 +10,17 @@ namespace Shuttle.Esb
 {
     public interface IDeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>
     {
+        event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
     }
 
     public class DeserializeMessageObserver : IDeserializeMessageObserver
     {
-        private readonly IServiceBusEvents _events;
         private readonly ISerializer _serializer;
 
-        public DeserializeMessageObserver(IServiceBusEvents events, ISerializer serializer)
+        public DeserializeMessageObserver(ISerializer serializer)
         {
-            Guard.AgainstNull(events, nameof(events));
             Guard.AgainstNull(serializer, nameof(serializer));
 
-            _events = events;
             _serializer = serializer;
         }
 
@@ -32,7 +30,6 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
             Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
-            Guard.AgainstNull(state.GetErrorQueue(), "errorQueue");
 
             var transportMessage = state.GetTransportMessage();
 
@@ -49,6 +46,14 @@ namespace Shuttle.Esb
             }
             catch (Exception ex)
             {
+                MessageDeserializationException.Invoke(this,
+                    new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(), ex));
+
+                if (state.GetWorkQueue() == null)
+                {
+                    throw;
+                }
+
                 transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
                 state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
@@ -57,17 +62,14 @@ namespace Shuttle.Esb
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();
 
-                _events.OnMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(
-                        pipelineEvent,
-                        state.GetWorkQueue(),
-                        state.GetErrorQueue(),
-                        ex));
-
                 return;
             }
 
             state.SetMessage(message);
         }
+
+        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate
+        {
+        };
     }
 }

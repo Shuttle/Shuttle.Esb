@@ -1,5 +1,5 @@
-﻿using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
+﻿using System;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -7,19 +7,18 @@ namespace Shuttle.Esb
 {
     public interface IDeferTransportMessageObserver : IPipelineObserver<OnAfterDeserializeTransportMessage>
     {
+        event EventHandler<TransportMessageDeferredEventArgs> TransportMessageDeferred;
     }
 
     public class DeferTransportMessageObserver : IDeferTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly ILog _log;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
 
-        public DeferTransportMessageObserver(IServiceBusConfiguration configuration)
+        public DeferTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
-            _configuration = configuration;
-            _log = Log.For(this);
+            _serviceBusConfiguration = serviceBusConfiguration;
         }
 
         public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
@@ -48,19 +47,19 @@ namespace Shuttle.Esb
                 {
                     state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
-                    _configuration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+                    _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                 }
             }
 
             workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
 
-            if (_log.IsTraceEnabled)
-            {
-                _log.Trace(string.Format(Resources.TraceTransportMessageDeferred, transportMessage.MessageId,
-                    transportMessage.IgnoreTillDate.ToString("O")));
-            }
+            TransportMessageDeferred.Invoke(this, new TransportMessageDeferredEventArgs(transportMessage));
 
             pipelineEvent.Pipeline.Abort();
         }
+
+        public event EventHandler<TransportMessageDeferredEventArgs> TransportMessageDeferred = delegate
+        {
+        };
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -12,22 +11,20 @@ namespace Shuttle.Esb
 
     public class DispatchTransportMessageObserver : IDispatchTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IIdempotenceService _idempotenceService;
-        private readonly ILog _log;
-        private readonly IQueueManager _queueManager;
+        private readonly IQueueService _queueService;
 
-        public DispatchTransportMessageObserver(IServiceBusConfiguration configuration, IQueueManager queueManager,
+        public DispatchTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService,
             IIdempotenceService idempotenceService)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(queueManager, nameof(queueManager));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
+            Guard.AgainstNull(queueService, nameof(queueService));
             Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
-            _configuration = configuration;
-            _queueManager = queueManager;
+            _serviceBusConfiguration = serviceBusConfiguration;
+            _queueService = queueService;
             _idempotenceService = idempotenceService;
-            _log = Log.For(this);
         }
 
         public void Execute(OnDispatchTransportMessage pipelineEvent)
@@ -36,28 +33,18 @@ namespace Shuttle.Esb
             var transportMessage = state.GetTransportMessage();
             var transportMessageReceived = state.GetTransportMessageReceived();
 
-            if (transportMessageReceived != null)
+            if (transportMessageReceived != null &&
+                _idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage, state.GetTransportMessageStream()))
             {
-                try
-                {
-                    if (_idempotenceService.AddDeferredMessage(transportMessageReceived, transportMessage,
-                        state.GetTransportMessageStream()))
-                    {
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-                }
+                return;
             }
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
 
-            var queue = !_configuration.HasOutbox
-                ? _queueManager.GetQueue(transportMessage.RecipientInboxWorkQueueUri)
-                : _configuration.Outbox.WorkQueue;
+            var queue = !_serviceBusConfiguration.HasOutbox()
+                ? _queueService.Get(transportMessage.RecipientInboxWorkQueueUri)
+                : _serviceBusConfiguration.Outbox.WorkQueue;
 
             using (var stream = state.GetTransportMessageStream().Copy())
             {

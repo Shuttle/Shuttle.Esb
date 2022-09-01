@@ -9,12 +9,4 @@ namespace Shuttle.Esb
     public class OnStopped : PipelineEvent
     {
     }
-
-    public class OnDisposeQueues : PipelineEvent
-    {
-    }
-
-    public class OnAfterDisposeQueues : PipelineEvent
-    {
-    }
 }

@@ -6,26 +6,6 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigureUriResolver : PipelineEvent
-    {
-    }
-
-    public class OnAfterConfigureUriResolver : PipelineEvent
-    {
-    }
-
-    public class OnAfterConfigureQueueManager : PipelineEvent
-    {
-    }
-
-    public class OnConfigureQueues : PipelineEvent
-    {
-    }
-
-    public class OnAfterConfigureQueues : PipelineEvent
-    {
-    }
-
     public class OnCreatePhysicalQueues : PipelineEvent
     {
     }
@@ -34,11 +14,11 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigureMessageRouteProvider : PipelineEvent
+    public class OnConfigure : PipelineEvent
     {
     }
 
-    public class OnAfterConfigureMessageRouteProvider : PipelineEvent
+    public class OnAfterConfigure : PipelineEvent
     {
     }
 

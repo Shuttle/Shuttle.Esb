@@ -1,8 +1,7 @@
 namespace Shuttle.Esb
 {
-    public interface IWorkQueueConfiguration : IThreadCount
+    public interface IWorkQueueConfiguration
     {
         IQueue WorkQueue { get; set; }
-        string WorkQueueUri { get; }
     }
 }

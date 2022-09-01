@@ -1,32 +1,34 @@
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
     public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
     {
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public WorkerAvailableHandler(IServiceBusConfiguration configuration, IWorkerAvailabilityManager workerAvailabilityManager)
+        public WorkerAvailableHandler(IOptions<ServiceBusOptions> serviceBusOptions, IWorkerAvailabilityService workerAvailabilityService)
         {
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
 
-            _configuration = configuration;
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _serviceBusOptions = serviceBusOptions.Value;
+            _workerAvailabilityService = workerAvailabilityService;
         }
 
         public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
-            var distributeSendCount = _configuration.Inbox.DistributeSendCount > 0
-                ? _configuration.Inbox.DistributeSendCount
+            var distributeSendCount = _serviceBusOptions.Inbox.DistributeSendCount > 0
+                ? _serviceBusOptions.Inbox.DistributeSendCount
                 : 5;
 
-            _workerAvailabilityManager.RemoveByThread(context.Message);
+            _workerAvailabilityService.RemoveByThread(context.Message);
 
             for (var i = 0; i < distributeSendCount; i++)
             {
-                _workerAvailabilityManager.WorkerAvailable(context.Message);
+                _workerAvailabilityService.WorkerAvailable(context.Message);
             }
         }
     }

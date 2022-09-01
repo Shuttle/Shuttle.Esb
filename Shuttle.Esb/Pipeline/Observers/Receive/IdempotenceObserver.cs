@@ -1,12 +1,11 @@
 using System;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
-    public interface IIdempotenceObserver : 
-        IPipelineObserver<OnProcessIdempotenceMessage>, 
+    public interface IIdempotenceObserver :
+        IPipelineObserver<OnProcessIdempotenceMessage>,
         IPipelineObserver<OnIdempotenceMessageHandled>
     {
     }
@@ -14,14 +13,12 @@ namespace Shuttle.Esb
     public class IdempotenceObserver : IIdempotenceObserver
     {
         private readonly IIdempotenceService _idempotenceService;
-        private readonly ILog _log;
 
         public IdempotenceObserver(IIdempotenceService idempotenceService)
         {
             Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
 
             _idempotenceService = idempotenceService;
-            _log = Log.For(this);
         }
 
         public void Execute(OnIdempotenceMessageHandled pipelineEvent)
@@ -46,16 +43,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            var transportMessage = state.GetTransportMessage();
-
-            try
-            {
-                state.SetProcessingStatus(_idempotenceService.ProcessingStatus(transportMessage));
-            }
-            catch (Exception ex)
-            {
-                _idempotenceService.AccessException(_log, ex, pipelineEvent.Pipeline);
-            }
+            state.SetProcessingStatus(_idempotenceService.ProcessingStatus(state.GetTransportMessage()));
         }
     }
 }

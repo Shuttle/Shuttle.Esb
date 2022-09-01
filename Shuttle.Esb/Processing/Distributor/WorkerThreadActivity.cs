@@ -1,58 +1,49 @@
 using System;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
     public class WorkerThreadActivity : IThreadActivity
     {
-        private readonly IServiceBus _bus;
-        private readonly IServiceBusConfiguration _configuration;
+        private readonly IServiceBus _serviceBus;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly Guid _identifier = Guid.NewGuid();
 
-        private readonly ILog _log;
         private readonly ThreadActivity _threadActivity;
 
         private DateTime _nextNotificationDate = DateTime.Now;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public WorkerThreadActivity(IServiceBus bus, IServiceBusConfiguration configuration,
+        public WorkerThreadActivity(ServiceBusOptions serviceBusOptions, IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration,
             ThreadActivity threadActivity)
         {
-            Guard.AgainstNull(configuration, nameof(configuration));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
             Guard.AgainstNull(threadActivity, nameof(threadActivity));
 
-            _bus = bus;
-            _configuration = configuration;
+            _serviceBusOptions = serviceBusOptions;
+            _serviceBus = serviceBus;
+            _serviceBusConfiguration = serviceBusConfiguration;
             _threadActivity = threadActivity;
-
-            _log = Log.For(this);
         }
 
         public void Waiting(CancellationToken cancellationToken)
         {
             if (ShouldNotifyDistributor())
             {
-                _bus.Send(new WorkerThreadAvailableCommand
+                _serviceBus.Send(new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
-                        InboxWorkQueueUri = _configuration.Inbox.WorkQueue.Uri.ToString(),
+                        InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.Now
                     },
-                    c => c.WithRecipient(_configuration.Worker.DistributorControlInboxWorkQueue));
+                    builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
 
-                if (_log.IsVerboseEnabled)
-                {
-                    _log.Verbose(string.Format(Resources.DebugWorkerAvailable,
-                        _identifier,
-                        _configuration.Inbox.WorkQueue.Uri.Secured(),
-                        _configuration.Worker.DistributorControlInboxWorkQueue.Uri.Secured()));
-                }
-
-                _nextNotificationDate =
-                    DateTime.Now.AddSeconds(_configuration.Worker.ThreadAvailableNotificationIntervalSeconds);
+                _nextNotificationDate = DateTime.Now.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
             }
 
             _threadActivity.Waiting(cancellationToken);

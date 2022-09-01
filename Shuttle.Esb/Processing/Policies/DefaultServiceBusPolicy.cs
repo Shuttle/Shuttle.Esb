@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -24,7 +25,7 @@ namespace Shuttle.Esb
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
-            var durationToIgnoreOnFailure = state.GetDurationToIgnoreOnFailure();
+            var durationToIgnoreOnFailure = state.GetDurationToIgnoreOnFailure().ToArray();
 
             TimeSpan timeSpanToIgnoreRetriedMessage;
 
@@ -33,7 +34,7 @@ namespace Shuttle.Esb
 
             if (!retry || durationToIgnoreOnFailure == null || durationToIgnoreOnFailure.Length == 0)
             {
-                timeSpanToIgnoreRetriedMessage = new TimeSpan();
+                timeSpanToIgnoreRetriedMessage = TimeSpan.Zero;
             }
             else
             {

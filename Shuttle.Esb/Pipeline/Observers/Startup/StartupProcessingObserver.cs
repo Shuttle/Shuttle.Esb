@@ -1,3 +1,5 @@
+using System;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -5,43 +7,59 @@ using Shuttle.Core.Threading;
 namespace Shuttle.Esb
 {
     public interface IStartupProcessingObserver : 
+        IPipelineObserver<OnConfigure>, 
+        IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnStartInboxProcessing>, 
         IPipelineObserver<OnStartControlInboxProcessing>, 
         IPipelineObserver<OnStartOutboxProcessing>, 
-        IPipelineObserver<OnStartDeferredMessageProcessing>, 
-        IPipelineObserver<OnStarting>, 
-        IPipelineObserver<OnStarted>
+        IPipelineObserver<OnStartDeferredMessageProcessing>
     {
     }
 
     public class StartupProcessingObserver : IStartupProcessingObserver
     {
-        private readonly IServiceBus _bus;
-        private readonly IServiceBusConfiguration _configuration;
-        private readonly IServiceBusEvents _events;
+        private readonly IServiceBus _serviceBus;
+        private readonly ServiceBusOptions _serviceBusOptions;
+        private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IPipelineFactory _pipelineFactory;
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IPipelineThreadActivity _pipelineThreadActivity;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
-        public StartupProcessingObserver(IServiceBus bus, IServiceBusConfiguration configuration,
-            IServiceBusEvents events, IWorkerAvailabilityManager workerAvailabilityManager,
-            IPipelineFactory pipelineFactory)
+        private static readonly TimeSpan JoinTimeout = TimeSpan.FromSeconds(1);
+
+        public StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus,
+            IServiceBusConfiguration serviceBusConfiguration, IWorkerAvailabilityService workerAvailabilityService,
+            IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
-            Guard.AgainstNull(bus, nameof(bus));
-            Guard.AgainstNull(configuration, nameof(configuration));
-            Guard.AgainstNull(events, nameof(events));
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            Guard.AgainstNull(serviceBus, nameof(serviceBus));
+            Guard.AgainstNull(serviceBusConfiguration,  nameof(serviceBusConfiguration));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _bus = bus;
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _serviceBus = serviceBus;
+            _serviceBusOptions = serviceBusOptions.Value;
+            _workerAvailabilityService = workerAvailabilityService;
             _pipelineFactory = pipelineFactory;
-            _configuration = configuration;
-            _events = events;
+            _pipelineThreadActivity = pipelineThreadActivity;
+            _serviceBusConfiguration = serviceBusConfiguration;
+        }
+
+        public void Execute(OnCreatePhysicalQueues pipelineEvent)
+        {
+            if (!_serviceBusOptions.CreatePhysicalQueues)
+            {
+                return;
+            }
+
+            _serviceBusConfiguration.CreatePhysicalQueues();
         }
 
         public void Execute(OnStartControlInboxProcessing pipelineEvent)
         {
-            if (!_configuration.HasControlInbox)
+            if (!_serviceBusConfiguration.HasControlInbox())
             {
                 return;
             }
@@ -50,35 +68,32 @@ namespace Shuttle.Esb
                 "ControlInboxThreadPool",
                 new ProcessorThreadPool(
                     "ControlInboxProcessor",
-                    _configuration.ControlInbox.ThreadCount,
-                    new ControlInboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
+                    _serviceBusOptions.ControlInbox.ThreadCount,
+                    new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                    _serviceBusOptions.ProcessorThread).Start());
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
         {
-            if (!_configuration.HasInbox || !_configuration.Inbox.HasDeferredQueue)
+            if (!_serviceBusConfiguration.HasInbox() || !_serviceBusConfiguration.Inbox.HasDeferredQueue())
             {
                 return;
             }
 
-            _configuration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_pipelineFactory);
+            _serviceBusConfiguration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_pipelineFactory);
 
             pipelineEvent.Pipeline.State.Add(
                 "DeferredMessageThreadPool",
                 new ProcessorThreadPool(
                     "DeferredMessageProcessor",
                     1,
-                    new DeferredMessageProcessorFactory(_configuration)).Start());
-        }
-
-        public void Execute(OnStarted pipelineEvent)
-        {
-            _events.OnStarted(this, new PipelineEventEventArgs(pipelineEvent));
+                    new DeferredMessageProcessorFactory(_serviceBusConfiguration),
+                    _serviceBusOptions.ProcessorThread).Start());
         }
 
         public void Execute(OnStartInboxProcessing pipelineEvent)
         {
-            if (!_configuration.HasInbox)
+            if (!_serviceBusConfiguration.HasInbox())
             {
                 return;
             }
@@ -87,20 +102,15 @@ namespace Shuttle.Esb
                 "InboxThreadPool",
                 new ProcessorThreadPool(
                         "InboxProcessor",
-                        _configuration.Inbox.ThreadCount,
-                        new InboxProcessorFactory(_bus, _configuration, _events, _workerAvailabilityManager,
-                            _pipelineFactory))
+                        _serviceBusOptions.Inbox.ThreadCount,
+                        new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
+                        _serviceBusOptions.ProcessorThread)
                     .Start());
-        }
-
-        public void Execute(OnStarting pipelineEvent)
-        {
-            _events.OnStarting(this, new PipelineEventEventArgs(pipelineEvent));
         }
 
         public void Execute(OnStartOutboxProcessing pipelineEvent)
         {
-            if (!_configuration.HasOutbox)
+            if (!_serviceBusConfiguration.HasOutbox())
             {
                 return;
             }
@@ -109,8 +119,16 @@ namespace Shuttle.Esb
                 "OutboxThreadPool",
                 new ProcessorThreadPool(
                     "OutboxProcessor",
-                    _configuration.Outbox.ThreadCount,
-                    new OutboxProcessorFactory(_configuration, _events, _pipelineFactory)).Start());
+                    _serviceBusOptions.Outbox.ThreadCount,
+                    new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                    _serviceBusOptions.ProcessorThread).Start());
+        }
+
+        public void Execute(OnConfigure pipelineEvent)
+        {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+
+            _serviceBusConfiguration.Configure(_serviceBusOptions);
         }
     }
 }

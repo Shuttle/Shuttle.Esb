@@ -4,7 +4,7 @@ namespace Shuttle.Esb
 {
     public interface IUriResolver
     {
-        Uri GetTarget(Uri resolverUri);
-        void Add(Uri resolverUri, Uri targetUri);
+        Uri GetTarget(Uri sourceUri);
+        void Add(Uri sourceUri, Uri targetUri);
     }
 }

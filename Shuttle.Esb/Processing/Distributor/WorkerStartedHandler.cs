@@ -4,18 +4,18 @@ namespace Shuttle.Esb
 {
     public class WorkerStartedHandler : IMessageHandler<WorkerStartedEvent>
     {
-        private readonly IWorkerAvailabilityManager _workerAvailabilityManager;
+        private readonly IWorkerAvailabilityService _workerAvailabilityService;
 
-        public WorkerStartedHandler(IWorkerAvailabilityManager workerAvailabilityManager)
+        public WorkerStartedHandler(IWorkerAvailabilityService workerAvailabilityService)
         {
-            Guard.AgainstNull(workerAvailabilityManager, nameof(workerAvailabilityManager));
+            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
 
-            _workerAvailabilityManager = workerAvailabilityManager;
+            _workerAvailabilityService = workerAvailabilityService;
         }
 
         public void ProcessMessage(IHandlerContext<WorkerStartedEvent> context)
         {
-            _workerAvailabilityManager.WorkerStarted(context.Message);
+            _workerAvailabilityService.WorkerStarted(context.Message);
         }
     }
 }
