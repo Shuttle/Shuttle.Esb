@@ -25,6 +25,8 @@ namespace Shuttle.Esb.Tests
 
             Assert.AreEqual(TimeSpan.FromMinutes(30), options.Inbox.DurationToIgnoreOnFailure[0]);
             Assert.AreEqual(TimeSpan.FromHours(1), options.Inbox.DurationToIgnoreOnFailure[1]);
+            
+            Assert.AreEqual(TimeSpan.FromMinutes(5), options.Inbox.DeferredMessageProcessorResetInterval);
         }
     }
 }

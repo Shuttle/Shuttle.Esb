@@ -58,7 +58,7 @@ namespace Shuttle.Esb.Tests
         {
             var message = new TransportMessage();
 
-            var before = DateTime.Now;
+            var before = DateTime.UtcNow;
 
             message.RegisterFailure("failure");
 
@@ -74,25 +74,25 @@ namespace Shuttle.Esb.Tests
                     TimeSpan.FromHours(2)
                 };
 
-            Assert.IsFalse(DateTime.Now.AddMinutes(3) <= message.IgnoreTillDate);
+            Assert.IsFalse(DateTime.UtcNow.AddMinutes(3) <= message.IgnoreTillDate);
 
             message.RegisterFailure("failure", durationToIgnoreOnFailure[0]);
 
-            var ignoreTillDate = DateTime.Now.AddMinutes(3);
+            var ignoreTillDate = DateTime.UtcNow.AddMinutes(3);
 
             Assert.IsTrue(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate);
-            Assert.IsFalse(DateTime.Now.AddMinutes(30) < message.IgnoreTillDate);
+            Assert.IsFalse(DateTime.UtcNow.AddMinutes(30) < message.IgnoreTillDate);
 
             message.RegisterFailure("failure", durationToIgnoreOnFailure[1]);
 
-            ignoreTillDate = DateTime.Now.AddMinutes(30);
+            ignoreTillDate = DateTime.UtcNow.AddMinutes(30);
 
             Assert.IsTrue(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate);
-            Assert.IsFalse(DateTime.Now.AddHours(2) < message.IgnoreTillDate);
+            Assert.IsFalse(DateTime.UtcNow.AddHours(2) < message.IgnoreTillDate);
 
             message.RegisterFailure("failure", durationToIgnoreOnFailure[2]);
 
-            ignoreTillDate = DateTime.Now.AddHours(2);
+            ignoreTillDate = DateTime.UtcNow.AddHours(2);
 
             Assert.IsTrue(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate);
         }
