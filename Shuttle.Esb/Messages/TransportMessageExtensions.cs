@@ -16,7 +16,7 @@ namespace Shuttle.Esb
 
         public static bool HasExpired(this TransportMessage transportMessage)
         {
-            return transportMessage.ExpiryDate < DateTime.Now;
+            return transportMessage.ExpiryDate.ToUniversalTime() < DateTime.UtcNow;
         }
 
         public static bool HasPriority(this TransportMessage transportMessage)
@@ -48,13 +48,13 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNullOrEmptyString(message, "message");
 
-            transportMessage.FailureMessages.Add(string.Format("[{0}] : {1}", DateTime.Now.ToString("O"), message));
-            transportMessage.IgnoreTillDate = DateTime.Now.Add(timeSpanToIgnore);
+            transportMessage.FailureMessages.Add($"[{DateTime.UtcNow:O}] : {message}");
+            transportMessage.IgnoreTillDate = DateTime.UtcNow.Add(timeSpanToIgnore);
         }
 
         public static bool IsIgnoring(this TransportMessage transportMessage)
         {
-            return DateTime.Now < transportMessage.IgnoreTillDate;
+            return DateTime.UtcNow < transportMessage.IgnoreTillDate.ToUniversalTime();
         }
 
         public static void StopIgnoring(this TransportMessage transportMessage)

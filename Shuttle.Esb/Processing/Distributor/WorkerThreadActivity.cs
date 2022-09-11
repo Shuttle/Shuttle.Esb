@@ -14,7 +14,7 @@ namespace Shuttle.Esb
 
         private readonly ThreadActivity _threadActivity;
 
-        private DateTime _nextNotificationDate = DateTime.Now;
+        private DateTime _nextNotificationDate = DateTime.UtcNow;
         private readonly ServiceBusOptions _serviceBusOptions;
 
         public WorkerThreadActivity(ServiceBusOptions serviceBusOptions, IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration,
@@ -39,11 +39,11 @@ namespace Shuttle.Esb
                         Identifier = _identifier,
                         InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
-                        DateSent = DateTime.Now
+                        DateSent = DateTime.UtcNow
                     },
                     builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
 
-                _nextNotificationDate = DateTime.Now.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
+                _nextNotificationDate = DateTime.UtcNow.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
             }
 
             _threadActivity.Waiting(cancellationToken);
@@ -51,14 +51,14 @@ namespace Shuttle.Esb
 
         public void Working()
         {
-            _nextNotificationDate = DateTime.Now;
+            _nextNotificationDate = DateTime.UtcNow;
 
             _threadActivity.Working();
         }
 
         private bool ShouldNotifyDistributor()
         {
-            return _nextNotificationDate <= DateTime.Now;
+            return _nextNotificationDate <= DateTime.UtcNow;
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            _serviceBusConfiguration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_pipelineFactory);
+            _serviceBusConfiguration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_serviceBusOptions, _pipelineFactory);
 
             pipelineEvent.Pipeline.State.Add(
                 "DeferredMessageThreadPool",

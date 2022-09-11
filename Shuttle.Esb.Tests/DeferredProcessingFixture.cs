@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -17,36 +19,47 @@ namespace Shuttle.Esb.Tests
             var pipelineFactory = new Mock<IPipelineFactory>();
             var configuration = new Mock<IServiceBusConfiguration>();
 
+            var deferredMessageProcessor = new DeferredMessageProcessor(new ServiceBusOptions(), pipelineFactory.Object);
+
+            deferredMessageProcessor.DeferredMessageProcessingHalted += (sender, args) =>
+            {
+                Console.WriteLine(@"[deferred processing halted]");
+            };
+
             configuration.Setup(m => m.Inbox).Returns(new InboxConfiguration
             {
-                DeferredMessageProcessor = new DeferredMessageProcessor(pipelineFactory.Object)
+                DeferredMessageProcessor = deferredMessageProcessor
             });
 
             var getDeferredMessageObserver = new Mock<IGetDeferredMessageObserver>();
             var deserializeTransportMessageObserver = new Mock<IDeserializeTransportMessageObserver>();
             var processDeferredMessageObserver = new Mock<IProcessDeferredMessageObserver>();
 
-            var index = 0;
-
             var transportMessage1 = new TransportMessage
             {
                 MessageId = new Guid("973808b9-8cc6-433b-b9d2-a08e1236c104"),
-                IgnoreTillDate = DateTime.Now.AddSeconds(5)
+                IgnoreTillDate = DateTime.Now.AddSeconds(5).ToUniversalTime()
             };
 
             var transportMessage2 = new TransportMessage
             {
                 MessageId = new Guid("d06bf8e5-f81c-4ca6-a3c4-368efae97b0b"),
-                IgnoreTillDate = DateTime.Now.AddSeconds(4)
+                IgnoreTillDate = DateTime.Now.AddSeconds(4).ToUniversalTime()
             };
 
             var transportMessage3 = new TransportMessage
             {
                 MessageId = new Guid("b7d21a52-bb98-4a59-85cb-d1e1e26e72df"),
-                IgnoreTillDate = DateTime.Now.AddSeconds(3)
+                IgnoreTillDate = DateTime.Now.AddSeconds(3).ToUniversalTime()
             };
 
-            var deferredMessages = new List<TransportMessage> {transportMessage1, transportMessage2, transportMessage3};
+            var deferredMessages = new Stack<TransportMessage>();
+            
+            deferredMessages.Push(transportMessage1);
+            deferredMessages.Push(transportMessage2);
+            deferredMessages.Push(transportMessage3);
+
+            var index = 1;
 
             getDeferredMessageObserver.Setup(m => m.Execute(It.IsAny<OnGetMessage>())).Callback(
                 (OnGetMessage pipelineEvent) =>
@@ -57,12 +70,7 @@ namespace Shuttle.Esb.Tests
                         return;
                     }
 
-                    if (index > deferredMessages.Count - 1)
-                    {
-                        index = 0;
-                    }
-
-                    var transportMessage = deferredMessages[index];
+                    var transportMessage = deferredMessages.Pop();
                     var deferredMessageReturned = !transportMessage.IsIgnoring();
 
                     Console.WriteLine($@"[processing]: index = {index} / message id = {transportMessage.MessageId}");
@@ -73,8 +81,6 @@ namespace Shuttle.Esb.Tests
 
                     if (deferredMessageReturned)
                     {
-                        deferredMessages.RemoveAt(index);
-
                         Console.WriteLine($@"[returned]: index = {index} / message id = {transportMessage.MessageId}");
                     }
 

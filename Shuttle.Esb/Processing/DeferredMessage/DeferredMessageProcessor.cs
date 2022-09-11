@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -9,109 +10,108 @@ namespace Shuttle.Esb
 {
     public class DeferredMessageProcessor : IProcessor
     {
-        private readonly object _messageDeferredLock = new object();
+        private readonly object _lock = new object();
 
         private readonly IPipelineFactory _pipelineFactory;
         private Guid _checkpointMessageId = Guid.Empty;
-        private DateTime _ignoreTillDate = DateTime.MaxValue;
-        private DateTime _nextDeferredProcessDate = DateTime.MinValue;
+        private DateTime _nextDeferredProcessDate = DateTime.MinValue.ToUniversalTime();
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public DeferredMessageProcessor(IPipelineFactory pipelineFactory)
+        public DeferredMessageProcessor(ServiceBusOptions serviceBusOptions, IPipelineFactory pipelineFactory)
         {
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
 
+            _serviceBusOptions = serviceBusOptions;
             _pipelineFactory = pipelineFactory;
         }
 
         public void Execute(CancellationToken cancellationToken)
         {
-            if (!ShouldProcessDeferred())
+            lock (_lock)
             {
-                try
+                if (DateTime.UtcNow < _nextDeferredProcessDate)
                 {
-                    Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-
-                return;
-            }
-
-            var pipeline = _pipelineFactory.GetPipeline<DeferredMessagePipeline>();
-
-            try
-            {
-                pipeline.State.ResetWorking();
-                pipeline.State.SetDeferredMessageReturned(false);
-                pipeline.State.SetTransportMessage(null);
-
-                pipeline.Execute();
-
-                var transportMessage = pipeline.State.GetTransportMessage();
-
-                if (pipeline.State.GetDeferredMessageReturned())
-                {
-                    if (transportMessage != null &&
-                        transportMessage.MessageId.Equals(_checkpointMessageId))
+                    try
                     {
-                        _checkpointMessageId = Guid.Empty;
+                        Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
                     }
 
                     return;
                 }
 
-                if (pipeline.State.GetWorking() && transportMessage != null)
+                var pipeline = _pipelineFactory.GetPipeline<DeferredMessagePipeline>();
+
+                try
                 {
-                    if (transportMessage.IgnoreTillDate < _ignoreTillDate)
-                    {
-                        _ignoreTillDate = transportMessage.IgnoreTillDate;
-                    }
+                    pipeline.State.ResetWorking();
+                    pipeline.State.SetDeferredMessageReturned(false);
+                    pipeline.State.SetTransportMessage(null);
 
-                    if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+                    pipeline.Execute();
+
+                    var transportMessage = pipeline.State.GetTransportMessage();
+
+                    if (pipeline.State.GetDeferredMessageReturned())
                     {
-                        if (!_checkpointMessageId.Equals(Guid.Empty))
+                        if (transportMessage != null &&
+                            transportMessage.MessageId.Equals(_checkpointMessageId))
                         {
-                            return;
+                            _checkpointMessageId = Guid.Empty;
                         }
-
-                        _checkpointMessageId = transportMessage.MessageId;
 
                         return;
                     }
-                }
 
-                lock (_messageDeferredLock)
+                    if (pipeline.State.GetWorking() && transportMessage != null)
+                    {
+                        if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+                        {
+                            if (!_checkpointMessageId.Equals(Guid.Empty))
+                            {
+                                return;
+                            }
+
+                            _checkpointMessageId = transportMessage.MessageId;
+
+                            return;
+                        }
+                    }
+
+                    _checkpointMessageId = Guid.Empty;
+
+                    lock (_lock)
+                    {
+                        _nextDeferredProcessDate =
+                            DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+                    }
+
+                    DeferredMessageProcessingHalted.Invoke(this,
+                        new DeferredMessageProcessingHaltedEventArgs(_nextDeferredProcessDate));
+                }
+                finally
                 {
-                    _nextDeferredProcessDate = _ignoreTillDate;
+                    _pipelineFactory.ReleasePipeline(pipeline);
                 }
-
-                _ignoreTillDate = DateTime.MaxValue;
-                _checkpointMessageId = Guid.Empty;
-            }
-            finally
-            {
-                _pipelineFactory.ReleasePipeline(pipeline);
             }
         }
 
         public void MessageDeferred(DateTime ignoreTillDate)
         {
-            lock (_messageDeferredLock)
+            lock (_lock)
             {
-                if (ignoreTillDate < _nextDeferredProcessDate)
+                if (ignoreTillDate.ToUniversalTime() < _nextDeferredProcessDate)
                 {
-                    _nextDeferredProcessDate = ignoreTillDate;
+                    _nextDeferredProcessDate = ignoreTillDate.ToUniversalTime();
                 }
             }
         }
 
-        private bool ShouldProcessDeferred()
+        public event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted = delegate
         {
-            lock (_messageDeferredLock)
-            {
-                return DateTime.Now >= _nextDeferredProcessDate;
-            }
-        }
+        };
     }
 }

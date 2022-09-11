@@ -53,7 +53,7 @@ namespace Shuttle.Esb
                 AssemblyQualifiedName = message.GetType().AssemblyQualifiedName,
                 EncryptionAlgorithm = _serviceBusOptions.EncryptionAlgorithm,
                 CompressionAlgorithm = _serviceBusOptions.CompressionAlgorithm,
-                SendDate = DateTime.Now
+                SendDate = DateTime.UtcNow
             };
 
             if (transportMessageReceived != null)
@@ -87,7 +87,7 @@ namespace Shuttle.Esb
                 transportMessage.RecipientInboxWorkQueueUri = transportMessageReceived.SenderInboxWorkQueueUri;
             }
 
-            if (transportMessage.IgnoreTillDate > DateTime.Now &&
+            if (transportMessage.IgnoreTillDate > DateTime.UtcNow &&
                 _serviceBusConfiguration.HasInbox() &&
                 _serviceBusConfiguration.Inbox.WorkQueue.IsStream)
             {

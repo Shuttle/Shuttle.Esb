@@ -15,7 +15,7 @@ namespace Shuttle.Esb
         public string RecipientInboxWorkQueueUri { get; set; }
         public string PrincipalIdentityName { get; set; }
         public DateTime IgnoreTillDate { get; set; } = DateTime.MinValue;
-        public DateTime SendDate { get; set; } = DateTime.Now;
+        public DateTime SendDate { get; set; } = DateTime.UtcNow;
         public DateTime ExpiryDate { get; set; } = DateTime.MaxValue;
         public int Priority { get; set; }
         public List<string> FailureMessages { get; set; } = new List<string>();
