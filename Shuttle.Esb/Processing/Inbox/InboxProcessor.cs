@@ -46,7 +46,7 @@ namespace Shuttle.Esb
             {
                 _threadActivity.Waiting(cancellationToken);
 
-                _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(null));
+                _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(null));
 
                 return;
             }

@@ -14,7 +14,8 @@ namespace Shuttle.Esb
 
         private readonly IPipelineFactory _pipelineFactory;
         private Guid _checkpointMessageId = Guid.Empty;
-        private DateTime _nextDeferredProcessDate = DateTime.MinValue.ToUniversalTime();
+        private DateTime _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
+        private DateTime _nextProcessingDateTime = DateTime.MinValue.ToUniversalTime();
         private readonly ServiceBusOptions _serviceBusOptions;
 
         public DeferredMessageProcessor(ServiceBusOptions serviceBusOptions, IPipelineFactory pipelineFactory)
@@ -30,7 +31,7 @@ namespace Shuttle.Esb
         {
             lock (_lock)
             {
-                if (DateTime.UtcNow < _nextDeferredProcessDate)
+                if (DateTime.UtcNow < _nextProcessingDateTime)
                 {
                     try
                     {
@@ -68,6 +69,11 @@ namespace Shuttle.Esb
 
                     if (pipeline.State.GetWorking() && transportMessage != null)
                     {
+                        if (transportMessage.IgnoreTillDate.ToUniversalTime() < _ignoreTillDate)
+                        {
+                            _ignoreTillDate = transportMessage.IgnoreTillDate.ToUniversalTime();
+                        }
+
                         if (!_checkpointMessageId.Equals(transportMessage.MessageId))
                         {
                             if (!_checkpointMessageId.Equals(Guid.Empty))
@@ -83,14 +89,21 @@ namespace Shuttle.Esb
 
                     _checkpointMessageId = Guid.Empty;
 
-                    lock (_lock)
+                    if (_nextProcessingDateTime > DateTime.UtcNow)
                     {
-                        _nextDeferredProcessDate =
-                            DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+                        return;
                     }
 
+                    var nextProcessingDateTime = DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+
+                    AdjustNextProcessingDateTime(_ignoreTillDate < nextProcessingDateTime
+                        ? _ignoreTillDate
+                        : nextProcessingDateTime);
+
+                    _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
+
                     DeferredMessageProcessingHalted.Invoke(this,
-                        new DeferredMessageProcessingHaltedEventArgs(_nextDeferredProcessDate));
+                        new DeferredMessageProcessingHaltedEventArgs(_nextProcessingDateTime));
                 }
                 finally
                 {
@@ -99,16 +112,28 @@ namespace Shuttle.Esb
             }
         }
 
+        private void AdjustNextProcessingDateTime(DateTime dateTime)
+        {
+            _nextProcessingDateTime = dateTime;
+
+            DeferredMessageProcessingAdjusted(this,
+                new DeferredMessageProcessingAdjustedEventArgs(_nextProcessingDateTime));
+        }
+
         public void MessageDeferred(DateTime ignoreTillDate)
         {
             lock (_lock)
             {
-                if (ignoreTillDate.ToUniversalTime() < _nextDeferredProcessDate)
+                if (ignoreTillDate.ToUniversalTime() < _nextProcessingDateTime)
                 {
-                    _nextDeferredProcessDate = ignoreTillDate.ToUniversalTime();
+                    AdjustNextProcessingDateTime(ignoreTillDate.ToUniversalTime());
                 }
             }
         }
+
+        public event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted= delegate
+        {
+        };
 
         public event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted = delegate
         {
