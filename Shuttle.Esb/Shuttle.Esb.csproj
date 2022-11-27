@@ -14,19 +14,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-    <PackageReference Include="Shuttle.Core.Compression" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Encryption" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Pipelines" Version="12.0.0" />
-    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Reflection" Version="12.0.0" />
-    <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.5" />
-    <PackageReference Include="Shuttle.Core.Specification" Version="10.1.0" />
-    <PackageReference Include="Shuttle.Core.Streams" Version="10.1.0" />
-    <PackageReference Include="Shuttle.Core.System" Version="11.0.1" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="12.0.0" />
-    <PackageReference Include="Shuttle.Core.Transactions" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="12.1.1" />
+    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="12.0.1" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.7" />
+    <PackageReference Include="Shuttle.Core.Specification" Version="11.0.0" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="10.1.1" />
+    <PackageReference Include="Shuttle.Core.System" Version="11.0.3" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="12.0.1" />
+    <PackageReference Include="Shuttle.Core.Transactions" Version="11.0.1" />
   </ItemGroup>
 
   <ItemGroup>
