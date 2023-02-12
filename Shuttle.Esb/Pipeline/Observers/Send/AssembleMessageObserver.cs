@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -30,7 +31,7 @@ namespace Shuttle.Esb
             _identityProvider = identityProvider;
         }
 
-        public void Execute(OnAssembleMessage pipelineEvent)
+        public async Task Execute(OnAssembleMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var builder = state.GetTransportMessageBuilder();
@@ -95,6 +96,8 @@ namespace Shuttle.Esb
             }
 
             state.SetTransportMessage(transportMessage);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

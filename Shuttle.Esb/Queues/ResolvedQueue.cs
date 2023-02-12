@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -21,29 +22,29 @@ namespace Shuttle.Esb
         public QueueUri Uri { get; }
         public bool IsStream { get; }
 
-        public bool IsEmpty()
+        public Task<bool> IsEmpty()
         {
             return _queue.IsEmpty();
         }
 
-        public void Enqueue(TransportMessage transportMessage, Stream stream)
+        public async Task Enqueue(TransportMessage transportMessage, Stream stream)
         {
-            _queue.Enqueue(transportMessage, stream);
+            await _queue.Enqueue(transportMessage, stream).ConfigureAwait(false);
         }
 
-        public ReceivedMessage GetMessage()
+        public Task<ReceivedMessage> GetMessage()
         {
             return _queue.GetMessage();
         }
 
-        public void Acknowledge(object acknowledgementToken)
+        public async Task Acknowledge(object acknowledgementToken)
         {
-            _queue.Acknowledge(acknowledgementToken);
+            await _queue.Acknowledge(acknowledgementToken).ConfigureAwait(false);
         }
 
-        public void Release(object acknowledgementToken)
+        public async Task Release(object acknowledgementToken)
         {
-            _queue.Release(acknowledgementToken);
+            await _queue.Release(acknowledgementToken).ConfigureAwait(false);
         }
     }
 }

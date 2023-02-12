@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -26,7 +27,7 @@ namespace Shuttle.Esb
             RegisterObserver(dispatchTransportMessageObserver);
         }
 
-        public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        public Task<bool> Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -19,7 +20,7 @@ namespace Shuttle.Esb
             _messageRouteProvider = messageRouteProvider;
         }
 
-        public void Execute(OnFindRouteForMessage pipelineEvent)
+        public async Task Execute(OnFindRouteForMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -29,6 +30,8 @@ namespace Shuttle.Esb
                 transportMessage.RecipientInboxWorkQueueUri =
                     FindRoute(_messageRouteProvider, transportMessage.MessageType);
             }
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         private static string FindRoute(IMessageRouteProvider routeProvider, string messageType)

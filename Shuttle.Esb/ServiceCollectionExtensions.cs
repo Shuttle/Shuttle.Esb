@@ -34,7 +34,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
             services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddSingleton<IMessageHandlingAssessor, MessageHandlingAssessor>();
-            services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
+            services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<IQueueService, QueueService>();
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
             services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();

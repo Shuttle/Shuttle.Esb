@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -35,7 +36,7 @@ namespace Shuttle.Esb
             _processService = processService;
         }
 
-        public void Execute(OnDeserializeTransportMessage pipelineEvent)
+        public async Task Execute(OnDeserializeTransportMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
@@ -48,10 +49,10 @@ namespace Shuttle.Esb
 
             try
             {
-                using (var stream = receivedMessage.Stream.Copy())
+                await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
                 {
                     transportMessage =
-                        (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream);
+                        (TransportMessage)await _serializer.Deserialize(typeof(TransportMessage), stream).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -61,7 +62,7 @@ namespace Shuttle.Esb
 
                 if (_serviceBusOptions.RemoveCorruptMessages)
                 {
-                    state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                    await state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
                 }
                 else
                 {

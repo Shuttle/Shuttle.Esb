@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
 
@@ -21,16 +22,17 @@ namespace Shuttle.Esb.Tests
         public QueueUri Uri { get; }
         public bool IsStream => false;
 
-        public bool IsEmpty()
+        public async Task<bool> IsEmpty()
         {
-            return false;
+            return await Task.FromResult(false).ConfigureAwait(false);
         }
 
-        public void Enqueue(TransportMessage message, Stream stream)
+        public async Task Enqueue(TransportMessage message, Stream stream)
         {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public ReceivedMessage GetMessage()
+        public async Task<ReceivedMessage> GetMessage()
         {
             if (MessageCount == MessagesToReturn)
             {
@@ -47,20 +49,22 @@ namespace Shuttle.Esb.Tests
                 ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
                 PrincipalIdentityName = "Identity",
                 AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
-                Message = _serializer.Serialize(command).ToBytes()
+                Message = await (await _serializer.Serialize(command)).ToBytesAsync().ConfigureAwait(false)
             };
 
             MessageCount += 1;
 
-            return new ReceivedMessage(_serializer.Serialize(transportMessage), null);
+            return new ReceivedMessage(await _serializer.Serialize(transportMessage).ConfigureAwait(false), null);
         }
 
-        public void Acknowledge(object acknowledgementToken)
+        public async Task Acknowledge(object acknowledgementToken)
         {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Release(object acknowledgementToken)
+        public async Task Release(object acknowledgementToken)
         {
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

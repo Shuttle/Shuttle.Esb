@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
@@ -23,7 +24,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public void Execute(OnPipelineException pipelineEvent)
+        public async Task Execute(OnPipelineException pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -58,18 +59,18 @@ namespace Shuttle.Esb
 
                         if (action.Retry || errorQueue == null)
                         {
-                            workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                            await workQueue.Enqueue(transportMessage, await _serializer.Serialize(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
                         }
                         else
                         {
-                            errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                            await errorQueue.Enqueue(transportMessage, await _serializer.Serialize(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
                         }
 
-                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+                        await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        workQueue.Release(receivedMessage.AcknowledgementToken);
+                        await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                     }
                 }
                 finally

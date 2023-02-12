@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -20,7 +21,7 @@ namespace Shuttle.Esb
             _compressionService = compressionService;
         }
 
-        public void Execute(OnCompressMessage pipelineEvent)
+        public async Task Execute(OnCompressMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -30,7 +31,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            transportMessage.Message = _compressionService.Compress(transportMessage.CompressionAlgorithm, transportMessage.Message);
+            transportMessage.Message = await _compressionService.Compress(transportMessage.CompressionAlgorithm, transportMessage.Message).ConfigureAwait(false);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Shuttle.Esb.Tests
 {
@@ -18,27 +19,27 @@ namespace Shuttle.Esb.Tests
         public QueueUri Uri { get; }
         public bool IsStream => false;
 
-        public bool IsEmpty()
+        public async Task<bool> IsEmpty()
         {
-            return true;
+            return await Task.FromResult(true);
         }
 
-        public void Enqueue(TransportMessage transportMessage, Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ReceivedMessage GetMessage()
+        public Task Enqueue(TransportMessage transportMessage, Stream stream)
         {
             throw new NotImplementedException();
         }
 
-        public void Acknowledge(object acknowledgementToken)
+        public Task<ReceivedMessage> GetMessage()
         {
             throw new NotImplementedException();
         }
 
-        public void Release(object acknowledgementToken)
+        public Task Acknowledge(object acknowledgementToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Release(object acknowledgementToken)
         {
             throw new NotImplementedException();
         }

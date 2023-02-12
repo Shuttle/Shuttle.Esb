@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -31,7 +32,7 @@ namespace Shuttle.Esb
             RegisterObserver(encryptMessageObserver);
         }
 
-        public bool Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public async Task<bool> Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -39,7 +40,7 @@ namespace Shuttle.Esb
             State.SetTransportMessageReceived(transportMessageReceived);
             State.SetTransportMessageBuilder(builder);
 
-            return base.Execute();
+            return await base.Execute().ConfigureAwait(false);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
@@ -44,7 +45,7 @@ namespace Shuttle.Esb.Tests
                 _messageHandlerTracker = messageHandlerTracker;
             }
 
-            public void ProcessMessage(IHandlerContext<Message> context)
+            public async Task ProcessMessage(IHandlerContext<Message> context)
             {
                 Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
@@ -57,7 +58,7 @@ namespace Shuttle.Esb.Tests
                     return;
                 }
 
-                context.Send(new Message
+                await context.Send(new Message
                 {
                     Replied = true,
                     Name = $"replied-{context.Message.Count}"
@@ -69,7 +70,7 @@ namespace Shuttle.Esb.Tests
         }
 
         [Test]
-        public void Should_be_able_to_invoke_handler()
+        public async Task Should_be_able_to_invoke_handler()
         {
             const int count = 5;
 
@@ -104,11 +105,11 @@ namespace Shuttle.Esb.Tests
 
             var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-            using (var serviceBus = serviceProvider.GetRequiredService<IServiceBus>().Start())
+            await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().Start().ConfigureAwait(false))
             {
                 for (var i = 0; i < count; i++)
                 {
-                    serviceBus.Send(new Message
+                    await serviceBus.Send(new Message
                     {
                         Count = i + 1,
                         Name = $"message - {i + 1}"

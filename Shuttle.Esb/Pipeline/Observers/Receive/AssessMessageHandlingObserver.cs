@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -18,7 +19,7 @@ namespace Shuttle.Esb
             _messageHandlingAssessor = messageHandlingAssessor;
         }
 
-        public void Execute(OnAssessMessageHandling pipelineEvent)
+        public async Task Execute(OnAssessMessageHandling pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -28,6 +29,8 @@ namespace Shuttle.Esb
             }
 
             state.SetProcessingStatus(ProcessingStatus.Ignore);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
@@ -24,7 +25,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public void Execute(OnDeserializeMessage pipelineEvent)
+        public async Task Execute(OnDeserializeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -38,10 +39,10 @@ namespace Shuttle.Esb
             try
             {
                 var data = transportMessage.Message;
+
                 using (var stream = new MemoryStream(data, 0, data.Length, false, true))
                 {
-                    message = _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true),
-                        stream);
+                    message = await _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -56,8 +57,8 @@ namespace Shuttle.Esb
 
                 transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-                state.GetErrorQueue().Enqueue(transportMessage, _serializer.Serialize(transportMessage));
-                state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                await state.GetErrorQueue().Enqueue(transportMessage, await _serializer.Serialize(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
+                await state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
 
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();

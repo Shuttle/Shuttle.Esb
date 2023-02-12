@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -20,14 +21,16 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public void Execute(OnAbortPipeline pipelineEvent)
+        public async Task Execute(OnAbortPipeline pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
             _workerAvailabilityService.ReturnAvailableWorker(state.GetAvailableWorker());
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnHandleDistributeMessage pipelineEvent)
+        public async Task Execute(OnHandleDistributeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -36,6 +39,8 @@ namespace Shuttle.Esb
 
             state.SetTransportMessage(transportMessage);
             state.SetTransportMessageReceived(null);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

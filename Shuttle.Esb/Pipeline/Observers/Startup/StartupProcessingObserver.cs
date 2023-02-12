@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -47,17 +48,17 @@ namespace Shuttle.Esb
             _serviceBusConfiguration = serviceBusConfiguration;
         }
 
-        public void Execute(OnCreatePhysicalQueues pipelineEvent)
+        public async Task Execute(OnCreatePhysicalQueues pipelineEvent)
         {
             if (!_serviceBusOptions.CreatePhysicalQueues)
             {
                 return;
             }
 
-            _serviceBusConfiguration.CreatePhysicalQueues();
+            await _serviceBusConfiguration.CreatePhysicalQueues().ConfigureAwait(false);
         }
 
-        public void Execute(OnStartControlInboxProcessing pipelineEvent)
+        public async Task Execute(OnStartControlInboxProcessing pipelineEvent)
         {
             if (!_serviceBusConfiguration.HasControlInbox())
             {
@@ -71,9 +72,11 @@ namespace Shuttle.Esb
                     _serviceBusOptions.ControlInbox.ThreadCount,
                     new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
                     _serviceBusOptions.ProcessorThread).Start());
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
+        public async Task Execute(OnStartDeferredMessageProcessing pipelineEvent)
         {
             if (!_serviceBusConfiguration.HasInbox() || !_serviceBusConfiguration.Inbox.HasDeferredQueue())
             {
@@ -89,9 +92,11 @@ namespace Shuttle.Esb
                     1,
                     new DeferredMessageProcessorFactory(_serviceBusConfiguration),
                     _serviceBusOptions.ProcessorThread).Start());
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnStartInboxProcessing pipelineEvent)
+        public async Task Execute(OnStartInboxProcessing pipelineEvent)
         {
             if (!_serviceBusConfiguration.HasInbox())
             {
@@ -106,9 +111,11 @@ namespace Shuttle.Esb
                         new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
                         _serviceBusOptions.ProcessorThread)
                     .Start());
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnStartOutboxProcessing pipelineEvent)
+        public async Task Execute(OnStartOutboxProcessing pipelineEvent)
         {
             if (!_serviceBusConfiguration.HasOutbox())
             {
@@ -122,13 +129,17 @@ namespace Shuttle.Esb
                     _serviceBusOptions.Outbox.ThreadCount,
                     new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
                     _serviceBusOptions.ProcessorThread).Start());
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnConfigure pipelineEvent)
+        public async Task Execute(OnConfigure pipelineEvent)
         {
             Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
 
             _serviceBusConfiguration.Configure(_serviceBusOptions);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

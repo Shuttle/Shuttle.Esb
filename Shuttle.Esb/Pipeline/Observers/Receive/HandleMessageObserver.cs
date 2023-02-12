@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -33,7 +34,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public void Execute(OnHandleMessage pipelineEvent)
+        public async Task Execute(OnHandleMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var processingStatus = state.GetProcessingStatus();
@@ -55,7 +56,7 @@ namespace Shuttle.Esb
 
             try
             {
-                var messageHandlerInvokeResult = _messageHandlerInvoker.Invoke(pipelineEvent);
+                var messageHandlerInvokeResult = await _messageHandlerInvoker.Invoke(pipelineEvent).ConfigureAwait(false);
 
                 if (messageHandlerInvokeResult.Invoked)
                 {
@@ -79,9 +80,9 @@ namespace Shuttle.Esb
 
                         transportMessage.RegisterFailure(failure);
 
-                        using (var stream = _serializer.Serialize(transportMessage))
+                        await using (var stream = await _serializer.Serialize(transportMessage).ConfigureAwait(false))
                         {
-                            errorQueue.Enqueue(transportMessage, stream);
+                            await errorQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
                         }
                     }
                 }

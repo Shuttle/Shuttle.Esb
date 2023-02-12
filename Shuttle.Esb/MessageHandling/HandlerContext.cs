@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -27,14 +28,14 @@ namespace Shuttle.Esb
         public CancellationToken CancellationToken { get; }
         public ExceptionHandling ExceptionHandling { get; } = new ExceptionHandling();
 
-        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
+        public async Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return _messageSender.Send(message, TransportMessage, builder);
+            return await _messageSender.Send(message, TransportMessage, builder).ConfigureAwait(false);
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        public async Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return _messageSender.Publish(message, TransportMessage, builder);
+            return await _messageSender.Publish(message, TransportMessage, builder).ConfigureAwait(false);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -10,7 +11,7 @@ namespace Shuttle.Esb.Tests
     [TestFixture]
     public class ReceiveExceptionObserverFixture : IPipelineObserver<OnTest>
     {
-        public void Execute(OnTest pipelineEvent)
+        public Task Execute(OnTest pipelineEvent)
         {
             throw new Exception(string.Empty, new UnrecoverableHandlerException());
         }

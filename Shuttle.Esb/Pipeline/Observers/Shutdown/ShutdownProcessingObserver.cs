@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 
@@ -22,7 +23,7 @@ namespace Shuttle.Esb
             _queueService = queueService;
         }
 
-        public void Execute(OnStopping pipelineEvent)
+        public async Task Execute(OnStopping pipelineEvent)
         {
             if (_serviceBusConfiguration.HasControlInbox())
             {
@@ -49,6 +50,8 @@ namespace Shuttle.Esb
             }
 
             _queueService.AttemptDispose();
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

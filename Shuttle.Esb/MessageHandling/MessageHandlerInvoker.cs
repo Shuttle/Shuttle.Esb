@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -30,7 +31,7 @@ namespace Shuttle.Esb
             _messageSender = messageSender;
         }
 
-        public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+        public async Task<MessageHandlerInvokeResult> Invoke(IPipelineEvent pipelineEvent)
         {
             Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
 
@@ -81,11 +82,11 @@ namespace Shuttle.Esb
 
                 state.SetHandlerContext(handlerContext);
 
-                contextMethod.Invoke(handler, handlerContext);
+                await contextMethod.Invoke(handler, handlerContext).ConfigureAwait(false);
             }
             finally
             {
-                if (handler is IReusability reusability && !reusability.IsReusable)
+                if (handler is IReusability { IsReusable: false })
                 {
                     ReleaseHandler(messageType);
                 }
@@ -171,7 +172,7 @@ namespace Shuttle.Esb
                 (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
 
             dynamicMethod = new DynamicMethod(string.Empty,
-                typeof(void), new[] { typeof(object), typeof(object) },
+                typeof(Task), new[] { typeof(object), typeof(object) },
                 HandlerContextType.Module);
 
             il = dynamicMethod.GetILGenerator();
@@ -184,9 +185,9 @@ namespace Shuttle.Esb
             _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
         }
 
-        public void Invoke(object handler, object handlerContext)
+        public async Task Invoke(object handler, object handlerContext)
         {
-            _invoker.Invoke(handler, handlerContext);
+            await _invoker.Invoke(handler, handlerContext).ConfigureAwait(false);
         }
 
         public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
@@ -196,6 +197,6 @@ namespace Shuttle.Esb
 
         private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
 
-        private delegate void InvokeHandler(object handler, object handlerContext);
+        private delegate Task InvokeHandler(object handler, object handlerContext);
     }
 }

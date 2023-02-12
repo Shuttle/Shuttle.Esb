@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -21,7 +22,7 @@ namespace Shuttle.Esb
             _idempotenceService = idempotenceService;
         }
 
-        public void Execute(OnIdempotenceMessageHandled pipelineEvent)
+        public async Task Execute(OnIdempotenceMessageHandled pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -32,9 +33,11 @@ namespace Shuttle.Esb
             }
 
             _idempotenceService.MessageHandled(transportMessage);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnProcessIdempotenceMessage pipelineEvent)
+        public async Task Execute(OnProcessIdempotenceMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -44,6 +47,8 @@ namespace Shuttle.Esb
             }
 
             state.SetProcessingStatus(_idempotenceService.ProcessingStatus(state.GetTransportMessage()));
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

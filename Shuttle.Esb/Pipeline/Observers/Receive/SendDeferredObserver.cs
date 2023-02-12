@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
 using Shuttle.Core.Serialization;
@@ -29,7 +30,7 @@ namespace Shuttle.Esb
             _idempotenceService = idempotenceService;
         }
 
-        public void Execute(OnAfterSendDeferred pipelineEvent)
+        public async Task Execute(OnAfterSendDeferred pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -46,9 +47,11 @@ namespace Shuttle.Esb
             }
 
             _idempotenceService.ProcessingCompleted(transportMessage);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Execute(OnSendDeferred pipelineEvent)
+        public async Task Execute(OnSendDeferred pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -62,13 +65,13 @@ namespace Shuttle.Esb
             foreach (var stream in _idempotenceService.GetDeferredMessages(transportMessage))
             {
                 var deferredTransportMessage =
-                    (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream);
+                    (TransportMessage)await _serializer.Deserialize(typeof(TransportMessage), stream).ConfigureAwait(false);
 
                 var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 
                 try
                 {
-                    messagePipeline.Execute(deferredTransportMessage, null);
+                    await messagePipeline.Execute(deferredTransportMessage, null).ConfigureAwait(false);
                 }
                 finally
                 {

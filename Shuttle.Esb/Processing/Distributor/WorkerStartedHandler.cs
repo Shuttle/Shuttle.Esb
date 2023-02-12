@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -13,9 +14,11 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public void ProcessMessage(IHandlerContext<WorkerStartedEvent> context)
+        public async Task ProcessMessage(IHandlerContext<WorkerStartedEvent> context)
         {
             _workerAvailabilityService.WorkerStarted(context.Message);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

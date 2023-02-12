@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Streams;
 
@@ -33,24 +34,32 @@ namespace Shuttle.Esb.Tests
 
         public QueueUri Uri { get; }
         public bool IsStream => false;
-        public bool IsEmpty()
+        public async Task<bool> IsEmpty()
         {
+            bool isEmpty;
+
             lock (_lock)
             {
-                return _queue.Count == 0;
+                isEmpty = _queue.Count == 0;
+            }
+
+            return await Task.FromResult(isEmpty).ConfigureAwait(false);
+        }
+
+        public async Task Enqueue(TransportMessage message, Stream stream)
+        {
+            var copy = await stream.CopyAsync().ConfigureAwait(false);
+
+            lock (_lock)
+            {
+                _queue.Enqueue(new Message(message, copy));
             }
         }
 
-        public void Enqueue(TransportMessage message, Stream stream)
+        public async Task<ReceivedMessage> GetMessage()
         {
-            lock (_lock)
-            {
-                _queue.Enqueue(new Message(message, stream.Copy()));
-            }
-        }
+            Message message;
 
-        public ReceivedMessage GetMessage()
-        {
             lock (_lock)
             {
                 if (_queue.Count == 0)
@@ -58,23 +67,25 @@ namespace Shuttle.Esb.Tests
                     return null;
                 }
 
-                var message = _queue.Dequeue();
+                message = _queue.Dequeue();
 
                 _unacked.Add(message.TransportMessage.MessageId, message);
-
-                return new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
             }
+
+            return await Task.FromResult(new ReceivedMessage(message.Stream, message.TransportMessage.MessageId)).ConfigureAwait(false);
         }
 
-        public void Acknowledge(object acknowledgementToken)
+        public async Task Acknowledge(object acknowledgementToken)
         {
             lock (_lock)
             {
                 _unacked.Remove((Guid)acknowledgementToken);
             }
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void Release(object acknowledgementToken)
+        public async Task Release(object acknowledgementToken)
         {
             lock (_lock)
             {
@@ -83,6 +94,8 @@ namespace Shuttle.Esb.Tests
                 _queue.Enqueue(_unacked[token]);
                 _unacked.Remove(token);
             }
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

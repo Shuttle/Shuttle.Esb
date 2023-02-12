@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -9,7 +10,7 @@ namespace Shuttle.Esb
 
     public class ProcessDeferredMessageObserver : IProcessDeferredMessageObserver
     {
-        public void Execute(OnProcessDeferredMessage pipelineEvent)
+        public async Task Execute(OnProcessDeferredMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -24,15 +25,15 @@ namespace Shuttle.Esb
 
             if (transportMessage.IsIgnoring())
             {
-                deferredQueue.Release(receivedMessage.AcknowledgementToken);
+                await deferredQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
 
                 state.SetDeferredMessageReturned(false);
 
                 return;
             }
 
-            workQueue.Enqueue(transportMessage, receivedMessage.Stream);
-            deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            await workQueue.Enqueue(transportMessage, receivedMessage.Stream).ConfigureAwait(false);
+            await deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
 
             state.SetDeferredMessageReturned(true);
         }

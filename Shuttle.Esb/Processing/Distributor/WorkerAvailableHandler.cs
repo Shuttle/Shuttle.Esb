@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
@@ -18,7 +19,7 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
+        public async Task ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
             var distributeSendCount = _serviceBusOptions.Inbox.DistributeSendCount > 0
                 ? _serviceBusOptions.Inbox.DistributeSendCount
@@ -30,6 +31,8 @@ namespace Shuttle.Esb
             {
                 _workerAvailabilityService.WorkerAvailable(context.Message);
             }
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

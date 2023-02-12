@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
@@ -32,36 +33,36 @@ namespace Shuttle.Esb
             return serviceBusConfiguration.Worker != null;
         }
 
-        public static void CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
+        public static async Task CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
         {
             if (serviceBusConfiguration.HasInbox())
             {
-                CreateQueues(serviceBusConfiguration.Inbox);
+                await CreateQueues(serviceBusConfiguration.Inbox).ConfigureAwait(false);
 
                 if (serviceBusConfiguration.Inbox.HasDeferredQueue())
                 {
-                    serviceBusConfiguration.Inbox.DeferredQueue.AttemptCreate();
+                    await serviceBusConfiguration.Inbox.DeferredQueue.TryCreate().ConfigureAwait(false);
                 }
             }
 
             if (serviceBusConfiguration.HasOutbox())
             {
-                CreateQueues(serviceBusConfiguration.Outbox);
+                await CreateQueues(serviceBusConfiguration.Outbox).ConfigureAwait(false);
             }
 
             if (serviceBusConfiguration.HasControlInbox())
             {
-                CreateQueues(serviceBusConfiguration.ControlInbox);
+                await CreateQueues(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
             }
         }
 
-        private static void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
+        private static async Task CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
         {
-            workQueueConfiguration.WorkQueue.AttemptCreate();
+            await workQueueConfiguration.WorkQueue.TryCreate().ConfigureAwait(false);
 
             if (workQueueConfiguration is IErrorQueueConfiguration errorQueueConfiguration)
             {
-                errorQueueConfiguration.ErrorQueue.AttemptCreate();
+                await errorQueueConfiguration.ErrorQueue.TryCreate().ConfigureAwait(false);
             }
         }
     }

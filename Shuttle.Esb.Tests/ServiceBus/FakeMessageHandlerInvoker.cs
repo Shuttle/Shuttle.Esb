@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb.Tests
@@ -7,14 +8,14 @@ namespace Shuttle.Esb.Tests
     {
         private readonly Dictionary<string, int> _invokeCounts = new Dictionary<string, int>();
 
-        public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+        public async Task<MessageHandlerInvokeResult> Invoke(IPipelineEvent pipelineEvent)
         {
             var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
 
             _invokeCounts.TryGetValue(messageType, out int count);
             _invokeCounts[messageType] = count + 1;
 
-            return MessageHandlerInvokeResult.InvokedHandler(this);
+            return await Task.FromResult(MessageHandlerInvokeResult.InvokedHandler(this)).ConfigureAwait(false);
         }
 
         public int GetInvokeCount(string messageType)

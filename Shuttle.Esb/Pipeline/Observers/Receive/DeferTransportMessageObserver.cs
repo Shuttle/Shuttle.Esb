@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
@@ -21,7 +22,7 @@ namespace Shuttle.Esb
             _serviceBusConfiguration = serviceBusConfiguration;
         }
 
-        public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
+        public async Task Execute(OnAfterDeserializeTransportMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
@@ -37,21 +38,21 @@ namespace Shuttle.Esb
                 return;
             }
 
-            using (var stream = receivedMessage.Stream.Copy())
+            using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
             {
                 if (state.GetDeferredQueue() == null)
                 {
-                    workQueue.Enqueue(transportMessage, stream);
+                    await workQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
                 }
                 else
                 {
-                    state.GetDeferredQueue().Enqueue(transportMessage, stream);
+                    await state.GetDeferredQueue().Enqueue(transportMessage, stream).ConfigureAwait(false);
 
                     _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                 }
             }
 
-            workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
 
             TransportMessageDeferred.Invoke(this, new TransportMessageDeferredEventArgs(transportMessage));
 

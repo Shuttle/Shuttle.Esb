@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
@@ -27,7 +27,7 @@ namespace Shuttle.Esb
             _idempotenceService = idempotenceService;
         }
 
-        public void Execute(OnDispatchTransportMessage pipelineEvent)
+        public async Task Execute(OnDispatchTransportMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -46,9 +46,9 @@ namespace Shuttle.Esb
                 ? _queueService.Get(transportMessage.RecipientInboxWorkQueueUri)
                 : _serviceBusConfiguration.Outbox.WorkQueue;
 
-            using (var stream = state.GetTransportMessageStream().Copy())
+            await using (var stream = await state.GetTransportMessageStream().CopyAsync().ConfigureAwait(false))
             {
-                queue.Enqueue(transportMessage, stream);
+                await queue.Enqueue(transportMessage, stream).ConfigureAwait(false);
             }
         }
     }

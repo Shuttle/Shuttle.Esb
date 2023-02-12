@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Pipelines;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
 
 namespace Shuttle.Esb
@@ -9,7 +10,7 @@ namespace Shuttle.Esb
 
     public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
     {
-        public void Execute(OnAcknowledgeMessage pipelineEvent)
+        public async Task Execute(OnAcknowledgeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -18,7 +19,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+            await state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
         }
     }
 }

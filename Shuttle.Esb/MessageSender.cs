@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -22,7 +23,7 @@ namespace Shuttle.Esb
             _subscriptionService = subscriptionService;
         }
 
-        public void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        public async Task Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
@@ -30,7 +31,7 @@ namespace Shuttle.Esb
 
             try
             {
-                messagePipeline.Execute(transportMessage, transportMessageReceived);
+                await messagePipeline.Execute(transportMessage, transportMessageReceived);
             }
             finally
             {
@@ -38,16 +39,16 @@ namespace Shuttle.Esb
             }
         }
 
-        public TransportMessage Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public async Task<TransportMessage> Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
-            var transportMessage = GetTransportMessage(message, transportMessageReceived, builder);
+            var transportMessage = await GetTransportMessage(message, transportMessageReceived, builder).ConfigureAwait(false);
 
-            Dispatch(transportMessage, transportMessageReceived);
+            await Dispatch(transportMessage, transportMessageReceived);
 
             return transportMessage;
         }
 
-        private TransportMessage GetTransportMessage(object message, TransportMessage transportMessageReceived,
+        private async Task<TransportMessage> GetTransportMessage(object message, TransportMessage transportMessageReceived,
             Action<TransportMessageBuilder> builder)
         {
             Guard.AgainstNull(message, nameof(message));
@@ -56,7 +57,7 @@ namespace Shuttle.Esb
 
             try
             {
-                messagePipeline.Execute(message, transportMessageReceived, builder);
+                await messagePipeline.Execute(message, transportMessageReceived, builder).ConfigureAwait(false);
 
                 return messagePipeline.State.GetTransportMessage();
             }
@@ -66,15 +67,15 @@ namespace Shuttle.Esb
             }
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public async Task<IEnumerable<TransportMessage>> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
             Guard.AgainstNull(message, nameof(message));
 
-            var subscribers = _subscriptionService.GetSubscribedUris(message).ToList();
+            var subscribers = (await _subscriptionService.GetSubscribedUris(message).ConfigureAwait(false)).ToList();
 
             if (subscribers.Count > 0)
             {
-                var transportMessage = GetTransportMessage(message, transportMessageReceived, builder);
+                var transportMessage = await GetTransportMessage(message, transportMessageReceived, builder).ConfigureAwait(false);
 
                 var result = new List<TransportMessage>(subscribers.Count);
 
@@ -82,7 +83,7 @@ namespace Shuttle.Esb
                 {
                     transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
-                    Dispatch(transportMessage, transportMessageReceived);
+                    await Dispatch(transportMessage, transportMessageReceived).ConfigureAwait(false);
                     
                     result.Add(transportMessage);
                 }

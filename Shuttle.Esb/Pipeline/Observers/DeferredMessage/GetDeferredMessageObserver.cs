@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -9,14 +10,14 @@ namespace Shuttle.Esb
 
     public class GetDeferredMessageObserver : IGetDeferredMessageObserver
     {
-        public void Execute(OnGetMessage pipelineEvent)
+        public async Task Execute(OnGetMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var queue = state.GetDeferredQueue();
 
             Guard.AgainstNull(queue, nameof(queue));
 
-            var receivedMessage = queue.GetMessage();
+            var receivedMessage = await queue.GetMessage().ConfigureAwait(false);
 
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)

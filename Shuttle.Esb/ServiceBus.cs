@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -22,6 +23,8 @@ namespace Shuttle.Esb
 
         private readonly ServiceBusOptions _serviceBusOptions;
 
+        private bool _disposed;
+
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions,
             IServiceBusConfiguration serviceBusConfiguration,
             IPipelineFactory pipelineFactory, IMessageSender messageSender,
@@ -40,7 +43,7 @@ namespace Shuttle.Esb
             _messageSender = messageSender;
         }
 
-        public IServiceBus Start()
+        public async Task<IServiceBus> Start()
         {
             if (Started)
             {
@@ -55,7 +58,7 @@ namespace Shuttle.Esb
 
             try
             {
-                startupPipeline.Execute();
+                await startupPipeline.Execute().ConfigureAwait(false);
 
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
                 _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
@@ -71,7 +74,7 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public void Stop()
+        public async Task Stop()
         {
             if (!Started)
             {
@@ -100,7 +103,8 @@ namespace Shuttle.Esb
                 _outboxThreadPool.Dispose();
             }
 
-            _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute();
+            await _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute().ConfigureAwait(false);
+
             _pipelineFactory.Flush();
 
             Started = false;
@@ -110,19 +114,26 @@ namespace Shuttle.Esb
 
         public void Dispose()
         {
-            Stop();
+            if (_disposed)
+            {
+                return;
+            }
+
+            Stop().Wait();
 
             _cancellationTokenSource.AttemptDispose();
+
+            _disposed = true;
         }
 
-        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
+        public async Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
-            return _messageSender.Send(message, null, builder);
+            return await _messageSender.Send(message, null, builder).ConfigureAwait(false);
         }
 
-        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        public Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
@@ -177,6 +188,20 @@ namespace Shuttle.Esb
                     _serviceBusOptions.ControlInbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            await Stop().ConfigureAwait(false);
+
+            _cancellationTokenSource.AttemptDispose();
+
+            _disposed = true;
         }
     }
 }

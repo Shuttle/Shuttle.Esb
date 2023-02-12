@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Shuttle.Esb
 {
-    public interface IServiceBus : IDisposable
+    public interface IServiceBus : IDisposable, IAsyncDisposable
     {
         bool Started { get; }
-        TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null);
-        IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null);
-        IServiceBus Start();
-        void Stop();
+        Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null);
+        Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null);
+        Task<IServiceBus> Start();
+        Task Stop();
     }
 }

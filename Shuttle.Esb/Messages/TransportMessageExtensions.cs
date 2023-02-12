@@ -62,20 +62,6 @@ namespace Shuttle.Esb
             transportMessage.IgnoreTillDate = DateTime.MinValue;
         }
 
-        public static TransportMessage SetMessage(this TransportMessage transportMessage, ISerializer serializer,
-            object message)
-        {
-            using (var stream = serializer.Serialize(message))
-            {
-                transportMessage.Message = stream.ToBytes();
-            }
-
-            transportMessage.MessageType = message.GetType().FullName;
-            transportMessage.AssemblyQualifiedName = message.GetType().AssemblyQualifiedName;
-
-            return transportMessage;
-        }
-
         public static bool HasSenderInboxWorkQueueUri(this TransportMessage transportMessage)
         {
             return !string.IsNullOrEmpty(transportMessage.SenderInboxWorkQueueUri);

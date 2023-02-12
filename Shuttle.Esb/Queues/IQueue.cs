@@ -1,5 +1,5 @@
-using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Shuttle.Esb
 {
@@ -7,10 +7,10 @@ namespace Shuttle.Esb
     {
         QueueUri Uri { get; }
         bool IsStream { get; }
-        bool IsEmpty();
-        void Enqueue(TransportMessage message, Stream stream);
-        ReceivedMessage GetMessage();
-        void Acknowledge(object acknowledgementToken);
-        void Release(object acknowledgementToken);
+        Task<bool> IsEmpty();
+        Task Enqueue(TransportMessage message, Stream stream);
+        Task<ReceivedMessage> GetMessage();
+        Task Acknowledge(object acknowledgementToken);
+        Task Release(object acknowledgementToken);
     }
 }

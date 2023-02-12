@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
@@ -23,7 +24,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public void Execute(OnPipelineException pipelineEvent)
+        public async Task Execute(OnPipelineException pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -48,7 +49,7 @@ namespace Shuttle.Esb
                     {
                         if (receivedMessage != null)
                         {
-                            workQueue.Release(receivedMessage.AcknowledgementToken);
+                            await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                         }
 
                         return;
@@ -85,24 +86,24 @@ namespace Shuttle.Esb
 
                     if (retry || poison)
                     {
-                        using (var stream = _serializer.Serialize(transportMessage))
+                        await using (var stream = await _serializer.Serialize(transportMessage).ConfigureAwait(false))
                         {
                             if (retry)
                             {
-                                workQueue.Enqueue(transportMessage, stream);
+                                await workQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
                             }
 
                             if (poison)
                             {
-                                errorQueue.Enqueue(transportMessage, stream);
+                                await errorQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
                             }
                         }
 
-                        workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+                        await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        workQueue.Release(receivedMessage.AcknowledgementToken);
+                        await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                     }
                 }
                 finally

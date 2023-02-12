@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -10,21 +11,21 @@ namespace Shuttle.Esb
             return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public static bool AttemptCreate(this IQueue queue)
+        public static async Task<bool> TryCreate(this IQueue queue)
         {
             var operation = queue as ICreateQueue;
-
+            
             if (operation == null)
             {
                 return false;
             }
 
-            operation.Create();
+            await operation.Create();
 
             return true;
         }
 
-        public static void Create(this IQueue queue)
+        public static async Task Create(this IQueue queue)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -36,10 +37,10 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "ICreateQueue"));
             }
 
-            operation.Create();
+            await operation.Create();
         }
 
-        public static bool AttemptDrop(this IQueue queue)
+        public static async Task<bool> TryDrop(this IQueue queue)
         {
             var operation = queue as IDropQueue;
 
@@ -48,12 +49,12 @@ namespace Shuttle.Esb
                 return false;
             }
 
-            operation.Drop();
+            await operation.Drop();
 
             return true;
         }
 
-        public static void Drop(this IQueue queue)
+        public static async Task Drop(this IQueue queue)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -65,10 +66,10 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "IDropQueue"));
             }
 
-            operation.Drop();
+            await operation.Drop();
         }
 
-        public static bool AttemptPurge(this IQueue queue)
+        public static async Task<bool> TryPurge(this IQueue queue)
         {
             var operation = queue as IPurgeQueue;
 
@@ -77,12 +78,12 @@ namespace Shuttle.Esb
                 return false;
             }
 
-            operation.Purge();
+            await operation.Purge();
 
             return true;
         }
 
-        public static void Purge(this IQueue queue)
+        public static async Task Purge(this IQueue queue)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -94,7 +95,7 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "IPurgeQueue"));
             }
 
-            operation.Purge();
+            await operation.Purge();
         }
     }
 }

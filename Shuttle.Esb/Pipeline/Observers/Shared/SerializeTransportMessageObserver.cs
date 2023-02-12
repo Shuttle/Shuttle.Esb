@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 
@@ -19,14 +20,14 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public void Execute(OnSerializeTransportMessage pipelineEvent)
+        public async Task Execute(OnSerializeTransportMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
-            state.SetTransportMessageStream(_serializer.Serialize(transportMessage));
+            state.SetTransportMessageStream(await _serializer.Serialize(transportMessage).ConfigureAwait(false));
         }
     }
 }
