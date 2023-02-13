@@ -34,7 +34,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNull(assembly, nameof(assembly));
 
-            foreach (var type in _reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly))
+            foreach (var type in _reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly).GetAwaiter().GetResult())
             foreach (var @interface in type.GetInterfaces())
             {
                 if (!@interface.IsAssignableTo(MessageHandlerType))

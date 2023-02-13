@@ -121,7 +121,7 @@ namespace Shuttle.Esb
 
             Stop().Wait();
 
-            _cancellationTokenSource.AttemptDispose();
+            _cancellationTokenSource.TryDispose();
 
             _disposed = true;
         }
@@ -199,7 +199,7 @@ namespace Shuttle.Esb
 
             await Stop().ConfigureAwait(false);
 
-            _cancellationTokenSource.AttemptDispose();
+            _cancellationTokenSource.TryDispose();
 
             _disposed = true;
         }

@@ -19,7 +19,7 @@ namespace Shuttle.Esb.Tests
         public QueueUri Uri { get; }
         public bool IsStream => false;
 
-        public async Task<bool> IsEmpty()
+        public async ValueTask<bool> IsEmpty()
         {
             return await Task.FromResult(true);
         }

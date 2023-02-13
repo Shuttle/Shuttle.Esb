@@ -11,7 +11,7 @@ namespace Shuttle.Esb
             return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public static async Task<bool> TryCreate(this IQueue queue)
+        public static async ValueTask<bool> TryCreate(this IQueue queue)
         {
             var operation = queue as ICreateQueue;
             
@@ -40,7 +40,7 @@ namespace Shuttle.Esb
             await operation.Create();
         }
 
-        public static async Task<bool> TryDrop(this IQueue queue)
+        public static async ValueTask<bool> TryDrop(this IQueue queue)
         {
             var operation = queue as IDropQueue;
 
@@ -69,7 +69,7 @@ namespace Shuttle.Esb
             await operation.Drop();
         }
 
-        public static async Task<bool> TryPurge(this IQueue queue)
+        public static async ValueTask<bool> TryPurge(this IQueue queue)
         {
             var operation = queue as IPurgeQueue;
 

@@ -22,7 +22,7 @@
       <dependency id="Shuttle.Core.Encryption" version="12.0.0" />
       <dependency id="Shuttle.Core.Pipelines" version="13.0.0" />
       <dependency id="Shuttle.Core.PipelineTransaction" version="12.0.0" />
-      <dependency id="Shuttle.Core.Reflection" version="12.0.1" />
+      <dependency id="Shuttle.Core.Reflection" version="13.0.0" />
       <dependency id="Shuttle.Core.Serialization" version="11.0.0" />
       <dependency id="Shuttle.Core.Specification" version="11.0.0" />
       <dependency id="Shuttle.Core.Streams" version="10.3.0" />

@@ -7,7 +7,7 @@ namespace Shuttle.Esb
     {
         QueueUri Uri { get; }
         bool IsStream { get; }
-        Task<bool> IsEmpty();
+        ValueTask<bool> IsEmpty();
         Task Enqueue(TransportMessage message, Stream stream);
         Task<ReceivedMessage> GetMessage();
         Task Acknowledge(object acknowledgementToken);

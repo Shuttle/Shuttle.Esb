@@ -34,7 +34,7 @@ namespace Shuttle.Esb.Tests
 
         public QueueUri Uri { get; }
         public bool IsStream => false;
-        public async Task<bool> IsEmpty()
+        public async ValueTask<bool> IsEmpty()
         {
             bool isEmpty;
 
@@ -43,7 +43,7 @@ namespace Shuttle.Esb.Tests
                 isEmpty = _queue.Count == 0;
             }
 
-            return await Task.FromResult(isEmpty).ConfigureAwait(false);
+            return await ValueTask.FromResult(isEmpty).ConfigureAwait(false);
         }
 
         public async Task Enqueue(TransportMessage message, Stream stream)

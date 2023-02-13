@@ -27,29 +27,29 @@ namespace Shuttle.Esb
         {
             if (_serviceBusConfiguration.HasControlInbox())
             {
-                _serviceBusConfiguration.ControlInbox.WorkQueue.AttemptDispose();
-                _serviceBusConfiguration.ControlInbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.ControlInbox.WorkQueue.TryDispose();
+                _serviceBusConfiguration.ControlInbox.ErrorQueue.TryDispose();
             }
 
             if (_serviceBusConfiguration.HasInbox())
             {
-                _serviceBusConfiguration.Inbox.WorkQueue.AttemptDispose();
-                _serviceBusConfiguration.Inbox.DeferredQueue.AttemptDispose();
-                _serviceBusConfiguration.Inbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.Inbox.WorkQueue.TryDispose();
+                _serviceBusConfiguration.Inbox.DeferredQueue.TryDispose();
+                _serviceBusConfiguration.Inbox.ErrorQueue.TryDispose();
             }
 
             if (_serviceBusConfiguration.HasOutbox())
             {
-                _serviceBusConfiguration.Outbox.WorkQueue.AttemptDispose();
-                _serviceBusConfiguration.Outbox.ErrorQueue.AttemptDispose();
+                _serviceBusConfiguration.Outbox.WorkQueue.TryDispose();
+                _serviceBusConfiguration.Outbox.ErrorQueue.TryDispose();
             }
 
             if (_serviceBusConfiguration.IsWorker())
             {
-                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue.AttemptDispose();
+                _serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue.TryDispose();
             }
 
-            _queueService.AttemptDispose();
+            _queueService.TryDispose();
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

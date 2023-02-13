@@ -22,7 +22,7 @@ namespace Shuttle.Esb
         public QueueUri Uri { get; }
         public bool IsStream { get; }
 
-        public Task<bool> IsEmpty()
+        public ValueTask<bool> IsEmpty()
         {
             return _queue.IsEmpty();
         }

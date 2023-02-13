@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -11,7 +12,7 @@ namespace Shuttle.Esb.Tests.Pipelines.Observers.Send;
 public class AssembleMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_assembly_transport_message_using_received_transport_message()
+    public async Task Should_be_able_to_assembly_transport_message_using_received_transport_message()
     {
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var identityProvider = new Mock<IIdentityProvider>();
@@ -52,7 +53,7 @@ public class AssembleMessageObserverFixture
 
         pipelineEvent.Reset(pipeline);
 
-        observer.Execute(pipelineEvent);
+        await observer.Execute(pipelineEvent);
 
         var transportMessage = state.GetTransportMessage();
 

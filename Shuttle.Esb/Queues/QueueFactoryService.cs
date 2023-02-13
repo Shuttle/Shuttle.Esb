@@ -19,7 +19,7 @@ namespace Shuttle.Esb
         {
             foreach (var queueFactory in _queueFactories)
             {
-                queueFactory.AttemptDispose();
+                queueFactory.TryDispose();
             }
 
             _queueFactories.Clear();

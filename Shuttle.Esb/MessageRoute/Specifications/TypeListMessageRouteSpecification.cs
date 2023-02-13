@@ -11,7 +11,7 @@ namespace Shuttle.Esb
         protected readonly List<string> MessageTypes = new List<string>();
 
         public TypeListMessageRouteSpecification(params string[] messageTypes)
-            : this((IEnumerable<string>) messageTypes)
+            : this((IEnumerable<string>)messageTypes)
         {
         }
 
@@ -24,22 +24,25 @@ namespace Shuttle.Esb
 
         public TypeListMessageRouteSpecification(string value)
         {
-            Guard.AgainstNullOrEmptyString(value, "value");
+            Guard.AgainstNullOrEmptyString(value, nameof(value));
 
-            var typeNames = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+            var typeNames = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             var reflectionService = new ReflectionService();
 
             foreach (var typeName in typeNames)
             {
-                var type = reflectionService.GetType(typeName);
-
-                if (type == null)
+                reflectionService.GetType(typeName).ContinueWith(result =>
                 {
-                    throw new MessageRouteSpecificationException(
-                        string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
-                }
+                    var type = result.Result;
 
-                MessageTypes.Add(type.FullName);
+                    if (type == null)
+                    {
+                        throw new MessageRouteSpecificationException(
+                            string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
+                    }
+
+                    MessageTypes.Add(type.FullName);
+                }).GetAwaiter().GetResult();
             }
         }
 

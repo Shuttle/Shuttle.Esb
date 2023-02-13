@@ -26,7 +26,7 @@ namespace Shuttle.Esb
         {
             foreach (var queue in _queues)
             {
-                queue.AttemptDispose();
+                queue.TryDispose();
             }
 
             _queues.Clear();
