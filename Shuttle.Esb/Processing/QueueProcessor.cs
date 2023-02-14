@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -25,21 +26,20 @@ namespace Shuttle.Esb
         }
 
         [DebuggerNonUserCode]
-        void IProcessor.Execute(CancellationToken cancellationToken)
+        async Task IProcessor.Execute(CancellationToken cancellationToken)
         {
-            Execute(cancellationToken);
+            await Execute(cancellationToken).ConfigureAwait(false);
         }
 
-        public virtual void Execute(CancellationToken cancellationToken)
+        public virtual async Task Execute(CancellationToken cancellationToken)
         {
             var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 
             try
             {
                 messagePipeline.State.ResetWorking();
-                messagePipeline.State.Replace(StateKeys.CancellationToken, cancellationToken);
 
-                messagePipeline.Execute();
+                await messagePipeline.Execute(cancellationToken).ConfigureAwait(false);
 
                 if (messagePipeline.State.GetWorking())
                 {
@@ -51,7 +51,7 @@ namespace Shuttle.Esb
                 {
                     _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
 
-                    _threadActivity.Waiting(cancellationToken);
+                    await _threadActivity.Waiting(cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

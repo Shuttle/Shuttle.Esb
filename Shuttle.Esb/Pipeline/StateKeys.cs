@@ -3,7 +3,6 @@ namespace Shuttle.Esb
     public static class StateKeys
     {
         public const string AvailableWorker = "AvailableWorker";
-        public const string CancellationToken = "CancellationToken";
         public const string DeferredMessageReturned = "DeferredMessageReturned";
         public const string DeferredQueue = "DeferredQueue";
         public const string DurationToIgnoreOnFailure = "DurationToIgnoreOnFailure";

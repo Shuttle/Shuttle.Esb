@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -10,10 +11,6 @@ namespace Shuttle.Esb
             ISerializeTransportMessageObserver serializeTransportMessageObserver,
             IDispatchTransportMessageObserver dispatchTransportMessageObserver)
         {
-            Guard.AgainstNull(findMessageRouteObserver, nameof(findMessageRouteObserver));
-            Guard.AgainstNull(serializeTransportMessageObserver, nameof(serializeTransportMessageObserver));
-            Guard.AgainstNull(dispatchTransportMessageObserver, nameof(dispatchTransportMessageObserver));
-
             RegisterStage("Send")
                 .WithEvent<OnFindRouteForMessage>()
                 .WithEvent<OnAfterFindRouteForMessage>()
@@ -22,19 +19,19 @@ namespace Shuttle.Esb
                 .WithEvent<OnDispatchTransportMessage>()
                 .WithEvent<OnAfterDispatchTransportMessage>();
 
-            RegisterObserver(findMessageRouteObserver);
-            RegisterObserver(serializeTransportMessageObserver);
-            RegisterObserver(dispatchTransportMessageObserver);
+            RegisterObserver(Guard.AgainstNull(findMessageRouteObserver, nameof(findMessageRouteObserver)));
+            RegisterObserver(Guard.AgainstNull(serializeTransportMessageObserver, nameof(serializeTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(dispatchTransportMessageObserver, nameof(dispatchTransportMessageObserver)));
         }
 
-        public Task<bool> Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        public Task<bool> Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             State.SetTransportMessage(transportMessage);
             State.SetTransportMessageReceived(transportMessageReceived);
 
-            return base.Execute();
+            return base.Execute(cancellationToken);
         }
     }
 }

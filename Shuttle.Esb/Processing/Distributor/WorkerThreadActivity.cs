@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Threading;
@@ -30,23 +31,23 @@ namespace Shuttle.Esb
             _threadActivity = threadActivity;
         }
 
-        public void Waiting(CancellationToken cancellationToken)
+        public async Task Waiting(CancellationToken cancellationToken)
         {
             if (ShouldNotifyDistributor())
             {
-                _serviceBus.Send(new WorkerThreadAvailableCommand
+                await _serviceBus.Send(new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
                         InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.UtcNow
                     },
-                    builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue));
+                    builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue)).ConfigureAwait(false);
 
                 _nextNotificationDate = DateTime.UtcNow.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
             }
 
-            _threadActivity.Waiting(cancellationToken);
+            await _threadActivity.Waiting(cancellationToken).ConfigureAwait(false);
         }
 
         public void Working()

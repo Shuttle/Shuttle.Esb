@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -10,13 +9,13 @@ namespace Shuttle.Esb
 {
     public class DeferredMessageProcessor : IProcessor
     {
-        private readonly object _lock = new object();
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         private readonly IPipelineFactory _pipelineFactory;
+        private readonly ServiceBusOptions _serviceBusOptions;
         private Guid _checkpointMessageId = Guid.Empty;
         private DateTime _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
         private DateTime _nextProcessingDateTime = DateTime.MinValue.ToUniversalTime();
-        private readonly ServiceBusOptions _serviceBusOptions;
 
         public DeferredMessageProcessor(ServiceBusOptions serviceBusOptions, IPipelineFactory pipelineFactory)
         {
@@ -27,15 +26,17 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
         }
 
-        public void Execute(CancellationToken cancellationToken)
+        public async Task Execute(CancellationToken cancellationToken)
         {
-            lock (_lock)
+            await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            try
             {
                 if (DateTime.UtcNow < _nextProcessingDateTime)
                 {
                     try
                     {
-                        Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
                     }
                     catch (OperationCanceledException)
                     {
@@ -52,7 +53,7 @@ namespace Shuttle.Esb
                     pipeline.State.SetDeferredMessageReturned(false);
                     pipeline.State.SetTransportMessage(null);
 
-                    pipeline.Execute();
+                    await pipeline.Execute(cancellationToken).ConfigureAwait(false);
 
                     var transportMessage = pipeline.State.GetTransportMessage();
 
@@ -110,6 +111,10 @@ namespace Shuttle.Esb
                     _pipelineFactory.ReleasePipeline(pipeline);
                 }
             }
+            finally
+            {
+                _lock.Release();
+            }
         }
 
         private void AdjustNextProcessingDateTime(DateTime dateTime)
@@ -120,23 +125,29 @@ namespace Shuttle.Esb
                 new DeferredMessageProcessingAdjustedEventArgs(_nextProcessingDateTime));
         }
 
-        public void MessageDeferred(DateTime ignoreTillDate)
-        {
-            lock (_lock)
-            {
-                if (ignoreTillDate.ToUniversalTime() < _nextProcessingDateTime)
-                {
-                    AdjustNextProcessingDateTime(ignoreTillDate.ToUniversalTime());
-                }
-            }
-        }
-
-        public event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted= delegate
+        public event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted = delegate
         {
         };
 
         public event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted = delegate
         {
         };
+
+        public void MessageDeferred(DateTime ignoreTillDate)
+        {
+            _lock.Wait();
+
+            try
+            {
+                if (ignoreTillDate.ToUniversalTime() < _nextProcessingDateTime)
+                {
+                    AdjustNextProcessingDateTime(ignoreTillDate.ToUniversalTime());
+                }
+            }
+            finally
+            {
+                _lock.Release(); 
+            }
+        }
     }
 }

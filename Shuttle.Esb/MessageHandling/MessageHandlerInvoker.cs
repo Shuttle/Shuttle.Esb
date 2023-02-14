@@ -78,7 +78,7 @@ namespace Shuttle.Esb
                     }
                 }
 
-                var handlerContext = contextMethod.CreateHandlerContext(_messageSender, transportMessage, message, state.GetCancellationToken());
+                var handlerContext = contextMethod.CreateHandlerContext(Guard.AgainstNull(_messageSender, nameof(_messageSender)), Guard.AgainstNull(transportMessage, nameof(transportMessage)), message, pipelineEvent.Pipeline.CancellationToken);
 
                 state.SetHandlerContext(handlerContext);
 

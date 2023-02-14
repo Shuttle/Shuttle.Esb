@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -33,18 +34,18 @@ namespace Shuttle.Esb
         }
 
         [DebuggerNonUserCode]
-        void IProcessor.Execute(CancellationToken cancellationToken)
+        async Task IProcessor.Execute(CancellationToken cancellationToken)
         {
-            Execute(cancellationToken);
+            await Execute(cancellationToken).ConfigureAwait(false);
         }
 
-        public virtual void Execute(CancellationToken cancellationToken)
+        public virtual async Task Execute(CancellationToken cancellationToken)
         {
             var availableWorker = _workerAvailabilityService.GetAvailableWorker();
 
             if (_serviceBusOptions.Inbox.Distribute && availableWorker == null)
             {
-                _threadActivity.Waiting(cancellationToken);
+                await _threadActivity.Waiting(cancellationToken).ConfigureAwait(false);
 
                 _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(null));
 
@@ -59,7 +60,6 @@ namespace Shuttle.Esb
             {
                 messagePipeline.State.SetAvailableWorker(availableWorker);
                 messagePipeline.State.ResetWorking();
-                messagePipeline.State.SetCancellationToken(cancellationToken);
                 messagePipeline.State.SetTransportMessage(null);
                 messagePipeline.State.SetReceivedMessage(null);
 
@@ -68,7 +68,7 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                messagePipeline.Execute();
+                await messagePipeline.Execute(cancellationToken).ConfigureAwait(false);
 
                 if (messagePipeline.State.GetWorking())
                 {
@@ -80,7 +80,7 @@ namespace Shuttle.Esb
                 {
                     _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
 
-                    _threadActivity.Waiting(cancellationToken);
+                    await _threadActivity.Waiting(cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

@@ -31,7 +31,7 @@ namespace Shuttle.Esb
 
             try
             {
-                await messagePipeline.Execute(transportMessage, transportMessageReceived);
+                await messagePipeline.Execute(transportMessage, transportMessageReceived).ConfigureAwait(false);
             }
             finally
             {

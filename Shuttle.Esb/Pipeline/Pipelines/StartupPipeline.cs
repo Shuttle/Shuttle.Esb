@@ -7,8 +7,6 @@ namespace Shuttle.Esb
     {
         public StartupPipeline(IStartupProcessingObserver startupProcessingObserver)
         {
-            Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver));
-
             RegisterStage("Start")
                 .WithEvent<OnStarting>()
                 .WithEvent<OnConfigure>()
@@ -27,7 +25,7 @@ namespace Shuttle.Esb
             RegisterStage("Final")
                 .WithEvent<OnStarted>();
 
-            RegisterObserver(startupProcessingObserver);
+            RegisterObserver(Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver)));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -45,7 +46,7 @@ namespace Shuttle.Esb.Tests
             pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
             pipeline.State.Add(StateKeys.WorkQueue, new Mock<IQueue>().Object);
             pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
-            pipeline.Execute();
+            pipeline.Execute(CancellationToken.None);
 
             errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
         }

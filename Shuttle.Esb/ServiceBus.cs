@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
@@ -58,7 +59,7 @@ namespace Shuttle.Esb
 
             try
             {
-                await startupPipeline.Execute().ConfigureAwait(false);
+                await startupPipeline.Execute(CancellationToken.None).ConfigureAwait(false);
 
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
                 _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
@@ -103,7 +104,7 @@ namespace Shuttle.Esb
                 _outboxThreadPool.Dispose();
             }
 
-            await _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute().ConfigureAwait(false);
+            await _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None).ConfigureAwait(false);
 
             _pipelineFactory.Flush();
 
@@ -119,7 +120,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            Stop().Wait();
+            Stop().GetAwaiter().GetResult();
 
             _cancellationTokenSource.TryDispose();
 

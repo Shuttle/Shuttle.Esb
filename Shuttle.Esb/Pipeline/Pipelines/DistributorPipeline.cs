@@ -15,13 +15,6 @@ namespace Shuttle.Esb
             IDistributorExceptionObserver distributorExceptionObserver)
         {
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-            Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
-            Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
-            Guard.AgainstNull(distributorMessageObserver, nameof(distributorMessageObserver));
-            Guard.AgainstNull(serializeTransportMessageObserver, nameof(serializeTransportMessageObserver));
-            Guard.AgainstNull(dispatchTransportMessageObserver, nameof(dispatchTransportMessageObserver));
-            Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
-            Guard.AgainstNull(distributorExceptionObserver, nameof(distributorExceptionObserver));
 
             State.SetWorkQueue(serviceBusConfiguration.Inbox.WorkQueue);
             State.SetErrorQueue(serviceBusConfiguration.Inbox.ErrorQueue);
@@ -39,13 +32,13 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(getWorkMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(distributorMessageObserver);
-            RegisterObserver(serializeTransportMessageObserver);
-            RegisterObserver(dispatchTransportMessageObserver);
-            RegisterObserver(acknowledgeMessageObserver);
-            RegisterObserver(distributorExceptionObserver); // must be last
+            RegisterObserver(Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(distributorMessageObserver, nameof(distributorMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(serializeTransportMessageObserver, nameof(serializeTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(dispatchTransportMessageObserver, nameof(dispatchTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(distributorExceptionObserver, nameof(distributorExceptionObserver))); // must be last
         }
     }
 }

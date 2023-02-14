@@ -1,23 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public static class PipelineStateExtensions
     {
-        public static CancellationToken GetCancellationToken(this IState state)
-        {
-            return state.Get<CancellationToken>(StateKeys.CancellationToken);
-        }
-
-        public static void SetCancellationToken(this IState state, CancellationToken cancellationToken)
-        {
-            state.Replace(StateKeys.CancellationToken, cancellationToken);
-        }
-
         public static IQueue GetWorkQueue(this IState state)
         {
             return state.Get<IQueue>(StateKeys.WorkQueue);

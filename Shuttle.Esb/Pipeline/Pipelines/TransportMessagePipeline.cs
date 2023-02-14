@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -11,11 +12,6 @@ namespace Shuttle.Esb
             ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver,
             IEncryptMessageObserver encryptMessageObserver)
         {
-            Guard.AgainstNull(assembleMessageObserver, nameof(assembleMessageObserver));
-            Guard.AgainstNull(serializeMessageObserver, nameof(serializeMessageObserver));
-            Guard.AgainstNull(compressMessageObserver, nameof(compressMessageObserver));
-            Guard.AgainstNull(encryptMessageObserver, nameof(encryptMessageObserver));
-
             RegisterStage("Create")
                 .WithEvent<OnAssembleMessage>()
                 .WithEvent<OnAfterAssembleMessage>()
@@ -26,21 +22,19 @@ namespace Shuttle.Esb
                 .WithEvent<OnCompressMessage>()
                 .WithEvent<OnAfterCompressMessage>();
 
-            RegisterObserver(assembleMessageObserver);
-            RegisterObserver(serializeMessageObserver);
-            RegisterObserver(compressMessageObserver);
-            RegisterObserver(encryptMessageObserver);
+            RegisterObserver(Guard.AgainstNull(assembleMessageObserver, nameof(assembleMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(serializeMessageObserver, nameof(serializeMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(compressMessageObserver, nameof(compressMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(encryptMessageObserver, nameof(encryptMessageObserver)));
         }
 
-        public async Task<bool> Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public async Task<bool> Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, CancellationToken cancellationToken = default)
         {
-            Guard.AgainstNull(message, nameof(message));
-
-            State.SetMessage(message);
+            State.SetMessage(Guard.AgainstNull(message, nameof(message)));
             State.SetTransportMessageReceived(transportMessageReceived);
             State.SetTransportMessageBuilder(builder);
 
-            return await base.Execute().ConfigureAwait(false);
+            return await base.Execute(cancellationToken).ConfigureAwait(false);
         }
     }
 }

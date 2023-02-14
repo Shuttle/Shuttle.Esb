@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -48,7 +49,7 @@ namespace Shuttle.Esb.Tests.Shared
             pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
             pipeline.State.Add(StateKeys.WorkQueue, workQueue.Object);
             pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
-            pipeline.Execute();
+            pipeline.Execute(CancellationToken.None);
 
             process.Verify(m => m.Kill(), Times.Once);
             workQueue.Verify(m => m.Acknowledge(It.IsAny<object>()), Times.Never);
@@ -91,7 +92,7 @@ namespace Shuttle.Esb.Tests.Shared
             pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
             pipeline.State.Add(StateKeys.WorkQueue, workQueue.Object);
             pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
-            pipeline.Execute();
+            pipeline.Execute(CancellationToken.None);
 
             process.Verify(m => m.Kill(), Times.Never);
             workQueue.Verify(m => m.Acknowledge(It.IsAny<object>()), Times.Once);
