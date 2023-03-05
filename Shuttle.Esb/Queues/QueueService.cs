@@ -34,7 +34,7 @@ namespace Shuttle.Esb
 
         public IQueue Get(string uri)
         {
-            Guard.AgainstNullOrEmptyString(uri, "uri");
+            Guard.AgainstNullOrEmptyString(uri, nameof(uri));
 
             var queue = FindQueue(uri);
 
