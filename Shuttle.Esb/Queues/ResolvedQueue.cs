@@ -11,13 +11,56 @@ namespace Shuttle.Esb
 
         public ResolvedQueue(IQueue queue, Uri uri)
         {
-            Guard.AgainstNull(queue, nameof(queue));
-            Guard.AgainstNull(uri, nameof(uri));
-
-            _queue = queue;
-            Uri = new QueueUri(uri);
+            
+            _queue = Guard.AgainstNull(queue, nameof(queue));
+            Uri = new QueueUri(Guard.AgainstNull(uri, nameof(uri)));
             IsStream = queue.IsStream;
+
+            _queue.MessageAcknowledged += (sender, args) =>
+            {
+                MessageAcknowledged.Invoke(sender, args);
+            };
+
+            _queue.MessageEnqueued += (sender, args) =>
+            {
+                MessageEnqueued.Invoke(sender, args);
+            };
+
+            _queue.MessageReceived += (sender, args) =>
+            {
+                MessageReceived.Invoke(sender, args);
+            };
+
+            _queue.MessageReleased += (sender, args) =>
+            {
+                MessageReleased.Invoke(sender, args);
+            };
+
+            _queue.OperationCompleted += (sender, args) =>
+            {
+                OperationCompleted.Invoke(sender, args);
+            };
         }
+
+        public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate
+        {
+        };
+
+        public event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged = delegate
+        {
+        };
+
+        public event EventHandler<MessageReleasedEventArgs> MessageReleased = delegate
+        {
+        };
+
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived = delegate
+        {
+        };
+
+        public event EventHandler<OperationCompletedEventArgs> OperationCompleted = delegate
+        {
+        };
 
         public QueueUri Uri { get; }
         public bool IsStream { get; }

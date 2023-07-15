@@ -32,6 +32,10 @@ namespace Shuttle.Esb
             _queues.Clear();
         }
 
+        public event EventHandler<QueueCreatedEventArgs> QueueCreated = delegate
+        {
+        };
+
         public IQueue Get(string uri)
         {
             Guard.AgainstNullOrEmptyString(uri, nameof(uri));
@@ -110,6 +114,8 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(result,
                 string.Format(Resources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
+
+            QueueCreated.Invoke(this, new QueueCreatedEventArgs(result));
 
             return result;
         }

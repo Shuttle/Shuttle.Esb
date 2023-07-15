@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -5,6 +6,12 @@ namespace Shuttle.Esb
 {
     public interface IQueue
     {
+        event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued;
+        event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged;
+        event EventHandler<MessageReleasedEventArgs> MessageReleased;
+        event EventHandler<MessageReceivedEventArgs> MessageReceived;
+        event EventHandler<OperationCompletedEventArgs> OperationCompleted;
+
         QueueUri Uri { get; }
         bool IsStream { get; }
         ValueTask<bool> IsEmpty();
