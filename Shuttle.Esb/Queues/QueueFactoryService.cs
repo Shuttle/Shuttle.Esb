@@ -29,12 +29,7 @@ namespace Shuttle.Esb
         {
             Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
 
-            foreach (var factory in _queueFactories.Where(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                return factory;
-            }
-
-            throw new QueueFactoryNotFoundException(scheme);
+            return _queueFactories.FirstOrDefault(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)) ?? throw new QueueFactoryNotFoundException(scheme);
         }
 
         public IEnumerable<IQueueFactory> Factories => _queueFactories.AsReadOnly();

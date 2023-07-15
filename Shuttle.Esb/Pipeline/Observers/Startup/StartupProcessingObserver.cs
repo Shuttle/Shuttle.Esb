@@ -8,7 +8,6 @@ using Shuttle.Core.Threading;
 namespace Shuttle.Esb
 {
     public interface IStartupProcessingObserver : 
-        IPipelineObserver<OnConfigure>, 
         IPipelineObserver<OnCreatePhysicalQueues>, 
         IPipelineObserver<OnStartInboxProcessing>, 
         IPipelineObserver<OnStartControlInboxProcessing>, 
@@ -25,8 +24,6 @@ namespace Shuttle.Esb
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
-
-        private static readonly TimeSpan JoinTimeout = TimeSpan.FromSeconds(1);
 
         public StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus,
             IServiceBusConfiguration serviceBusConfiguration, IWorkerAvailabilityService workerAvailabilityService,
@@ -129,15 +126,6 @@ namespace Shuttle.Esb
                     _serviceBusOptions.Outbox.ThreadCount,
                     new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
                     _serviceBusOptions.ProcessorThread).Start());
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        public async Task Execute(OnConfigure pipelineEvent)
-        {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
-
-            _serviceBusConfiguration.Configure(_serviceBusOptions);
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

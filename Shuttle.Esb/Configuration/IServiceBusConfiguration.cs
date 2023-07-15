@@ -6,6 +6,5 @@ namespace Shuttle.Esb
         IInboxConfiguration Inbox { get; }
         IOutboxConfiguration Outbox { get; }
         IWorkerConfiguration Worker { get; }
-        void Configure(ServiceBusOptions serviceBusOptions);
     }
 }

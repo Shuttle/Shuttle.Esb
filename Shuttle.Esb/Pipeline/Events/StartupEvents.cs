@@ -14,14 +14,6 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnConfigure : PipelineEvent
-    {
-    }
-
-    public class OnAfterConfigure : PipelineEvent
-    {
-    }
-
     public class OnStartInboxProcessing : PipelineEvent
     {
     }

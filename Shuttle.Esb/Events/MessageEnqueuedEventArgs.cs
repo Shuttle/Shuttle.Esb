@@ -6,12 +6,12 @@ namespace Shuttle.Esb
 {
     public class MessageEnqueuedEventArgs : EventArgs
     {
-        public TransportMessage Message { get; }
+        public TransportMessage TransportMessage { get; }
         public Stream Stream { get; }
 
         public MessageEnqueuedEventArgs(TransportMessage message, Stream stream)
         {
-            Message = Guard.AgainstNull(message, nameof(message));
+            TransportMessage = Guard.AgainstNull(message, nameof(message));
             Stream = Guard.AgainstNull(stream, nameof(stream));
         }
     }

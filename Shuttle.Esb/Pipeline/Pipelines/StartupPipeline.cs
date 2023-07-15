@@ -9,8 +9,6 @@ namespace Shuttle.Esb
         {
             RegisterStage("Start")
                 .WithEvent<OnStarting>()
-                .WithEvent<OnConfigure>()
-                .WithEvent<OnAfterConfigure>()
                 .WithEvent<OnCreatePhysicalQueues>()
                 .WithEvent<OnAfterCreatePhysicalQueues>()
                 .WithEvent<OnStartInboxProcessing>()
