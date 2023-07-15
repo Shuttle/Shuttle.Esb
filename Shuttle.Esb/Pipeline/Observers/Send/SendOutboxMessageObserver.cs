@@ -28,7 +28,7 @@ namespace Shuttle.Esb
 
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
             Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
+            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, nameof(transportMessage.RecipientInboxWorkQueueUri));
 
             var queue = _queueService.Get(transportMessage.RecipientInboxWorkQueueUri);
 

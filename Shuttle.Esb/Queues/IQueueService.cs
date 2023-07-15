@@ -6,7 +6,7 @@ namespace Shuttle.Esb
     {
         event EventHandler<QueueCreatedEventArgs> QueueCreated;
 
-        IQueue Get(string uri);
-        bool Contains(string uri);
+        IQueue Get(Uri uri);
+        bool Contains(Uri uri);
     }
 }

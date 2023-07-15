@@ -27,20 +27,14 @@ namespace Shuttle.Esb
 
         public IQueueFactory Get(string scheme)
         {
-            return Uri.TryCreate(scheme, UriKind.Absolute, out var uri)
-                ? Get(uri)
-                : _queueFactories.Find(
-                    factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
-        }
+            Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
 
-        public IQueueFactory Get(Uri uri)
-        {
-            foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
+            foreach (var factory in _queueFactories.Where(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)))
             {
                 return factory;
             }
 
-            throw new QueueFactoryNotFoundException(uri.Scheme);
+            throw new QueueFactoryNotFoundException(scheme);
         }
 
         public IEnumerable<IQueueFactory> Factories => _queueFactories.AsReadOnly();

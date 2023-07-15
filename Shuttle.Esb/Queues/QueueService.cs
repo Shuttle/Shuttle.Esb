@@ -36,11 +36,11 @@ namespace Shuttle.Esb
         {
         };
 
-        public IQueue Get(string uri)
+        public IQueue Get(Uri uri)
         {
-            Guard.AgainstNullOrEmptyString(uri, nameof(uri));
+            Guard.AgainstNull(uri, nameof(uri));
 
-            var queue = FindQueue(uri);
+            var queue = Find(uri);
 
             if (queue != null)
             {
@@ -50,15 +50,14 @@ namespace Shuttle.Esb
             lock (Padlock)
             {
                 queue =
-                    _queues.Find(
-                        candidate => Find(candidate, uri));
+                    _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
 
                 if (queue != null)
                 {
                     return queue;
                 }
 
-                var queueUri = new Uri(uri);
+                var queueUri = uri;
 
                 if (queueUri.Scheme.Equals("resolver"))
                 {
@@ -71,12 +70,12 @@ namespace Shuttle.Esb
                             uri));
                     }
 
-                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri), resolvedQueueUri),
+                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri.Scheme), resolvedQueueUri),
                         queueUri);
                 }
                 else
                 {
-                    queue = CreateQueue(_queueFactoryService.Get(queueUri), queueUri);
+                    queue = CreateQueue(_queueFactoryService.Get(queueUri.Scheme), queueUri);
                 }
 
                 _queues.Add(queue);
@@ -85,27 +84,21 @@ namespace Shuttle.Esb
             }
         }
 
-        public bool Contains(string uri)
+        public bool Contains(Uri uri)
         {
-            return FindQueue(uri) != null;
+            return Find(uri) != null;
         }
 
-        public IQueue FindQueue(string uri)
+        public IQueue Find(Uri uri)
         {
-            Guard.AgainstNullOrEmptyString(uri, nameof(uri));
+            Guard.AgainstNull(uri, nameof(uri));
             
-            return _queues.Find(
-                candidate => Find(candidate, uri));
-        }
-
-        public IQueue Create(string uri)
-        {
-            return Create(new Uri(uri));
+            return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
         }
 
         public IQueue Create(Uri uri)
         {
-            return _queueFactoryService.Get(uri).Create(uri);
+            return _queueFactoryService.Get(uri.Scheme).Create(uri);
         }
 
         private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
@@ -118,18 +111,6 @@ namespace Shuttle.Esb
             QueueCreated.Invoke(this, new QueueCreatedEventArgs(result));
 
             return result;
-        }
-
-        private bool Find(IQueue candidate, string uri)
-        {
-            try
-            {
-                return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }
