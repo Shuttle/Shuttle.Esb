@@ -19,7 +19,7 @@ namespace Shuttle.Esb.Tests
 
             var queueService = new Mock<IQueueService>();
 
-            queueService.Setup(m => m.Get(It.IsAny<string>())).Returns(fakeQueue);
+            queueService.Setup(m => m.Get(It.IsAny<Uri>())).Returns(fakeQueue);
 
             var services = new ServiceCollection();
 

@@ -22,7 +22,7 @@ namespace Shuttle.Esb.Tests
 
             var queueService = new Mock<IQueueService>();
 
-            queueService.Setup(m => m.Get(It.IsAny<string>())).Returns((Uri uri) => new NullQueue(uri));
+            queueService.Setup(m => m.Get(It.IsAny<Uri>())).Returns((Uri uri) => new NullQueue(uri));
 
             identityProvider.Setup(m => m.Get()).Returns(new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous"));
 

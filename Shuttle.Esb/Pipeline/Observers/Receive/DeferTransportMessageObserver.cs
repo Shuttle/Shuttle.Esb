@@ -38,7 +38,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+            await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
             {
                 if (state.GetDeferredQueue() == null)
                 {
