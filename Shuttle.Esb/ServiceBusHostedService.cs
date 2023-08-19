@@ -16,18 +16,14 @@ namespace Shuttle.Esb
             _serviceBus = serviceBus;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _serviceBus.Start();
-
-            return Task.CompletedTask;
+            await _serviceBus.Start();
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _serviceBus.Stop();
-
-            return Task.CompletedTask;
+            await _serviceBus.Stop();
         }
     }
 }

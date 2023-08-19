@@ -48,7 +48,7 @@ namespace Shuttle.Esb
                 {
                     await state.GetDeferredQueue().Enqueue(transportMessage, stream).ConfigureAwait(false);
 
-                    _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+                    await _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate).ConfigureAwait(false);
                 }
             }
 

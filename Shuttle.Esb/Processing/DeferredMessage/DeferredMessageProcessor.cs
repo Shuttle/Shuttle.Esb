@@ -133,9 +133,9 @@ namespace Shuttle.Esb
         {
         };
 
-        public void MessageDeferred(DateTime ignoreTillDate)
+        public async Task MessageDeferred(DateTime ignoreTillDate)
         {
-            _lock.Wait();
+            await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
             try
             {
