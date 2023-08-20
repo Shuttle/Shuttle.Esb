@@ -8,9 +8,9 @@ namespace Shuttle.Esb
     public class QueueService : IQueueService, IDisposable
     {
         private static readonly object Padlock = new object();
+        private readonly IQueueFactoryService _queueFactoryService;
 
         private readonly List<IQueue> _queues = new List<IQueue>();
-        private readonly IQueueFactoryService _queueFactoryService;
         private readonly IUriResolver _uriResolver;
 
         public QueueService(IQueueFactoryService queueFactoryService, IUriResolver uriResolver)
@@ -32,7 +32,15 @@ namespace Shuttle.Esb
             _queues.Clear();
         }
 
-        public event EventHandler<QueueCreatedEventArgs> QueueCreated = delegate
+        public event EventHandler<QueueEventArgs> QueueCreated = delegate
+        {
+        };
+
+        public event EventHandler<QueueEventArgs> QueueDisposing = delegate
+        {
+        };
+
+        public event EventHandler<QueueEventArgs> QueueDisposed = delegate
         {
         };
 
@@ -89,13 +97,6 @@ namespace Shuttle.Esb
             return Find(uri) != null;
         }
 
-        public IQueue Find(Uri uri)
-        {
-            Guard.AgainstNull(uri, nameof(uri));
-            
-            return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
-        }
-
         public IQueue Create(Uri uri)
         {
             return _queueFactoryService.Get(uri.Scheme).Create(uri);
@@ -108,9 +109,16 @@ namespace Shuttle.Esb
             Guard.AgainstNull(result,
                 string.Format(Resources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
 
-            QueueCreated.Invoke(this, new QueueCreatedEventArgs(result));
+            QueueCreated.Invoke(this, new QueueEventArgs(result));
 
             return result;
+        }
+
+        public IQueue Find(Uri uri)
+        {
+            Guard.AgainstNull(uri, nameof(uri));
+
+            return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
         }
     }
 }

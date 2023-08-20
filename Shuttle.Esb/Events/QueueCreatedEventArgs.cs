@@ -3,13 +3,13 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class QueueCreatedEventArgs : EventArgs
+    public class QueueEventArgs : EventArgs
     {
-        public QueueCreatedEventArgs(IQueue queue)
+        public QueueEventArgs(IQueue queue)
         {
             Queue = Guard.AgainstNull(queue, nameof(queue));
         }
 
-        public IQueue Queue { get; private set; }
+        public IQueue Queue { get; }
     }
 }
