@@ -26,7 +26,11 @@ namespace Shuttle.Esb
         {
             foreach (var queue in _queues)
             {
+                QueueDisposing.Invoke(this, new QueueEventArgs(queue));
+
                 queue.TryDispose();
+
+                QueueDisposed.Invoke(this, new QueueEventArgs(queue));
             }
 
             _queues.Clear();

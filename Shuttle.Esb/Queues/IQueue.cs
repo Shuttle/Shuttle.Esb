@@ -10,7 +10,8 @@ namespace Shuttle.Esb
         event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged;
         event EventHandler<MessageReleasedEventArgs> MessageReleased;
         event EventHandler<MessageReceivedEventArgs> MessageReceived;
-        event EventHandler<OperationCompletedEventArgs> OperationCompleted;
+        event EventHandler<OperationEventArgs> OperationStarting;
+        event EventHandler<OperationEventArgs> OperationCompleted;
 
         QueueUri Uri { get; }
         bool IsStream { get; }
