@@ -52,7 +52,7 @@ namespace Shuttle.Esb.Tests.Shared
             pipeline.Execute(CancellationToken.None);
 
             process.Verify(m => m.Kill(), Times.Once);
-            workQueue.Verify(m => m.Acknowledge(It.IsAny<object>()), Times.Never);
+            workQueue.Verify(m => m.AcknowledgeAsync(It.IsAny<object>()), Times.Never);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace Shuttle.Esb.Tests.Shared
             pipeline.Execute(CancellationToken.None);
 
             process.Verify(m => m.Kill(), Times.Never);
-            workQueue.Verify(m => m.Acknowledge(It.IsAny<object>()), Times.Once);
+            workQueue.Verify(m => m.AcknowledgeAsync(It.IsAny<object>()), Times.Once);
         }
     }
 }

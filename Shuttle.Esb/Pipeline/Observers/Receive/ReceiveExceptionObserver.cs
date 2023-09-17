@@ -24,8 +24,10 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public async Task Execute(OnPipelineException pipelineEvent)
+        private async Task ExecuteAsync(OnPipelineException pipelineEvent, bool sync)
         {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+
             var state = pipelineEvent.Pipeline.State;
 
             try
@@ -47,9 +49,18 @@ namespace Shuttle.Esb
 
                     if (transportMessage == null)
                     {
-                        if (receivedMessage != null)
+                        if (receivedMessage == null)
                         {
-                            await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                            return;
+                        }
+
+                        if (sync)
+                        {
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
+                        }
+                        else
+                        {
+                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                         }
 
                         return;
@@ -86,24 +97,51 @@ namespace Shuttle.Esb
 
                     if (retry || poison)
                     {
-                        await using (var stream = await _serializer.Serialize(transportMessage).ConfigureAwait(false))
+                        if (sync)
                         {
-                            if (retry)
+                            using (var stream = _serializer.Serialize(transportMessage))
                             {
-                                await workQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
+                                if (retry)
+                                {
+                                    workQueue.Enqueue(transportMessage, stream);
+                                }
+
+                                if (poison)
+                                {
+                                    errorQueue.Enqueue(transportMessage, stream);
+                                }
                             }
 
-                            if (poison)
-                            {
-                                await errorQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
-                            }
+                            await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                         }
+                        else
+                        {
+                            await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
+                            {
+                                if (retry)
+                                {
+                                    await workQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                                }
 
-                        await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                                if (poison)
+                                {
+                                    await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                                }
+                            }
+
+                            await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        if (sync)
+                        {
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
+                        }
+                        else
+                        {
+                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        }
                     }
                 }
                 finally
@@ -115,6 +153,16 @@ namespace Shuttle.Esb
             {
                 pipelineEvent.Pipeline.Abort();
             }
+        }
+
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

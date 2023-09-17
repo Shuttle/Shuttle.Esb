@@ -20,36 +20,36 @@ namespace Shuttle.Esb
             _messageRouteProvider = messageRouteProvider;
         }
 
-        public async Task Execute(OnFindRouteForMessage pipelineEvent)
+        public void Execute(OnFindRouteForMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
-            if (string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
+            if (!string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
             {
-                transportMessage.RecipientInboxWorkQueueUri =
-                    FindRoute(_messageRouteProvider, transportMessage.MessageType);
+                return;
             }
 
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        private static string FindRoute(IMessageRouteProvider routeProvider, string messageType)
-        {
-            var routeUris = routeProvider.GetRouteUris(messageType).ToList();
+            var routeUris = _messageRouteProvider.GetRouteUris(transportMessage.MessageType).ToList();
 
             if (!routeUris.Any())
             {
-                throw new SendMessageException(string.Format(Resources.MessageRouteNotFound, messageType));
+                throw new SendMessageException(string.Format(Resources.MessageRouteNotFound, transportMessage.MessageType));
             }
 
-            if (routeUris.Count() > 1)
+            if (routeUris.Count > 1)
             {
-                throw new SendMessageException(string.Format(Resources.MessageRoutedToMoreThanOneEndpoint,
-                    messageType, string.Join(",", routeUris.ToArray())));
+                throw new SendMessageException(string.Format(Resources.MessageRoutedToMoreThanOneEndpoint, transportMessage.MessageType, string.Join(",", routeUris.ToArray())));
             }
 
-            return routeUris.ElementAt(0);
+            transportMessage.RecipientInboxWorkQueueUri = routeUris.ElementAt(0);
+        }
+
+        public async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent)
+        {
+            Execute(pipelineEvent);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

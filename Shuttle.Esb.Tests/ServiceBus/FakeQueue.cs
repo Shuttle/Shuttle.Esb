@@ -22,17 +22,26 @@ public class FakeQueue : IQueue
     public QueueUri Uri { get; }
     public bool IsStream => false;
 
-    public async ValueTask<bool> IsEmpty()
+    public bool IsEmpty()
     {
-        return await ValueTask.FromResult(false).ConfigureAwait(false);
+        return MessageCount < MessagesToReturn;
     }
 
-    public async Task Enqueue(TransportMessage message, Stream stream)
+    public async ValueTask<bool> IsEmptyAsync()
+    {
+        return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
+    }
+
+    public void Enqueue(TransportMessage message, Stream stream)
+    {
+    }
+
+    public async Task EnqueueAsync(TransportMessage message, Stream stream)
     {
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public async Task<ReceivedMessage> GetMessage()
+    public ReceivedMessage GetMessage()
     {
         if (MessageCount == MessagesToReturn)
         {
@@ -49,20 +58,53 @@ public class FakeQueue : IQueue
             ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
             PrincipalIdentityName = "Identity",
             AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
-            Message = await (await _serializer.Serialize(command)).ToBytesAsync().ConfigureAwait(false)
+            Message = _serializer.Serialize(command).ToBytes()
         };
 
         MessageCount += 1;
 
-        return new ReceivedMessage(await _serializer.Serialize(transportMessage).ConfigureAwait(false), null);
+        return new ReceivedMessage(_serializer.Serialize(transportMessage), null);
     }
 
-    public async Task Acknowledge(object acknowledgementToken)
+    public async Task<ReceivedMessage> GetMessageAsync()
+    {
+        if (MessageCount == MessagesToReturn)
+        {
+            return null;
+        }
+
+        var expired = MessageCount % 2 != 0;
+
+        var command = new SimpleCommand(expired ? "Expired" : "HasNotExpired");
+
+        var transportMessage = new TransportMessage
+        {
+            MessageType = command.GetType().Name,
+            ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
+            PrincipalIdentityName = "Identity",
+            AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
+            Message = await (await _serializer.SerializeAsync(command)).ToBytesAsync().ConfigureAwait(false)
+        };
+
+        MessageCount += 1;
+
+        return new ReceivedMessage(await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), null);
+    }
+
+    public void Acknowledge(object acknowledgementToken)
+    {
+    }
+
+    public async Task AcknowledgeAsync(object acknowledgementToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public async Task Release(object acknowledgementToken)
+    public void Release(object acknowledgementToken)
+    {
+    }
+
+    public async Task ReleaseAsync(object acknowledgementToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
     }

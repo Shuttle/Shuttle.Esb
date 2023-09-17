@@ -35,7 +35,7 @@ namespace Shuttle.Esb
         {
             if (ShouldNotifyDistributor())
             {
-                await _serviceBus.Send(new WorkerThreadAvailableCommand
+                await _serviceBus.SendAsync(new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
                         InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),

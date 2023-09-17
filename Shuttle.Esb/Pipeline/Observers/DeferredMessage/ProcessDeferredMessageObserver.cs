@@ -10,7 +10,7 @@ namespace Shuttle.Esb
 
     public class ProcessDeferredMessageObserver : IProcessDeferredMessageObserver
     {
-        public async Task Execute(OnProcessDeferredMessage pipelineEvent)
+        private async Task ExecuteAsync(OnProcessDeferredMessage pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -25,17 +25,42 @@ namespace Shuttle.Esb
 
             if (transportMessage.IsIgnoring())
             {
-                await deferredQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                if (sync)
+                {
+                    deferredQueue.Release(receivedMessage.AcknowledgementToken);
+                }
+                else
+                {
+                    await deferredQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                }
 
                 state.SetDeferredMessageReturned(false);
 
                 return;
             }
 
-            await workQueue.Enqueue(transportMessage, receivedMessage.Stream).ConfigureAwait(false);
-            await deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+            if (sync)
+            {
+                workQueue.Enqueue(transportMessage, receivedMessage.Stream);
+                deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            }
+            else
+            {
+                await workQueue.EnqueueAsync(transportMessage, receivedMessage.Stream).ConfigureAwait(false);
+                await deferredQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+            }
 
             state.SetDeferredMessageReturned(true);
+        }
+
+        public void Execute(OnProcessDeferredMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnProcessDeferredMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

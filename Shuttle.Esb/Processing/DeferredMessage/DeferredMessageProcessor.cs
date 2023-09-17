@@ -26,9 +26,26 @@ namespace Shuttle.Esb
             _pipelineFactory = pipelineFactory;
         }
 
-        public async Task Execute(CancellationToken cancellationToken)
+        public void Execute(CancellationToken cancellationToken)
         {
-            await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            ExecuteAsync(cancellationToken, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            await ExecuteAsync(cancellationToken, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(CancellationToken cancellationToken, bool sync)
+        {
+            if (sync)
+            {
+                _lock.Wait(cancellationToken);
+            }
+            else
+            {
+                await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             try
             {
@@ -36,7 +53,14 @@ namespace Shuttle.Esb
                 {
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                        if (sync)
+                        {
+                            Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+                        }
+                        else
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -53,7 +77,14 @@ namespace Shuttle.Esb
                     pipeline.State.SetDeferredMessageReturned(false);
                     pipeline.State.SetTransportMessage(null);
 
-                    await pipeline.Execute(cancellationToken).ConfigureAwait(false);
+                    if (sync)
+                    {
+                        pipeline.Execute(cancellationToken);
+                    }
+                    else
+                    {
+                        await pipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                    }
 
                     var transportMessage = pipeline.State.GetTransportMessage();
 
@@ -133,9 +164,26 @@ namespace Shuttle.Esb
         {
         };
 
-        public async Task MessageDeferred(DateTime ignoreTillDate)
+        public void MessageDeferred(DateTime ignoreTillDate)
         {
-            await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+            MessageDeferredAsync(ignoreTillDate, true).GetAwaiter().GetResult();
+        }
+
+        public async Task MessageDeferredAsync(DateTime ignoreTillDate)
+        {
+            await MessageDeferredAsync(ignoreTillDate, false).ConfigureAwait(false);
+        }
+
+        private async Task MessageDeferredAsync(DateTime ignoreTillDate, bool sync)
+        {
+            if (sync)
+            {
+                _lock.Wait(CancellationToken.None);
+            }
+            else
+            {
+                await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+            }
 
             try
             {

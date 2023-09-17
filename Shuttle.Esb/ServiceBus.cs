@@ -44,7 +44,17 @@ namespace Shuttle.Esb
             _messageSender = messageSender;
         }
 
-        public async Task<IServiceBus> Start()
+        public IServiceBus Start()
+        {
+            return StartAsync(true).GetAwaiter().GetResult();
+        }
+
+        public async Task<IServiceBus> StartAsync()
+        {
+            return await StartAsync(false).ConfigureAwait(false);
+        }
+
+        private async Task<IServiceBus> StartAsync(bool sync)
         {
             if (Started)
             {
@@ -56,10 +66,18 @@ namespace Shuttle.Esb
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
             Started = true; // required for using ServiceBus in OnStarted event
+            RunningAsync = !sync;
 
             try
             {
-                await startupPipeline.Execute(CancellationToken.None).ConfigureAwait(false);
+                if (sync)
+                {
+                    startupPipeline.Execute(CancellationToken.None);
+                }
+                else
+                {
+                    await startupPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                }
 
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
                 _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
@@ -75,7 +93,27 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public async Task Stop()
+        public void Stop()
+        {
+            if (RunningAsync)
+            {
+                throw new InvalidOperationException(string.Format(Resources.IncorrectStopCalledException, "asynchronous", "StopAsync()"));
+            }
+
+            StopAsync(true).GetAwaiter().GetResult();
+        }
+
+        public async Task StopAsync()
+        {
+            if (!RunningAsync)
+            {
+                throw new InvalidOperationException(string.Format(Resources.IncorrectStopCalledException, "synchronous", "Stop()"));
+            }
+
+            await StopAsync(false).ConfigureAwait(false);
+        }
+
+        private async Task StopAsync(bool sync)
         {
             if (!Started)
             {
@@ -104,7 +142,14 @@ namespace Shuttle.Esb
                 _outboxThreadPool.Dispose();
             }
 
-            await _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None).ConfigureAwait(false);
+            if (sync)
+            {
+                 _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None);
+            }
+            else
+            {
+                await _pipelineFactory.GetPipeline<ShutdownPipeline>().ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+            }
 
             _pipelineFactory.Flush();
 
@@ -112,6 +157,7 @@ namespace Shuttle.Esb
         }
 
         public bool Started { get; private set; }
+        public bool RunningAsync { get; private set; }
 
         public void Dispose()
         {
@@ -120,21 +166,31 @@ namespace Shuttle.Esb
                 return;
             }
 
-            Stop().GetAwaiter().GetResult();
+            StopAsync().GetAwaiter().GetResult();
 
             _cancellationTokenSource.TryDispose();
 
             _disposed = true;
         }
 
-        public async Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null)
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
             return await _messageSender.Send(message, null, builder).ConfigureAwait(false);
         }
 
-        public Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
@@ -198,7 +254,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            await Stop().ConfigureAwait(false);
+            await StopAsync().ConfigureAwait(false);
 
             _cancellationTokenSource.TryDispose();
 

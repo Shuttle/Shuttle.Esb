@@ -21,16 +21,7 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public async Task Execute(OnAbortPipeline pipelineEvent)
-        {
-            var state = pipelineEvent.Pipeline.State;
-
-            _workerAvailabilityService.ReturnAvailableWorker(state.GetAvailableWorker());
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
-
-        public async Task Execute(OnHandleDistributeMessage pipelineEvent)
+        public void Execute(OnHandleDistributeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -39,6 +30,25 @@ namespace Shuttle.Esb
 
             state.SetTransportMessage(transportMessage);
             state.SetTransportMessageReceived(null);
+        }
+
+        public async Task ExecuteAsync(OnHandleDistributeMessage pipelineEvent)
+        {
+            Execute(pipelineEvent);
+
+            await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        public void Execute(OnAbortPipeline pipelineEvent)
+        {
+            var state = pipelineEvent.Pipeline.State;
+
+            _workerAvailabilityService.ReturnAvailableWorker(state.GetAvailableWorker());
+        }
+
+        public async Task ExecuteAsync(OnAbortPipeline pipelineEvent)
+        {
+            Execute(pipelineEvent);
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

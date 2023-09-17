@@ -24,14 +24,26 @@ namespace Shuttle.Esb
             RegisterObserver(Guard.AgainstNull(dispatchTransportMessageObserver, nameof(dispatchTransportMessageObserver)));
         }
 
-        public Task<bool> Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived, CancellationToken cancellationToken = default)
+        public bool Execute(TransportMessage transportMessage, TransportMessage transportMessageReceived, CancellationToken cancellationToken = default)
+        {
+            return ExecuteAsync(transportMessage, transportMessageReceived, cancellationToken, true).GetAwaiter().GetResult();
+        }
+
+        public async Task<bool> ExecuteAsync(TransportMessage transportMessage, TransportMessage transportMessageReceived, CancellationToken cancellationToken = default)
+        {
+            return await ExecuteAsync(transportMessage, transportMessageReceived, cancellationToken, false).ConfigureAwait(false);
+        }
+
+        private async Task<bool> ExecuteAsync(TransportMessage transportMessage, TransportMessage transportMessageReceived, CancellationToken cancellationToken, bool sync)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
             State.SetTransportMessage(transportMessage);
             State.SetTransportMessageReceived(transportMessageReceived);
 
-            return base.Execute(cancellationToken);
+            return sync 
+            ? base.Execute(cancellationToken)
+            : await base.ExecuteAsync(cancellationToken);
         }
     }
 }

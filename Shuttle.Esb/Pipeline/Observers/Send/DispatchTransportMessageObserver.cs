@@ -27,7 +27,7 @@ namespace Shuttle.Esb
             _idempotenceService = idempotenceService;
         }
 
-        public async Task Execute(OnDispatchTransportMessage pipelineEvent)
+        private async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -46,10 +46,30 @@ namespace Shuttle.Esb
                 ? _queueService.Get(transportMessage.RecipientInboxWorkQueueUri)
                 : _serviceBusConfiguration.Outbox.WorkQueue;
 
-            await using (var stream = await state.GetTransportMessageStream().CopyAsync().ConfigureAwait(false))
+            if (sync)
             {
-                await queue.Enqueue(transportMessage, stream).ConfigureAwait(false);
+                using (var stream = state.GetTransportMessageStream().Copy())
+                {
+                    queue.Enqueue(transportMessage, stream);
+                }
             }
+            else
+            {
+                await using (var stream = await state.GetTransportMessageStream().CopyAsync().ConfigureAwait(false))
+                {
+                    await queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public void Execute(OnDispatchTransportMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

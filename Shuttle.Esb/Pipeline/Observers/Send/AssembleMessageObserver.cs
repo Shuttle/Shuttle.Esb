@@ -31,8 +31,10 @@ namespace Shuttle.Esb
             _identityProvider = identityProvider;
         }
 
-        public async Task Execute(OnAssembleMessage pipelineEvent)
+        public void Execute(OnAssembleMessage pipelineEvent)
         {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+
             var state = pipelineEvent.Pipeline.State;
             var builder = state.GetTransportMessageBuilder();
             var message = state.GetMessage();
@@ -96,6 +98,11 @@ namespace Shuttle.Esb
             }
 
             state.SetTransportMessage(transportMessage);
+        }
+
+        public async Task ExecuteAsync(OnAssembleMessage pipelineEvent)
+        {
+            Execute(pipelineEvent);
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

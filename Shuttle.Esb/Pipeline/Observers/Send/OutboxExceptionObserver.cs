@@ -24,7 +24,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public async Task Execute(OnPipelineException pipelineEvent)
+        private async Task ExecuteAsync(OnPipelineException pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -48,7 +48,14 @@ namespace Shuttle.Esb
                     {
                         if (receivedMessage != null)
                         {
-                            await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                            if (sync)
+                            {
+                                workQueue.Release(receivedMessage.AcknowledgementToken);
+                            }
+                            else
+                            {
+                                await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                            }
                         }
 
                         return;
@@ -61,20 +68,43 @@ namespace Shuttle.Esb
                         transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
                             action.TimeSpanToIgnoreRetriedMessage);
 
-                        if (action.Retry || errorQueue == null)
+                        if (sync)
                         {
-                            await workQueue.Enqueue(transportMessage, await _serializer.Serialize(transportMessage).ConfigureAwait(false));
+                            if (action.Retry || errorQueue == null)
+                            {
+                                workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                            }
+                            else
+                            {
+                                errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                            }
+
+                            workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                         }
                         else
                         {
-                            await errorQueue.Enqueue(transportMessage, await _serializer.Serialize(transportMessage)).ConfigureAwait(false);
-                        }
+                            if (action.Retry || errorQueue == null)
+                            {
+                                await workQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await errorQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
+                            }
 
-                        await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                            await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        await workQueue.Release(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        if (sync)
+                        {
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
+                        }
+                        else
+                        {
+                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        }
                     }
                 }
                 finally
@@ -86,6 +116,16 @@ namespace Shuttle.Esb
             {
                 pipelineEvent.Pipeline.Abort();
             }
+        }
+
+        public void Execute(OnPipelineException pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

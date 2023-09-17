@@ -19,29 +19,52 @@ public class NullQueue : IQueue
     public QueueUri Uri { get; }
     public bool IsStream => false;
 
-    public async ValueTask<bool> IsEmpty()
+    public bool IsEmpty()
     {
-        return await Task.FromResult(true);
+        return true;
     }
 
-    public Task Enqueue(TransportMessage transportMessage, Stream stream)
+    public async ValueTask<bool> IsEmptyAsync()
     {
-        throw new NotImplementedException();
+        return await Task.FromResult(IsEmpty());
     }
 
-    public Task<ReceivedMessage> GetMessage()
+    public void Enqueue(TransportMessage message, Stream stream)
     {
-        throw new NotImplementedException();
     }
 
-    public Task Acknowledge(object acknowledgementToken)
+    public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
     {
-        throw new NotImplementedException();
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public Task Release(object acknowledgementToken)
+    public ReceivedMessage GetMessage()
     {
-        throw new NotImplementedException();
+        return null;
+    }
+
+    public async Task<ReceivedMessage> GetMessageAsync()
+    {
+        return await Task.FromResult<ReceivedMessage>(null).ConfigureAwait(false);
+    }
+
+    public void Acknowledge(object acknowledgementToken)
+    {
+        
+    }
+
+    public async Task AcknowledgeAsync(object acknowledgementToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+    public void Release(object acknowledgementToken)
+    {
+    }
+
+    public async Task ReleaseAsync(object acknowledgementToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate

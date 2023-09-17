@@ -8,7 +8,7 @@ namespace Shuttle.Esb
 {
     public class ServiceBusBuilder
     {
-        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+        private static readonly Type MessageHandlerType = typeof(IAsyncMessageHandler<>);
 
         public ServiceBusOptions Options
         {

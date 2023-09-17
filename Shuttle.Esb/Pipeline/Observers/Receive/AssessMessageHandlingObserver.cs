@@ -19,8 +19,10 @@ namespace Shuttle.Esb
             _messageHandlingAssessor = messageHandlingAssessor;
         }
 
-        public async Task Execute(OnAssessMessageHandling pipelineEvent)
+        public void Execute(OnAssessMessageHandling pipelineEvent)
         {
+            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+
             var state = pipelineEvent.Pipeline.State;
 
             if (_messageHandlingAssessor.IsSatisfiedBy(pipelineEvent))
@@ -29,6 +31,11 @@ namespace Shuttle.Esb
             }
 
             state.SetProcessingStatus(ProcessingStatus.Ignore);
+        }
+
+        public async Task ExecuteAsync(OnAssessMessageHandling pipelineEvent)
+        {
+            Execute(pipelineEvent);
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

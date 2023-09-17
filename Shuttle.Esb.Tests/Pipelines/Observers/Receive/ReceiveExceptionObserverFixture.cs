@@ -48,7 +48,7 @@ namespace Shuttle.Esb.Tests
             pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
             pipeline.Execute(CancellationToken.None);
 
-            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
+            errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
         }
     }
 }

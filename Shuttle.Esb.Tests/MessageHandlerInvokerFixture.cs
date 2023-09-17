@@ -34,11 +34,11 @@ namespace Shuttle.Esb.Tests
             public bool Replied { get; set; }
         }
 
-        public class MessageHandler : IMessageHandler<Message>
+        public class AsyncMessageHandler : IAsyncMessageHandler<Message>
         {
             private readonly IMessageHandlerTracker _messageHandlerTracker;
 
-            public MessageHandler(IMessageHandlerTracker messageHandlerTracker)
+            public AsyncMessageHandler(IMessageHandlerTracker messageHandlerTracker)
             {
                 Guard.AgainstNull(messageHandlerTracker, nameof(messageHandlerTracker));
 
@@ -105,11 +105,11 @@ namespace Shuttle.Esb.Tests
 
             var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-            await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().Start().ConfigureAwait(false))
+            await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
             {
                 for (var i = 0; i < count; i++)
                 {
-                    await serviceBus.Send(new Message
+                    await serviceBus.SendAsync(new Message
                     {
                         Count = i + 1,
                         Name = $"message - {i + 1}"

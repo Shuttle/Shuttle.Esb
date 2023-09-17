@@ -22,7 +22,17 @@ namespace Shuttle.Esb
             _serviceBusConfiguration = serviceBusConfiguration;
         }
 
-        public async Task Execute(OnAfterDeserializeTransportMessage pipelineEvent)
+        public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnAfterDeserializeTransportMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnAfterDeserializeTransportMessage pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
             var receivedMessage = state.GetReceivedMessage();
@@ -38,21 +48,42 @@ namespace Shuttle.Esb
                 return;
             }
 
-            await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+            if (sync)
             {
-                if (state.GetDeferredQueue() == null)
+                using (var stream = receivedMessage.Stream.Copy())
                 {
-                    await workQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
-                }
-                else
-                {
-                    await state.GetDeferredQueue().Enqueue(transportMessage, stream).ConfigureAwait(false);
+                    if (state.GetDeferredQueue() == null)
+                    {
+                        workQueue.Enqueue(transportMessage, stream);
+                    }
+                    else
+                    {
+                        state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
-                    await _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate).ConfigureAwait(false);
+                        _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+                    }
                 }
+
+                workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
             }
+            else
+            {
+                await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+                {
+                    if (state.GetDeferredQueue() == null)
+                    {
+                        await workQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await state.GetDeferredQueue().EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
 
-            await workQueue.Acknowledge(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                        await _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreTillDate).ConfigureAwait(false);
+                    }
+                }
+
+                await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+            }
 
             TransportMessageDeferred.Invoke(this, new TransportMessageDeferredEventArgs(transportMessage));
 

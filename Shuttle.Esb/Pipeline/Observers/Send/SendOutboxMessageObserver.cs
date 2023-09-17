@@ -34,7 +34,7 @@ namespace Shuttle.Esb
 
             await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
             {
-                await queue.Enqueue(transportMessage, stream).ConfigureAwait(false);
+                await queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
             }
         }
     }

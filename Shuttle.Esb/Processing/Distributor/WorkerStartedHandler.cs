@@ -3,7 +3,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class WorkerStartedHandler : IMessageHandler<WorkerStartedEvent>
+    public class WorkerStartedHandler : IAsyncMessageHandler<WorkerStartedEvent>
     {
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
 

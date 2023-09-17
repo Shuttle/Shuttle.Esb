@@ -18,12 +18,12 @@ namespace Shuttle.Esb
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _serviceBus.Start();
+            await _serviceBus.StartAsync();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await _serviceBus.Stop();
+            await _serviceBus.StopAsync();
         }
     }
 }

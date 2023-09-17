@@ -22,7 +22,7 @@ namespace Shuttle.Esb
             _idempotenceService = idempotenceService;
         }
 
-        public async Task Execute(OnIdempotenceMessageHandled pipelineEvent)
+        public void Execute(OnIdempotenceMessageHandled pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
             var transportMessage = state.GetTransportMessage();
@@ -33,11 +33,16 @@ namespace Shuttle.Esb
             }
 
             _idempotenceService.MessageHandled(transportMessage);
+        }
+
+        public async Task ExecuteAsync(OnIdempotenceMessageHandled pipelineEvent)
+        {
+            Execute(pipelineEvent);
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public async Task Execute(OnProcessIdempotenceMessage pipelineEvent)
+        public void Execute(OnProcessIdempotenceMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -47,7 +52,12 @@ namespace Shuttle.Esb
             }
 
             state.SetProcessingStatus(_idempotenceService.ProcessingStatus(state.GetTransportMessage()));
+        }
 
+        public async Task ExecuteAsync(OnProcessIdempotenceMessage pipelineEvent)
+        {
+            Execute(pipelineEvent);
+            
             await Task.CompletedTask.ConfigureAwait(false);
         }
     }

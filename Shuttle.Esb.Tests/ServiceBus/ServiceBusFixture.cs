@@ -40,7 +40,7 @@ namespace Shuttle.Esb.Tests
                 };
             });
 
-            using (services.BuildServiceProvider().GetRequiredService<IServiceBus>().Start())
+            using (services.BuildServiceProvider().GetRequiredService<IServiceBus>().StartAsync())
             {
                 var timeout = DateTime.Now.AddSeconds(5);
 

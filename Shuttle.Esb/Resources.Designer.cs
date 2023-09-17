@@ -115,6 +115,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The service bus is running in &apos;{0}&apos; mode.  To stop please call the &apos;{1}&apos; method..
+        /// </summary>
+        public static string IncorrectStopCalledException {
+            get {
+                return ResourceManager.GetString("IncorrectStopCalledException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only scheme &apos;{0}&apos; is supported.  The given uri &apos;{1}&apos; is not supported..
         /// </summary>
         public static string InvalidSchemeException {

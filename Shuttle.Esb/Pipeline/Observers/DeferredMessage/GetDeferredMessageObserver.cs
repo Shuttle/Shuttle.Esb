@@ -10,14 +10,16 @@ namespace Shuttle.Esb
 
     public class GetDeferredMessageObserver : IGetDeferredMessageObserver
     {
-        public async Task Execute(OnGetMessage pipelineEvent)
+        private async Task ExecuteAsync(OnGetMessage pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
             var queue = state.GetDeferredQueue();
 
             Guard.AgainstNull(queue, nameof(queue));
 
-            var receivedMessage = await queue.GetMessage().ConfigureAwait(false);
+            var receivedMessage = sync
+                ? queue.GetMessage()
+                : await queue.GetMessageAsync().ConfigureAwait(false);
 
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)
@@ -29,6 +31,16 @@ namespace Shuttle.Esb
                 state.SetWorking();
                 state.SetReceivedMessage(receivedMessage);
             }
+        }
+
+        public void Execute(OnGetMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnGetMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

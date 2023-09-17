@@ -34,7 +34,7 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public async Task Execute(OnHandleMessage pipelineEvent)
+        private async Task ExecuteAsync(OnHandleMessage pipelineEvent, bool sync)
         {
             var state = pipelineEvent.Pipeline.State;
             var processingStatus = state.GetProcessingStatus();
@@ -56,7 +56,9 @@ namespace Shuttle.Esb
 
             try
             {
-                var messageHandlerInvokeResult = await _messageHandlerInvoker.Invoke(pipelineEvent).ConfigureAwait(false);
+                var messageHandlerInvokeResult = sync
+                ? _messageHandlerInvoker.Invoke(pipelineEvent)
+                : await _messageHandlerInvoker.InvokeAsync(pipelineEvent).ConfigureAwait(false);
 
                 if (messageHandlerInvokeResult.Invoked)
                 {
@@ -65,8 +67,7 @@ namespace Shuttle.Esb
                 else
                 {
                     MessageNotHandled.Invoke(this,
-                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue,
-                            transportMessage, message));
+                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue, transportMessage, message));
 
                     if (!_serviceBusOptions.RemoveMessagesNotHandled)
                     {
@@ -80,9 +81,19 @@ namespace Shuttle.Esb
 
                         transportMessage.RegisterFailure(failure);
 
-                        await using (var stream = await _serializer.Serialize(transportMessage).ConfigureAwait(false))
+                        if (sync)
                         {
-                            await errorQueue.Enqueue(transportMessage, stream).ConfigureAwait(false);
+                            using (var stream = _serializer.Serialize(transportMessage))
+                            {
+                                errorQueue.Enqueue(transportMessage, stream);
+                            }
+                        }
+                        else
+                        {
+                            await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
+                            {
+                                await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                            }
                         }
                     }
                 }
@@ -106,5 +117,15 @@ namespace Shuttle.Esb
         public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate
         {
         };
+
+        public void Execute(OnHandleMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnHandleMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
     }
 }

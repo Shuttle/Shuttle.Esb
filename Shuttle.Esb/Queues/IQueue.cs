@@ -15,10 +15,15 @@ namespace Shuttle.Esb
 
         QueueUri Uri { get; }
         bool IsStream { get; }
-        ValueTask<bool> IsEmpty();
-        Task Enqueue(TransportMessage message, Stream stream);
-        Task<ReceivedMessage> GetMessage();
-        Task Acknowledge(object acknowledgementToken);
-        Task Release(object acknowledgementToken);
+        bool IsEmpty();
+        ValueTask<bool> IsEmptyAsync();
+        void Enqueue(TransportMessage message, Stream stream);
+        Task EnqueueAsync(TransportMessage message, Stream stream);
+        ReceivedMessage GetMessage();
+        Task<ReceivedMessage> GetMessageAsync();
+        void Acknowledge(object acknowledgementToken);
+        Task AcknowledgeAsync(object acknowledgementToken);
+        void Release(object acknowledgementToken);
+        Task ReleaseAsync(object acknowledgementToken);
     }
 }

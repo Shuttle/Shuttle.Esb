@@ -11,7 +11,6 @@ namespace Shuttle.Esb
 
         public ResolvedQueue(IQueue queue, Uri uri)
         {
-            
             _queue = Guard.AgainstNull(queue, nameof(queue));
             Uri = new QueueUri(Guard.AgainstNull(uri, nameof(uri)));
             IsStream = queue.IsStream;
@@ -74,29 +73,54 @@ namespace Shuttle.Esb
         public QueueUri Uri { get; }
         public bool IsStream { get; }
 
-        public ValueTask<bool> IsEmpty()
+        public bool IsEmpty()
         {
             return _queue.IsEmpty();
         }
 
-        public async Task Enqueue(TransportMessage transportMessage, Stream stream)
+        public ValueTask<bool> IsEmptyAsync()
         {
-            await _queue.Enqueue(transportMessage, stream).ConfigureAwait(false);
+            return _queue.IsEmptyAsync();
         }
 
-        public Task<ReceivedMessage> GetMessage()
+        public void Enqueue(TransportMessage message, Stream stream)
+        {
+            _queue.Enqueue(message, stream);
+        }
+
+        public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
+        {
+            await _queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+        }
+
+        public ReceivedMessage GetMessage()
         {
             return _queue.GetMessage();
         }
 
-        public async Task Acknowledge(object acknowledgementToken)
+        public async Task<ReceivedMessage> GetMessageAsync()
         {
-            await _queue.Acknowledge(acknowledgementToken).ConfigureAwait(false);
+            return await _queue.GetMessageAsync().ConfigureAwait(false);
         }
 
-        public async Task Release(object acknowledgementToken)
+        public void Acknowledge(object acknowledgementToken)
         {
-            await _queue.Release(acknowledgementToken).ConfigureAwait(false);
+            _queue.Acknowledge(acknowledgementToken);
+        }
+
+        public async Task AcknowledgeAsync(object acknowledgementToken)
+        {
+            await _queue.AcknowledgeAsync(acknowledgementToken).ConfigureAwait(false);
+        }
+
+        public void Release(object acknowledgementToken)
+        {
+            _queue.Release(acknowledgementToken);
+        }
+
+        public async Task ReleaseAsync(object acknowledgementToken)
+        {
+            await _queue.ReleaseAsync(acknowledgementToken).ConfigureAwait(false);
         }
     }
 }

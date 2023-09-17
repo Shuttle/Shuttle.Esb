@@ -10,7 +10,12 @@ namespace Shuttle.Esb
 
     public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
     {
-        public async Task Execute(OnAcknowledgeMessage pipelineEvent)
+        public void Execute(OnAcknowledgeMessage pipelineEvent)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task ExecuteAsync(OnAcknowledgeMessage pipelineEvent)
         {
             var state = pipelineEvent.Pipeline.State;
 
@@ -19,7 +24,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            await state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
+            await state.GetWorkQueue().AcknowledgeAsync(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
         }
     }
 }

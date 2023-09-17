@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Shuttle.Esb.Tests
 {
-    public class SimpleCommandHandler : IMessageHandler<SimpleCommand>
+    public class SimpleCommandHandler : IAsyncMessageHandler<SimpleCommand>
     {
         public async Task ProcessMessage(IHandlerContext<SimpleCommand> context)
         {

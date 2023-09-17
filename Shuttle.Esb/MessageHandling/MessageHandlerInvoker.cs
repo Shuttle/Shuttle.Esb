@@ -13,9 +13,12 @@ namespace Shuttle.Esb
     public class MessageHandlerInvoker : IMessageHandlerInvoker
     {
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+        private static readonly Type AsyncMessageHandlerType = typeof(IAsyncMessageHandler<>);
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
-        private readonly Dictionary<Type, ContextMethodInvoker> _cache = new Dictionary<Type, ContextMethodInvoker>();
+        private readonly Dictionary<Type, ContextMethodInvoker> _methodCache = new Dictionary<Type, ContextMethodInvoker>();
+        private readonly Dictionary<Type, ContextMethodInvokerAsync> _methodCacheAsync = new Dictionary<Type, ContextMethodInvokerAsync>();
+        private readonly Dictionary<Type, ContextConstructorInvoker> _constructorCache = new Dictionary<Type, ContextConstructorInvoker>();
         private readonly IServiceProvider _provider;
         private readonly IMessageSender _messageSender;
 
@@ -31,7 +34,17 @@ namespace Shuttle.Esb
             _messageSender = messageSender;
         }
 
-        public async Task<MessageHandlerInvokeResult> Invoke(IPipelineEvent pipelineEvent)
+        public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent, bool sync)
         {
             Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
 
@@ -49,11 +62,20 @@ namespace Shuttle.Esb
 
             try
             {
-                ContextMethodInvoker contextMethod;
+                ContextMethodInvoker contextMethod = null;
+                ContextMethodInvokerAsync contextMethodAsync = null;
+                ContextConstructorInvoker contextConstructor;
 
                 lock (LockInvoke)
                 {
-                    if (!_cache.TryGetValue(messageType, out contextMethod))
+                    if (!_constructorCache.TryGetValue(messageType, out contextConstructor))
+                    {
+                        contextConstructor = new ContextConstructorInvoker(messageType);
+
+                        _constructorCache.Add(messageType, contextConstructor);
+                    }
+
+                    if (sync && !_methodCache.TryGetValue(messageType, out contextMethod))
                     {
                         var interfaceType = MessageHandlerType.MakeGenericType(messageType);
                         var method =
@@ -74,15 +96,45 @@ namespace Shuttle.Esb
                                 .TargetMethods.SingleOrDefault()
                         );
 
-                        _cache.Add(messageType, contextMethod);
+                        _methodCache.Add(messageType, contextMethod);
+                    }
+
+                    if (!sync && !_methodCacheAsync.TryGetValue(messageType, out contextMethodAsync))
+                    {
+                        var interfaceType = AsyncMessageHandlerType.MakeGenericType(messageType);
+                        var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
+
+                        if (method == null)
+                        {
+                            throw new HandlerMessageMethodMissingException(string.Format(
+                                Resources.HandlerMessageMethodMissingException,
+                                handler.GetType().FullName,
+                                messageType.FullName));
+                        }
+
+                        contextMethodAsync = new ContextMethodInvokerAsync(
+                            messageType,
+                            handler.GetType()
+                                .GetInterfaceMap(AsyncMessageHandlerType.MakeGenericType(messageType))
+                                .TargetMethods.SingleOrDefault()
+                        );
+
+                        _methodCacheAsync.Add(messageType, contextMethodAsync);
                     }
                 }
 
-                var handlerContext = contextMethod.CreateHandlerContext(Guard.AgainstNull(_messageSender, nameof(_messageSender)), Guard.AgainstNull(transportMessage, nameof(transportMessage)), message, pipelineEvent.Pipeline.CancellationToken);
+                var handlerContext = contextConstructor.CreateHandlerContext(Guard.AgainstNull(_messageSender, nameof(_messageSender)), Guard.AgainstNull(transportMessage, nameof(transportMessage)), message, pipelineEvent.Pipeline.CancellationToken);
 
                 state.SetHandlerContext(handlerContext);
 
-                await contextMethod.Invoke(handler, handlerContext).ConfigureAwait(false);
+                if (sync)
+                {
+                    contextMethod.Invoke(handler, handlerContext);
+                }
+                else
+                {
+                    await contextMethodAsync.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
+                }
             }
             finally
             {
@@ -122,7 +174,7 @@ namespace Shuttle.Esb
 
                 if (!instances.TryGetValue(managedThreadId, out var handler))
                 {
-                    handler = _provider.GetService(MessageHandlerType.MakeGenericType(messageType));
+                    handler = _provider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
                     instances.Add(managedThreadId, handler);
                 }
 
@@ -131,15 +183,15 @@ namespace Shuttle.Esb
         }
     }
 
-    internal class ContextMethodInvoker
+    internal class ContextConstructorInvoker
     {
+        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+
         private static readonly Type HandlerContextType = typeof(HandlerContext<>);
 
         private readonly ConstructorInvokeHandler _constructorInvoker;
 
-        private readonly InvokeHandler _invoker;
-
-        public ContextMethodInvoker(Type messageType, MethodInfo methodInfo)
+        public ContextConstructorInvoker(Type messageType)
         {
             var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
                 new[]
@@ -151,6 +203,7 @@ namespace Shuttle.Esb
                 }, HandlerContextType.Module);
 
             var il = dynamicMethod.GetILGenerator();
+
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Ldarg_2);
@@ -170,12 +223,28 @@ namespace Shuttle.Esb
 
             _constructorInvoker =
                 (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
+        }
 
-            dynamicMethod = new DynamicMethod(string.Empty,
-                typeof(Task), new[] { typeof(object), typeof(object) },
+        public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+        {
+            return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
+        }
+    }
+
+    internal class ContextMethodInvoker
+    {
+        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
+        private readonly InvokeHandler _invoker;
+
+        public ContextMethodInvoker(Type messageType, MethodInfo methodInfo)
+        {
+            var dynamicMethod = new DynamicMethod(string.Empty,
+                typeof(void), new[] { typeof(object), typeof(object) },
                 HandlerContextType.Module);
 
-            il = dynamicMethod.GetILGenerator();
+            var il = dynamicMethod.GetILGenerator();
+
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_1);
 
@@ -185,17 +254,41 @@ namespace Shuttle.Esb
             _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
         }
 
-        public async Task Invoke(object handler, object handlerContext)
+        public void Invoke(object handler, object handlerContext)
+        {
+            _invoker.Invoke(handler, handlerContext);
+        }
+
+        private delegate void InvokeHandler(object handler, object handlerContext);
+    }
+
+    internal class ContextMethodInvokerAsync
+    {
+        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
+        private readonly InvokeHandler _invoker;
+
+        public ContextMethodInvokerAsync(Type messageType, MethodInfo methodInfo)
+        {
+            var dynamicMethod = new DynamicMethod(string.Empty,
+                typeof(Task), new[] { typeof(object), typeof(object) },
+                HandlerContextType.Module);
+
+            var il = dynamicMethod.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+
+            il.EmitCall(OpCodes.Callvirt, methodInfo, null);
+            il.Emit(OpCodes.Ret);
+
+            _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
+        }
+
+        public async Task InvokeAsync(object handler, object handlerContext)
         {
             await _invoker.Invoke(handler, handlerContext).ConfigureAwait(false);
         }
-
-        public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
-        {
-            return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
-        }
-
-        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
 
         private delegate Task InvokeHandler(object handler, object handlerContext);
     }

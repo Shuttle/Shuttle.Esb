@@ -9,9 +9,9 @@ namespace Shuttle.Esb.Tests;
 
 public class MemoryQueue : IQueue
 {
-    private readonly object _lock = new object();
-    private readonly Queue<Message> _queue = new Queue<Message>();
-    private readonly Dictionary<Guid, Message> _unacked = new Dictionary<Guid, Message>();
+    private readonly object _lock = new();
+    private readonly Queue<Message> _queue = new();
+    private readonly Dictionary<Guid, Message> _unacknowledged = new();
 
     public MemoryQueue(Uri uri)
     {
@@ -23,19 +23,30 @@ public class MemoryQueue : IQueue
     public QueueUri Uri { get; }
     public bool IsStream => false;
 
-    public async ValueTask<bool> IsEmpty()
+    public bool IsEmpty()
     {
-        bool isEmpty;
+        lock (_lock)
+        {
+            return _queue.Count == 0;
+        }
+    }
+
+    public async ValueTask<bool> IsEmptyAsync()
+    {
+        return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
+    }
+
+    public void Enqueue(TransportMessage message, Stream stream)
+    {
+        var copy = stream.Copy();
 
         lock (_lock)
         {
-            isEmpty = _queue.Count == 0;
+            _queue.Enqueue(new Message(message, copy));
         }
-
-        return await ValueTask.FromResult(isEmpty).ConfigureAwait(false);
     }
 
-    public async Task Enqueue(TransportMessage message, Stream stream)
+    public async Task EnqueueAsync(TransportMessage message, Stream stream)
     {
         var copy = await stream.CopyAsync().ConfigureAwait(false);
 
@@ -45,7 +56,7 @@ public class MemoryQueue : IQueue
         }
     }
 
-    public async Task<ReceivedMessage> GetMessage()
+    public ReceivedMessage GetMessage()
     {
         Message message;
 
@@ -58,31 +69,46 @@ public class MemoryQueue : IQueue
 
             message = _queue.Dequeue();
 
-            _unacked.Add(message.TransportMessage.MessageId, message);
+            _unacknowledged.Add(message.TransportMessage.MessageId, message);
         }
 
-        return await Task.FromResult(new ReceivedMessage(message.Stream, message.TransportMessage.MessageId)).ConfigureAwait(false);
+        return new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
     }
 
-    public async Task Acknowledge(object acknowledgementToken)
+    public async Task<ReceivedMessage> GetMessageAsync()
+    {
+        return await Task.FromResult(GetMessage()).ConfigureAwait(false);
+    }
+
+    public void Acknowledge(object acknowledgementToken)
     {
         lock (_lock)
         {
-            _unacked.Remove((Guid)acknowledgementToken);
+            _unacknowledged.Remove((Guid)acknowledgementToken);
         }
+    }
+
+    public async Task AcknowledgeAsync(object acknowledgementToken)
+    {
+        Acknowledge(acknowledgementToken);
 
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public async Task Release(object acknowledgementToken)
+    public void Release(object acknowledgementToken)
     {
         lock (_lock)
         {
             var token = (Guid)acknowledgementToken;
 
-            _queue.Enqueue(_unacked[token]);
-            _unacked.Remove(token);
+            _queue.Enqueue(_unacknowledged[token]);
+            _unacknowledged.Remove(token);
         }
+    }
+
+    public async Task ReleaseAsync(object acknowledgementToken)
+    {
+        Release(acknowledgementToken);
 
         await Task.CompletedTask.ConfigureAwait(false);
     }

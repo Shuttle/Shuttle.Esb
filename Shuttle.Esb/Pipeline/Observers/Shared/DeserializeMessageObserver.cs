@@ -25,9 +25,19 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public async Task Execute(OnDeserializeMessage pipelineEvent)
+        public void Execute(OnDeserializeMessage pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnDeserializeMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false);
+        }
+
+        private async Task ExecuteAsync(OnDeserializeMessage pipelineEvent, bool sync)
+        {
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
 
             Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
             Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
@@ -42,12 +52,14 @@ namespace Shuttle.Esb
 
                 using (var stream = new MemoryStream(data, 0, data.Length, false, true))
                 {
-                    message = await _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream).ConfigureAwait(false);
+                    message = sync
+                    ? _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream)
+                    : await _serializer.DeserializeAsync(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                MessageDeserializationException.Invoke(this,
+                MessageDeserializationException?.Invoke(this,
                     new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(), ex));
 
                 if (state.GetWorkQueue() == null)
@@ -55,10 +67,21 @@ namespace Shuttle.Esb
                     throw;
                 }
 
-                transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
+                if (!state.GetWorkQueue().IsStream)
+                {
+                    transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-                await state.GetErrorQueue().Enqueue(transportMessage, await _serializer.Serialize(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
-                await state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
+                    if (sync)
+                    {
+                        state.GetErrorQueue().Enqueue(transportMessage, await _serializer.SerializeAsync(transportMessage));
+                        state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                    }
+                    else
+                    {
+                        await state.GetErrorQueue().EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
+                        await state.GetWorkQueue().AcknowledgeAsync(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
+                    }
+                }
 
                 state.SetTransactionComplete();
                 pipelineEvent.Pipeline.Abort();
@@ -69,8 +92,6 @@ namespace Shuttle.Esb
             state.SetMessage(message);
         }
 
-        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException = delegate
-        {
-        };
+        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
     }
 }

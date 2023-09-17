@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Shuttle.Esb
 {
@@ -14,16 +15,16 @@ namespace Shuttle.Esb
     public interface IIdempotenceService
     {
         ProcessingStatus ProcessingStatus(TransportMessage transportMessage);
+        Task<ProcessingStatus> ProcessingStatusAsync(TransportMessage transportMessage);
         void ProcessingCompleted(TransportMessage transportMessage);
-
-        bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage,
-            Stream deferredTransportMessageStream);
-
+        Task ProcessingCompletedAsync(TransportMessage transportMessage);
+        bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream);
+        Task<bool> AddDeferredMessageAsync(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream);
         IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage);
-
-        void DeferredMessageSent(TransportMessage processingTransportMessage,
-            TransportMessage deferredTransportMessage);
-
+        Task<IEnumerable<Stream>> GetDeferredMessagesAsync(TransportMessage transportMessage);
+        void DeferredMessageSent(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage);
+        Task DeferredMessageSentAsync(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage);
         void MessageHandled(TransportMessage transportMessage);
+        Task MessageHandledAsync(TransportMessage transportMessage);
     }
 }

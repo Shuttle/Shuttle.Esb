@@ -236,4 +236,8 @@
   <data name="AddSubscriptionException" xml:space="preserve">
     <value>Cannot add subscription as a valid instance of the `MessageTypes` list cannot be reached.</value>
   </data>
+  <data name="IncorrectStopCalledException" xml:space="preserve">
+    <value>The service bus is running in '{0}' mode.  To stop please call the '{1}' method.</value>
+    <comment>0 = mode, 1 = stop method name</comment>
+  </data>
 </root>

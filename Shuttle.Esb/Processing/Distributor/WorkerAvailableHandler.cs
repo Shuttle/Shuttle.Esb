@@ -4,7 +4,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class WorkerAvailableHandler : IMessageHandler<WorkerThreadAvailableCommand>
+    public class WorkerAvailableHandler : IAsyncMessageHandler<WorkerThreadAvailableCommand>
     {
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
         private readonly ServiceBusOptions _serviceBusOptions;
