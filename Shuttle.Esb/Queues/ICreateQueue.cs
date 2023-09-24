@@ -4,6 +4,7 @@ namespace Shuttle.Esb
 {
     public interface ICreateQueue
     {
-        Task Create();
+        void Create();
+        Task CreateAsync();
     }
 }

@@ -182,7 +182,7 @@ namespace Shuttle.Esb
         {
             StartedGuard();
 
-            return await _messageSender.Send(message, null, builder).ConfigureAwait(false);
+            return await _messageSender.SendAsync(message, null, builder).ConfigureAwait(false);
         }
 
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
@@ -194,7 +194,7 @@ namespace Shuttle.Esb
         {
             StartedGuard();
 
-            return _messageSender.Publish(message, null, builder);
+            return _messageSender.PublishAsync(message, null, builder);
         }
 
         private void StartedGuard()

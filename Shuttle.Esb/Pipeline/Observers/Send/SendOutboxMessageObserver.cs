@@ -20,9 +20,9 @@ namespace Shuttle.Esb
             _queueService = queueService;
         }
 
-        public async Task Execute(OnDispatchTransportMessage pipelineEvent)
+        private async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var transportMessage = state.GetTransportMessage();
             var receivedMessage = state.GetReceivedMessage();
 
@@ -32,10 +32,30 @@ namespace Shuttle.Esb
 
             var queue = _queueService.Get(transportMessage.RecipientInboxWorkQueueUri);
 
-            await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+            if (sync)
             {
-                await queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                using (var stream = receivedMessage.Stream.Copy())
+                {
+                    queue.Enqueue(transportMessage, stream);
+                }
             }
+            else
+            {
+                await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+                {
+                    await queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public void Execute(OnDispatchTransportMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

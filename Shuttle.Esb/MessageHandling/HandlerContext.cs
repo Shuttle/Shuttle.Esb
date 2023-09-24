@@ -30,12 +30,12 @@ namespace Shuttle.Esb
 
         public async Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return await _messageSender.Send(message, TransportMessage, builder).ConfigureAwait(false);
+            return await _messageSender.SendAsync(message, TransportMessage, builder).ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
-            return await _messageSender.Publish(message, TransportMessage, builder).ConfigureAwait(false);
+            return await _messageSender.PublishAsync(message, TransportMessage, builder).ConfigureAwait(false);
         }
     }
 }

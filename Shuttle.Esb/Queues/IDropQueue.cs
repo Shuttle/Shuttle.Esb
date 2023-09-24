@@ -4,6 +4,7 @@ namespace Shuttle.Esb
 {
     public interface IDropQueue
     {
-        Task Drop();
+        void Drop();
+        Task DropAsync();
     }
 }

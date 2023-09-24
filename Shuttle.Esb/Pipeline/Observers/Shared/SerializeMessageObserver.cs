@@ -21,17 +21,38 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
-        public async Task Execute(OnSerializeMessage pipelineEvent)
+        private async Task ExecuteAsync(OnSerializeMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent,nameof(pipelineEvent)).Pipeline.State;
             var message = state.GetMessage();
             var transportMessage = state.GetTransportMessage();
 
-            await using (var stream = await _serializer.Serialize(message).ConfigureAwait(false))
+            if (sync)
             {
-                transportMessage.Message = await stream.ToBytesAsync().ConfigureAwait(false);
-                state.SetMessageBytes(transportMessage.Message);
+                using (var stream = _serializer.Serialize(message))
+                {
+                    transportMessage.Message = stream.ToBytes();
+                }
             }
+            else
+            {
+                await using (var stream = await _serializer.SerializeAsync(message).ConfigureAwait(false))
+                {
+                    transportMessage.Message = await stream.ToBytesAsync().ConfigureAwait(false);
+                }
+            }
+
+            state.SetMessageBytes(transportMessage.Message);
+        }
+
+        public void Execute(OnSerializeMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnSerializeMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

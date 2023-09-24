@@ -28,13 +28,30 @@ namespace Shuttle.Esb
             RegisterObserver(Guard.AgainstNull(encryptMessageObserver, nameof(encryptMessageObserver)));
         }
 
-        public async Task<bool> Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, CancellationToken cancellationToken = default)
+        public bool Execute(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, CancellationToken cancellationToken = default)
+        {
+            return ExecuteAsync(message, transportMessageReceived, builder, cancellationToken, true).GetAwaiter().GetResult();
+        }
+
+        public async Task<bool> ExecuteAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, CancellationToken cancellationToken = default)
+        {
+            return await ExecuteAsync(message, transportMessageReceived, builder, cancellationToken, false).ConfigureAwait(false);
+        }
+
+        private async Task<bool> ExecuteAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, CancellationToken cancellationToken, bool sync)
         {
             State.SetMessage(Guard.AgainstNull(message, nameof(message)));
             State.SetTransportMessageReceived(transportMessageReceived);
             State.SetTransportMessageBuilder(builder);
 
-            return await base.Execute(cancellationToken).ConfigureAwait(false);
+            if (sync)
+            {
+                return base.Execute(cancellationToken);
+            }
+            else
+            {
+                return await base.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

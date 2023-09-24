@@ -15,11 +15,11 @@ namespace Shuttle.Esb
     public interface IIdempotenceService
     {
         ProcessingStatus ProcessingStatus(TransportMessage transportMessage);
-        Task<ProcessingStatus> ProcessingStatusAsync(TransportMessage transportMessage);
+        ValueTask<ProcessingStatus> ProcessingStatusAsync(TransportMessage transportMessage);
         void ProcessingCompleted(TransportMessage transportMessage);
         Task ProcessingCompletedAsync(TransportMessage transportMessage);
         bool AddDeferredMessage(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream);
-        Task<bool> AddDeferredMessageAsync(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream);
+        ValueTask<bool> AddDeferredMessageAsync(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage, Stream deferredTransportMessageStream);
         IEnumerable<Stream> GetDeferredMessages(TransportMessage transportMessage);
         Task<IEnumerable<Stream>> GetDeferredMessagesAsync(TransportMessage transportMessage);
         void DeferredMessageSent(TransportMessage processingTransportMessage, TransportMessage deferredTransportMessage);

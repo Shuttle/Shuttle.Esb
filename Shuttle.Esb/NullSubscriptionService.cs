@@ -6,7 +6,12 @@ namespace Shuttle.Esb
 {
     public class NullSubscriptionService : ISubscriptionService
     {
-        public Task<IEnumerable<string>> GetSubscribedUris(object message)
+        public IEnumerable<string> GetSubscribedUris(object message)
+        {
+            throw new NotImplementedException("NullSubscriptionManager");
+        }
+
+        public Task<IEnumerable<string>> GetSubscribedUrisAsync(object message)
         {
             throw new NotImplementedException("NullSubscriptionManager");
         }

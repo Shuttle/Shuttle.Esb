@@ -45,35 +45,72 @@ namespace Shuttle.Esb
             _serviceBusConfiguration = serviceBusConfiguration;
         }
 
-        public async Task Execute(OnCreatePhysicalQueues pipelineEvent)
+        public void Execute(OnCreatePhysicalQueues pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnCreatePhysicalQueues pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnCreatePhysicalQueues pipelineEvent, bool sync)
         {
             if (!_serviceBusOptions.CreatePhysicalQueues)
             {
                 return;
             }
 
-            await _serviceBusConfiguration.CreatePhysicalQueues().ConfigureAwait(false);
+            if (sync)
+            {
+                _serviceBusConfiguration.CreatePhysicalQueues();
+            }
+            else
+            {
+                await _serviceBusConfiguration.CreatePhysicalQueuesAsync().ConfigureAwait(false);
+            }
         }
 
-        public async Task Execute(OnStartControlInboxProcessing pipelineEvent)
+        public void Execute(OnStartControlInboxProcessing pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnStartControlInboxProcessing pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnStartControlInboxProcessing pipelineEvent, bool sync)
         {
             if (!_serviceBusConfiguration.HasControlInbox())
             {
                 return;
             }
 
-            pipelineEvent.Pipeline.State.Add(
-                "ControlInboxThreadPool",
-                new ProcessorThreadPool(
-                    "ControlInboxProcessor",
-                    _serviceBusOptions.ControlInbox.ThreadCount,
-                    new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
-                    _serviceBusOptions.ProcessorThread).Start());
+            var processorThreadPool = new ProcessorThreadPool(
+                "ControlInboxProcessor",
+                _serviceBusOptions.ControlInbox.ThreadCount,
+                new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                _serviceBusOptions.ProcessorThread);
+
+            pipelineEvent.Pipeline.State.Add("ControlInboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public async Task Execute(OnStartDeferredMessageProcessing pipelineEvent)
+        public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnStartDeferredMessageProcessing pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnStartDeferredMessageProcessing pipelineEvent, bool sync)
         {
             if (!_serviceBusConfiguration.HasInbox() || !_serviceBusConfiguration.Inbox.HasDeferredQueue())
             {
@@ -82,50 +119,69 @@ namespace Shuttle.Esb
 
             _serviceBusConfiguration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_serviceBusOptions, _pipelineFactory);
 
-            pipelineEvent.Pipeline.State.Add(
-                "DeferredMessageThreadPool",
-                new ProcessorThreadPool(
-                    "DeferredMessageProcessor",
-                    1,
-                    new DeferredMessageProcessorFactory(_serviceBusConfiguration),
-                    _serviceBusOptions.ProcessorThread).Start());
+            var processorThreadPool = new ProcessorThreadPool(
+                "DeferredMessageProcessor",
+                1,
+                new DeferredMessageProcessorFactory(_serviceBusConfiguration),
+                _serviceBusOptions.ProcessorThread);
+
+            pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public async Task Execute(OnStartInboxProcessing pipelineEvent)
+        public void Execute(OnStartInboxProcessing pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnStartInboxProcessing pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnStartInboxProcessing pipelineEvent, bool sync)
         {
             if (!_serviceBusConfiguration.HasInbox())
             {
                 return;
             }
 
-            pipelineEvent.Pipeline.State.Add(
-                "InboxThreadPool",
-                new ProcessorThreadPool(
-                        "InboxProcessor",
-                        _serviceBusOptions.Inbox.ThreadCount,
-                        new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
-                        _serviceBusOptions.ProcessorThread)
-                    .Start());
+            var processorThreadPool = new ProcessorThreadPool(
+                "InboxProcessor",
+                _serviceBusOptions.Inbox.ThreadCount,
+                new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
+                _serviceBusOptions.ProcessorThread);
+
+            pipelineEvent.Pipeline.State.Add("InboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public async Task Execute(OnStartOutboxProcessing pipelineEvent)
+        public void Execute(OnStartOutboxProcessing pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnStartOutboxProcessing pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnStartOutboxProcessing pipelineEvent, bool sync)
         {
             if (!_serviceBusConfiguration.HasOutbox())
             {
                 return;
             }
 
-            pipelineEvent.Pipeline.State.Add(
-                "OutboxThreadPool",
-                new ProcessorThreadPool(
-                    "OutboxProcessor",
-                    _serviceBusOptions.Outbox.ThreadCount,
-                    new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
-                    _serviceBusOptions.ProcessorThread).Start());
+            var processorThreadPool = new ProcessorThreadPool(
+                "OutboxProcessor",
+                _serviceBusOptions.Outbox.ThreadCount,
+                new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
+                _serviceBusOptions.ProcessorThread);
+
+            pipelineEvent.Pipeline.State.Add("OutboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }

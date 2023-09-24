@@ -31,23 +31,53 @@ namespace Shuttle.Esb
             _threadActivity = threadActivity;
         }
 
-        public async Task Waiting(CancellationToken cancellationToken)
+        public void Waiting(CancellationToken cancellationToken)
+        {
+            WaitingAsync(cancellationToken, true).GetAwaiter().GetResult();
+        }
+
+        public async Task WaitingAsync(CancellationToken cancellationToken)
+        {
+            await WaitingAsync(cancellationToken, false).ConfigureAwait(false);
+        }
+
+        private async Task WaitingAsync(CancellationToken cancellationToken, bool sync)
         {
             if (ShouldNotifyDistributor())
             {
-                await _serviceBus.SendAsync(new WorkerThreadAvailableCommand
+                void TransportMessageBuilder(TransportMessageBuilder builder)
+                {
+                    builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue);
+                }
+
+                var message = new WorkerThreadAvailableCommand
                     {
                         Identifier = _identifier,
                         InboxWorkQueueUri = _serviceBusConfiguration.Inbox.WorkQueue.Uri.ToString(),
                         ManagedThreadId = Thread.CurrentThread.ManagedThreadId,
                         DateSent = DateTime.UtcNow
-                    },
-                    builder => builder.WithRecipient(_serviceBusConfiguration.Worker.DistributorControlInboxWorkQueue)).ConfigureAwait(false);
+                    };
+
+                if (sync)
+                {
+                    _serviceBus.Send(message, TransportMessageBuilder);
+                }
+                else
+                {
+                    await _serviceBus.SendAsync(message, TransportMessageBuilder).ConfigureAwait(false);
+                }
 
                 _nextNotificationDate = DateTime.UtcNow.Add(_serviceBusOptions.Worker.ThreadAvailableNotificationInterval);
             }
 
-            await _threadActivity.Waiting(cancellationToken).ConfigureAwait(false);
+            if (sync)
+            {
+                _threadActivity.Waiting(cancellationToken);
+            }
+            else
+            {
+                await _threadActivity.WaitingAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public void Working()

@@ -23,7 +23,17 @@ namespace Shuttle.Esb
             _subscriptionService = subscriptionService;
         }
 
-        public async Task Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        public void Dispatch(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        {
+            DispatchAsync(transportMessage, transportMessageReceived, true).GetAwaiter().GetResult();
+        }
+
+        public async Task DispatchAsync(TransportMessage transportMessage, TransportMessage transportMessageReceived)
+        {
+            await DispatchAsync(transportMessage, transportMessageReceived, false).ConfigureAwait(false);
+        }
+
+        private async Task DispatchAsync(TransportMessage transportMessage, TransportMessage transportMessageReceived, bool sync)
         {
             Guard.AgainstNull(transportMessage, nameof(transportMessage));
 
@@ -31,7 +41,14 @@ namespace Shuttle.Esb
 
             try
             {
-                await messagePipeline.Execute(transportMessage, transportMessageReceived).ConfigureAwait(false);
+                if (sync)
+                {
+                    messagePipeline.Execute(transportMessage, transportMessageReceived);
+                }
+                else
+                {
+                    await messagePipeline.ExecuteAsync(transportMessage, transportMessageReceived).ConfigureAwait(false);
+                }
             }
             finally
             {
@@ -39,17 +56,40 @@ namespace Shuttle.Esb
             }
         }
 
-        public async Task<TransportMessage> Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public TransportMessage Send(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
         {
-            var transportMessage = await GetTransportMessage(message, transportMessageReceived, builder).ConfigureAwait(false);
+            return SendAsync(message, transportMessageReceived, builder, true).GetAwaiter().GetResult();
+        }
 
-            await Dispatch(transportMessage, transportMessageReceived);
+        public async Task<TransportMessage> SendAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        {
+            return await SendAsync(message, transportMessageReceived, builder, false).ConfigureAwait(false);
+        }
+
+        private async Task<TransportMessage> SendAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, bool sync)
+        {
+            var transportMessage = sync
+                ? GetTransportMessageAsync(message, transportMessageReceived, builder, true).GetAwaiter().GetResult()
+                : await GetTransportMessageAsync(message, transportMessageReceived, builder, false).ConfigureAwait(false);
+
+            if (sync)
+            {
+                DispatchAsync(transportMessage, transportMessageReceived, true ).GetAwaiter().GetResult();
+            }
+            else
+            {
+                await DispatchAsync(transportMessage, transportMessageReceived, false).ConfigureAwait(false);
+            }
 
             return transportMessage;
         }
 
-        private async Task<TransportMessage> GetTransportMessage(object message, TransportMessage transportMessageReceived,
-            Action<TransportMessageBuilder> builder)
+        public IEnumerable<TransportMessage> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        {
+            return PublishAsync(message, transportMessageReceived, builder, true).GetAwaiter().GetResult();
+        }
+
+        private async Task<TransportMessage> GetTransportMessageAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, bool sync)
         {
             Guard.AgainstNull(message, nameof(message));
 
@@ -57,7 +97,14 @@ namespace Shuttle.Esb
 
             try
             {
-                await messagePipeline.Execute(message, transportMessageReceived, builder).ConfigureAwait(false);
+                if (sync)
+                {
+                    messagePipeline.Execute(message, transportMessageReceived, builder);
+                }
+                else
+                {
+                    await messagePipeline.ExecuteAsync(message, transportMessageReceived, builder).ConfigureAwait(false);
+                }
 
                 return messagePipeline.State.GetTransportMessage();
             }
@@ -67,15 +114,24 @@ namespace Shuttle.Esb
             }
         }
 
-        public async Task<IEnumerable<TransportMessage>> Publish(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder)
+        {
+            return await PublishAsync(message, transportMessageReceived, builder, false).ConfigureAwait(false);
+        }
+
+        private async Task<IEnumerable<TransportMessage>> PublishAsync(object message, TransportMessage transportMessageReceived, Action<TransportMessageBuilder> builder, bool sync)
         {
             Guard.AgainstNull(message, nameof(message));
 
-            var subscribers = (await _subscriptionService.GetSubscribedUris(message).ConfigureAwait(false)).ToList();
+            var subscribers = (sync 
+                ? _subscriptionService.GetSubscribedUris(message)
+                : await _subscriptionService.GetSubscribedUrisAsync(message).ConfigureAwait(false)).ToList();
 
             if (subscribers.Count > 0)
             {
-                var transportMessage = await GetTransportMessage(message, transportMessageReceived, builder).ConfigureAwait(false);
+                var transportMessage = sync
+                ? GetTransportMessageAsync(message, transportMessageReceived, builder, true).GetAwaiter().GetResult()
+                : await GetTransportMessageAsync(message, transportMessageReceived, builder, false).ConfigureAwait(false);
 
                 var result = new List<TransportMessage>(subscribers.Count);
 
@@ -83,8 +139,15 @@ namespace Shuttle.Esb
                 {
                     transportMessage.RecipientInboxWorkQueueUri = subscriber;
 
-                    await Dispatch(transportMessage, transportMessageReceived).ConfigureAwait(false);
-                    
+                    if (sync)
+                    {
+                        Dispatch(transportMessage, transportMessageReceived);
+                    }
+                    else
+                    {
+                        await DispatchAsync(transportMessage, transportMessageReceived).ConfigureAwait(false);
+                    }
+
                     result.Add(transportMessage);
                 }
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -33,36 +34,59 @@ namespace Shuttle.Esb
             return serviceBusConfiguration.Worker != null;
         }
 
-        public static async Task CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
+        public static async Task CreatePhysicalQueuesAsync(this IServiceBusConfiguration serviceBusConfiguration)
         {
             if (serviceBusConfiguration.HasInbox())
             {
-                await CreateQueues(serviceBusConfiguration.Inbox).ConfigureAwait(false);
+                await CreateQueuesAsync(serviceBusConfiguration.Inbox).ConfigureAwait(false);
 
                 if (serviceBusConfiguration.Inbox.HasDeferredQueue())
                 {
-                    await serviceBusConfiguration.Inbox.DeferredQueue.TryCreate().ConfigureAwait(false);
+                    await serviceBusConfiguration.Inbox.DeferredQueue.TryCreateAsync().ConfigureAwait(false);
                 }
             }
 
             if (serviceBusConfiguration.HasOutbox())
             {
-                await CreateQueues(serviceBusConfiguration.Outbox).ConfigureAwait(false);
+                await CreateQueuesAsync(serviceBusConfiguration.Outbox).ConfigureAwait(false);
             }
 
             if (serviceBusConfiguration.HasControlInbox())
             {
-                await CreateQueues(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
+                await CreateQueuesAsync(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
             }
         }
 
-        private static async Task CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
+        public static void CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
         {
-            await workQueueConfiguration.WorkQueue.TryCreate().ConfigureAwait(false);
+            if (serviceBusConfiguration.HasInbox())
+            {
+                CreateQueues(serviceBusConfiguration.Inbox);
+
+                if (serviceBusConfiguration.Inbox.HasDeferredQueue())
+                {
+                    serviceBusConfiguration.Inbox.DeferredQueue.TryCreateAsync().ConfigureAwait(false);
+                }
+            }
+
+            if (serviceBusConfiguration.HasOutbox())
+            {
+                await CreateQueuesAsync(serviceBusConfiguration.Outbox).ConfigureAwait(false);
+            }
+
+            if (serviceBusConfiguration.HasControlInbox())
+            {
+                await CreateQueuesAsync(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
+            }
+        }
+
+        private static async Task CreateQueuesAsync(IWorkQueueConfiguration workQueueConfiguration)
+        {
+            await workQueueConfiguration.WorkQueue.TryCreateAsync().ConfigureAwait(false);
 
             if (workQueueConfiguration is IErrorQueueConfiguration errorQueueConfiguration)
             {
-                await errorQueueConfiguration.ErrorQueue.TryCreate().ConfigureAwait(false);
+                await errorQueueConfiguration.ErrorQueue.TryCreateAsync().ConfigureAwait(false);
             }
         }
     }

@@ -20,7 +20,12 @@ namespace Shuttle.Esb
             _queueService = queueService;
         }
 
-        public async Task Execute(OnStopping pipelineEvent)
+        public void Execute(OnStopping pipelineEvent)
+        {
+            _queueService.TryDispose();
+        }
+
+        public async Task ExecuteAsync(OnStopping pipelineEvent)
         {
             _queueService.TryDispose();
 
