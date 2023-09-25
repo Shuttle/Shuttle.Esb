@@ -19,7 +19,7 @@
     <PackageReference Include="Shuttle.Core.Compression" Version="12.0.0" />
     <PackageReference Include="Shuttle.Core.Encryption" Version="12.0.0" />
     <PackageReference Include="Shuttle.Core.Pipelines" Version="13.0.0" />
-    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="12.1.0" />
+    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="13.0.0" />
     <PackageReference Include="Shuttle.Core.Reflection" Version="13.0.0" />
     <PackageReference Include="Shuttle.Core.Serialization" Version="11.0.0" />
     <PackageReference Include="Shuttle.Core.Specification" Version="11.0.0" />

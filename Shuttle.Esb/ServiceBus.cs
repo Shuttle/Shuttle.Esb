@@ -166,7 +166,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            StopAsync().GetAwaiter().GetResult();
+            Stop();
 
             _cancellationTokenSource.TryDispose();
 
@@ -175,7 +175,9 @@ namespace Shuttle.Esb
 
         public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
-            throw new NotImplementedException();
+            StartedGuard();
+
+            return _messageSender.Send(message, null, builder);
         }
 
         public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder> builder = null)
@@ -187,7 +189,9 @@ namespace Shuttle.Esb
 
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
-            throw new NotImplementedException();
+            StartedGuard();
+
+            return _messageSender.Publish(message, null, builder);
         }
 
         public Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)

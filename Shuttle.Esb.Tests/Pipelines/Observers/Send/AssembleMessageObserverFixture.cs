@@ -12,7 +12,18 @@ namespace Shuttle.Esb.Tests.Pipelines.Observers.Send;
 public class AssembleMessageObserverFixture
 {
     [Test]
-    public async Task Should_be_able_to_assembly_transport_message_using_received_transport_message()
+    public void Should_be_able_to_assembly_transport_message_using_received_transport_message()
+    {
+        Should_be_able_to_assembly_transport_message_using_received_transport_message_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_assembly_transport_message_using_received_transport_message_async()
+    {
+        await Should_be_able_to_assembly_transport_message_using_received_transport_message_async(false);
+    }
+
+    private async Task Should_be_able_to_assembly_transport_message_using_received_transport_message_async(bool sync)
     {
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var identityProvider = new Mock<IIdentityProvider>();
@@ -53,7 +64,14 @@ public class AssembleMessageObserverFixture
 
         pipelineEvent.Reset(pipeline);
 
-        await observer.Execute(pipelineEvent);
+        if (sync)
+        {
+            observer.Execute(pipelineEvent);
+        }
+        else
+        {
+            await observer.ExecuteAsync(pipelineEvent);
+        }
 
         var transportMessage = state.GetTransportMessage();
 

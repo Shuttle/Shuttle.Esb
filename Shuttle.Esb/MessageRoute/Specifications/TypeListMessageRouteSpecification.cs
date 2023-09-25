@@ -31,18 +31,14 @@ namespace Shuttle.Esb
 
             foreach (var typeName in typeNames)
             {
-                reflectionService.GetType(typeName).ContinueWith(result =>
+                var type = reflectionService.GetType(typeName);
+
+                if (type == null)
                 {
-                    var type = result.Result;
+                    throw new MessageRouteSpecificationException(string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
+                }
 
-                    if (type == null)
-                    {
-                        throw new MessageRouteSpecificationException(
-                            string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
-                    }
-
-                    MessageTypes.Add(type.FullName);
-                }).GetAwaiter().GetResult();
+                MessageTypes.Add(type.FullName);
             }
         }
 

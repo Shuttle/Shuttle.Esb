@@ -70,7 +70,17 @@ namespace Shuttle.Esb.Tests
         }
 
         [Test]
-        public async Task Should_be_able_to_invoke_handler()
+        public void Should_be_able_to_invoke_handler()
+        {
+            Should_be_able_to_invoke_handler_async(true).GetAwaiter().GetResult();
+        }
+
+        public async Task Should_be_able_to_invoke_handler_async()
+        {
+            await Should_be_able_to_invoke_handler_async(false);
+        }
+
+        private async Task Should_be_able_to_invoke_handler_async(bool sync)
         {
             const int count = 5;
 
@@ -105,26 +115,53 @@ namespace Shuttle.Esb.Tests
 
             var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-            await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+            if (sync)
             {
-                for (var i = 0; i < count; i++)
+                using (var serviceBus = serviceProvider.GetRequiredService<IServiceBus>().Start())
                 {
-                    await serviceBus.SendAsync(new Message
+                    for (var i = 0; i < count; i++)
                     {
-                        Count = i + 1,
-                        Name = $"message - {i + 1}"
-                    });
+                        serviceBus.Send(new Message
+                        {
+                            Count = i + 1,
+                            Name = $"message - {i + 1}"
+                        });
+                    }
+
+                    var timeout = DateTime.Now.AddSeconds(5);
+
+                    while (messageHandlerTracker.HandledCount < (count * 2) &&
+                           DateTime.Now < timeout)
+                    {
+                        Thread.Sleep(25);
+                    }
+
+                    Assert.That(timeout > DateTime.Now);
                 }
-
-                var timeout = DateTime.Now.AddSeconds(5);
-
-                while (messageHandlerTracker.HandledCount < (count * 2) &&
-                       DateTime.Now < timeout)
+            }
+            else
+            {
+                await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
                 {
-                    Thread.Sleep(25);
-                }
+                    for (var i = 0; i < count; i++)
+                    {
+                        await serviceBus.SendAsync(new Message
+                        {
+                            Count = i + 1,
+                            Name = $"message - {i + 1}"
+                        });
+                    }
 
-                Assert.That(timeout > DateTime.Now);
+                    var timeout = DateTime.Now.AddSeconds(5);
+
+                    while (messageHandlerTracker.HandledCount < (count * 2) &&
+                           DateTime.Now < timeout)
+                    {
+                        Thread.Sleep(25);
+                    }
+
+                    Assert.That(timeout > DateTime.Now);
+                }
             }
         }
     }

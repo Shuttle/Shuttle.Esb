@@ -65,18 +65,28 @@ namespace Shuttle.Esb
 
                 if (serviceBusConfiguration.Inbox.HasDeferredQueue())
                 {
-                    serviceBusConfiguration.Inbox.DeferredQueue.TryCreateAsync().ConfigureAwait(false);
+                    serviceBusConfiguration.Inbox.DeferredQueue.TryCreate();
                 }
             }
 
             if (serviceBusConfiguration.HasOutbox())
             {
-                await CreateQueuesAsync(serviceBusConfiguration.Outbox).ConfigureAwait(false);
+                CreateQueues(serviceBusConfiguration.Outbox);
             }
 
             if (serviceBusConfiguration.HasControlInbox())
             {
-                await CreateQueuesAsync(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
+                CreateQueues(serviceBusConfiguration.ControlInbox);
+            }
+        }
+
+        private static void CreateQueues(IWorkQueueConfiguration workQueueConfiguration)
+        {
+            workQueueConfiguration.WorkQueue.TryCreate();
+
+            if (workQueueConfiguration is IErrorQueueConfiguration errorQueueConfiguration)
+            {
+                errorQueueConfiguration.ErrorQueue.TryCreate();
             }
         }
 

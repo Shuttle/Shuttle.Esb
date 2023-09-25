@@ -95,7 +95,7 @@ namespace Shuttle.Esb
                 new ControlInboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
                 _serviceBusOptions.ProcessorThread);
 
-            pipelineEvent.Pipeline.State.Add("ControlInboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
+            pipelineEvent.Pipeline.State.Add("ControlInboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
@@ -125,7 +125,7 @@ namespace Shuttle.Esb
                 new DeferredMessageProcessorFactory(_serviceBusConfiguration),
                 _serviceBusOptions.ProcessorThread);
 
-            pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
+            pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
@@ -153,7 +153,7 @@ namespace Shuttle.Esb
                 new InboxProcessorFactory(_serviceBusOptions, _serviceBusConfiguration, _serviceBus, _workerAvailabilityService, _pipelineFactory, _pipelineThreadActivity),
                 _serviceBusOptions.ProcessorThread);
 
-            pipelineEvent.Pipeline.State.Add("InboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
+            pipelineEvent.Pipeline.State.Add("InboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
@@ -181,7 +181,7 @@ namespace Shuttle.Esb
                 new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),
                 _serviceBusOptions.ProcessorThread);
 
-            pipelineEvent.Pipeline.State.Add("OutboxThreadPool", sync ? processorThreadPool.Start() : processorThreadPool.StartAsync());
+            pipelineEvent.Pipeline.State.Add("OutboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
 
             await Task.CompletedTask.ConfigureAwait(false);
         }
