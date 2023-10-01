@@ -75,6 +75,7 @@ namespace Shuttle.Esb.Tests
             Should_be_able_to_invoke_handler_async(true).GetAwaiter().GetResult();
         }
 
+        [Test]
         public async Task Should_be_able_to_invoke_handler_async()
         {
             await Should_be_able_to_invoke_handler_async(false);
