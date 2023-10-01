@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pipelines\Observers\Deferred\" />
     <Folder Include="Pipelines\Observers\Send\" />
   </ItemGroup>
 
