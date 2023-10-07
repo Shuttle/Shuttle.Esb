@@ -10,14 +10,14 @@ using Shuttle.Core.Serialization;
 namespace Shuttle.Esb.Tests
 {
     [TestFixture]
-    public class ReceiveExceptionObserverFixture : IPipelineObserver<OnTest>
+    public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
     {
-        public void Execute(OnTest pipelineEvent)
+        public void Execute(OnException pipelineEvent)
         {
             throw new Exception(string.Empty, new UnrecoverableHandlerException());
         }
 
-        public Task ExecuteAsync(OnTest pipelineEvent)
+        public Task ExecuteAsync(OnException pipelineEvent)
         {
             throw new Exception(string.Empty, new UnrecoverableHandlerException());
         }
@@ -54,7 +54,7 @@ namespace Shuttle.Esb.Tests
 
             pipeline
                 .RegisterStage(".")
-                .WithEvent<OnTest>();
+                .WithEvent<OnException>();
 
             var transportMessage = new TransportMessage();
 

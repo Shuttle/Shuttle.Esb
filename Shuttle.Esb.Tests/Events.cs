@@ -2,7 +2,7 @@
 
 namespace Shuttle.Esb.Tests
 {
-    public class OnTest : PipelineEvent
+    public class OnException : PipelineEvent
     {
     }
 }

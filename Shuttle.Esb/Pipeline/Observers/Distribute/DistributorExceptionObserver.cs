@@ -46,9 +46,9 @@ namespace Shuttle.Esb
                         return;
                     }
 
-                    var workQueue = state.GetWorkQueue();
                     var errorQueue = state.GetErrorQueue();
-                    var receivedMessage = state.GetReceivedMessage();
+                    var workQueue = Guard.AgainstNull(state.GetWorkQueue(), "WorkQueue");
+                    var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), "ReceivedMessage");
 
                     if (!workQueue.IsStream)
                     {
