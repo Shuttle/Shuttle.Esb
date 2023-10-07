@@ -12,16 +12,11 @@ namespace Shuttle.Esb
     {
         private async Task ExecuteAsync(OnProcessDeferredMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
-            var receivedMessage = state.GetReceivedMessage();
-            var workQueue = state.GetWorkQueue();
-            var deferredQueue = state.GetDeferredQueue();
-
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(deferredQueue, nameof(deferredQueue));
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
+            var workQueue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
+            var deferredQueue = Guard.AgainstNull(state.GetDeferredQueue(), StateKeys.DeferredQueue);
 
             if (transportMessage.IsIgnoring())
             {

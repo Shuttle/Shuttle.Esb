@@ -23,10 +23,10 @@ namespace Shuttle.Esb
 
         public void Execute(OnHandleDistributeMessage pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
 
-            transportMessage.RecipientInboxWorkQueueUri = state.GetAvailableWorker().InboxWorkQueueUri;
+            transportMessage.RecipientInboxWorkQueueUri = Guard.AgainstNull(state.GetAvailableWorker(), StateKeys.AvailableWorker).InboxWorkQueueUri;
 
             state.SetTransportMessage(transportMessage);
             state.SetTransportMessageReceived(null);
