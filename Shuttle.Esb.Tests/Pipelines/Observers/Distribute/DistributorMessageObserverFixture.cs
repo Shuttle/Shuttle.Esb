@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb.Tests.Pipelines.Observers.Distribute;
 
