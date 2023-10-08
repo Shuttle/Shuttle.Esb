@@ -13,13 +13,11 @@ namespace Shuttle.Esb
 
     public class DeferTransportMessageObserver : IDeferTransportMessageObserver
     {
-        private readonly IServiceBusConfiguration _serviceBusConfiguration;
+        private readonly IDeferredMessageProcessor _deferredMessageProcessor;
 
-        public DeferTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration)
+        public DeferTransportMessageObserver(IDeferredMessageProcessor deferredMessageProcessor)
         {
-            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-
-            _serviceBusConfiguration = serviceBusConfiguration;
+            _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor, nameof(deferredMessageProcessor));
         }
 
         public void Execute(OnAfterDeserializeTransportMessage pipelineEvent)
@@ -34,14 +32,10 @@ namespace Shuttle.Esb
 
         private async Task ExecuteAsync(OnAfterDeserializeTransportMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var receivedMessage = state.GetReceivedMessage();
-            var transportMessage = state.GetTransportMessage();
-            var workQueue = state.GetWorkQueue();
-
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+            var workQueue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
 
             if (!transportMessage.IsIgnoring())
             {
@@ -60,7 +54,7 @@ namespace Shuttle.Esb
                     {
                         state.GetDeferredQueue().Enqueue(transportMessage, stream);
 
-                        _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
+                        _deferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                     }
                 }
 
@@ -78,20 +72,18 @@ namespace Shuttle.Esb
                     {
                         await state.GetDeferredQueue().EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
 
-                        await _serviceBusConfiguration.Inbox.DeferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreTillDate).ConfigureAwait(false);
+                        await _deferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreTillDate).ConfigureAwait(false);
                     }
                 }
 
                 await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
             }
 
-            TransportMessageDeferred.Invoke(this, new TransportMessageDeferredEventArgs(transportMessage));
+            TransportMessageDeferred?.Invoke(this, new TransportMessageDeferredEventArgs(transportMessage));
 
             pipelineEvent.Pipeline.Abort();
         }
 
-        public event EventHandler<TransportMessageDeferredEventArgs> TransportMessageDeferred = delegate
-        {
-        };
+        public event EventHandler<TransportMessageDeferredEventArgs> TransportMessageDeferred;
     }
 }

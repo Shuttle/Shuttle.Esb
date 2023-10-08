@@ -7,6 +7,5 @@ namespace Shuttle.Esb
         public IQueue WorkQueue { get; set; }
         public IQueue ErrorQueue { get; set; }
         public IQueue DeferredQueue { get; set; }
-        public DeferredMessageProcessor DeferredMessageProcessor { get; set; }
     }
 }

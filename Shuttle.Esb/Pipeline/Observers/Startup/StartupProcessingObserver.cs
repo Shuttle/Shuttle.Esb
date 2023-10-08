@@ -24,25 +24,21 @@ namespace Shuttle.Esb
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
+        private readonly IDeferredMessageProcessor _deferredMessageProcessor;
 
         public StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus,
-            IServiceBusConfiguration serviceBusConfiguration, IWorkerAvailabilityService workerAvailabilityService,
+            IServiceBusConfiguration serviceBusConfiguration, IWorkerAvailabilityService workerAvailabilityService, IDeferredMessageProcessor deferredMessageProcessor,
             IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
-            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
-            Guard.AgainstNull(serviceBus, nameof(serviceBus));
-            Guard.AgainstNull(serviceBusConfiguration,  nameof(serviceBusConfiguration));
-            Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
-            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
 
-            _serviceBus = serviceBus;
-            _serviceBusOptions = serviceBusOptions.Value;
-            _workerAvailabilityService = workerAvailabilityService;
-            _pipelineFactory = pipelineFactory;
-            _pipelineThreadActivity = pipelineThreadActivity;
-            _serviceBusConfiguration = serviceBusConfiguration;
+            _serviceBus = Guard.AgainstNull(serviceBus, nameof(serviceBus));
+            _serviceBusOptions = Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            _workerAvailabilityService = Guard.AgainstNull(workerAvailabilityService, nameof(workerAvailabilityService));
+            _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor, nameof(deferredMessageProcessor));
+            _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
+            _pipelineThreadActivity = Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
+            _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
         }
 
         public void Execute(OnCreatePhysicalQueues pipelineEvent)
@@ -117,12 +113,10 @@ namespace Shuttle.Esb
                 return;
             }
 
-            _serviceBusConfiguration.Inbox.DeferredMessageProcessor = new DeferredMessageProcessor(_serviceBusOptions, _pipelineFactory);
-
             var processorThreadPool = new ProcessorThreadPool(
                 "DeferredMessageProcessor",
                 1,
-                new DeferredMessageProcessorFactory(_serviceBusConfiguration),
+                new DeferredMessageProcessorFactory(_deferredMessageProcessor),
                 _serviceBusOptions.ProcessorThread);
 
             pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());

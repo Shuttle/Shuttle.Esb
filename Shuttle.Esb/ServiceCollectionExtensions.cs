@@ -45,6 +45,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
+            services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
 
             var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 

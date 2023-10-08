@@ -11,6 +11,13 @@ namespace Shuttle.Esb
             return options.Inbox != null && !string.IsNullOrWhiteSpace(options.Inbox.WorkQueueUri);
         }
 
+        public static bool HasDeferredQueue(this ServiceBusOptions options)
+        {
+            Guard.AgainstNull(options, nameof(options));
+
+            return options.Inbox != null && !string.IsNullOrWhiteSpace(options.Inbox.DeferredQueueUri);
+        }
+
         public static bool HasControlInbox(this ServiceBusOptions options)
         {
             Guard.AgainstNull(options, nameof(options));

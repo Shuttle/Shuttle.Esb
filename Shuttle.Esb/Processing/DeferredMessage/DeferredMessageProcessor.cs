@@ -3,11 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb
 {
-    public class DeferredMessageProcessor : IProcessor
+    public class DeferredMessageProcessor : IDeferredMessageProcessor
     {
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
@@ -38,6 +37,11 @@ namespace Shuttle.Esb
 
         private async Task ExecuteAsync(CancellationToken cancellationToken, bool sync)
         {
+            if (!_serviceBusOptions.HasDeferredQueue())
+            {
+                return;
+            }
+
             if (sync)
             {
                 _lock.Wait(cancellationToken);
@@ -134,8 +138,7 @@ namespace Shuttle.Esb
 
                     _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
 
-                    DeferredMessageProcessingHalted.Invoke(this,
-                        new DeferredMessageProcessingHaltedEventArgs(_nextProcessingDateTime));
+                    DeferredMessageProcessingHalted?.Invoke(this, new DeferredMessageProcessingHaltedEventArgs(_nextProcessingDateTime));
                 }
                 finally
                 {
@@ -152,17 +155,12 @@ namespace Shuttle.Esb
         {
             _nextProcessingDateTime = dateTime;
 
-            DeferredMessageProcessingAdjusted(this,
-                new DeferredMessageProcessingAdjustedEventArgs(_nextProcessingDateTime));
+            DeferredMessageProcessingAdjusted?.Invoke(this, new DeferredMessageProcessingAdjustedEventArgs(_nextProcessingDateTime));
         }
 
-        public event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted = delegate
-        {
-        };
+        public event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted;
 
-        public event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted = delegate
-        {
-        };
+        public event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted;
 
         public void MessageDeferred(DateTime ignoreTillDate)
         {
