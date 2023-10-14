@@ -33,7 +33,7 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
         _invokeCounts.TryGetValue(messageType, out var count);
         _invokeCounts[messageType] = count + 1;
 
-        var messageHandlerInvokeResult = MessageHandlerInvokeResult.InvokedHandler(this);
+        var messageHandlerInvokeResult = MessageHandlerInvokeResult.InvokedHandler(pipelineEvent.Pipeline.State.GetTransportMessage().AssemblyQualifiedName);
 
         return sync
             ? messageHandlerInvokeResult

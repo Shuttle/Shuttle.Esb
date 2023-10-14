@@ -33,26 +33,28 @@ namespace Shuttle.Esb
         private async Task ExecuteAsync(OnAfterDeserializeTransportMessage pipelineEvent, bool sync)
         {
             var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
             var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
             var workQueue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
 
-            if (!transportMessage.IsIgnoring())
+            if (!transportMessage.IsIgnoring() || workQueue.IsStream)
             {
                 return;
             }
+
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
+            var deferredQueue = state.GetDeferredQueue();
 
             if (sync)
             {
                 using (var stream = receivedMessage.Stream.Copy())
                 {
-                    if (state.GetDeferredQueue() == null)
+                    if (deferredQueue == null)
                     {
                         workQueue.Enqueue(transportMessage, stream);
                     }
                     else
                     {
-                        state.GetDeferredQueue().Enqueue(transportMessage, stream);
+                        deferredQueue.Enqueue(transportMessage, stream);
 
                         _deferredMessageProcessor.MessageDeferred(transportMessage.IgnoreTillDate);
                     }
@@ -64,13 +66,13 @@ namespace Shuttle.Esb
             {
                 await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
                 {
-                    if (state.GetDeferredQueue() == null)
+                    if (deferredQueue == null)
                     {
                         await workQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
                     }
                     else
                     {
-                        await state.GetDeferredQueue().EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                        await deferredQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
 
                         await _deferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreTillDate).ConfigureAwait(false);
                     }
