@@ -55,7 +55,7 @@ namespace Shuttle.Esb
 
             if (handler == null)
             {
-                return MessageHandlerInvokeResult.InvokeFailure();
+                return MessageHandlerInvokeResult.MissingHandler();
             }
 
             var transportMessage = state.GetTransportMessage();
@@ -144,7 +144,7 @@ namespace Shuttle.Esb
                 }
             }
 
-            return MessageHandlerInvokeResult.InvokedHandler(handler);
+            return MessageHandlerInvokeResult.InvokedHandler(handler.GetType().AssemblyQualifiedName);
         }
 
         private void ReleaseHandler(Type messageType)

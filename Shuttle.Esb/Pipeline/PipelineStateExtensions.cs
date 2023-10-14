@@ -32,6 +32,16 @@ namespace Shuttle.Esb
             return state.Get<IEnumerable<TimeSpan>>(StateKeys.DurationToIgnoreOnFailure);
         }
 
+        public static void SetMessageHandlerInvokeResult(this IState state, MessageHandlerInvokeResult value)
+        {
+            state.Replace(StateKeys.MessageHandlerInvokeResult, value);
+        }
+
+        public static MessageHandlerInvokeResult GetMessageHandlerInvokeResult(this IState state)
+        {
+            return state.Get<MessageHandlerInvokeResult>(StateKeys.MessageHandlerInvokeResult);
+        }
+
         public static void SetTransportMessage(this IState state, TransportMessage value)
         {
             state.Replace(StateKeys.TransportMessage, value);
@@ -135,16 +145,6 @@ namespace Shuttle.Esb
         public static void ResetWorking(this IState state)
         {
             state.Replace(StateKeys.Working, false);
-        }
-
-        public static void SetMessageHandler(this IState state, object handler)
-        {
-            state.Replace(StateKeys.MessageHandler, handler);
-        }
-
-        public static object GetMessageHandler(this IState state)
-        {
-            return state.Get<object>(StateKeys.MessageHandler);
         }
 
         public static void SetWorkQueue(this IState state, IQueue queue)

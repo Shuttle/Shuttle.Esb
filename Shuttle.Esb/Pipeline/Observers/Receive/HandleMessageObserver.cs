@@ -11,8 +11,8 @@ namespace Shuttle.Esb
 {
     public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
     {
-        event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
         event EventHandler<HandlerExceptionEventArgs> HandlerException;
+        event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
     }
 
     public class HandleMessageObserver : IHandleMessageObserver
@@ -34,9 +34,23 @@ namespace Shuttle.Esb
             _serializer = serializer;
         }
 
+        public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+
+        public event EventHandler<HandlerExceptionEventArgs> HandlerException;
+
+        public void Execute(OnHandleMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnHandleMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
         private async Task ExecuteAsync(OnHandleMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var processingStatus = state.GetProcessingStatus();
 
             if (processingStatus == ProcessingStatus.Ignore || processingStatus == ProcessingStatus.MessageHandled)
@@ -44,8 +58,8 @@ namespace Shuttle.Esb
                 return;
             }
 
-            var transportMessage = state.GetTransportMessage();
-            var message = state.GetMessage();
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), nameof(StateKeys.TransportMessage));
+            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
 
             if (transportMessage.HasExpired())
             {
@@ -57,44 +71,44 @@ namespace Shuttle.Esb
             try
             {
                 var messageHandlerInvokeResult = sync
-                ? _messageHandlerInvoker.Invoke(pipelineEvent)
-                : await _messageHandlerInvoker.InvokeAsync(pipelineEvent).ConfigureAwait(false);
+                    ? _messageHandlerInvoker.Invoke(pipelineEvent)
+                    : await _messageHandlerInvoker.InvokeAsync(pipelineEvent).ConfigureAwait(false);
+
+                state.SetMessageHandlerInvokeResult(messageHandlerInvokeResult);
 
                 if (messageHandlerInvokeResult.Invoked)
                 {
-                    state.SetMessageHandler(messageHandlerInvokeResult.MessageHandler);
+                    return;
+                }
+
+                MessageNotHandled?.Invoke(this, new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue, transportMessage, message));
+
+                if (_serviceBusOptions.RemoveMessagesNotHandled)
+                {
+                    return;
+                }
+
+                var failure = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString());
+
+                if (errorQueue == null)
+                {
+                    throw new InvalidOperationException(failure);
+                }
+
+                transportMessage.RegisterFailure(failure);
+
+                if (sync)
+                {
+                    using (var stream = _serializer.Serialize(transportMessage))
+                    {
+                        errorQueue.Enqueue(transportMessage, stream);
+                    }
                 }
                 else
                 {
-                    MessageNotHandled.Invoke(this,
-                        new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue, transportMessage, message));
-
-                    if (!_serviceBusOptions.RemoveMessagesNotHandled)
+                    await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
                     {
-                        var failure = string.Format(Resources.MessageNotHandledFailure,
-                            message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString());
-
-                        if (errorQueue == null)
-                        {
-                            throw new InvalidOperationException(failure);
-                        }
-
-                        transportMessage.RegisterFailure(failure);
-
-                        if (sync)
-                        {
-                            using (var stream = _serializer.Serialize(transportMessage))
-                            {
-                                errorQueue.Enqueue(transportMessage, stream);
-                            }
-                        }
-                        else
-                        {
-                            await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
-                            {
-                                await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
-                            }
-                        }
+                        await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
                     }
                 }
             }
@@ -102,30 +116,10 @@ namespace Shuttle.Esb
             {
                 var exception = ex.TrimLeading<TargetInvocationException>();
 
-                HandlerException.Invoke(this,
-                    new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(),
-                        errorQueue, exception));
+                HandlerException?.Invoke(this, new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(), errorQueue, exception));
 
                 throw exception;
             }
-        }
-
-        public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled = delegate
-        {
-        };
-
-        public event EventHandler<HandlerExceptionEventArgs> HandlerException = delegate
-        {
-        };
-
-        public void Execute(OnHandleMessage pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnHandleMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }
