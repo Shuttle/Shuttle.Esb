@@ -59,13 +59,13 @@ namespace Shuttle.Esb
             }
 
             var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), nameof(StateKeys.TransportMessage));
-            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
 
             if (transportMessage.HasExpired())
             {
                 return;
             }
 
+            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
             var errorQueue = state.GetErrorQueue();
 
             try
@@ -81,7 +81,7 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                MessageNotHandled?.Invoke(this, new MessageNotHandledEventArgs(pipelineEvent, state.GetWorkQueue(), errorQueue, transportMessage, message));
+                MessageNotHandled?.Invoke(this, new MessageNotHandledEventArgs(pipelineEvent, transportMessage, message));
 
                 if (_serviceBusOptions.RemoveMessagesNotHandled)
                 {
@@ -116,7 +116,7 @@ namespace Shuttle.Esb
             {
                 var exception = ex.TrimLeading<TargetInvocationException>();
 
-                HandlerException?.Invoke(this, new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, state.GetWorkQueue(), errorQueue, exception));
+                HandlerException?.Invoke(this, new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, exception));
 
                 throw exception;
             }
