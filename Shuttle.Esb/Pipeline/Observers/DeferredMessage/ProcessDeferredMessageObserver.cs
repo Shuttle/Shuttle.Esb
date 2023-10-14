@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -6,6 +7,7 @@ namespace Shuttle.Esb
 {
     public interface IProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
     {
+        event EventHandler<MessageReturnedEventArgs> MessageReturned;
     }
 
     public class ProcessDeferredMessageObserver : IProcessDeferredMessageObserver
@@ -46,6 +48,8 @@ namespace Shuttle.Esb
             }
 
             state.SetDeferredMessageReturned(true);
+
+            MessageReturned?.Invoke(this, new MessageReturnedEventArgs(transportMessage, receivedMessage));
         }
 
         public void Execute(OnProcessDeferredMessage pipelineEvent)
@@ -57,5 +61,7 @@ namespace Shuttle.Esb
         {
             await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
+
+        public event EventHandler<MessageReturnedEventArgs> MessageReturned;
     }
 }

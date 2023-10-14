@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -16,13 +17,12 @@ namespace Shuttle.Esb
         private DateTime _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
         private DateTime _nextProcessingDateTime = DateTime.MinValue.ToUniversalTime();
 
-        public DeferredMessageProcessor(ServiceBusOptions serviceBusOptions, IPipelineFactory pipelineFactory)
+        public DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOptions, IPipelineFactory pipelineFactory)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
-            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-
-            _serviceBusOptions = serviceBusOptions;
-            _pipelineFactory = pipelineFactory;
+            
+            _serviceBusOptions = Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
         }
 
         public void Execute(CancellationToken cancellationToken)
