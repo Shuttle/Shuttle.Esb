@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers;
+namespace Shuttle.Esb.Tests;
 
 public class ThrowExceptionObserver : IPipelineObserver<OnException>
 {

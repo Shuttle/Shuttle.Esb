@@ -4,7 +4,7 @@ using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers.Distribute;
+namespace Shuttle.Esb.Tests;
 
 [TestFixture]
 public class DistributorMessageObserverFixture

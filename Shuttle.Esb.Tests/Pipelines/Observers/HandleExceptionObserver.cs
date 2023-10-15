@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers;
+namespace Shuttle.Esb.Tests;
 
 public class HandleExceptionObserver : IPipelineObserver<OnPipelineException>
 {

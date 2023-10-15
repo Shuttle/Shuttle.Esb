@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Shuttle.Esb.Tests.Messages;
 
 namespace Shuttle.Esb.Tests
 {

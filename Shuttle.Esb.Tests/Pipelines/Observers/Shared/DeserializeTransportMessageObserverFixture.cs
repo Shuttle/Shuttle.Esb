@@ -2,21 +2,20 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.System;
 
-namespace Shuttle.Esb.Tests.Shared
+namespace Shuttle.Esb.Tests
 {
     public class DeserializeTransportMessageObserverFixture
     {
         [Test]
         public void Should_be_able_to_kill_process_when_corrupt_message_is_received()
         {
-            var serviceBusOptions = Options.Create(new ServiceBusOptions
+            var serviceBusOptions = Microsoft.Extensions.Options.Options.Create(new ServiceBusOptions
             {
                 RemoveCorruptMessages = false
             });
@@ -69,7 +68,7 @@ namespace Shuttle.Esb.Tests.Shared
 
         private async Task Should_be_able_to_acknowledge_message_when_corrupt_message_is_received_async(bool sync)
         {
-            var serviceBusOptions = Options.Create(new ServiceBusOptions
+            var serviceBusOptions = Microsoft.Extensions.Options.Options.Create(new ServiceBusOptions
             {
                 RemoveCorruptMessages = true
             });

@@ -7,7 +7,7 @@ using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers.Distribute;
+namespace Shuttle.Esb.Tests;
 
 [TestFixture]
 public class DistributorExceptionObserverFixture

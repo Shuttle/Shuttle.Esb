@@ -1,4 +1,4 @@
-﻿namespace Shuttle.Esb.Tests
+﻿namespace Shuttle.Esb.Tests.Messages
 {
     public class SimpleEvent
     {

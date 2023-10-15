@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
+using Shuttle.Esb.Tests.Messages;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers.Send;
+namespace Shuttle.Esb.Tests;
 
 [TestFixture]
 public class AssembleMessageObserverFixture
@@ -28,7 +28,7 @@ public class AssembleMessageObserverFixture
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var identityProvider = new Mock<IIdentityProvider>();
 
-        var observer = new AssembleMessageObserver(Options.Create(new ServiceBusOptions()),
+        var observer = new AssembleMessageObserver(Microsoft.Extensions.Options.Options.Create(new ServiceBusOptions()),
             serviceBusConfiguration.Object, identityProvider.Object);
 
         var pipelineEvent = new OnAssembleMessage();

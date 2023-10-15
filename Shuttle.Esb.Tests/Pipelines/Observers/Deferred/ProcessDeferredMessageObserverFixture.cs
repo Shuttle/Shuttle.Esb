@@ -1,11 +1,11 @@
-﻿using Moq;
-using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using System;
+using Moq;
+using NUnit.Framework;
+using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb.Tests.Pipelines.Observers;
+namespace Shuttle.Esb.Tests;
 
 [TestFixture]
 public class ProcessDeferredMessageObserverFixture

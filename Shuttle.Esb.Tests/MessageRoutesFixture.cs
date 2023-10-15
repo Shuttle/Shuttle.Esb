@@ -1,6 +1,7 @@
 using System;
 using Moq;
 using NUnit.Framework;
+using Shuttle.Esb.Tests.Messages;
 
 namespace Shuttle.Esb.Tests
 {
