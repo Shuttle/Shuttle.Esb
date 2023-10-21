@@ -38,12 +38,9 @@ namespace Shuttle.Esb
 
         private async Task ExecuteAsync(OnDeserializeTransportMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var receivedMessage = state.GetReceivedMessage();
-            var workQueue = state.GetWorkQueue();
-
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
+            var workQueue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
 
             TransportMessage transportMessage;
 
@@ -58,7 +55,7 @@ namespace Shuttle.Esb
                 }
                 else
                 {
-                    await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+                    using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
                     {
                         transportMessage = (TransportMessage)await _serializer.DeserializeAsync(typeof(TransportMessage), stream).ConfigureAwait(false);
                     }
@@ -66,18 +63,17 @@ namespace Shuttle.Esb
             }
             catch (Exception ex)
             {
-                TransportMessageDeserializationException(this,
-                    new DeserializationExceptionEventArgs(pipelineEvent, workQueue, state.GetErrorQueue(), ex));
+                TransportMessageDeserializationException?.Invoke(this, new DeserializationExceptionEventArgs(pipelineEvent, workQueue, state.GetErrorQueue(), ex));
 
                 if (_serviceBusOptions.RemoveCorruptMessages)
                 {
                     if (sync)
                     {
-                        state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
+                        workQueue.Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
                     }
                     else
                     {
-                        await state.GetWorkQueue().AcknowledgeAsync(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
+                        await workQueue.AcknowledgeAsync(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
                     }
                 }
                 else
@@ -101,9 +97,7 @@ namespace Shuttle.Esb
             transportMessage.AcceptInvariants();
         }
 
-        public event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException = delegate
-        {
-        };
+        public event EventHandler<DeserializationExceptionEventArgs> TransportMessageDeserializationException;
 
         public void Execute(OnDeserializeTransportMessage pipelineEvent)
         {
@@ -112,7 +106,7 @@ namespace Shuttle.Esb
 
         public async Task ExecuteAsync(OnDeserializeTransportMessage pipelineEvent)
         {
-            await ExecuteAsync(pipelineEvent).ConfigureAwait(false);
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }
