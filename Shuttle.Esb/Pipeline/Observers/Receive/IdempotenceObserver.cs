@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -24,41 +23,57 @@ namespace Shuttle.Esb
 
         public void Execute(OnIdempotenceMessageHandled pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
-
-            if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
-            {
-                return;
-            }
-
-            _idempotenceService.MessageHandled(transportMessage);
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
         }
 
         public async Task ExecuteAsync(OnIdempotenceMessageHandled pipelineEvent)
         {
-            Execute(pipelineEvent);
-
-            await Task.CompletedTask.ConfigureAwait(false);
+            await ExecuteAsync(pipelineEvent, false);
         }
 
         public void Execute(OnProcessIdempotenceMessage pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnProcessIdempotenceMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false);
+        }
+
+        private async Task ExecuteAsync(OnIdempotenceMessageHandled pipelineEvent, bool sync)
+        {
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
 
             if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
             {
                 return;
             }
 
-            state.SetProcessingStatus(_idempotenceService.ProcessingStatus(state.GetTransportMessage()));
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+
+            if (sync)
+            {
+                _idempotenceService.MessageHandled(transportMessage);
+            }
+            else
+            {
+                await _idempotenceService.MessageHandledAsync(transportMessage);
+            }
         }
 
-        public async Task ExecuteAsync(OnProcessIdempotenceMessage pipelineEvent)
+        private async Task ExecuteAsync(OnProcessIdempotenceMessage pipelineEvent, bool sync)
         {
-            Execute(pipelineEvent);
-            
-            await Task.CompletedTask.ConfigureAwait(false);
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+
+            if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
+            {
+                return;
+            }
+
+            state.SetProcessingStatus(sync
+                ? _idempotenceService.ProcessingStatus(Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage))
+                : await _idempotenceService.ProcessingStatusAsync(Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage)));
         }
     }
 }
