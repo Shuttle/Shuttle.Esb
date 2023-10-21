@@ -100,7 +100,7 @@ public class DistributorMessageObserverFixture
             await pipeline.ExecuteAsync(CancellationToken.None);
         }
 
-        workerAvailabilityService.Verify(m=> m.ReturnAvailableWorker(availableWorker));
+        workerAvailabilityService.Verify(m=> m.ReturnAvailableWorker(availableWorker), Times.Once);
         workerAvailabilityService.VerifyNoOtherCalls();
     }
 }

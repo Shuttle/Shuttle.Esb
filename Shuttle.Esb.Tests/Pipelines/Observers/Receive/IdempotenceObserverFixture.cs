@@ -121,13 +121,13 @@ public class IdempotenceObserverFixture
         {
             pipeline.Execute();
 
-            idempotenceService.Verify(m => m.MessageHandled(transportMessage));
+            idempotenceService.Verify(m => m.MessageHandled(transportMessage), Times.Once);
         }
         else
         {
             await pipeline.ExecuteAsync();
 
-            idempotenceService.Verify(m => m.MessageHandledAsync(transportMessage));
+            idempotenceService.Verify(m => m.MessageHandledAsync(transportMessage), Times.Once);
         }
 
         idempotenceService.VerifyNoOtherCalls();

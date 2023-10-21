@@ -115,23 +115,35 @@ public class DeferTransportMessageObserverFixture
         {
             pipeline.Execute();
 
-            workQueue.Verify(m => m.IsStream);
-            workQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()));
-            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken));
+            workQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
+            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
         }
         else
         {
             await pipeline.ExecuteAsync();
 
-            workQueue.Verify(m => m.IsStream);
-            workQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()));
-            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken));
+            workQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
+            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
         }
+
+        workQueue.Verify(m => m.IsStream, Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
 
         workQueue.VerifyNoOtherCalls();
         deferredMessageProcessor.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_defer_message_to_deferred_queue()
+    {
+        Should_be_able_to_defer_message_to_deferred_queue_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_defer_message_to_deferred_queue_async()
+    {
+        await Should_be_able_to_defer_message_to_deferred_queue_async(false);
     }
 
     private async Task Should_be_able_to_defer_message_to_deferred_queue_async(bool sync)
@@ -155,26 +167,31 @@ public class DeferTransportMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetReceivedMessage(receivedMessage);
         pipeline.State.SetWorkQueue(workQueue.Object);
-        pipeline.State.SetDeferredQueue(workQueue.Object);
+        pipeline.State.SetDeferredQueue(deferredQueue.Object);
 
         if (sync)
         {
             pipeline.Execute();
 
-            deferredQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()));
-            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken));
+            deferredQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
+            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
+            deferredMessageProcessor.Verify(m => m.MessageDeferred(It.IsAny<DateTime>()), Times.Once);
         }
         else
         {
             await pipeline.ExecuteAsync();
 
-            deferredQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()));
-            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken));
+            deferredQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
+            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
+            deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTime>()), Times.Once);
         }
 
+        workQueue.Verify(m => m.IsStream, Times.Once);
+        
         Assert.That(pipeline.Aborted, Is.True);
 
         workQueue.VerifyNoOtherCalls();
+        deferredQueue.VerifyNoOtherCalls();
         deferredMessageProcessor.VerifyNoOtherCalls();
     }
 }

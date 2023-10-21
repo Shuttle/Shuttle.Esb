@@ -85,13 +85,13 @@ public class AcknowledgeMessageObserverFixture
         {
             pipeline.Execute();
 
-            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken));
+            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
         }
         else
         {
             await pipeline.ExecuteAsync();
 
-            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken));
+            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
         }
 
         workQueue.VerifyNoOtherCalls();

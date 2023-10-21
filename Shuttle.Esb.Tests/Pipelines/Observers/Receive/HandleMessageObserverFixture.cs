@@ -121,7 +121,7 @@ public class HandleMessageObserverFixture
 
             pipeline.Execute();
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
         }
         else
         {
@@ -129,7 +129,7 @@ public class HandleMessageObserverFixture
 
             await pipeline.ExecuteAsync();
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.True);
@@ -195,8 +195,8 @@ public class HandleMessageObserverFixture
 
             messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
 
-            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()));
-            serializer.Verify(m => m.Serialize(transportMessage));
+            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
+            serializer.Verify(m => m.Serialize(transportMessage), Times.Once);
         }
         else
         {
@@ -206,7 +206,7 @@ public class HandleMessageObserverFixture
 
             messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
 
-            errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()));
+            errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
             serializer.Verify(m => m.SerializeAsync(transportMessage));
         }
 
@@ -269,7 +269,7 @@ public class HandleMessageObserverFixture
 
             pipeline.Execute();
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
         }
         else
         {
@@ -277,7 +277,7 @@ public class HandleMessageObserverFixture
 
             await pipeline.ExecuteAsync();
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
@@ -339,7 +339,7 @@ public class HandleMessageObserverFixture
 
             Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
         }
         else
         {
@@ -347,7 +347,7 @@ public class HandleMessageObserverFixture
 
             Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
