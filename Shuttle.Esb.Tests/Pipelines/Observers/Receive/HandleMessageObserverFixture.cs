@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -27,7 +29,7 @@ public class HandleMessageObserverFixture
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
 
-        var observer = new HandleMessageObserver(Microsoft.Extensions.Options.Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = new Pipeline()
             .RegisterObserver(observer);
@@ -81,23 +83,23 @@ public class HandleMessageObserverFixture
     }
 
     [Test]
-    public void Should_be_able_to_handle_successful_invoke()
+    public void Should_be_able_to_execute_successful_invoke()
     {
-        Should_be_able_to_handle_successful_invoke_async(true).GetAwaiter().GetResult();
+        Should_be_able_to_execute_successful_invoke_async(true).GetAwaiter().GetResult();
     }
 
     [Test]
-    public async Task Should_be_able_to_handle_successful_invoke_async()
+    public async Task Should_be_able_to_execute_successful_invoke_async()
     {
-        await Should_be_able_to_handle_successful_invoke_async(false);
+        await Should_be_able_to_execute_successful_invoke_async(false);
     }
 
-    private async Task Should_be_able_to_handle_successful_invoke_async(bool sync)
+    private async Task Should_be_able_to_execute_successful_invoke_async(bool sync)
     {
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
 
-        var observer = new HandleMessageObserver(Microsoft.Extensions.Options.Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = new Pipeline()
             .RegisterObserver(observer);
@@ -131,6 +133,226 @@ public class HandleMessageObserverFixture
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.True);
+
+        messageHandlerInvoker.VerifyNoOtherCalls();
+        serializer.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void Should_be_able_to_execute_missing_handler()
+    {
+        Should_be_able_to_execute_missing_handler_async(false).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_execute_missing_handler_async()
+    {
+        await Should_be_able_to_execute_missing_handler_async(true);
+    }
+
+    private async Task Should_be_able_to_execute_missing_handler_async(bool sync)
+    {
+        var errorQueue = new Mock<IQueue>();
+        var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
+        var serializer = new Mock<ISerializer>();
+        var messageNotHandledCount = 0;
+        var handlerExceptionCount = 0;
+
+        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+
+        observer.MessageNotHandled += (sender, args) =>
+        {
+            messageNotHandledCount++;
+        };
+
+        observer.HandlerException += (sender, args) =>
+        {
+            handlerExceptionCount++;
+        };
+
+        errorQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://configuration/name"));
+
+        var pipeline = new Pipeline()
+            .RegisterObserver(observer);
+
+        pipeline
+            .RegisterStage(".")
+            .WithEvent<OnHandleMessage>();
+
+        var transportMessage = new TransportMessage();
+        var message = new object();
+
+        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
+        pipeline.State.SetTransportMessage(transportMessage);
+        pipeline.State.SetMessage(message);
+        pipeline.State.SetErrorQueue(errorQueue.Object);
+
+        if (sync)
+        {
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+
+            pipeline.Execute();
+
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+
+            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()));
+            serializer.Verify(m => m.Serialize(transportMessage));
+        }
+        else
+        {
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+
+            await pipeline.ExecuteAsync();
+
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+
+            errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()));
+            serializer.Verify(m => m.SerializeAsync(transportMessage));
+        }
+
+        Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
+        Assert.That(messageNotHandledCount, Is.EqualTo(1));
+        Assert.That(handlerExceptionCount, Is.Zero);
+
+        messageHandlerInvoker.VerifyNoOtherCalls();
+        serializer.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void Should_be_able_to_remove_messages_not_handled()
+    {
+        Should_be_able_to_remove_messages_not_handled_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_remove_messages_not_handled_async()
+    {
+        await Should_be_able_to_remove_messages_not_handled_async(false);
+    }
+
+    private async Task Should_be_able_to_remove_messages_not_handled_async(bool sync)
+    {
+        var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
+        var serializer = new Mock<ISerializer>();
+        var messageNotHandledCount = 0;
+        var handlerExceptionCount = 0;
+
+        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions { RemoveMessagesNotHandled = true }), messageHandlerInvoker.Object, serializer.Object);
+
+        observer.MessageNotHandled += (sender, args) =>
+        {
+            messageNotHandledCount++;
+        };
+
+        observer.HandlerException += (sender, args) =>
+        {
+            handlerExceptionCount++;
+        };
+
+        var pipeline = new Pipeline()
+            .RegisterObserver(observer);
+
+        pipeline
+            .RegisterStage(".")
+            .WithEvent<OnHandleMessage>();
+
+        var transportMessage = new TransportMessage();
+        var message = new object();
+
+        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
+        pipeline.State.SetTransportMessage(transportMessage);
+        pipeline.State.SetMessage(message);
+
+        if (sync)
+        {
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+
+            pipeline.Execute();
+
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+        }
+        else
+        {
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+
+            await pipeline.ExecuteAsync();
+
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+        }
+
+        Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
+        Assert.That(messageNotHandledCount, Is.EqualTo(1));
+        Assert.That(handlerExceptionCount, Is.Zero);
+
+        messageHandlerInvoker.VerifyNoOtherCalls();
+        serializer.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public void Should_fail_on_missing_error_queue()
+    {
+        Should_fail_on_missing_error_queue_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_fail_on_missing_error_queue_async()
+    {
+        await Should_fail_on_missing_error_queue_async(false);
+    }
+
+    private async Task Should_fail_on_missing_error_queue_async(bool sync)
+    {
+        var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
+        var serializer = new Mock<ISerializer>();
+        var messageNotHandledCount = 0;
+        var handlerExceptionCount = 0;
+
+        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+
+        observer.MessageNotHandled += (sender, args) =>
+        {
+            messageNotHandledCount++;
+        };
+
+        observer.HandlerException += (sender, args) =>
+        {
+            handlerExceptionCount++;
+        };
+
+        var pipeline = new Pipeline()
+            .RegisterObserver(observer);
+
+        pipeline
+            .RegisterStage(".")
+            .WithEvent<OnHandleMessage>();
+
+        var transportMessage = new TransportMessage();
+        var message = new object();
+
+        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
+        pipeline.State.SetTransportMessage(transportMessage);
+        pipeline.State.SetMessage(message);
+
+        if (sync)
+        {
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+
+            Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
+
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+        }
+        else
+        {
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+
+            Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
+
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+        }
+
+        Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
+        Assert.That(messageNotHandledCount, Is.EqualTo(1));
+        Assert.That(handlerExceptionCount, Is.EqualTo(1));
 
         messageHandlerInvoker.VerifyNoOtherCalls();
         serializer.VerifyNoOtherCalls();

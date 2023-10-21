@@ -160,6 +160,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No handler has been registered for message type &apos;{0}&apos;.  The message (id &apos;{1}&apos;) could not be moved to the error queue as no error queue has been set in the pipeline state..
+        /// </summary>
+        public static string MessageNotHandledMissingErrorQueueFailure {
+            get {
+                return ResourceManager.GetString("MessageNotHandledMissingErrorQueueFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message of type &apos;{0}&apos; has been routed to more than one endpoint: {1}.
         /// </summary>
         public static string MessageRoutedToMoreThanOneEndpoint {

@@ -240,4 +240,8 @@
     <value>The service bus is running in '{0}' mode.  To stop please call the '{1}' method.</value>
     <comment>0 = mode, 1 = stop method name</comment>
   </data>
+  <data name="MessageNotHandledMissingErrorQueueFailure" xml:space="preserve">
+    <value>No handler has been registered for message type '{0}'.  The message (id '{1}') could not be moved to the error queue as no error queue has been set in the pipeline state.</value>
+    <comment>0 = full type name of the discarded message, 1= message id</comment>
+  </data>
 </root>

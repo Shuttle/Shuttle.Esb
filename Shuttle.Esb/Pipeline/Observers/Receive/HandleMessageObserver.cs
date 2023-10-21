@@ -88,14 +88,12 @@ namespace Shuttle.Esb
                     return;
                 }
 
-                var failure = string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString());
-
                 if (errorQueue == null)
                 {
-                    throw new InvalidOperationException(failure);
+                    throw new InvalidOperationException(string.Format(Resources.MessageNotHandledMissingErrorQueueFailure, message.GetType().FullName, transportMessage.MessageId));
                 }
 
-                transportMessage.RegisterFailure(failure);
+                transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString()));
 
                 if (sync)
                 {
