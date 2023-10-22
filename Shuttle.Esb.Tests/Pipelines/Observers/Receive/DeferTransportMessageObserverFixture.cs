@@ -135,7 +135,7 @@ public class DeferTransportMessageObserverFixture
     }
 
     [Test]
-    public async Task Should_be_able_to_defer_message_to_deferred_queue()
+    public void Should_be_able_to_defer_message_to_deferred_queue()
     {
         Should_be_able_to_defer_message_to_deferred_queue_async(true).GetAwaiter().GetResult();
     }

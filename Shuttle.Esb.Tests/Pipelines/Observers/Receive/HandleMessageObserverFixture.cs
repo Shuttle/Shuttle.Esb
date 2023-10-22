@@ -356,5 +356,7 @@ public class HandleMessageObserverFixture
 
         messageHandlerInvoker.VerifyNoOtherCalls();
         serializer.VerifyNoOtherCalls();
+
+        await Task.CompletedTask;
     }
 }
