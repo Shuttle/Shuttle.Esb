@@ -4,6 +4,6 @@ namespace Shuttle.Esb
 {
     public interface IAsyncMessageHandler<in T> where T : class
     {
-        Task ProcessMessage(IHandlerContext<T> context);
+        Task ProcessMessageAsync(IHandlerContext<T> context);
     }
 }

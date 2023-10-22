@@ -4,7 +4,9 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class WorkerAvailableHandler : IAsyncMessageHandler<WorkerThreadAvailableCommand>
+    public class WorkerAvailableHandler :
+        IMessageHandler<WorkerThreadAvailableCommand>,
+        IAsyncMessageHandler<WorkerThreadAvailableCommand>
     {
         private readonly IWorkerAvailabilityService _workerAvailabilityService;
         private readonly ServiceBusOptions _serviceBusOptions;
@@ -19,7 +21,7 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public async Task ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
+        private async Task ProcessMessageAsync(IHandlerContext<WorkerThreadAvailableCommand> context, bool sync)
         {
             var distributeSendCount = _serviceBusOptions.Inbox.DistributeSendCount > 0
                 ? _serviceBusOptions.Inbox.DistributeSendCount
@@ -33,6 +35,11 @@ namespace Shuttle.Esb
             }
 
             await Task.CompletedTask.ConfigureAwait(false);
+        }
+
+        public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -34,18 +34,18 @@ namespace Shuttle.Esb.Tests
             public bool Replied { get; set; }
         }
 
-        public class AsyncMessageHandler : IAsyncMessageHandler<Message>
+        public class MessageHandler : IMessageHandler<Message>, IAsyncMessageHandler<Message>
         {
             private readonly IMessageHandlerTracker _messageHandlerTracker;
 
-            public AsyncMessageHandler(IMessageHandlerTracker messageHandlerTracker)
+            public MessageHandler(IMessageHandlerTracker messageHandlerTracker)
             {
                 Guard.AgainstNull(messageHandlerTracker, nameof(messageHandlerTracker));
 
                 _messageHandlerTracker = messageHandlerTracker;
             }
 
-            public async Task ProcessMessage(IHandlerContext<Message> context)
+            private async Task ProcessMessageAsync(IHandlerContext<Message> context, bool sync)
             {
                 Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
@@ -58,14 +58,38 @@ namespace Shuttle.Esb.Tests
                     return;
                 }
 
-                await context.Send(new Message
+                if (sync)
                 {
-                    Replied = true,
-                    Name = $"replied-{context.Message.Count}"
-                }, builder =>
+                    context.Send(new Message
+                    {
+                        Replied = true,
+                        Name = $"replied-{context.Message.Count}"
+                    }, builder =>
+                    {
+                        builder.Reply();
+                    });
+                }
+                else
                 {
-                    builder.Reply();
-                });
+                    await context.SendAsync(new Message
+                    {
+                        Replied = true,
+                        Name = $"replied-{context.Message.Count}"
+                    }, builder =>
+                    {
+                        builder.Reply();
+                    });
+                }
+            }
+
+            public async Task ProcessMessageAsync(IHandlerContext<Message> context)
+            {
+                await ProcessMessageAsync(context, false);
+            }
+
+            public void ProcessMessage(IHandlerContext<Message> context)
+            {
+                ProcessMessageAsync(context, true).GetAwaiter().GetResult();
             }
         }
 
@@ -116,6 +140,8 @@ namespace Shuttle.Esb.Tests
 
             var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
+            DateTime timeout;
+
             if (sync)
             {
                 using (var serviceBus = serviceProvider.GetRequiredService<IServiceBus>().Start())
@@ -129,15 +155,13 @@ namespace Shuttle.Esb.Tests
                         });
                     }
 
-                    var timeout = DateTime.Now.AddSeconds(5);
+                    timeout = DateTime.Now.AddSeconds(5);
 
                     while (messageHandlerTracker.HandledCount < (count * 2) &&
                            DateTime.Now < timeout)
                     {
                         Thread.Sleep(25);
                     }
-
-                    Assert.That(timeout > DateTime.Now);
                 }
             }
             else
@@ -153,17 +177,17 @@ namespace Shuttle.Esb.Tests
                         });
                     }
 
-                    var timeout = DateTime.Now.AddSeconds(5);
+                    timeout = DateTime.Now.AddSeconds(5);
 
                     while (messageHandlerTracker.HandledCount < (count * 2) &&
                            DateTime.Now < timeout)
                     {
                         Thread.Sleep(25);
                     }
-
-                    Assert.That(timeout > DateTime.Now);
                 }
             }
+
+            Assert.That(timeout > DateTime.Now, "Timed out before all messages were");
         }
     }
 }

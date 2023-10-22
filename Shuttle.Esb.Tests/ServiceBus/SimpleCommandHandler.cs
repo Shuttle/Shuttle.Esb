@@ -6,7 +6,7 @@ namespace Shuttle.Esb.Tests
 {
     public class SimpleCommandHandler : IAsyncMessageHandler<SimpleCommand>
     {
-        public async Task ProcessMessage(IHandlerContext<SimpleCommand> context)
+        public async Task ProcessMessageAsync(IHandlerContext<SimpleCommand> context)
         {
             Console.WriteLine($@"Handled SimpleCommand with name '{context.Message.Name}.");
 

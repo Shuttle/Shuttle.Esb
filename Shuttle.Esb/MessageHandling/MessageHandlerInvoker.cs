@@ -36,20 +36,18 @@ namespace Shuttle.Esb
 
         public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
         {
-            throw new NotImplementedException();
+            return InvokeAsync(pipelineEvent, true).GetAwaiter().GetResult();
         }
 
-        public Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent)
+        public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent)
         {
-            throw new NotImplementedException();
+            return await InvokeAsync(pipelineEvent, false);
         }
 
         private async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent, bool sync)
         {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
-
-            var state = pipelineEvent.Pipeline.State;
-            var message = state.GetMessage();
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
             var messageType = message.GetType();
             var handler = GetHandler(messageType);
 
@@ -58,7 +56,7 @@ namespace Shuttle.Esb
                 return MessageHandlerInvokeResult.MissingHandler();
             }
 
-            var transportMessage = state.GetTransportMessage();
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
 
             try
             {

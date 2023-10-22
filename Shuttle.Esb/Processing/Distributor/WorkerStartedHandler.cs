@@ -14,7 +14,7 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        public async Task ProcessMessage(IHandlerContext<WorkerStartedEvent> context)
+        public async Task ProcessMessageAsync(IHandlerContext<WorkerStartedEvent> context)
         {
             _workerAvailabilityService.WorkerStarted(context.Message);
 

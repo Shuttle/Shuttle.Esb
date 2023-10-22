@@ -28,12 +28,22 @@ namespace Shuttle.Esb
         public CancellationToken CancellationToken { get; }
         public ExceptionHandling ExceptionHandling { get; } = new ExceptionHandling();
 
-        public async Task<TransportMessage> Send(object message, Action<TransportMessageBuilder> builder = null)
+        public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
             return await _messageSender.SendAsync(message, TransportMessage, builder).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<TransportMessage>> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            return _messageSender.Publish(message, TransportMessage, builder);
+        }
+
+        public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            return _messageSender.Send(message, TransportMessage, builder);
+        }
+
+        public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
             return await _messageSender.PublishAsync(message, TransportMessage, builder).ConfigureAwait(false);
         }
