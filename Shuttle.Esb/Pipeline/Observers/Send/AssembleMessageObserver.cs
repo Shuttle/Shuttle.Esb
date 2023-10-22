@@ -33,14 +33,10 @@ namespace Shuttle.Esb
 
         public void Execute(OnAssembleMessage pipelineEvent)
         {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
-
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var builder = state.GetTransportMessageBuilder();
-            var message = state.GetMessage();
+            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
             var transportMessageReceived = state.GetTransportMessageReceived();
-
-            Guard.AgainstNull(message, nameof(message));
 
             var identity = _identityProvider.Get();
 
