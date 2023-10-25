@@ -9,10 +9,5 @@ namespace Shuttle.Esb
         void WorkerAvailable(WorkerThreadAvailableCommand message);
         void WorkerStarted(WorkerStartedEvent message);
         void RemoveByThread(WorkerThreadAvailableCommand message);
-        Task<AvailableWorker> GetAvailableWorkerAsync();
-        Task ReturnAvailableWorkerAsync(AvailableWorker availableWorker);
-        Task WorkerAvailableAsync(WorkerThreadAvailableCommand message);
-        Task WorkerStartedAsyncAsync(WorkerStartedEvent message);
-        Task RemoveByThread(WorkerThreadAvailableCommand message);
     }
 }

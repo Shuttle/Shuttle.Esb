@@ -21,8 +21,10 @@ namespace Shuttle.Esb
             _workerAvailabilityService = workerAvailabilityService;
         }
 
-        private async Task ProcessMessageAsync(IHandlerContext<WorkerThreadAvailableCommand> context, bool sync)
+        public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
+            Guard.AgainstNull(context, nameof(context));
+
             var distributeSendCount = _serviceBusOptions.Inbox.DistributeSendCount > 0
                 ? _serviceBusOptions.Inbox.DistributeSendCount
                 : 5;
@@ -33,13 +35,13 @@ namespace Shuttle.Esb
             {
                 _workerAvailabilityService.WorkerAvailable(context.Message);
             }
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
 
-        public void ProcessMessage(IHandlerContext<WorkerThreadAvailableCommand> context)
+        public async Task ProcessMessageAsync(IHandlerContext<WorkerThreadAvailableCommand> context)
         {
-            throw new System.NotImplementedException();
+            ProcessMessage(context);
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
