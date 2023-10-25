@@ -1,4 +1,4 @@
-﻿namespace Shuttle.Esb.Tests.Messages
+﻿namespace OtherNamespace
 {
     public class OtherNamespaceCommand
     {

@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
-using Shuttle.Esb.Tests.Messages;
 
 namespace Shuttle.Esb.Tests;
 

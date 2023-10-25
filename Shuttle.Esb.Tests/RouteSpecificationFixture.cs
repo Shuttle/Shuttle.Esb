@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Shuttle.Esb.Tests.Messages;
+using OtherNamespace;
 
 namespace Shuttle.Esb.Tests
 {

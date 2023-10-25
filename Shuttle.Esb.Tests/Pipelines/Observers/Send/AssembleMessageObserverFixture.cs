@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
-using Shuttle.Esb.Tests.Messages;
 
 namespace Shuttle.Esb.Tests;
 
