@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
@@ -35,8 +36,15 @@ namespace Shuttle.Esb
             }
         }
 
+        public async Task<IEnumerable<string>> GetRouteUrisAsync(string messageType)
+        {
+            return await Task.FromResult(GetRouteUris(messageType));
+        }
+
         public IEnumerable<string> GetRouteUris(string messageType)
         {
+            Guard.AgainstNullOrEmptyString(messageType, nameof(messageType));
+
             var uri =
                 _messageRoutes.FindAll(messageType).Select(messageRoute => messageRoute.Uri.ToString())
                     .FirstOrDefault();

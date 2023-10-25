@@ -22,15 +22,27 @@ namespace Shuttle.Esb
 
         public void Execute(OnFindRouteForMessage pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        private async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent, bool sync)
+        {
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
 
             if (!string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
             {
                 return;
             }
 
-            var routeUris = _messageRouteProvider.GetRouteUris(transportMessage.MessageType).ToList();
+            var routeUris = (sync
+                ? _messageRouteProvider.GetRouteUris(transportMessage.MessageType)
+                : await _messageRouteProvider.GetRouteUrisAsync(transportMessage.MessageType)).ToList();
 
             if (!routeUris.Any())
             {
@@ -43,13 +55,6 @@ namespace Shuttle.Esb
             }
 
             transportMessage.RecipientInboxWorkQueueUri = routeUris.ElementAt(0);
-        }
-
-        public async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent)
-        {
-            Execute(pipelineEvent);
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
