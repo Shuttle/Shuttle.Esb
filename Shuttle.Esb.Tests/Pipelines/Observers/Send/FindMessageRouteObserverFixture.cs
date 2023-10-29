@@ -192,8 +192,6 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        Core.Pipelines.PipelineException exception;
-
         if (sync)
         {
             pipeline.Execute();
