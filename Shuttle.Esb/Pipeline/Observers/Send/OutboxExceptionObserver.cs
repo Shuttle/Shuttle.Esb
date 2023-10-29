@@ -46,16 +46,18 @@ namespace Shuttle.Esb
 
                     if (transportMessage == null)
                     {
-                        if (receivedMessage != null)
+                        if (receivedMessage == null)
                         {
-                            if (sync)
-                            {
-                                workQueue.Release(receivedMessage.AcknowledgementToken);
-                            }
-                            else
-                            {
-                                await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                            }
+                            return;
+                        }
+
+                        if (sync)
+                        {
+                            workQueue.Release(receivedMessage.AcknowledgementToken);
+                        }
+                        else
+                        {
+                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                         }
 
                         return;
