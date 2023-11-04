@@ -67,8 +67,7 @@ namespace Shuttle.Esb
                     {
                         var action = _policy.EvaluateOutboxFailure(pipelineEvent);
 
-                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(),
-                            action.TimeSpanToIgnoreRetriedMessage);
+                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
 
                         if (sync)
                         {
