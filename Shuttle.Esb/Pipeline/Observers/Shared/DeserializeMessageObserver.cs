@@ -35,14 +35,13 @@ namespace Shuttle.Esb
             await ExecuteAsync(pipelineEvent, false);
         }
 
+        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
+
         private async Task ExecuteAsync(OnDeserializeMessage pipelineEvent, bool sync)
         {
             var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
 
-            Guard.AgainstNull(state.GetTransportMessage(), "transportMessage");
-            Guard.AgainstNull(state.GetWorkQueue(), "workQueue");
-
-            var transportMessage = state.GetTransportMessage();
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
 
             object message;
 
@@ -53,34 +52,34 @@ namespace Shuttle.Esb
                 using (var stream = new MemoryStream(data, 0, data.Length, false, true))
                 {
                     message = sync
-                    ? _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream)
-                    : await _serializer.DeserializeAsync(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream).ConfigureAwait(false);
+                        ? _serializer.Deserialize(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream)
+                        : await _serializer.DeserializeAsync(Type.GetType(transportMessage.AssemblyQualifiedName, true, true), stream).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                MessageDeserializationException?.Invoke(this,
-                    new DeserializationExceptionEventArgs(pipelineEvent, state.GetWorkQueue(), state.GetErrorQueue(), ex));
+                var workQueue = state.GetWorkQueue();
+                var errorQueue = state.GetErrorQueue();
+                var receivedMessage = state.GetReceivedMessage();
 
-                if (state.GetWorkQueue() == null)
+                MessageDeserializationException?.Invoke(this, new DeserializationExceptionEventArgs(pipelineEvent, workQueue, errorQueue, ex));
+
+                if (workQueue == null || errorQueue == null || receivedMessage == null || workQueue.IsStream)
                 {
                     throw;
                 }
 
-                if (!state.GetWorkQueue().IsStream)
-                {
-                    transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
+                transportMessage.RegisterFailure(ex.AllMessages(), new TimeSpan());
 
-                    if (sync)
-                    {
-                        state.GetErrorQueue().Enqueue(transportMessage, await _serializer.SerializeAsync(transportMessage));
-                        state.GetWorkQueue().Acknowledge(state.GetReceivedMessage().AcknowledgementToken);
-                    }
-                    else
-                    {
-                        await state.GetErrorQueue().EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
-                        await state.GetWorkQueue().AcknowledgeAsync(state.GetReceivedMessage().AcknowledgementToken).ConfigureAwait(false);
-                    }
+                if (sync)
+                {
+                    errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
+                    workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+                }
+                else
+                {
+                    await errorQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
+                    await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                 }
 
                 state.SetTransactionComplete();
@@ -91,7 +90,5 @@ namespace Shuttle.Esb
 
             state.SetMessage(message);
         }
-
-        public event EventHandler<DeserializationExceptionEventArgs> MessageDeserializationException;
     }
 }
