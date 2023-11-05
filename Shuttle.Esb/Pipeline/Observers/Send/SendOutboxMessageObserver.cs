@@ -23,11 +23,9 @@ namespace Shuttle.Esb
         private async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent, bool sync)
         {
             var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
-            var receivedMessage = state.GetReceivedMessage();
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
 
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
             Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, nameof(transportMessage.RecipientInboxWorkQueueUri));
 
             var queue = _queueService.Get(transportMessage.RecipientInboxWorkQueueUri);
