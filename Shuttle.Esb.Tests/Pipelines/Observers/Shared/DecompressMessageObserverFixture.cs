@@ -7,25 +7,25 @@ using Shuttle.Core.Pipelines;
 namespace Shuttle.Esb.Tests;
 
 [TestFixture]
-public class CompressMessageObserverFixture
+public class DecompressMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_skip_when_compression_is_not_required()
+    public void Should_be_able_to_skip_when_decompression_is_not()
     {
-        Should_be_able_to_skip_when_compression_is_not_required_async(true).GetAwaiter().GetResult();
+        Should_be_able_to_skip_when_compression_is_not_required(true).GetAwaiter().GetResult();
     }
 
     [Test]
-    public async Task Should_be_able_to_skip_when_compression_is_not_required_async()
+    public async Task Should_be_able_to_skip_when_compression_is_not_required()
     {
-        await Should_be_able_to_skip_when_compression_is_not_required_async(false);
+        await Should_be_able_to_skip_when_compression_is_not_required(false);
     }
 
-    private async Task Should_be_able_to_skip_when_compression_is_not_required_async(bool sync)
+    private async Task Should_be_able_to_skip_when_compression_is_not_required(bool sync)
     {
         var compressionService = new Mock<ICompressionService>();
 
-        var observer = new CompressMessageObserver(compressionService.Object);
+        var observer = new DecompressMessageObserver(compressionService.Object);
 
         var pipeline = new Pipeline()
             .RegisterObserver(observer);
@@ -65,7 +65,7 @@ public class CompressMessageObserverFixture
         var compressionAlgorithm = new Mock<ICompressionAlgorithm>();
         var compressionService = new Mock<ICompressionService>();
 
-        var observer = new CompressMessageObserver(compressionService.Object);
+        var observer = new DecompressMessageObserver(compressionService.Object);
 
         var pipeline = new Pipeline()
             .RegisterObserver(observer);
