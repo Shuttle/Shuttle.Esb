@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
@@ -41,8 +40,8 @@ namespace Shuttle.Esb
             }
 
             transportMessage.Message = sync
-            ? _encryptionService.Decrypt(transportMessage.EncryptionAlgorithm, transportMessage.Message)
-            : await _encryptionService.DecryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message).ConfigureAwait(false);
+                ? _encryptionService.Decrypt(transportMessage.EncryptionAlgorithm, transportMessage.Message)
+                : await _encryptionService.DecryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message).ConfigureAwait(false);
         }
     }
 }
