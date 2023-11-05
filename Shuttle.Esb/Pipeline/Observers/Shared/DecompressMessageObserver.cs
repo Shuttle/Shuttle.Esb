@@ -22,7 +22,7 @@ namespace Shuttle.Esb
 
         public void Execute(OnDecompressMessage pipelineEvent)
         {
-            ExecuteAsync(pipelineEvent).GetAwaiter().GetResult();
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
         }
 
         public async Task ExecuteAsync(OnDecompressMessage pipelineEvent)
