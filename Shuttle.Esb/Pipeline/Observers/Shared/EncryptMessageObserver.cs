@@ -22,7 +22,7 @@ namespace Shuttle.Esb
 
         private async Task ExecuteAsync(OnEncryptMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
             if (!transportMessage.EncryptionEnabled())
