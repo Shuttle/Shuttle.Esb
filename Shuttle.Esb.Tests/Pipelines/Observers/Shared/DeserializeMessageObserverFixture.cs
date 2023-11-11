@@ -54,7 +54,7 @@ public class DeserializeMessageObserverFixture
     }
 
     [Test]
-    public async Task Should_be_able_to_deserialize_message()
+    public void Should_be_able_to_deserialize_message()
     {
         Should_be_able_to_deserialize_message_async(true).GetAwaiter().GetResult();
     }
