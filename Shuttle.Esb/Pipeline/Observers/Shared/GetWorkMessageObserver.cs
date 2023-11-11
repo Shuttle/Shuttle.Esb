@@ -12,10 +12,8 @@ namespace Shuttle.Esb
     {
         private async Task ExecuteAsync(OnGetMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var queue = state.GetWorkQueue();
-
-            Guard.AgainstNull(queue, nameof(queue));
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var queue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
 
             var receivedMessage = sync
                 ? queue.GetMessage()
