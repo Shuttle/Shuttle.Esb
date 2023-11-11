@@ -24,8 +24,8 @@ namespace Shuttle.Esb
         private async Task ExecuteAsync(OnSerializeMessage pipelineEvent, bool sync)
         {
             var state = Guard.AgainstNull(pipelineEvent,nameof(pipelineEvent)).Pipeline.State;
-            var message = state.GetMessage();
-            var transportMessage = state.GetTransportMessage();
+            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
 
             if (sync)
             {
