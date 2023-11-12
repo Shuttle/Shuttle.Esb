@@ -17,8 +17,8 @@ namespace Shuttle.Esb
         bool IsStream { get; }
         bool IsEmpty();
         ValueTask<bool> IsEmptyAsync();
-        void Enqueue(TransportMessage message, Stream stream);
-        Task EnqueueAsync(TransportMessage message, Stream stream);
+        void Enqueue(TransportMessage transportMessage, Stream stream);
+        Task EnqueueAsync(TransportMessage transportMessage, Stream stream);
         ReceivedMessage GetMessage();
         Task<ReceivedMessage> GetMessageAsync();
         void Acknowledge(object acknowledgementToken);

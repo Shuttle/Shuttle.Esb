@@ -36,23 +36,23 @@ public class MemoryQueue : IQueue
         return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
     }
 
-    public void Enqueue(TransportMessage message, Stream stream)
+    public void Enqueue(TransportMessage transportMessage, Stream stream)
     {
         var copy = stream.Copy();
 
         lock (_lock)
         {
-            _queue.Enqueue(new Message(message, copy));
+            _queue.Enqueue(new Message(transportMessage, copy));
         }
     }
 
-    public async Task EnqueueAsync(TransportMessage message, Stream stream)
+    public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
     {
         var copy = await stream.CopyAsync().ConfigureAwait(false);
 
         lock (_lock)
         {
-            _queue.Enqueue(new Message(message, copy));
+            _queue.Enqueue(new Message(transportMessage, copy));
         }
     }
 

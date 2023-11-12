@@ -29,7 +29,7 @@ public class NullQueue : IQueue
         return await Task.FromResult(IsEmpty());
     }
 
-    public void Enqueue(TransportMessage message, Stream stream)
+    public void Enqueue(TransportMessage transportMessage, Stream stream)
     {
     }
 

@@ -32,11 +32,11 @@ public class FakeQueue : IQueue
         return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
     }
 
-    public void Enqueue(TransportMessage message, Stream stream)
+    public void Enqueue(TransportMessage transportMessage, Stream stream)
     {
     }
 
-    public async Task EnqueueAsync(TransportMessage message, Stream stream)
+    public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
     {
         await Task.CompletedTask.ConfigureAwait(false);
     }

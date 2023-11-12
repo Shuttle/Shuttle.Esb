@@ -83,9 +83,9 @@ namespace Shuttle.Esb
             return _queue.IsEmptyAsync();
         }
 
-        public void Enqueue(TransportMessage message, Stream stream)
+        public void Enqueue(TransportMessage transportMessage, Stream stream)
         {
-            _queue.Enqueue(message, stream);
+            _queue.Enqueue(transportMessage, stream);
         }
 
         public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
