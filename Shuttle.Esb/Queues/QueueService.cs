@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class QueueService : IQueueService, IDisposable
+    public class QueueService : IQueueService
     {
+        private bool _disposed;
         private static readonly object Padlock = new object();
         private readonly IQueueFactoryService _queueFactoryService;
 
@@ -24,6 +26,11 @@ namespace Shuttle.Esb
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             foreach (var queue in _queues)
             {
                 QueueDisposing.Invoke(this, new QueueEventArgs(queue));
@@ -34,6 +41,8 @@ namespace Shuttle.Esb
             }
 
             _queues.Clear();
+
+            _disposed = true;
         }
 
         public event EventHandler<QueueEventArgs> QueueCreated = delegate
@@ -101,11 +110,6 @@ namespace Shuttle.Esb
             return Find(uri) != null;
         }
 
-        public IQueue Create(Uri uri)
-        {
-            return _queueFactoryService.Get(uri.Scheme).Create(uri);
-        }
-
         private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
         {
             var result = queueFactory.Create(queueUri);
@@ -123,6 +127,13 @@ namespace Shuttle.Esb
             Guard.AgainstNull(uri, nameof(uri));
 
             return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+
+            return new ValueTask();
         }
     }
 }

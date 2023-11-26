@@ -159,20 +159,6 @@ namespace Shuttle.Esb
         public bool Started { get; private set; }
         public bool RunningAsync { get; private set; }
 
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            Stop();
-
-            _cancellationTokenSource.TryDispose();
-
-            _disposed = true;
-        }
-
         public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
@@ -249,6 +235,20 @@ namespace Shuttle.Esb
                     _serviceBusOptions.ControlInbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
             }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            Stop();
+
+            _cancellationTokenSource.TryDispose();
+
+            _disposed = true;
         }
 
         public async ValueTask DisposeAsync()

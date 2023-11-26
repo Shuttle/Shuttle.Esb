@@ -2,7 +2,7 @@ using System;
 
 namespace Shuttle.Esb
 {
-    public interface IQueueService
+    public interface IQueueService : IDisposable, IAsyncDisposable
     {
         event EventHandler<QueueEventArgs> QueueCreated;
         event EventHandler<QueueEventArgs> QueueDisposing;
