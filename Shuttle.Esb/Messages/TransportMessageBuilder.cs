@@ -35,6 +35,13 @@ namespace Shuttle.Esb
             return this;
         }
 
+        public TransportMessageBuilder WillExpire(TimeSpan fromUtcNow)
+        {
+            _transportMessage.ExpiryDate = DateTime.UtcNow.Add(fromUtcNow);
+
+            return this;
+        }
+
         public TransportMessageBuilder WithPriority(int priority)
         {
             _transportMessage.Priority = priority;

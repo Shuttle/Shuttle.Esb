@@ -75,7 +75,7 @@ namespace Shuttle.Esb
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            await ExecuteAsync(cancellationToken, false).ConfigureAwait(false);
         }
     }
 }

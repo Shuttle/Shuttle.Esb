@@ -92,8 +92,6 @@ namespace Shuttle.Esb
                 _serviceBusOptions.ProcessorThread);
 
             pipelineEvent.Pipeline.State.Add("ControlInboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         public void Execute(OnStartDeferredMessageProcessing pipelineEvent)
@@ -120,8 +118,6 @@ namespace Shuttle.Esb
                 _serviceBusOptions.ProcessorThread);
 
             pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         public void Execute(OnStartInboxProcessing pipelineEvent)
@@ -148,8 +144,6 @@ namespace Shuttle.Esb
                 _serviceBusOptions.ProcessorThread);
 
             pipelineEvent.Pipeline.State.Add("InboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         public void Execute(OnStartOutboxProcessing pipelineEvent)
@@ -176,8 +170,6 @@ namespace Shuttle.Esb
                 _serviceBusOptions.ProcessorThread);
 
             pipelineEvent.Pipeline.State.Add("OutboxThreadPool", sync ? processorThreadPool.Start() : await processorThreadPool.StartAsync());
-
-            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
