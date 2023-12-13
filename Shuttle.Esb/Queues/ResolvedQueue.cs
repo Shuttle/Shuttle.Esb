@@ -35,14 +35,9 @@ namespace Shuttle.Esb
                 MessageReleased.Invoke(sender, args);
             };
 
-            _queue.OperationStarting += (sender, args) =>
+            _queue.Operation += (sender, args) =>
             {
-                OperationStarting.Invoke(sender, args);
-            };
-
-            _queue.OperationCompleted += (sender, args) =>
-            {
-                OperationCompleted.Invoke(sender, args);
+                Operation.Invoke(sender, args);
             };
         }
 
@@ -62,11 +57,7 @@ namespace Shuttle.Esb
         {
         };
 
-        public event EventHandler<OperationEventArgs> OperationStarting = delegate
-        {
-        };
-
-        public event EventHandler<OperationEventArgs> OperationCompleted = delegate
+        public event EventHandler<OperationEventArgs> Operation = delegate
         {
         };
 

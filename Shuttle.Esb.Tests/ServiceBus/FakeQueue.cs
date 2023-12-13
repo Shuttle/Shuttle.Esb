@@ -125,11 +125,7 @@ public class FakeQueue : IQueue
     {
     };
 
-    public event EventHandler<OperationEventArgs> OperationStarting = delegate
-    {
-    };
-
-    public event EventHandler<OperationEventArgs> OperationCompleted = delegate
+    public event EventHandler<OperationEventArgs> Operation = delegate
     {
     };
 }

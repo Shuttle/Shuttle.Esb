@@ -42,14 +42,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            if (sync)
-            {
-                _lock.Wait(cancellationToken);
-            }
-            else
-            {
-                await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
-            }
+            await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -57,14 +50,7 @@ namespace Shuttle.Esb
                 {
                     try
                     {
-                        if (sync)
-                        {
-                            Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
-                        }
-                        else
-                        {
-                            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
-                        }
+                        await Task.Delay(_serviceBusOptions.Inbox.DeferredMessageProcessorWaitInterval, cancellationToken).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {

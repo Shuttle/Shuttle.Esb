@@ -26,7 +26,7 @@ namespace Shuttle.Esb
         public TransportMessage TransportMessage { get; }
         public T Message { get; }
         public CancellationToken CancellationToken { get; }
-        public ExceptionHandling ExceptionHandling { get; } = new ExceptionHandling();
+        public ExceptionHandling ExceptionHandling { get; set; } = ExceptionHandling.Default;
 
         public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
