@@ -122,25 +122,10 @@ namespace Shuttle.Esb
 
             _cancellationTokenSource.Renew();
 
-            if (_serviceBusConfiguration.HasInbox())
-            {
-                if (_serviceBusConfiguration.Inbox.HasDeferredQueue())
-                {
-                    _deferredMessageThreadPool.Dispose();
-                }
-
-                _inboxThreadPool.Dispose();
-            }
-
-            if (_serviceBusConfiguration.HasControlInbox())
-            {
-                _controlInboxThreadPool.Dispose();
-            }
-
-            if (_serviceBusConfiguration.HasOutbox())
-            {
-                _outboxThreadPool.Dispose();
-            }
+            _deferredMessageThreadPool?.Dispose();
+            _inboxThreadPool?.Dispose();
+            _controlInboxThreadPool?.Dispose();
+            _outboxThreadPool?.Dispose();
 
             if (sync)
             {

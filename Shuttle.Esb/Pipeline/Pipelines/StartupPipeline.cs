@@ -11,14 +11,10 @@ namespace Shuttle.Esb
                 .WithEvent<OnStarting>()
                 .WithEvent<OnCreatePhysicalQueues>()
                 .WithEvent<OnAfterCreatePhysicalQueues>()
-                .WithEvent<OnStartInboxProcessing>()
-                .WithEvent<OnAfterStartInboxProcessing>()
-                .WithEvent<OnStartControlInboxProcessing>()
-                .WithEvent<OnAfterStartControlInboxProcessing>()
-                .WithEvent<OnStartOutboxProcessing>()
-                .WithEvent<OnAfterStartOutboxProcessing>()
-                .WithEvent<OnStartDeferredMessageProcessing>()
-                .WithEvent<OnAfterStartDeferredMessageProcessing>();
+                .WithEvent<OnConfigureThreadPools>()
+                .WithEvent<OnAfterConfigureThreadPools>()
+                .WithEvent<OnStartThreadPools>()
+                .WithEvent<OnAfterStartThreadPools>();
 
             RegisterStage("Final")
                 .WithEvent<OnStarted>();

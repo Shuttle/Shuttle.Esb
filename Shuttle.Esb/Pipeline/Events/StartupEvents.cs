@@ -14,35 +14,19 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnStartInboxProcessing : PipelineEvent
+    public class OnConfigureThreadPools : PipelineEvent
     {
     }
 
-    public class OnAfterStartInboxProcessing : PipelineEvent
+    public class OnAfterConfigureThreadPools : PipelineEvent
+    {
+    }
+    
+    public class OnStartThreadPools : PipelineEvent
     {
     }
 
-    public class OnStartControlInboxProcessing : PipelineEvent
-    {
-    }
-
-    public class OnAfterStartControlInboxProcessing : PipelineEvent
-    {
-    }
-
-    public class OnStartOutboxProcessing : PipelineEvent
-    {
-    }
-
-    public class OnAfterStartOutboxProcessing : PipelineEvent
-    {
-    }
-
-    public class OnStartDeferredMessageProcessing : PipelineEvent
-    {
-    }
-
-    public class OnAfterStartDeferredMessageProcessing : PipelineEvent
+    public class OnAfterStartThreadPools : PipelineEvent
     {
     }
 
