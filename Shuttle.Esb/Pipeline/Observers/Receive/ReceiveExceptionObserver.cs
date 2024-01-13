@@ -112,7 +112,7 @@ namespace Shuttle.Esb
                                 }
                             }
 
-                            await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                            workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
                         }
                         else
                         {

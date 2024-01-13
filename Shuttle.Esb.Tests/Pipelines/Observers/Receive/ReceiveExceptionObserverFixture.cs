@@ -41,6 +41,7 @@ namespace Shuttle.Esb.Tests
             policy.Setup(m => m.EvaluateMessageHandlingFailure(It.IsAny<OnPipelineException>()))
                 .Returns(new MessageFailureAction(true, TimeSpan.Zero));
 
+            var workQueue = new Mock<IQueue>();
             var errorQueue = new Mock<IQueue>();
 
             errorQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://configuration/some-queue"));
@@ -57,22 +58,25 @@ namespace Shuttle.Esb.Tests
                 .WithEvent<OnException>();
 
             var transportMessage = new TransportMessage();
+            var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
 
-            pipeline.State.Add(StateKeys.ReceivedMessage, new ReceivedMessage(Stream.Null, Guid.NewGuid()));
+            pipeline.State.Add(StateKeys.ReceivedMessage, receivedMessage);
             pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
-            pipeline.State.Add(StateKeys.WorkQueue, new Mock<IQueue>().Object);
+            pipeline.State.Add(StateKeys.WorkQueue, workQueue.Object);
             pipeline.State.Add(StateKeys.ErrorQueue, errorQueue.Object);
 
             if (sync)
             {
                 pipeline.Execute(CancellationToken.None);
 
+                workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
                 errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
             }
             else
             {
                 await pipeline.ExecuteAsync(CancellationToken.None);
 
+                workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
                 errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
             }
         }
