@@ -11,8 +11,10 @@ namespace Shuttle.Esb
             throw new NotImplementedException("NullSubscriptionManager");
         }
 
-        public Task<IEnumerable<string>> GetSubscribedUrisAsync(object message)
+        public async Task<IEnumerable<string>> GetSubscribedUrisAsync(object message)
         {
+            await Task.CompletedTask;
+
             throw new NotImplementedException("NullSubscriptionManager");
         }
     }

@@ -17,8 +17,10 @@ namespace Shuttle.Esb.Tests
             throw new Exception(string.Empty, new UnrecoverableHandlerException());
         }
 
-        public Task ExecuteAsync(OnException pipelineEvent)
+        public async Task ExecuteAsync(OnException pipelineEvent)
         {
+            await Task.CompletedTask;
+
             throw new Exception(string.Empty, new UnrecoverableHandlerException());
         }
 

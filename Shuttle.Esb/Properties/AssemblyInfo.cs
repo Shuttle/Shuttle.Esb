@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyVersion("14.0.0.0")]
-[assembly: AssemblyCopyright("Copyright (c) 2023, Eben Roux")]
+[assembly: AssemblyCopyright("Copyright (c) 2024, Eben Roux")]
 [assembly: AssemblyProduct("Shuttle.Esb")]
 [assembly: AssemblyCompany("Eben Roux")]
 [assembly: AssemblyConfiguration("Release")]

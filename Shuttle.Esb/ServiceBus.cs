@@ -165,11 +165,11 @@ namespace Shuttle.Esb
             return _messageSender.Publish(message, null, builder);
         }
 
-        public Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)
+        public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
-            return _messageSender.PublishAsync(message, null, builder);
+            return await _messageSender.PublishAsync(message, null, builder);
         }
 
         private void StartedGuard()
