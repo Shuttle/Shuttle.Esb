@@ -16,32 +16,78 @@ namespace Shuttle.Esb
         private static readonly Type AsyncMessageHandlerType = typeof(IAsyncMessageHandler<>);
         private static readonly object LockGetHandler = new object();
         private static readonly object LockInvoke = new object();
-        private readonly Dictionary<Type, ContextMethodInvoker> _methodCache = new Dictionary<Type, ContextMethodInvoker>();
-        private readonly Dictionary<Type, ContextMethodInvokerAsync> _methodCacheAsync = new Dictionary<Type, ContextMethodInvokerAsync>();
         private readonly Dictionary<Type, ContextConstructorInvoker> _constructorCache = new Dictionary<Type, ContextConstructorInvoker>();
-        private readonly IServiceProvider _provider;
         private readonly IMessageSender _messageSender;
+        private readonly Dictionary<Type, ContextMethodInvoker> _methodCache = new Dictionary<Type, ContextMethodInvoker>();
+        private readonly Dictionary<Type, AsyncContextMethodInvoker> _methodCacheAsync = new Dictionary<Type, AsyncContextMethodInvoker>();
+        private readonly IServiceProvider _serviceProvider;
+        private readonly Dictionary<Type, Dictionary<int, object>> _threadAsyncHandlers = new Dictionary<Type, Dictionary<int, object>>();
 
-        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers =
-            new Dictionary<Type, Dictionary<int, object>>();
+        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new Dictionary<Type, Dictionary<int, object>>();
 
-        public MessageHandlerInvoker(IServiceProvider provider, IMessageSender messageSender)
+        public MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender)
         {
-            Guard.AgainstNull(provider, nameof(provider));
+            Guard.AgainstNull(serviceProvider, nameof(serviceProvider));
             Guard.AgainstNull(messageSender, nameof(messageSender));
 
-            _provider = provider;
+            _serviceProvider = serviceProvider;
             _messageSender = messageSender;
         }
 
-        public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+        public MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent)
         {
             return InvokeAsync(pipelineEvent, true).GetAwaiter().GetResult();
         }
 
-        public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent)
+        public async Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent)
         {
             return await InvokeAsync(pipelineEvent, false);
+        }
+
+        private object GetHandler(Type messageType, bool sync)
+        {
+            lock (LockGetHandler)
+            {
+                Dictionary<int, object> instances = null;
+
+                switch (sync)
+                {
+                    case true when !_threadHandlers.TryGetValue(messageType, out instances):
+                    {
+                        instances = new Dictionary<int, object>();
+                        _threadHandlers.Add(messageType, instances);
+                        break;
+                    }
+                    case false when !_threadAsyncHandlers.TryGetValue(messageType, out instances):
+                    {
+                        instances = new Dictionary<int, object>();
+                        _threadAsyncHandlers.Add(messageType, instances);
+                        break;
+                    }
+                }
+
+                var managedThreadId = Thread.CurrentThread.ManagedThreadId;
+
+                object handler = null;
+
+                switch (sync)
+                {
+                    case true when !instances.TryGetValue(managedThreadId, out handler):
+                    {
+                        handler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
+                        instances.Add(managedThreadId, handler);
+                        break;
+                    }
+                    case false when !instances.TryGetValue(managedThreadId, out handler):
+                    {
+                        handler = _serviceProvider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
+                        instances.Add(managedThreadId, handler);
+                        break;
+                    }
+                }
+
+                return handler;
+            }
         }
 
         private async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent, bool sync)
@@ -49,7 +95,7 @@ namespace Shuttle.Esb
             var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
             var messageType = message.GetType();
-            var handler = GetHandler(messageType);
+            var handler = GetHandler(messageType, sync);
 
             if (handler == null)
             {
@@ -61,7 +107,7 @@ namespace Shuttle.Esb
             try
             {
                 ContextMethodInvoker contextMethod = null;
-                ContextMethodInvokerAsync contextMethodAsync = null;
+                AsyncContextMethodInvoker asyncContextMethod = null;
                 ContextConstructorInvoker contextConstructor;
 
                 lock (LockInvoke)
@@ -97,7 +143,7 @@ namespace Shuttle.Esb
                         _methodCache.Add(messageType, contextMethod);
                     }
 
-                    if (!sync && !_methodCacheAsync.TryGetValue(messageType, out contextMethodAsync))
+                    if (!sync && !_methodCacheAsync.TryGetValue(messageType, out asyncContextMethod))
                     {
                         var interfaceType = AsyncMessageHandlerType.MakeGenericType(messageType);
                         var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
@@ -110,14 +156,14 @@ namespace Shuttle.Esb
                                 messageType.FullName));
                         }
 
-                        contextMethodAsync = new ContextMethodInvokerAsync(
+                        asyncContextMethod = new AsyncContextMethodInvoker(
                             messageType,
                             handler.GetType()
                                 .GetInterfaceMap(AsyncMessageHandlerType.MakeGenericType(messageType))
                                 .TargetMethods.SingleOrDefault()
                         );
 
-                        _methodCacheAsync.Add(messageType, contextMethodAsync);
+                        _methodCacheAsync.Add(messageType, asyncContextMethod);
                     }
                 }
 
@@ -131,60 +177,45 @@ namespace Shuttle.Esb
                 }
                 else
                 {
-                    await contextMethodAsync.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
+                    await asyncContextMethod.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
                 }
             }
             finally
             {
                 if (handler is IReusability { IsReusable: false })
                 {
-                    ReleaseHandler(messageType);
+                    ReleaseHandler(messageType, sync);
                 }
             }
 
             return MessageHandlerInvokeResult.InvokedHandler(handler.GetType().AssemblyQualifiedName);
         }
 
-        private void ReleaseHandler(Type messageType)
+        private void ReleaseHandler(Type messageType, bool sync)
         {
             lock (LockGetHandler)
             {
-                if (!_threadHandlers.TryGetValue(messageType, out var instances))
+                Dictionary<int, object> instances = null;
+
+                switch (sync)
                 {
-                    return;
+                    case true when !_threadHandlers.TryGetValue(messageType, out instances):
+                    case false when !_threadAsyncHandlers.TryGetValue(messageType, out instances):
+                    {
+                        return;
+                    }
+                    default:
+                    {
+                        instances?.Remove(Thread.CurrentThread.ManagedThreadId);
+                        break;
+                    }
                 }
-
-                instances.Remove(Thread.CurrentThread.ManagedThreadId);
-            }
-        }
-
-        private object GetHandler(Type messageType)
-        {
-            lock (LockGetHandler)
-            {
-                if (!_threadHandlers.TryGetValue(messageType, out var instances))
-                {
-                    instances = new Dictionary<int, object>();
-                    _threadHandlers.Add(messageType, instances);
-                }
-
-                var managedThreadId = Thread.CurrentThread.ManagedThreadId;
-
-                if (!instances.TryGetValue(managedThreadId, out var handler))
-                {
-                    handler = _provider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
-                    instances.Add(managedThreadId, handler);
-                }
-
-                return handler;
             }
         }
     }
 
     internal class ContextConstructorInvoker
     {
-        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
-
         private static readonly Type HandlerContextType = typeof(HandlerContext<>);
 
         private readonly ConstructorInvokeHandler _constructorInvoker;
@@ -227,6 +258,8 @@ namespace Shuttle.Esb
         {
             return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
         }
+
+        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
     }
 
     internal class ContextMethodInvoker
@@ -260,13 +293,13 @@ namespace Shuttle.Esb
         private delegate void InvokeHandler(object handler, object handlerContext);
     }
 
-    internal class ContextMethodInvokerAsync
+    internal class AsyncContextMethodInvoker
     {
         private static readonly Type HandlerContextType = typeof(HandlerContext<>);
 
         private readonly InvokeHandler _invoker;
 
-        public ContextMethodInvokerAsync(Type messageType, MethodInfo methodInfo)
+        public AsyncContextMethodInvoker(Type messageType, MethodInfo methodInfo)
         {
             var dynamicMethod = new DynamicMethod(string.Empty,
                 typeof(Task), new[] { typeof(object), typeof(object) },

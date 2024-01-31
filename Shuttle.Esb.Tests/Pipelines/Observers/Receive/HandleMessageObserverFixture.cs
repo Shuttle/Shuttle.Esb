@@ -117,19 +117,19 @@ public class HandleMessageObserverFixture
 
         if (sync)
         {
-            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.InvokedHandler("assembly-qualified-name"));
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<OnHandleMessage>())).Returns(MessageHandlerInvokeResult.InvokedHandler("assembly-qualified-name"));
 
             pipeline.Execute();
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<OnHandleMessage>()), Times.Once);
         }
         else
         {
-            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.InvokedHandler("assembly-qualified-name")));
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<OnHandleMessage>())).Returns(Task.FromResult(MessageHandlerInvokeResult.InvokedHandler("assembly-qualified-name")));
 
             await pipeline.ExecuteAsync();
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<OnHandleMessage>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.True);
@@ -189,22 +189,22 @@ public class HandleMessageObserverFixture
 
         if (sync)
         {
-            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<OnHandleMessage>())).Returns(MessageHandlerInvokeResult.MissingHandler());
 
             pipeline.Execute();
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<OnHandleMessage>()));
 
             errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
             serializer.Verify(m => m.Serialize(transportMessage), Times.Once);
         }
         else
         {
-            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<OnHandleMessage>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
 
             await pipeline.ExecuteAsync();
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()));
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<OnHandleMessage>()));
 
             errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
             serializer.Verify(m => m.SerializeAsync(transportMessage));
@@ -265,19 +265,19 @@ public class HandleMessageObserverFixture
 
         if (sync)
         {
-            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<OnHandleMessage>())).Returns(MessageHandlerInvokeResult.MissingHandler());
 
             pipeline.Execute();
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<OnHandleMessage>()), Times.Once);
         }
         else
         {
-            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<OnHandleMessage>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
 
             await pipeline.ExecuteAsync();
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<OnHandleMessage>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);
@@ -335,19 +335,19 @@ public class HandleMessageObserverFixture
 
         if (sync)
         {
-            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<IPipelineEvent>())).Returns(MessageHandlerInvokeResult.MissingHandler());
+            messageHandlerInvoker.Setup(m => m.Invoke(It.IsAny<OnHandleMessage>())).Returns(MessageHandlerInvokeResult.MissingHandler());
 
             Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
 
-            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.Invoke(It.IsAny<OnHandleMessage>()), Times.Once);
         }
         else
         {
-            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineEvent>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+            messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<OnHandleMessage>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
 
             Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
-            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineEvent>()), Times.Once);
+            messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<OnHandleMessage>()), Times.Once);
         }
 
         Assert.That(pipeline.State.GetMessageHandlerInvokeResult().Invoked, Is.False);

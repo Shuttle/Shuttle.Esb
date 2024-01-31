@@ -5,7 +5,7 @@ namespace Shuttle.Esb
 {
     public interface IMessageHandlerInvoker
     {
-        MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent);
-        Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent);
+        MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent);
+        Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent);
     }
 }

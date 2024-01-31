@@ -8,12 +8,12 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
 {
     private readonly Dictionary<string, int> _invokeCounts = new Dictionary<string, int>();
 
-    public MessageHandlerInvokeResult Invoke(IPipelineEvent pipelineEvent)
+    public MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent)
     {
         return InvokeAsync(pipelineEvent, true).GetAwaiter().GetResult();
     }
 
-    public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent)
+    public async Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent)
     {
         return await InvokeAsync(pipelineEvent, false).ConfigureAwait(false);
     }
