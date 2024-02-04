@@ -5,7 +5,7 @@ namespace Shuttle.Esb
 {
     public interface ISubscriptionService
     {
-        IEnumerable<string> GetSubscribedUris(object message);
-        Task<IEnumerable<string>> GetSubscribedUrisAsync(object message);
+        IEnumerable<string> GetSubscribedUris(string messageType);
+        Task<IEnumerable<string>> GetSubscribedUrisAsync(string messageType);
     }
 }
