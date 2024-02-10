@@ -63,6 +63,8 @@ namespace Shuttle.Esb
 
             services.AddOptions<ServiceBusOptions>().Configure(options =>
             {
+                options.Asynchronous = serviceBusBuilder.Options.Asynchronous;
+
                 options.Inbox = serviceBusBuilder.Options.Inbox;
                 options.Outbox = serviceBusBuilder.Options.Outbox;
                 options.ControlInbox = serviceBusBuilder.Options.ControlInbox;
