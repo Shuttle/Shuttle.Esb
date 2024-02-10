@@ -66,7 +66,7 @@ namespace Shuttle.Esb
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
             Started = true; // required for using ServiceBus in OnStarted event
-            RunningAsync = !sync;
+            Asynchronous = !sync;
 
             try
             {
@@ -93,27 +93,7 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public void Stop()
-        {
-            if (RunningAsync)
-            {
-                throw new InvalidOperationException(string.Format(Resources.IncorrectStopCalledException, "asynchronous", "StopAsync()"));
-            }
-
-            StopAsync(true).GetAwaiter().GetResult();
-        }
-
         public async Task StopAsync()
-        {
-            if (!RunningAsync)
-            {
-                throw new InvalidOperationException(string.Format(Resources.IncorrectStopCalledException, "synchronous", "Stop()"));
-            }
-
-            await StopAsync(false).ConfigureAwait(false);
-        }
-
-        private async Task StopAsync(bool sync)
         {
             if (!Started)
             {
@@ -127,9 +107,9 @@ namespace Shuttle.Esb
             _controlInboxThreadPool?.Dispose();
             _outboxThreadPool?.Dispose();
 
-            if (sync)
+            if (!Asynchronous)
             {
-                 _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None);
+                _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None);
             }
             else
             {
@@ -142,7 +122,7 @@ namespace Shuttle.Esb
         }
 
         public bool Started { get; private set; }
-        public bool RunningAsync { get; private set; }
+        public bool Asynchronous { get; private set; }
 
         public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
@@ -229,7 +209,7 @@ namespace Shuttle.Esb
                 return;
             }
 
-            Stop();
+            this.Stop();
 
             _cancellationTokenSource.TryDispose();
 
