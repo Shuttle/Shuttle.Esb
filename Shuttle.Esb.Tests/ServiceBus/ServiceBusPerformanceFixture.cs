@@ -35,7 +35,7 @@ public class ServiceBusPerformanceFixture
         services.AddSingleton(messageRouteProvider.Object);
         services.AddSingleton<IQueueFactory, NullQueueFactory>();
 
-        services.AddServiceBus();
+        services.AddServiceBus(builder => builder.Options.Asynchronous = !sync);
 
         var serviceProvider = services.BuildServiceProvider();
         var serviceBus = serviceProvider.GetRequiredService<IServiceBus>();

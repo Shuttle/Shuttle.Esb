@@ -304,6 +304,24 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;true&apos;.  Cannot start the service bus synchronously.  Please call the `StartAsync()` method..
+        /// </summary>
+        public static string ServiceBusStartAsynchronousException {
+            get {
+                return ResourceManager.GetString("ServiceBusStartAsynchronousException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;false&apos;.  Cannot start the service bus asynchronously.  Please call the `Start()` method..
+        /// </summary>
+        public static string ServiceBusStartSynchronousException {
+            get {
+                return ResourceManager.GetString("ServiceBusStartSynchronousException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempted to subscribe to messages but there is no inbox configured..
         /// </summary>
         public static string SubscribeWithNoInboxException {

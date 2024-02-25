@@ -113,6 +113,7 @@ namespace Shuttle.Esb.Tests
 
             services.AddServiceBus(builder =>
             {
+                builder.Options.Asynchronous = !sync;
                 builder.Options.Inbox.ThreadCount = 1;
                 builder.Options.Inbox.WorkQueueUri = "memory://configuration/inbox";
                 builder.Options.Inbox.DurationToSleepWhenIdle = new List<TimeSpan>

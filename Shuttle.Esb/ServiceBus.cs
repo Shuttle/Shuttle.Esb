@@ -46,11 +46,21 @@ namespace Shuttle.Esb
 
         public IServiceBus Start()
         {
+            if (_serviceBusOptions.Asynchronous)
+            {
+                throw new ApplicationException(Resources.ServiceBusStartAsynchronousException);
+            }
+
             return StartAsync(true).GetAwaiter().GetResult();
         }
 
         public async Task<IServiceBus> StartAsync()
         {
+            if (!_serviceBusOptions.Asynchronous)
+            {
+                throw new ApplicationException(Resources.ServiceBusStartSynchronousException);
+            }
+
             return await StartAsync(false).ConfigureAwait(false);
         }
 
