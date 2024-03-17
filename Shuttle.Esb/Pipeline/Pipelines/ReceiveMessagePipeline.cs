@@ -12,7 +12,7 @@ namespace Shuttle.Esb
             IDeferTransportMessageObserver deferTransportMessageObserver,
             IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver,
             IDecompressMessageObserver decompressMessageObserver,
-            IAssessMessageHandlingObserver assessMessageHandlingObserver, IIdempotenceObserver idempotenceObserver,
+            IMessageHandlingSpecificationObserver messageHandlingSpecificationObserver, IIdempotenceObserver idempotenceObserver,
             IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver,
             ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver,
             ITransactionScopeObserver transactionScopeObserver)
@@ -31,8 +31,8 @@ namespace Shuttle.Esb
 
             RegisterStage("Handle")
                 .WithEvent<OnStartTransactionScope>()
-                .WithEvent<OnAssessMessageHandling>()
-                .WithEvent<OnAfterAssessMessageHandling>()
+                .WithEvent<OnEvaluateMessageHandling>()
+                .WithEvent<OnAfterEvaluateMessageHandling>()
                 .WithEvent<OnProcessIdempotenceMessage>()
                 .WithEvent<OnHandleMessage>()
                 .WithEvent<OnAfterHandleMessage>()
@@ -49,7 +49,7 @@ namespace Shuttle.Esb
             RegisterObserver(Guard.AgainstNull(deserializeMessageObserver, nameof(deserializeMessageObserver)));
             RegisterObserver(Guard.AgainstNull(decryptMessageObserver, nameof(decryptMessageObserver)));
             RegisterObserver(Guard.AgainstNull(decompressMessageObserver, nameof(decompressMessageObserver)));
-            RegisterObserver(Guard.AgainstNull(assessMessageHandlingObserver, nameof(assessMessageHandlingObserver)));
+            RegisterObserver(Guard.AgainstNull(messageHandlingSpecificationObserver, nameof(messageHandlingSpecificationObserver)));
             RegisterObserver(Guard.AgainstNull(idempotenceObserver, nameof(idempotenceObserver)));
             RegisterObserver(Guard.AgainstNull(handleMessageObserver, nameof(handleMessageObserver)));
             RegisterObserver(Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver)));

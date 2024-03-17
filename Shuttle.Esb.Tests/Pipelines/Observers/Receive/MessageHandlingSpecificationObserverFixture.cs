@@ -6,36 +6,36 @@ using Shuttle.Core.Pipelines;
 namespace Shuttle.Esb.Tests;
 
 [TestFixture]
-public class AssessMessageHandlingObserverFixture
+public class MessageHandlingSpecificationObserverFixture
 {
     [Test]
-    public void Should_be_able_to_assess_message_handling()
+    public void Should_be_able_to_evaluate_message_handling_specification()
     {
-        Should_be_able_to_assess_message_handling_async(true).GetAwaiter().GetResult();
+        Should_be_able_to_evaluate_message_handling_specification_async(true).GetAwaiter().GetResult();
     }
 
     [Test]
-    public async Task Should_be_able_to_assess_message_handling_async()
+    public async Task Should_be_able_to_evaluate_message_handling_specification_async()
     {
-        await Should_be_able_to_assess_message_handling_async(false);
+        await Should_be_able_to_evaluate_message_handling_specification_async(false);
     }
 
-    private async Task Should_be_able_to_assess_message_handling_async(bool sync)
+    private async Task Should_be_able_to_evaluate_message_handling_specification_async(bool sync)
     {
-        var messageHandlingAssessor = new Mock<IMessageHandlingAssessor>();
+        var messageHandlingSpecification = new Mock<IMessageHandlingSpecification>();
 
-        messageHandlingAssessor.SetupSequence(m=> m.IsSatisfiedBy(It.IsAny<OnAssessMessageHandling>()))
+        messageHandlingSpecification.SetupSequence(m=> m.IsSatisfiedBy(It.IsAny<OnEvaluateMessageHandling>()))
             .Returns(true)
             .Returns(false);
 
-        var observer = new AssessMessageHandlingObserver(messageHandlingAssessor.Object);
+        var observer = new MessageHandlingSpecificationObserver(messageHandlingSpecification.Object);
 
         var pipeline = new Pipeline()
             .RegisterObserver(observer);
 
         pipeline
             .RegisterStage(".")
-            .WithEvent<OnAssessMessageHandling>();
+            .WithEvent<OnEvaluateMessageHandling>();
 
         if (sync)
         {

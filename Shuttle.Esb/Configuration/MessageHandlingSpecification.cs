@@ -7,30 +7,29 @@ using Shuttle.Core.Specification;
 
 namespace Shuttle.Esb
 {
-    public class MessageHandlingAssessor : IMessageHandlingAssessor
+    public class MessageHandlingSpecification : IMessageHandlingSpecification
     {
-        private readonly List<Func<IPipelineEvent, bool>> _assessors = new List<Func<IPipelineEvent, bool>>();
+        private readonly List<Func<IPipelineEvent, bool>> _specificationFunctions = new List<Func<IPipelineEvent, bool>>();
 
-        private readonly List<ISpecification<IPipelineEvent>> _specifications =
-            new List<ISpecification<IPipelineEvent>>();
+        private readonly List<ISpecification<IPipelineEvent>> _specifications = new List<ISpecification<IPipelineEvent>>();
 
         public bool IsSatisfiedBy(IPipelineEvent pipelineEvent)
         {
             Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
 
-            return _assessors.All(assessor => assessor.Invoke(pipelineEvent))
+            return _specificationFunctions.All(assessor => assessor.Invoke(pipelineEvent))
                    &&
                    _specifications.All(specification => specification.IsSatisfiedBy(pipelineEvent));
         }
 
-        public void RegisterAssessor(Func<IPipelineEvent, bool> assessor)
+        public void Add(Func<IPipelineEvent, bool> assessor)
         {
             Guard.AgainstNull(assessor, nameof(assessor));
 
-            _assessors.Add(assessor);
+            _specificationFunctions.Add(assessor);
         }
 
-        public void RegisterAssessor(ISpecification<IPipelineEvent> specification)
+        public void Add(ISpecification<IPipelineEvent> specification)
         {
             Guard.AgainstNull(specification, nameof(specification));
 

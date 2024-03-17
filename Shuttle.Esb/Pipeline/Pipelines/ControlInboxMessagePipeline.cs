@@ -12,13 +12,13 @@ namespace Shuttle.Esb
             IDeferTransportMessageObserver deferTransportMessageObserver,
             IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver,
             IDecompressMessageObserver decompressMessageObserver,
-            IAssessMessageHandlingObserver assessMessageHandlingObserver, IIdempotenceObserver idempotenceObserver,
+            IMessageHandlingSpecificationObserver messageHandlingSpecificationObserver, IIdempotenceObserver idempotenceObserver,
             IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver,
             ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver,
             ITransactionScopeObserver transactionScopeObserver)
             : base(getWorkMessageObserver, deserializeTransportMessageObserver, deferTransportMessageObserver,
                 deserializeMessageObserver, decryptMessageObserver, decompressMessageObserver,
-                assessMessageHandlingObserver, idempotenceObserver, handleMessageObserver, acknowledgeMessageObserver,
+                messageHandlingSpecificationObserver, idempotenceObserver, handleMessageObserver, acknowledgeMessageObserver,
                 sendDeferredObserver, receiveExceptionObserver, transactionScopeObserver)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
