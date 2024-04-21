@@ -1,10 +1,10 @@
 # Documentation
 
-Please visit out [official documentation](https://shuttle.github.io/shuttle-esb/) for more information.
+Please visit out [official documentation](https://www.pendel.co.za/shuttle-esb/index.html) for more information.
 
 # Getting Started
 
-Start a new **Console Application** project and select a Shuttle.Esb queue implementation from the supported queues:
+Start a new **Console Application** project.  We'll need to install one of the support queue implementations.  For this example we'll use `Shuttle.Esb.AzureStorageQueues` which can be hosted locally using [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage):
 
 ```
 PM> Install-Package Shuttle.Esb.AzureStorageQueues
@@ -21,26 +21,27 @@ Next we'll implement our endpoint in order to start listening on our queue:
 ``` c#
 internal class Program
 {
-    private static void Main()
+    static async Task Main(string[] args)
     {
-        Host.CreateDefaultBuilder()
+        await Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                services.AddServiceBus(builder =>
-                {
-                    builder.Options.Inbox.WorkQueueUri = "azuresq://azure/work";
-                });
-
-                services.AddAzureStorageQueues(builder =>
-                {
-                    builder.AddOptions("azure", new AzureStorageQueueOptions
+                services
+                    .AddServiceBus(builder =>
                     {
-                        ConnectionString = "UseDevelopmentStorage=true;"
+                        builder.Options.Inbox.WorkQueueUri = "azuresq://azure/work";
+                        builder.Options.Asynchronous = true; // NOTE: we'll be using async processing
+                    })
+                    .AddAzureStorageQueues(builder =>
+                    {
+                        builder.AddOptions("azure", new AzureStorageQueueOptions
+                        {
+                            ConnectionString = "UseDevelopmentStorage=true;"
+                        });
                     });
-                });
             })
             .Build()
-            .Run();
+            .RunAsync();
     }
 }
 ```
@@ -50,41 +51,42 @@ Even though the options may be set directly as above, typically one would make u
 ```c#
 internal class Program
 {
-    private static void Main()
+    private static async Task Main(string[] args)
     {
-        Host.CreateDefaultBuilder()
+        await Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                var configuration = 
+                var configuration =
                     new ConfigurationBuilder()
                         .AddJsonFile("appsettings.json")
                         .Build();
 
-                services.AddSingleton<IConfiguration>(configuration);
-
-                services.AddServiceBus(builder =>
-                {
-                    configuration
-                        .GetSection(ServiceBusOptions.SectionName)
-                        .Bind(builder.Options);
-                });
-
-                services.AddAzureStorageQueues(builder =>
-                {
-                    builder.AddOptions("azure", new AzureStorageQueueOptions
+                services
+                    .AddSingleton<IConfiguration>(configuration)
+                    .AddServiceBus(builder =>
                     {
-                        ConnectionString = configuration
-                            .GetConnectionString("azure")
+                        configuration
+                            .GetSection(ServiceBusOptions.SectionName)
+                            .Bind(builder.Options);
+
+                        builder.Options.Asynchronous = true; // NOTE: we'll be using async processing
+                    })
+                    .AddAzureStorageQueues(builder =>
+                    {
+                        builder.AddOptions("azure", new AzureStorageQueueOptions
+                        {
+                            ConnectionString = configuration
+                                .GetConnectionString("azure")
+                        });
                     });
-                });
             })
             .Build()
-            .Run();
+            .RunAsync();
     }
 }
 ```
 
-The `appsettings.json` file would be as follows:
+The `appsettings.json` file would be as follows (remember to set to `Copy always`):
 
 ```json
 {
@@ -104,7 +106,7 @@ The `appsettings.json` file would be as follows:
 ### Send a command message for processing
 
 ``` c#
-bus.Send(new RegisterMember
+await serviceBus.SendAsync(new RegisterMember
 {
     UserName = "user-name",
     EMailAddress = "user@domain.com"
@@ -116,7 +118,7 @@ bus.Send(new RegisterMember
 Before publishing an event one would need to register an `ISubscrtiptionService` implementation such as [Shuttle.Esb.Sql.Subscription](/implementations/subscription/sql.md).
 
 ``` c#
-bus.Publish(new MemberRegistered
+await serviceBus.PublishAsync(new MemberRegistered
 {
     UserName = "user-name"
 });
@@ -134,17 +136,17 @@ services.AddServiceBus(builder =>
 ### Handle any messages
 
 ``` c#
-public class RegisterMemberHandler : IMessageHandler<RegisterMember>
+public class RegisterMemberHandler : IAsyncMessageHandler<RegisterMember>
 {
     public RegisterMemberHandler(IDependency dependency)
     {
     }
 
-	public void ProcessMessage(IHandlerContext<RegisterMember> context)
+	public async Task ProcessMessageAsync(IHandlerContext<RegisterMember> context)
 	{
         // perform member registration
 
-		context.Publish(new MemberRegistered
+		await context.PublishAsync(new MemberRegistered
 		{
 			UserName = context.Message.UserName
 		});
@@ -153,9 +155,9 @@ public class RegisterMemberHandler : IMessageHandler<RegisterMember>
 ```
 
 ``` c#
-public class MemberRegisteredHandler : IMessageHandler<MemberRegistered>
+public class MemberRegisteredHandler : IAsyncMessageHandler<MemberRegistered>
 {
-	public void ProcessMessage(IHandlerContext<MemberRegistered> context)
+	public async Task ProcessMessageAsync(IHandlerContext<MemberRegistered> context)
 	{
         // processing
 	}
