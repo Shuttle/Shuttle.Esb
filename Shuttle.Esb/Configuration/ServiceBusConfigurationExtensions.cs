@@ -13,25 +13,11 @@ namespace Shuttle.Esb
             return serviceBusConfiguration.Inbox != null;
         }
 
-        public static bool HasControlInbox(this IServiceBusConfiguration serviceBusConfiguration)
-        {
-            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-
-            return serviceBusConfiguration.ControlInbox != null;
-        }
-
         public static bool HasOutbox(this IServiceBusConfiguration serviceBusConfiguration)
         {
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
 
             return serviceBusConfiguration.Outbox != null;
-        }
-
-        public static bool IsWorker(this IServiceBusConfiguration serviceBusConfiguration)
-        {
-            Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-
-            return serviceBusConfiguration.Worker != null;
         }
 
         public static async Task CreatePhysicalQueuesAsync(this IServiceBusConfiguration serviceBusConfiguration)
@@ -50,11 +36,6 @@ namespace Shuttle.Esb
             {
                 await CreateQueuesAsync(serviceBusConfiguration.Outbox).ConfigureAwait(false);
             }
-
-            if (serviceBusConfiguration.HasControlInbox())
-            {
-                await CreateQueuesAsync(serviceBusConfiguration.ControlInbox).ConfigureAwait(false);
-            }
         }
 
         public static void CreatePhysicalQueues(this IServiceBusConfiguration serviceBusConfiguration)
@@ -72,11 +53,6 @@ namespace Shuttle.Esb
             if (serviceBusConfiguration.HasOutbox())
             {
                 CreateQueues(serviceBusConfiguration.Outbox);
-            }
-
-            if (serviceBusConfiguration.HasControlInbox())
-            {
-                CreateQueues(serviceBusConfiguration.ControlInbox);
             }
         }
 

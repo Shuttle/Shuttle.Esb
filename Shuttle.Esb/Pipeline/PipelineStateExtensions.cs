@@ -122,16 +122,6 @@ namespace Shuttle.Esb
             return state.Get<Action<TransportMessageBuilder>>(StateKeys.TransportMessageBuilder);
         }
 
-        public static void SetAvailableWorker(this IState state, AvailableWorker value)
-        {
-            state.Replace(StateKeys.AvailableWorker, value);
-        }
-
-        public static AvailableWorker GetAvailableWorker(this IState state)
-        {
-            return state.Get<AvailableWorker>(StateKeys.AvailableWorker);
-        }
-
         public static void SetWorking(this IState state)
         {
             state.Replace(StateKeys.Working, true);

@@ -37,7 +37,6 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<IQueueService, QueueService>();
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
-            services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();
             services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
@@ -67,13 +66,9 @@ namespace Shuttle.Esb
 
                 options.Inbox = serviceBusBuilder.Options.Inbox;
                 options.Outbox = serviceBusBuilder.Options.Outbox;
-                options.ControlInbox = serviceBusBuilder.Options.ControlInbox;
 
                 ApplyDefaults(options.Inbox);
                 ApplyDefaults(options.Outbox);
-                ApplyDefaults(options.ControlInbox);
-
-                options.Worker = serviceBusBuilder.Options.Worker;
 
                 options.AddMessageHandlers = serviceBusBuilder.Options.AddMessageHandlers;
                 options.CacheIdentity = serviceBusBuilder.Options.CacheIdentity;

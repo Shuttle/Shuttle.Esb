@@ -174,9 +174,6 @@ namespace Shuttle.Esb
 
         private void ConfigurationInvariant()
         {
-            Guard.Against<WorkerException>(_serviceBusConfiguration.IsWorker() && !_serviceBusConfiguration.HasInbox(),
-                Resources.WorkerRequiresInboxException);
-
             if (_serviceBusConfiguration.HasInbox())
             {
                 Guard.Against<InvalidOperationException>(
@@ -197,18 +194,6 @@ namespace Shuttle.Esb
                 Guard.Against<InvalidOperationException>(
                     _serviceBusOptions.Outbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Outbox"));
-            }
-
-            if (_serviceBusConfiguration.HasControlInbox())
-            {
-                Guard.Against<InvalidOperationException>(
-                    _serviceBusConfiguration.ControlInbox.WorkQueue == null &&
-                    string.IsNullOrEmpty(_serviceBusOptions.ControlInbox.WorkQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
-
-                Guard.Against<InvalidOperationException>(
-                    _serviceBusOptions.ControlInbox == null,
-                    string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
             }
         }
 

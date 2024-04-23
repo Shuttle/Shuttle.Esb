@@ -149,9 +149,6 @@
     <value>Required queue uri '{0}' has not been configured.  Please check your application settings or your code if you implemented it explicitly.</value>
     <comment>0 = name of the required queue uri</comment>
   </data>
-  <data name="WorkerRequiresInboxException" xml:space="preserve">
-    <value>No inbox has been configured.  A worker requires an inbox.</value>
-  </data>
   <data name="MessageRoutedToMoreThanOneEndpoint" xml:space="preserve">
     <value>Message of type '{0}' has been routed to more than one endpoint: {1}</value>
     <comment>0 = full type name of message, 1 = comma-delimited string containing all endpoint queue uris</comment>

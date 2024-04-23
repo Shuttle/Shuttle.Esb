@@ -29,18 +29,6 @@ namespace Shuttle.Esb
                 };
             }
 
-            if (options.HasControlInbox())
-            {
-                ControlInbox = new ControlInboxConfiguration
-                {
-                    WorkQueue = queueService.Get(options.ControlInbox.WorkQueueUri),
-                    ErrorQueue =
-                        string.IsNullOrWhiteSpace(options.ControlInbox.ErrorQueueUri)
-                            ? null
-                            : queueService.Get(options.ControlInbox.ErrorQueueUri)
-                };
-            }
-
             if (options.HasOutbox())
             {
                 Outbox = new OutboxConfiguration
@@ -52,15 +40,6 @@ namespace Shuttle.Esb
                             : queueService.Get(options.Outbox.ErrorQueueUri)
                 };
             }
-
-            if (options.IsWorker())
-            {
-                Worker = new WorkerConfiguration
-                {
-                    DistributorControlInboxWorkQueue =
-                        queueService.Get(options.Worker.DistributorControlInboxWorkQueueUri)
-                };
-            }
         }
 
         public void Configure(ServiceBusOptions serviceBusOptions)
@@ -68,8 +47,6 @@ namespace Shuttle.Esb
         }
 
         public IInboxConfiguration Inbox { get; }
-        public IControlInboxConfiguration ControlInbox { get; }
         public IOutboxConfiguration Outbox { get; }
-        public IWorkerConfiguration Worker { get; }
     }
 }

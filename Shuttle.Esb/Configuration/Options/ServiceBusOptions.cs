@@ -37,9 +37,7 @@ namespace Shuttle.Esb
 
         public InboxOptions Inbox { get; set; } = new InboxOptions();
         public OutboxOptions Outbox { get; set; } = new OutboxOptions();
-        public ControlInboxOptions ControlInbox { get; set; } = new ControlInboxOptions();
         public List<MessageRouteOptions> MessageRoutes { get; set; } = new List<MessageRouteOptions>();
-        public WorkerOptions Worker { get; set; } = new WorkerOptions();
         public List<UriMappingOptions> UriMappings { get; set; } = new List<UriMappingOptions>();
         public SubscriptionOptions Subscription { get; set; } = new SubscriptionOptions();
         public IdempotenceOptions Idempotence { get; set; } = new IdempotenceOptions();

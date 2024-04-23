@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
@@ -25,14 +24,6 @@ namespace Shuttle.Esb
                 if (string.IsNullOrWhiteSpace(options.Outbox.WorkQueueUri))
                 {
                     return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
-                }
-            }
-
-            if (options.ControlInbox != null)
-            {
-                if (string.IsNullOrWhiteSpace(options.ControlInbox.WorkQueueUri))
-                {
-                    return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
                 }
             }
 

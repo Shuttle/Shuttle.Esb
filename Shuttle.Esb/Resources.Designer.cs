@@ -383,14 +383,5 @@ namespace Shuttle.Esb {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No inbox has been configured.  A worker requires an inbox..
-        /// </summary>
-        public static string WorkerRequiresInboxException {
-            get {
-                return ResourceManager.GetString("WorkerRequiresInboxException", resourceCulture);
-            }
-        }
     }
 }
