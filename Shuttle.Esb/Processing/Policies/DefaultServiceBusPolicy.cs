@@ -12,11 +12,6 @@ namespace Shuttle.Esb
             return DefaultEvaluation(pipelineEvent);
         }
 
-        public MessageFailureAction EvaluateMessageDistributionFailure(OnPipelineException pipelineEvent)
-        {
-            return DefaultEvaluation(pipelineEvent);
-        }
-
         public MessageFailureAction EvaluateOutboxFailure(OnPipelineException pipelineEvent)
         {
             return DefaultEvaluation(pipelineEvent);
