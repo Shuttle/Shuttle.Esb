@@ -34,6 +34,7 @@ namespace Shuttle.Esb
         public bool RemoveCorruptMessages { get; set; } = false;
         public string EncryptionAlgorithm { get; set; }
         public string CompressionAlgorithm { get; set; }
+        public bool Asynchronous { get; set; }
 
         public InboxOptions Inbox { get; set; } = new InboxOptions();
         public OutboxOptions Outbox { get; set; } = new OutboxOptions();
@@ -42,6 +43,5 @@ namespace Shuttle.Esb
         public SubscriptionOptions Subscription { get; set; } = new SubscriptionOptions();
         public IdempotenceOptions Idempotence { get; set; } = new IdempotenceOptions();
         public ProcessorThreadOptions ProcessorThread { get; set; } = new ProcessorThreadOptions();
-        public bool Asynchronous { get; set; }
     }
 }
