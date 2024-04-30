@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -15,18 +15,19 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
-    <PackageReference Include="Shuttle.Core.Compression" Version="11.0.1" />
-    <PackageReference Include="Shuttle.Core.Encryption" Version="11.0.1" />
-    <PackageReference Include="Shuttle.Core.Pipelines" Version="12.1.1" />
-    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="11.0.1" />
-    <PackageReference Include="Shuttle.Core.Reflection" Version="12.0.1" />
-    <PackageReference Include="Shuttle.Core.Serialization" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="12.0.0" />
+    <PackageReference Include="Shuttle.Core.Contract" Version="11.1.0" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="12.0.0" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="13.0.0" />
+    <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="13.0.0" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="13.0.0" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="11.0.0" />
     <PackageReference Include="Shuttle.Core.Specification" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Streams" Version="10.1.1" />
-    <PackageReference Include="Shuttle.Core.System" Version="11.0.3" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="12.0.1" />
-    <PackageReference Include="Shuttle.Core.Transactions" Version="11.0.1" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="10.3.0" />
+    <PackageReference Include="Shuttle.Core.System" Version="11.1.0" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="13.0.0" />
+    <PackageReference Include="Shuttle.Core.Transactions" Version="11.1.0" />
   </ItemGroup>
 
   <ItemGroup>

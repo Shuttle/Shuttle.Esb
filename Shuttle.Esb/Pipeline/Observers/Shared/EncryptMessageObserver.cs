@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
@@ -20,9 +20,9 @@ namespace Shuttle.Esb
             _encryptionService = encryptionService;
         }
 
-        public void Execute(OnEncryptMessage pipelineEvent)
+        private async Task ExecuteAsync(OnEncryptMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var transportMessage = state.GetTransportMessage();
 
             if (!transportMessage.EncryptionEnabled())
@@ -30,7 +30,24 @@ namespace Shuttle.Esb
                 return;
             }
 
-            transportMessage.Message = _encryptionService.Encrypt(transportMessage.EncryptionAlgorithm, transportMessage.Message);
+            if (sync)
+            {
+                transportMessage.Message = _encryptionService.Encrypt(transportMessage.EncryptionAlgorithm, transportMessage.Message);
+            }
+            else
+            {
+                transportMessage.Message = await _encryptionService.EncryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message).ConfigureAwait(false);
+            }
+        }
+
+        public void Execute(OnEncryptMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnEncryptMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

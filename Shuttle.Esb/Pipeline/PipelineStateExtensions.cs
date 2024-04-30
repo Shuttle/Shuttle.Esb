@@ -1,23 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public static class PipelineStateExtensions
     {
-        public static CancellationToken GetCancellationToken(this IState state)
-        {
-            return state.Get<CancellationToken>(StateKeys.CancellationToken);
-        }
-
-        public static void SetCancellationToken(this IState state, CancellationToken cancellationToken)
-        {
-            state.Replace(StateKeys.CancellationToken, cancellationToken);
-        }
-
         public static IQueue GetWorkQueue(this IState state)
         {
             return state.Get<IQueue>(StateKeys.WorkQueue);
@@ -41,6 +30,16 @@ namespace Shuttle.Esb
         public static IEnumerable<TimeSpan> GetDurationToIgnoreOnFailure(this IState state)
         {
             return state.Get<IEnumerable<TimeSpan>>(StateKeys.DurationToIgnoreOnFailure);
+        }
+
+        public static void SetMessageHandlerInvokeResult(this IState state, MessageHandlerInvokeResult value)
+        {
+            state.Replace(StateKeys.MessageHandlerInvokeResult, value);
+        }
+
+        public static MessageHandlerInvokeResult GetMessageHandlerInvokeResult(this IState state)
+        {
+            return state.Get<MessageHandlerInvokeResult>(StateKeys.MessageHandlerInvokeResult);
         }
 
         public static void SetTransportMessage(this IState state, TransportMessage value)
@@ -123,16 +122,6 @@ namespace Shuttle.Esb
             return state.Get<Action<TransportMessageBuilder>>(StateKeys.TransportMessageBuilder);
         }
 
-        public static void SetAvailableWorker(this IState state, AvailableWorker value)
-        {
-            state.Replace(StateKeys.AvailableWorker, value);
-        }
-
-        public static AvailableWorker GetAvailableWorker(this IState state)
-        {
-            return state.Get<AvailableWorker>(StateKeys.AvailableWorker);
-        }
-
         public static void SetWorking(this IState state)
         {
             state.Replace(StateKeys.Working, true);
@@ -146,16 +135,6 @@ namespace Shuttle.Esb
         public static void ResetWorking(this IState state)
         {
             state.Replace(StateKeys.Working, false);
-        }
-
-        public static void SetMessageHandler(this IState state, object handler)
-        {
-            state.Replace(StateKeys.MessageHandler, handler);
-        }
-
-        public static object GetMessageHandler(this IState state)
-        {
-            return state.Get<object>(StateKeys.MessageHandler);
         }
 
         public static void SetWorkQueue(this IState state, IQueue queue)

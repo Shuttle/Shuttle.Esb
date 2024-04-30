@@ -9,6 +9,7 @@ namespace Shuttle.Esb
     public class ServiceBusBuilder
     {
         private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+        private static readonly Type AsyncMessageHandlerType = typeof(IAsyncMessageHandler<>);
 
         public ServiceBusOptions Options
         {
@@ -43,6 +44,22 @@ namespace Shuttle.Esb
                 }
 
                 var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+
+                if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
+                {
+                    Services.AddTransient(genericType, type);
+                }
+            }
+
+            foreach (var type in _reflectionService.GetTypesAssignableTo(AsyncMessageHandlerType, assembly))
+            foreach (var @interface in type.GetInterfaces())
+            {
+                if (!@interface.IsAssignableTo(AsyncMessageHandlerType))
+                {
+                    continue;
+                }
+
+                var genericType = AsyncMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
 
                 if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
                 {

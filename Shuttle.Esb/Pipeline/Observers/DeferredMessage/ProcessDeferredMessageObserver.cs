@@ -1,40 +1,67 @@
-﻿using Shuttle.Core.Contract;
+﻿using System;
+using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
 {
     public interface IProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>
     {
+        event EventHandler<MessageReturnedEventArgs> MessageReturned;
     }
 
     public class ProcessDeferredMessageObserver : IProcessDeferredMessageObserver
     {
-        public void Execute(OnProcessDeferredMessage pipelineEvent)
+        private async Task ExecuteAsync(OnProcessDeferredMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
-            var receivedMessage = state.GetReceivedMessage();
-            var workQueue = state.GetWorkQueue();
-            var deferredQueue = state.GetDeferredQueue();
-
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNull(workQueue, nameof(workQueue));
-            Guard.AgainstNull(deferredQueue, nameof(deferredQueue));
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
+            var workQueue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
+            var deferredQueue = Guard.AgainstNull(state.GetDeferredQueue(), StateKeys.DeferredQueue);
 
             if (transportMessage.IsIgnoring())
             {
-                deferredQueue.Release(receivedMessage.AcknowledgementToken);
+                if (sync)
+                {
+                    deferredQueue.Release(receivedMessage.AcknowledgementToken);
+                }
+                else
+                {
+                    await deferredQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                }
 
                 state.SetDeferredMessageReturned(false);
 
                 return;
             }
 
-            workQueue.Enqueue(transportMessage, receivedMessage.Stream);
-            deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            if (sync)
+            {
+                workQueue.Enqueue(transportMessage, receivedMessage.Stream);
+                deferredQueue.Acknowledge(receivedMessage.AcknowledgementToken);
+            }
+            else
+            {
+                await workQueue.EnqueueAsync(transportMessage, receivedMessage.Stream).ConfigureAwait(false);
+                await deferredQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+            }
 
             state.SetDeferredMessageReturned(true);
+
+            MessageReturned?.Invoke(this, new MessageReturnedEventArgs(transportMessage, receivedMessage));
         }
+
+        public void Execute(OnProcessDeferredMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnProcessDeferredMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+        }
+
+        public event EventHandler<MessageReturnedEventArgs> MessageReturned;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
@@ -33,7 +34,7 @@ namespace Shuttle.Esb.Tests
             public bool Replied { get; set; }
         }
 
-        public class MessageHandler : IMessageHandler<Message>
+        public class MessageHandler : IMessageHandler<Message>, IAsyncMessageHandler<Message>
         {
             private readonly IMessageHandlerTracker _messageHandlerTracker;
 
@@ -44,7 +45,7 @@ namespace Shuttle.Esb.Tests
                 _messageHandlerTracker = messageHandlerTracker;
             }
 
-            public void ProcessMessage(IHandlerContext<Message> context)
+            private async Task ProcessMessageAsync(IHandlerContext<Message> context, bool sync)
             {
                 Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
@@ -57,19 +58,54 @@ namespace Shuttle.Esb.Tests
                     return;
                 }
 
-                context.Send(new Message
+                if (sync)
                 {
-                    Replied = true,
-                    Name = $"replied-{context.Message.Count}"
-                }, builder =>
+                    context.Send(new Message
+                    {
+                        Replied = true,
+                        Name = $"replied-{context.Message.Count}"
+                    }, builder =>
+                    {
+                        builder.Reply();
+                    });
+                }
+                else
                 {
-                    builder.Reply();
-                });
+                    await context.SendAsync(new Message
+                    {
+                        Replied = true,
+                        Name = $"replied-{context.Message.Count}"
+                    }, builder =>
+                    {
+                        builder.Reply();
+                    });
+                }
+            }
+
+            public async Task ProcessMessageAsync(IHandlerContext<Message> context)
+            {
+                await ProcessMessageAsync(context, false);
+            }
+
+            public void ProcessMessage(IHandlerContext<Message> context)
+            {
+                ProcessMessageAsync(context, true).GetAwaiter().GetResult();
             }
         }
 
         [Test]
         public void Should_be_able_to_invoke_handler()
+        {
+            Should_be_able_to_invoke_handler_async(true).GetAwaiter().GetResult();
+        }
+
+        [Test]
+        public async Task Should_be_able_to_invoke_handler_async()
+        {
+            await Should_be_able_to_invoke_handler_async(false);
+        }
+
+        private async Task Should_be_able_to_invoke_handler_async(bool sync)
         {
             const int count = 5;
 
@@ -77,6 +113,7 @@ namespace Shuttle.Esb.Tests
 
             services.AddServiceBus(builder =>
             {
+                builder.Options.Asynchronous = !sync;
                 builder.Options.Inbox.ThreadCount = 1;
                 builder.Options.Inbox.WorkQueueUri = "memory://configuration/inbox";
                 builder.Options.Inbox.DurationToSleepWhenIdle = new List<TimeSpan>
@@ -104,27 +141,54 @@ namespace Shuttle.Esb.Tests
 
             var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-            using (var serviceBus = serviceProvider.GetRequiredService<IServiceBus>().Start())
+            DateTime timeout;
+
+            if (sync)
             {
-                for (var i = 0; i < count; i++)
+                using (var serviceBus = serviceProvider.GetRequiredService<IServiceBus>().Start())
                 {
-                    serviceBus.Send(new Message
+                    for (var i = 0; i < count; i++)
                     {
-                        Count = i + 1,
-                        Name = $"message - {i + 1}"
-                    });
+                        serviceBus.Send(new Message
+                        {
+                            Count = i + 1,
+                            Name = $"message - {i + 1}"
+                        });
+                    }
+
+                    timeout = DateTime.Now.AddSeconds(5);
+
+                    while (messageHandlerTracker.HandledCount < (count * 2) &&
+                           DateTime.Now < timeout)
+                    {
+                        Thread.Sleep(25);
+                    }
                 }
-
-                var timeout = DateTime.Now.AddSeconds(5);
-
-                while (messageHandlerTracker.HandledCount < (count * 2) &&
-                       DateTime.Now < timeout)
-                {
-                    Thread.Sleep(25);
-                }
-
-                Assert.That(timeout > DateTime.Now);
             }
+            else
+            {
+                await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        await serviceBus.SendAsync(new Message
+                        {
+                            Count = i + 1,
+                            Name = $"message - {i + 1}"
+                        });
+                    }
+
+                    timeout = DateTime.Now.AddSeconds(5);
+
+                    while (messageHandlerTracker.HandledCount < (count * 2) &&
+                           DateTime.Now < timeout)
+                    {
+                        Thread.Sleep(25);
+                    }
+                }
+            }
+
+            Assert.That(timeout > DateTime.Now, "Timed out before all messages were");
         }
     }
 }

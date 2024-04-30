@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Esb</id>
-		<version>13.2.1</version>
+		<version>14.0.0</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<license type="expression">BSD-3-Clause</license>
@@ -13,22 +13,23 @@
 		<repository type="git" url="https://github.com/shuttle/Shuttle.Esb.git" />
 		<projectUrl>https://github.com/shuttle/Shuttle.Esb</projectUrl>
 		<description>Contains the core Shuttle.Esb assembly that should always be referenced when building Shuttle.Esb solutions.</description>
-		<copyright>Copyright (c) 2022, Eben Roux</copyright>
+		<copyright>Copyright (c) 2024, Eben Roux</copyright>
 		<tags>shuttle</tags>
 		<dependencies>
       <dependency id="Microsoft.Extensions.DependencyInjection" version="7.0.0" />
-      <dependency id="Microsoft.Extensions.Hosting" version="7.0.0" />
-      <dependency id="Shuttle.Core.Compression" version="11.0.1" />
-      <dependency id="Shuttle.Core.Encryption" version="11.0.1" />
-      <dependency id="Shuttle.Core.Pipelines" version="12.1.1" />
-      <dependency id="Shuttle.Core.PipelineTransaction" version="11.0.1" />
-      <dependency id="Shuttle.Core.Reflection" version="12.0.1" />
-      <dependency id="Shuttle.Core.Serialization" version="10.0.7" />
+      <dependency id="Microsoft.Extensions.Hosting" version="7.0.1" />
+      <dependency id="Shuttle.Core.Compression" version="12.0.0" />
+      <dependency id="Shuttle.Core.Contract" version="11.1.0" />
+      <dependency id="Shuttle.Core.Encryption" version="12.0.0" />
+      <dependency id="Shuttle.Core.Pipelines" version="13.0.0" />
+      <dependency id="Shuttle.Core.PipelineTransaction" version="13.0.0" />
+      <dependency id="Shuttle.Core.Reflection" version="13.0.0" />
+      <dependency id="Shuttle.Core.Serialization" version="11.0.0" />
       <dependency id="Shuttle.Core.Specification" version="11.0.0" />
-      <dependency id="Shuttle.Core.Streams" version="10.1.1" />
-      <dependency id="Shuttle.Core.System" version="11.0.3" />
-      <dependency id="Shuttle.Core.Threading" version="12.0.1" />
-      <dependency id="Shuttle.Core.Transactions" version="11.0.1" />
+      <dependency id="Shuttle.Core.Streams" version="10.3.0" />
+      <dependency id="Shuttle.Core.System" version="11.1.0" />
+      <dependency id="Shuttle.Core.Threading" version="13.0.0" />
+      <dependency id="Shuttle.Core.Transactions" version="11.1.0" />
 		</dependencies>
 	</metadata>
 	<files>

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -9,14 +10,14 @@ namespace Shuttle.Esb
 
     public class GetWorkMessageObserver : IGetWorkMessageObserver
     {
-        public void Execute(OnGetMessage pipelineEvent)
+        private async Task ExecuteAsync(OnGetMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var queue = state.GetWorkQueue();
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var queue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
 
-            Guard.AgainstNull(queue, nameof(queue));
-
-            var receivedMessage = queue.GetMessage();
+            var receivedMessage = sync
+                ? queue.GetMessage()
+                : await queue.GetMessageAsync().ConfigureAwait(false);
 
             // Abort the pipeline if there is no message on the queue
             if (receivedMessage == null)
@@ -29,6 +30,16 @@ namespace Shuttle.Esb
                 state.SetWorking();
                 state.SetReceivedMessage(receivedMessage);
             }
+        }
+
+        public void Execute(OnGetMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnGetMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

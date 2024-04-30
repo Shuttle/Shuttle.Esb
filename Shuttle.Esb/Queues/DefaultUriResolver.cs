@@ -5,11 +5,11 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
-    public class DefaultUriResolver : IUriResolver
+    public class UriResolver : IUriResolver
     {
         private readonly Dictionary<string, Uri> _targetUris = new Dictionary<string, Uri>();
 
-        public DefaultUriResolver(IOptions<ServiceBusOptions> serviceBusOptions)
+        public UriResolver(IOptions<ServiceBusOptions> serviceBusOptions)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));

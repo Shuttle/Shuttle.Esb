@@ -1,30 +1,53 @@
 using System;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
 {
     public static class QueueExtensions
     {
-        public static bool CanCreate(this IQueueFactory factory, Uri uri)
+        public static bool TryCreate(this IQueue queue)
         {
-            return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
+            return TryCreateAsync(queue, true).GetAwaiter().GetResult();
         }
 
-        public static bool AttemptCreate(this IQueue queue)
+        public static async ValueTask<bool> TryCreateAsync(this IQueue queue)
+        {
+            return await TryCreateAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async ValueTask<bool> TryCreateAsync(this IQueue queue, bool sync)
         {
             var operation = queue as ICreateQueue;
-
+            
             if (operation == null)
             {
                 return false;
             }
 
-            operation.Create();
+            if (sync)
+            {
+                operation.Create();
+            }
+            else
+            {
+                await operation.CreateAsync().ConfigureAwait(false);
+            }
 
             return true;
         }
 
         public static void Create(this IQueue queue)
+        {
+            CreateAsync(queue, true).GetAwaiter().GetResult();
+        }
+
+        public static async Task CreateAsync(this IQueue queue)
+        {
+            await CreateAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async Task CreateAsync(this IQueue queue, bool sync)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -36,10 +59,27 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "ICreateQueue"));
             }
 
-            operation.Create();
+            if (sync)
+            {
+                operation.Create();
+            }
+            else
+            {
+                await operation.CreateAsync().ConfigureAwait(false);
+            }
         }
 
-        public static bool AttemptDrop(this IQueue queue)
+        public static bool TryDrop(this IQueue queue)
+        {
+            return TryDropAsync(queue, true).GetAwaiter().GetResult();
+        }
+
+        public static async ValueTask<bool> TryDropAsync(this IQueue queue)
+        {
+            return await TryDropAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async ValueTask<bool> TryDropAsync(this IQueue queue, bool sync)
         {
             var operation = queue as IDropQueue;
 
@@ -48,12 +88,29 @@ namespace Shuttle.Esb
                 return false;
             }
 
-            operation.Drop();
+            if (sync)
+            {
+                operation.Drop();
+            }
+            else
+            {
+                await operation.DropAsync().ConfigureAwait(false);
+            }
 
             return true;
         }
 
         public static void Drop(this IQueue queue)
+        {
+            DropAsync(queue, true).GetAwaiter().GetResult();
+        }
+
+        public static async Task DropAsync(this IQueue queue)
+        {
+            await DropAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async Task DropAsync(this IQueue queue, bool sync)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -65,10 +122,20 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "IDropQueue"));
             }
 
-            operation.Drop();
+            await operation.DropAsync();
         }
 
-        public static bool AttemptPurge(this IQueue queue)
+        public static bool TryPurge(this IQueue queue)
+        {
+            return TryPurgeAsync(queue, true).GetAwaiter().GetResult();
+        }
+
+        public static async ValueTask<bool> TryPurgeAsync(this IQueue queue)
+        {
+            return await TryPurgeAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async ValueTask<bool> TryPurgeAsync(this IQueue queue, bool sync)
         {
             var operation = queue as IPurgeQueue;
 
@@ -77,12 +144,22 @@ namespace Shuttle.Esb
                 return false;
             }
 
-            operation.Purge();
+            await operation.PurgeAsync();
 
             return true;
         }
 
         public static void Purge(this IQueue queue)
+        {
+            PurgeAsync(queue, true).GetAwaiter().GetResult();
+        }
+
+        public static async Task PurgeAsync(this IQueue queue)
+        {
+            await PurgeAsync(queue, false).ConfigureAwait(false);
+        }
+
+        private static async Task PurgeAsync(this IQueue queue, bool sync)
         {
             Guard.AgainstNull(queue, nameof(queue));
 
@@ -94,7 +171,7 @@ namespace Shuttle.Esb
                     queue.GetType().FullName, "IPurgeQueue"));
             }
 
-            operation.Purge();
+            await operation.PurgeAsync();
         }
     }
 }

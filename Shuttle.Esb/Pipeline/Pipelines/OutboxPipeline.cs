@@ -14,11 +14,6 @@ namespace Shuttle.Esb
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
             Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-            Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver));
-            Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
-            Guard.AgainstNull(sendOutboxMessageObserver, nameof(sendOutboxMessageObserver));
-            Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver));
-            Guard.AgainstNull(outboxExceptionObserver, nameof(outboxExceptionObserver));
 
             if (!serviceBusConfiguration.HasOutbox())
             {
@@ -43,11 +38,12 @@ namespace Shuttle.Esb
                 .WithEvent<OnAcknowledgeMessage>()
                 .WithEvent<OnAfterAcknowledgeMessage>();
 
-            RegisterObserver(getWorkMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(sendOutboxMessageObserver);
-            RegisterObserver(acknowledgeMessageObserver);
-            RegisterObserver(outboxExceptionObserver); // must be last
+            RegisterObserver(Guard.AgainstNull(getWorkMessageObserver, nameof(getWorkMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(sendOutboxMessageObserver, nameof(sendOutboxMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(acknowledgeMessageObserver, nameof(acknowledgeMessageObserver)));
+            
+            RegisterObserver(Guard.AgainstNull(outboxExceptionObserver, nameof(outboxExceptionObserver))); // must be last
         }
     }
 }

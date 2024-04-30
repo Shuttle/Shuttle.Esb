@@ -5,72 +5,48 @@ namespace Shuttle.Esb
 {
     public class ServiceBusConfiguration : IServiceBusConfiguration
     {
-        private readonly IQueueService _queueService;
-
-        public ServiceBusConfiguration(IQueueService queueService)
+        public ServiceBusConfiguration(IOptions<ServiceBusOptions> serviceBusOptions, IQueueService queueService)
         {
             Guard.AgainstNull(queueService, nameof(queueService));
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
 
-            _queueService = queueService;
+            var options = serviceBusOptions.Value;
+
+            if (options.HasInbox())
+            {
+                Inbox = new InboxConfiguration
+                {
+                    WorkQueue = queueService.Get(options.Inbox.WorkQueueUri),
+                    DeferredQueue =
+                        string.IsNullOrWhiteSpace(options.Inbox.DeferredQueueUri)
+                            ? null
+                            : queueService.Get(options.Inbox.DeferredQueueUri),
+                    ErrorQueue =
+                        string.IsNullOrWhiteSpace(options.Inbox.ErrorQueueUri)
+                            ? null
+                            : queueService.Get(options.Inbox.ErrorQueueUri)
+                };
+            }
+
+            if (options.HasOutbox())
+            {
+                Outbox = new OutboxConfiguration
+                {
+                    WorkQueue = queueService.Get(options.Outbox.WorkQueueUri),
+                    ErrorQueue =
+                        string.IsNullOrWhiteSpace(options.Outbox.ErrorQueueUri)
+                            ? null
+                            : queueService.Get(options.Outbox.ErrorQueueUri)
+                };
+            }
         }
 
         public void Configure(ServiceBusOptions serviceBusOptions)
         {
-            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
-
-            if (serviceBusOptions.HasInbox())
-            {
-                Inbox = new InboxConfiguration
-                {
-                    WorkQueue = _queueService.Get(serviceBusOptions.Inbox.WorkQueueUri),
-                    DeferredQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Inbox.DeferredQueueUri)
-                            ? null
-                            : _queueService.Get(serviceBusOptions.Inbox.DeferredQueueUri),
-                    ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Inbox.ErrorQueueUri)
-                            ? null
-                            : _queueService.Get(serviceBusOptions.Inbox.ErrorQueueUri)
-                };
-            }
-
-            if (serviceBusOptions.HasControlInbox())
-            {
-                ControlInbox = new ControlInboxConfiguration
-                {
-                    WorkQueue = _queueService.Get(serviceBusOptions.ControlInbox.WorkQueueUri),
-                    ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.ControlInbox.ErrorQueueUri)
-                            ? null
-                            : _queueService.Get(serviceBusOptions.ControlInbox.ErrorQueueUri)
-                };
-            }
-
-            if (serviceBusOptions.HasOutbox())
-            {
-                Outbox = new OutboxConfiguration
-                {
-                    WorkQueue = _queueService.Get(serviceBusOptions.Outbox.WorkQueueUri),
-                    ErrorQueue =
-                        string.IsNullOrWhiteSpace(serviceBusOptions.Outbox.ErrorQueueUri)
-                            ? null
-                            : _queueService.Get(serviceBusOptions.Outbox.ErrorQueueUri)
-                };
-            }
-
-            if (serviceBusOptions.IsWorker())
-            {
-                Worker = new WorkerConfiguration
-                {
-                    DistributorControlInboxWorkQueue =
-                        _queueService.Get(serviceBusOptions.Worker.DistributorControlInboxWorkQueueUri)
-                };
-            }
         }
 
-        public IInboxConfiguration Inbox { get; private set; }
-        public IControlInboxConfiguration ControlInbox { get; private set; }
-        public IOutboxConfiguration Outbox { get; private set; }
-        public IWorkerConfiguration Worker { get; private set; }
+        public IInboxConfiguration Inbox { get; }
+        public IOutboxConfiguration Outbox { get; }
     }
 }

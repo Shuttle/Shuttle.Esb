@@ -1,88 +1,147 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Streams;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+public class MemoryQueue : IQueue
 {
-    public class MemoryQueue : IQueue
+    private readonly object _lock = new();
+    private readonly Queue<Message> _queue = new();
+    private readonly Dictionary<Guid, Message> _unacknowledged = new();
+
+    public MemoryQueue(Uri uri)
     {
-        private class Message
-        {
-            public TransportMessage TransportMessage { get; }
-            public Stream Stream { get; }
+        Guard.AgainstNull(uri, nameof(uri));
 
-            public Message(TransportMessage transportMessage, Stream stream)
+        Uri = new QueueUri(uri);
+    }
+
+    public QueueUri Uri { get; }
+    public bool IsStream => false;
+
+    public bool IsEmpty()
+    {
+        lock (_lock)
+        {
+            return _queue.Count == 0;
+        }
+    }
+
+    public async ValueTask<bool> IsEmptyAsync()
+    {
+        return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
+    }
+
+    public void Enqueue(TransportMessage transportMessage, Stream stream)
+    {
+        var copy = stream.Copy();
+
+        lock (_lock)
+        {
+            _queue.Enqueue(new Message(transportMessage, copy));
+        }
+    }
+
+    public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
+    {
+        var copy = await stream.CopyAsync().ConfigureAwait(false);
+
+        lock (_lock)
+        {
+            _queue.Enqueue(new Message(transportMessage, copy));
+        }
+    }
+
+    public ReceivedMessage GetMessage()
+    {
+        Message message;
+
+        lock (_lock)
+        {
+            if (_queue.Count == 0)
             {
-                TransportMessage = transportMessage;
-                Stream = stream;
+                return null;
             }
+
+            message = _queue.Dequeue();
+
+            _unacknowledged.Add(message.TransportMessage.MessageId, message);
         }
 
-        private readonly object _lock = new object();
-        private readonly Queue<Message> _queue = new Queue<Message>();
-        private readonly Dictionary<Guid, Message> _unacked = new Dictionary<Guid, Message>();
+        return new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
+    }
 
-        public MemoryQueue(Uri uri)
+    public async Task<ReceivedMessage> GetMessageAsync()
+    {
+        return await Task.FromResult(GetMessage()).ConfigureAwait(false);
+    }
+
+    public void Acknowledge(object acknowledgementToken)
+    {
+        lock (_lock)
         {
-            Guard.AgainstNull(uri, nameof(uri));
-
-            Uri = new QueueUri(uri);
+            _unacknowledged.Remove((Guid)acknowledgementToken);
         }
+    }
 
-        public QueueUri Uri { get; }
-        public bool IsStream => false;
-        public bool IsEmpty()
+    public async Task AcknowledgeAsync(object acknowledgementToken)
+    {
+        Acknowledge(acknowledgementToken);
+
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+    public void Release(object acknowledgementToken)
+    {
+        lock (_lock)
         {
-            lock (_lock)
-            {
-                return _queue.Count == 0;
-            }
-        }
+            var token = (Guid)acknowledgementToken;
 
-        public void Enqueue(TransportMessage message, Stream stream)
+            _queue.Enqueue(_unacknowledged[token]);
+            _unacknowledged.Remove(token);
+        }
+    }
+
+    public async Task ReleaseAsync(object acknowledgementToken)
+    {
+        Release(acknowledgementToken);
+
+        await Task.CompletedTask.ConfigureAwait(false);
+    }
+
+    public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate
+    {
+    };
+
+    public event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged = delegate
+    {
+    };
+
+    public event EventHandler<MessageReleasedEventArgs> MessageReleased = delegate
+    {
+    };
+
+    public event EventHandler<MessageReceivedEventArgs> MessageReceived = delegate
+    {
+    };
+
+    public event EventHandler<OperationEventArgs> Operation = delegate
+    {
+    };
+
+    private class Message
+    {
+        public Message(TransportMessage transportMessage, Stream stream)
         {
-            lock (_lock)
-            {
-                _queue.Enqueue(new Message(message, stream.Copy()));
-            }
+            TransportMessage = transportMessage;
+            Stream = stream;
         }
 
-        public ReceivedMessage GetMessage()
-        {
-            lock (_lock)
-            {
-                if (_queue.Count == 0)
-                {
-                    return null;
-                }
-
-                var message = _queue.Dequeue();
-
-                _unacked.Add(message.TransportMessage.MessageId, message);
-
-                return new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
-            }
-        }
-
-        public void Acknowledge(object acknowledgementToken)
-        {
-            lock (_lock)
-            {
-                _unacked.Remove((Guid)acknowledgementToken);
-            }
-        }
-
-        public void Release(object acknowledgementToken)
-        {
-            lock (_lock)
-            {
-                var token = (Guid)acknowledgementToken;
-
-                _queue.Enqueue(_unacked[token]);
-                _unacked.Remove(token);
-            }
-        }
+        public Stream Stream { get; }
+        public TransportMessage TransportMessage { get; }
     }
 }

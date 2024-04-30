@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -19,22 +20,40 @@ namespace Shuttle.Esb
             _queueService = queueService;
         }
 
-        public void Execute(OnDispatchTransportMessage pipelineEvent)
+        private async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent, bool sync)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
-            var receivedMessage = state.GetReceivedMessage();
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
+            var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage);
 
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-            Guard.AgainstNull(receivedMessage, nameof(receivedMessage));
-            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, "uri");
+            Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri, nameof(transportMessage.RecipientInboxWorkQueueUri));
 
             var queue = _queueService.Get(transportMessage.RecipientInboxWorkQueueUri);
 
-            using (var stream = receivedMessage.Stream.Copy())
+            if (sync)
             {
-                queue.Enqueue(transportMessage, stream);
+                using (var stream = receivedMessage.Stream.Copy())
+                {
+                    queue.Enqueue(transportMessage, stream);
+                }
             }
+            else
+            {
+                await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+                {
+                    await queue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public void Execute(OnDispatchTransportMessage pipelineEvent)
+        {
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnDispatchTransportMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
         }
     }
 }

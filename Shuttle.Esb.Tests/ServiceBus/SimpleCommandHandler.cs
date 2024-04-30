@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Shuttle.Esb.Tests
 {
-    public class SimpleCommandHandler : IMessageHandler<SimpleCommand>
+    public class SimpleCommandHandler : IAsyncMessageHandler<SimpleCommand>
     {
-        public void ProcessMessage(IHandlerContext<SimpleCommand> context)
+        public async Task ProcessMessageAsync(IHandlerContext<SimpleCommand> context)
         {
-            Console.WriteLine("Handled SimpleCommand with name '{0}.", context.Message.Name);
+            Console.WriteLine($@"Handled SimpleCommand with name '{context.Message.Name}.");
+
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }

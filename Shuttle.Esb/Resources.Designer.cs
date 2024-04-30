@@ -115,6 +115,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The service bus is running in &apos;{0}&apos; mode.  To stop please call the &apos;{1}&apos; method..
+        /// </summary>
+        public static string IncorrectStopCalledException {
+            get {
+                return ResourceManager.GetString("IncorrectStopCalledException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only scheme &apos;{0}&apos; is supported.  The given uri &apos;{1}&apos; is not supported..
         /// </summary>
         public static string InvalidSchemeException {
@@ -147,6 +156,15 @@ namespace Shuttle.Esb {
         public static string MessageNotHandledIgnored {
             get {
                 return ResourceManager.GetString("MessageNotHandledIgnored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No handler has been registered for message type &apos;{0}&apos;.  The message (id &apos;{1}&apos;) could not be moved to the error queue as no error queue has been set in the pipeline state..
+        /// </summary>
+        public static string MessageNotHandledMissingErrorQueueFailure {
+            get {
+                return ResourceManager.GetString("MessageNotHandledMissingErrorQueueFailure", resourceCulture);
             }
         }
         
@@ -286,6 +304,24 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;true&apos;.  Cannot start the service bus synchronously.  Please call the `StartAsync()` method..
+        /// </summary>
+        public static string ServiceBusStartAsynchronousException {
+            get {
+                return ResourceManager.GetString("ServiceBusStartAsynchronousException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;false&apos;.  Cannot start the service bus asynchronously.  Please call the `Start()` method..
+        /// </summary>
+        public static string ServiceBusStartSynchronousException {
+            get {
+                return ResourceManager.GetString("ServiceBusStartSynchronousException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempted to subscribe to messages but there is no inbox configured..
         /// </summary>
         public static string SubscribeWithNoInboxException {
@@ -345,15 +381,6 @@ namespace Shuttle.Esb {
         public static string UriNameNotFoundException {
             get {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No inbox has been configured.  A worker requires an inbox..
-        /// </summary>
-        public static string WorkerRequiresInboxException {
-            get {
-                return ResourceManager.GetString("WorkerRequiresInboxException", resourceCulture);
             }
         }
     }

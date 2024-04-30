@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class QueueFactoryService : IQueueFactoryService, IDisposable
+    public class QueueFactoryService : IQueueFactoryService
     {
+        private bool _disposed;
+
         private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
 
         public QueueFactoryService(IEnumerable<IQueueFactory> queueFactories = null)
@@ -17,30 +20,26 @@ namespace Shuttle.Esb
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             foreach (var queueFactory in _queueFactories)
             {
-                queueFactory.AttemptDispose();
+                queueFactory.TryDispose();
             }
 
             _queueFactories.Clear();
+
+            _disposed = true;
         }
 
         public IQueueFactory Get(string scheme)
         {
-            return Uri.TryCreate(scheme, UriKind.Absolute, out var uri)
-                ? Get(uri)
-                : _queueFactories.Find(
-                    factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
-        }
+            Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
 
-        public IQueueFactory Get(Uri uri)
-        {
-            foreach (var factory in _queueFactories.Where(factory => factory.CanCreate(uri)))
-            {
-                return factory;
-            }
-
-            throw new QueueFactoryNotFoundException(uri.Scheme);
+            return _queueFactories.FirstOrDefault(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)) ?? throw new QueueFactoryNotFoundException(scheme);
         }
 
         public IEnumerable<IQueueFactory> Factories => _queueFactories.AsReadOnly();
@@ -62,6 +61,13 @@ namespace Shuttle.Esb
         public bool Contains(string scheme)
         {
             return Get(scheme) != null;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+
+            return new ValueTask();
         }
     }
 }

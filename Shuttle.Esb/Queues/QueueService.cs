@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb
 {
-    public class QueueService : IQueueService, IDisposable
+    public class QueueService : IQueueService
     {
+        private bool _disposed;
         private static readonly object Padlock = new object();
+        private readonly IQueueFactoryService _queueFactoryService;
 
         private readonly List<IQueue> _queues = new List<IQueue>();
-        private readonly IQueueFactoryService _queueFactoryService;
         private readonly IUriResolver _uriResolver;
 
         public QueueService(IQueueFactoryService queueFactoryService, IUriResolver uriResolver)
@@ -24,19 +26,42 @@ namespace Shuttle.Esb
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             foreach (var queue in _queues)
             {
-                queue.AttemptDispose();
+                QueueDisposing.Invoke(this, new QueueEventArgs(queue));
+
+                queue.TryDispose();
+
+                QueueDisposed.Invoke(this, new QueueEventArgs(queue));
             }
 
             _queues.Clear();
+
+            _disposed = true;
         }
 
-        public IQueue Get(string uri)
+        public event EventHandler<QueueEventArgs> QueueCreated = delegate
         {
-            Guard.AgainstNullOrEmptyString(uri, "uri");
+        };
 
-            var queue = FindQueue(uri);
+        public event EventHandler<QueueEventArgs> QueueDisposing = delegate
+        {
+        };
+
+        public event EventHandler<QueueEventArgs> QueueDisposed = delegate
+        {
+        };
+
+        public IQueue Get(Uri uri)
+        {
+            Guard.AgainstNull(uri, nameof(uri));
+
+            var queue = Find(uri);
 
             if (queue != null)
             {
@@ -46,15 +71,14 @@ namespace Shuttle.Esb
             lock (Padlock)
             {
                 queue =
-                    _queues.Find(
-                        candidate => Find(candidate, uri));
+                    _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
 
                 if (queue != null)
                 {
                     return queue;
                 }
 
-                var queueUri = new Uri(uri);
+                var queueUri = uri;
 
                 if (queueUri.Scheme.Equals("resolver"))
                 {
@@ -67,12 +91,12 @@ namespace Shuttle.Esb
                             uri));
                     }
 
-                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri), resolvedQueueUri),
+                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri.Scheme), resolvedQueueUri),
                         queueUri);
                 }
                 else
                 {
-                    queue = CreateQueue(_queueFactoryService.Get(queueUri), queueUri);
+                    queue = CreateQueue(_queueFactoryService.Get(queueUri.Scheme), queueUri);
                 }
 
                 _queues.Add(queue);
@@ -81,27 +105,9 @@ namespace Shuttle.Esb
             }
         }
 
-        public bool Contains(string uri)
+        public bool Contains(Uri uri)
         {
-            return FindQueue(uri) != null;
-        }
-
-        public IQueue FindQueue(string uri)
-        {
-            Guard.AgainstNullOrEmptyString(uri, nameof(uri));
-            
-            return _queues.Find(
-                candidate => Find(candidate, uri));
-        }
-
-        public IQueue Create(string uri)
-        {
-            return Create(new Uri(uri));
-        }
-
-        public IQueue Create(Uri uri)
-        {
-            return _queueFactoryService.Get(uri).Create(uri);
+            return Find(uri) != null;
         }
 
         private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
@@ -111,19 +117,23 @@ namespace Shuttle.Esb
             Guard.AgainstNull(result,
                 string.Format(Resources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
 
+            QueueCreated.Invoke(this, new QueueEventArgs(result));
+
             return result;
         }
 
-        private bool Find(IQueue candidate, string uri)
+        public IQueue Find(Uri uri)
         {
-            try
-            {
-                return candidate.Uri.ToString().Equals(uri, StringComparison.InvariantCultureIgnoreCase);
-            }
-            catch
-            {
-                return false;
-            }
+            Guard.AgainstNull(uri, nameof(uri));
+
+            return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+
+            return new ValueTask();
         }
     }
 }

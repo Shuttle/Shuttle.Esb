@@ -11,9 +11,6 @@ namespace Shuttle.Esb
             IProcessDeferredMessageObserver processDeferredMessageObserver)
         {
             Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
-            Guard.AgainstNull(getDeferredMessageObserver, nameof(getDeferredMessageObserver));
-            Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver));
-            Guard.AgainstNull(processDeferredMessageObserver, nameof(processDeferredMessageObserver));
 
             State.SetWorkQueue(serviceBusConfiguration.Inbox.WorkQueue);
             State.SetErrorQueue(serviceBusConfiguration.Inbox.ErrorQueue);
@@ -27,9 +24,9 @@ namespace Shuttle.Esb
                 .WithEvent<OnProcessDeferredMessage>()
                 .WithEvent<OnAfterProcessDeferredMessage>();
 
-            RegisterObserver(getDeferredMessageObserver);
-            RegisterObserver(deserializeTransportMessageObserver);
-            RegisterObserver(processDeferredMessageObserver);
+            RegisterObserver(Guard.AgainstNull(getDeferredMessageObserver, nameof(getDeferredMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(deserializeTransportMessageObserver, nameof(deserializeTransportMessageObserver)));
+            RegisterObserver(Guard.AgainstNull(processDeferredMessageObserver, nameof(processDeferredMessageObserver)));
         }
     }
 }

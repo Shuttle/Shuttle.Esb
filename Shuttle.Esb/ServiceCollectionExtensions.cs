@@ -33,11 +33,10 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
             services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
-            services.TryAddSingleton<IMessageHandlingAssessor, MessageHandlingAssessor>();
-            services.TryAddSingleton<IUriResolver, DefaultUriResolver>();
+            services.TryAddSingleton<IMessageHandlingSpecification, MessageHandlingSpecification>();
+            services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<IQueueService, QueueService>();
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
-            services.TryAddSingleton<IWorkerAvailabilityService, WorkerAvailabilityService>();
             services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
             services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
@@ -45,6 +44,7 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
+            services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
 
             var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 
@@ -62,15 +62,13 @@ namespace Shuttle.Esb
 
             services.AddOptions<ServiceBusOptions>().Configure(options =>
             {
+                options.Asynchronous = serviceBusBuilder.Options.Asynchronous;
+
                 options.Inbox = serviceBusBuilder.Options.Inbox;
                 options.Outbox = serviceBusBuilder.Options.Outbox;
-                options.ControlInbox = serviceBusBuilder.Options.ControlInbox;
 
                 ApplyDefaults(options.Inbox);
                 ApplyDefaults(options.Outbox);
-                ApplyDefaults(options.ControlInbox);
-
-                options.Worker = serviceBusBuilder.Options.Worker;
 
                 options.AddMessageHandlers = serviceBusBuilder.Options.AddMessageHandlers;
                 options.CacheIdentity = serviceBusBuilder.Options.CacheIdentity;

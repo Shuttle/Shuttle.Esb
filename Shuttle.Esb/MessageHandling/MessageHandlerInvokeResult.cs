@@ -2,23 +2,22 @@
 {
     public class MessageHandlerInvokeResult
     {
-        private MessageHandlerInvokeResult(bool invoked, object messageHandler)
+        private MessageHandlerInvokeResult(string messageHandlerAssemblyQualifiedName)
         {
-            Invoked = invoked;
-            MessageHandler = messageHandler;
+            MessageHandlerAssemblyQualifiedName = messageHandlerAssemblyQualifiedName;
         }
 
-        public bool Invoked { get; }
-        public object MessageHandler { get; }
+        public bool Invoked => !string.IsNullOrEmpty(MessageHandlerAssemblyQualifiedName);
+        public string MessageHandlerAssemblyQualifiedName { get; }
 
-        public static MessageHandlerInvokeResult InvokedHandler(object handler)
+        public static MessageHandlerInvokeResult InvokedHandler(string assemblyQualifiedName)
         {
-            return new MessageHandlerInvokeResult(true, handler);
+            return new MessageHandlerInvokeResult(assemblyQualifiedName);
         }
 
-        public static MessageHandlerInvokeResult InvokeFailure()
+        public static MessageHandlerInvokeResult MissingHandler()
         {
-            return new MessageHandlerInvokeResult(false, null);
+            return new MessageHandlerInvokeResult(string.Empty);
         }
     }
 }

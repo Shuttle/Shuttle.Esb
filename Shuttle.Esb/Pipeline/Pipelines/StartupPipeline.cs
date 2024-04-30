@@ -7,27 +7,19 @@ namespace Shuttle.Esb
     {
         public StartupPipeline(IStartupProcessingObserver startupProcessingObserver)
         {
-            Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver));
-
             RegisterStage("Start")
                 .WithEvent<OnStarting>()
-                .WithEvent<OnConfigure>()
-                .WithEvent<OnAfterConfigure>()
                 .WithEvent<OnCreatePhysicalQueues>()
                 .WithEvent<OnAfterCreatePhysicalQueues>()
-                .WithEvent<OnStartInboxProcessing>()
-                .WithEvent<OnAfterStartInboxProcessing>()
-                .WithEvent<OnStartControlInboxProcessing>()
-                .WithEvent<OnAfterStartControlInboxProcessing>()
-                .WithEvent<OnStartOutboxProcessing>()
-                .WithEvent<OnAfterStartOutboxProcessing>()
-                .WithEvent<OnStartDeferredMessageProcessing>()
-                .WithEvent<OnAfterStartDeferredMessageProcessing>();
+                .WithEvent<OnConfigureThreadPools>()
+                .WithEvent<OnAfterConfigureThreadPools>()
+                .WithEvent<OnStartThreadPools>()
+                .WithEvent<OnAfterStartThreadPools>();
 
             RegisterStage("Final")
                 .WithEvent<OnStarted>();
 
-            RegisterObserver(startupProcessingObserver);
+            RegisterObserver(Guard.AgainstNull(startupProcessingObserver, nameof(startupProcessingObserver)));
         }
     }
 }

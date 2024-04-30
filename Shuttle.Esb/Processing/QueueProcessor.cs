@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
@@ -24,22 +25,22 @@ namespace Shuttle.Esb
             _pipelineThreadActivity = pipelineThreadActivity;
         }
 
-        [DebuggerNonUserCode]
-        void IProcessor.Execute(CancellationToken cancellationToken)
-        {
-            Execute(cancellationToken);
-        }
-
-        public virtual void Execute(CancellationToken cancellationToken)
+        private async Task ExecuteAsync(CancellationToken cancellationToken, bool sync)
         {
             var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 
             try
             {
                 messagePipeline.State.ResetWorking();
-                messagePipeline.State.Replace(StateKeys.CancellationToken, cancellationToken);
 
-                messagePipeline.Execute();
+                if (sync)
+                {
+                    messagePipeline.Execute(cancellationToken);
+                }
+                else
+                {
+                    await messagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+                }
 
                 if (messagePipeline.State.GetWorking())
                 {
@@ -51,13 +52,30 @@ namespace Shuttle.Esb
                 {
                     _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
 
-                    _threadActivity.Waiting(cancellationToken);
+                    if (sync)
+                    {
+                        _threadActivity.Waiting(cancellationToken);
+                    }
+                    else
+                    {
+                        await _threadActivity.WaitingAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
             finally
             {
                 _pipelineFactory.ReleasePipeline(messagePipeline);
             }
+        }
+
+        public void Execute(CancellationToken cancellationToken)
+        {
+            ExecuteAsync(cancellationToken, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            await ExecuteAsync(cancellationToken, false).ConfigureAwait(false);
         }
     }
 }

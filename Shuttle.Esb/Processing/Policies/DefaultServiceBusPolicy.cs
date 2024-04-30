@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb
@@ -11,11 +12,6 @@ namespace Shuttle.Esb
             return DefaultEvaluation(pipelineEvent);
         }
 
-        public MessageFailureAction EvaluateMessageDistributionFailure(OnPipelineException pipelineEvent)
-        {
-            return DefaultEvaluation(pipelineEvent);
-        }
-
         public MessageFailureAction EvaluateOutboxFailure(OnPipelineException pipelineEvent)
         {
             return DefaultEvaluation(pipelineEvent);
@@ -23,7 +19,7 @@ namespace Shuttle.Esb
 
         private MessageFailureAction DefaultEvaluation(OnPipelineException pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
+            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
             var transportMessage = state.GetTransportMessage();
             var durationToIgnoreOnFailure = state.GetDurationToIgnoreOnFailure().ToArray();
 
@@ -38,15 +34,12 @@ namespace Shuttle.Esb
             }
             else
             {
-                timeSpanToIgnoreRetriedMessage = durationToIgnoreOnFailure.Length <
-                                                 failureIndex
-                    ? durationToIgnoreOnFailure[durationToIgnoreOnFailure.Length - 1]
+                timeSpanToIgnoreRetriedMessage = durationToIgnoreOnFailure.Length < failureIndex
+                    ? durationToIgnoreOnFailure[^1]
                     : durationToIgnoreOnFailure[failureIndex - 1];
             }
 
-            return new MessageFailureAction(
-                retry,
-                timeSpanToIgnoreRetriedMessage);
+            return new MessageFailureAction(retry, timeSpanToIgnoreRetriedMessage);
         }
     }
 }

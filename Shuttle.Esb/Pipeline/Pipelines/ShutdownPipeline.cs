@@ -7,15 +7,13 @@ namespace Shuttle.Esb
     {
         public ShutdownPipeline(IShutdownProcessingObserver shutdownProcessingObserver)
         {
-            Guard.AgainstNull(shutdownProcessingObserver, nameof(shutdownProcessingObserver));
-
             RegisterStage("Shutdown")
                 .WithEvent<OnStopping>();
 
             RegisterStage("Final")
                 .WithEvent<OnStopped>();
 
-            RegisterObserver(shutdownProcessingObserver);
+            RegisterObserver(Guard.AgainstNull(shutdownProcessingObserver, nameof(shutdownProcessingObserver)));
         }
     }
 }

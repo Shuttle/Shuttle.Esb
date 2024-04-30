@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -22,6 +24,8 @@ namespace Shuttle.Esb
 
         private readonly ServiceBusOptions _serviceBusOptions;
 
+        private bool _disposed;
+
         public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions,
             IServiceBusConfiguration serviceBusConfiguration,
             IPipelineFactory pipelineFactory, IMessageSender messageSender,
@@ -42,6 +46,26 @@ namespace Shuttle.Esb
 
         public IServiceBus Start()
         {
+            if (_serviceBusOptions.Asynchronous)
+            {
+                throw new ApplicationException(Resources.ServiceBusStartAsynchronousException);
+            }
+
+            return StartAsync(true).GetAwaiter().GetResult();
+        }
+
+        public async Task<IServiceBus> StartAsync()
+        {
+            if (!_serviceBusOptions.Asynchronous)
+            {
+                throw new ApplicationException(Resources.ServiceBusStartSynchronousException);
+            }
+
+            return await StartAsync(false).ConfigureAwait(false);
+        }
+
+        private async Task<IServiceBus> StartAsync(bool sync)
+        {
             if (Started)
             {
                 throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
@@ -52,10 +76,18 @@ namespace Shuttle.Esb
             var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 
             Started = true; // required for using ServiceBus in OnStarted event
+            Asynchronous = !sync;
 
             try
             {
-                startupPipeline.Execute();
+                if (sync)
+                {
+                    startupPipeline.Execute(CancellationToken.None);
+                }
+                else
+                {
+                    await startupPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                }
 
                 _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
                 _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
@@ -71,7 +103,7 @@ namespace Shuttle.Esb
             return this;
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             if (!Started)
             {
@@ -80,40 +112,27 @@ namespace Shuttle.Esb
 
             _cancellationTokenSource.Renew();
 
-            if (_serviceBusConfiguration.HasInbox())
-            {
-                if (_serviceBusConfiguration.Inbox.HasDeferredQueue())
-                {
-                    _deferredMessageThreadPool.Dispose();
-                }
+            _deferredMessageThreadPool?.Dispose();
+            _inboxThreadPool?.Dispose();
+            _controlInboxThreadPool?.Dispose();
+            _outboxThreadPool?.Dispose();
 
-                _inboxThreadPool.Dispose();
+            if (!Asynchronous)
+            {
+                _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute(CancellationToken.None);
+            }
+            else
+            {
+                await _pipelineFactory.GetPipeline<ShutdownPipeline>().ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
-            if (_serviceBusConfiguration.HasControlInbox())
-            {
-                _controlInboxThreadPool.Dispose();
-            }
-
-            if (_serviceBusConfiguration.HasOutbox())
-            {
-                _outboxThreadPool.Dispose();
-            }
-
-            _pipelineFactory.GetPipeline<ShutdownPipeline>().Execute();
             _pipelineFactory.Flush();
 
             Started = false;
         }
 
         public bool Started { get; private set; }
-
-        public void Dispose()
-        {
-            Stop();
-
-            _cancellationTokenSource.AttemptDispose();
-        }
+        public bool Asynchronous { get; private set; }
 
         public TransportMessage Send(object message, Action<TransportMessageBuilder> builder = null)
         {
@@ -122,11 +141,25 @@ namespace Shuttle.Esb
             return _messageSender.Send(message, null, builder);
         }
 
+        public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            StartedGuard();
+
+            return await _messageSender.SendAsync(message, null, builder).ConfigureAwait(false);
+        }
+
         public IEnumerable<TransportMessage> Publish(object message, Action<TransportMessageBuilder> builder = null)
         {
             StartedGuard();
 
             return _messageSender.Publish(message, null, builder);
+        }
+
+        public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder> builder = null)
+        {
+            StartedGuard();
+
+            return await _messageSender.PublishAsync(message, null, builder);
         }
 
         private void StartedGuard()
@@ -141,9 +174,6 @@ namespace Shuttle.Esb
 
         private void ConfigurationInvariant()
         {
-            Guard.Against<WorkerException>(_serviceBusConfiguration.IsWorker() && !_serviceBusConfiguration.HasInbox(),
-                Resources.WorkerRequiresInboxException);
-
             if (_serviceBusConfiguration.HasInbox())
             {
                 Guard.Against<InvalidOperationException>(
@@ -165,18 +195,34 @@ namespace Shuttle.Esb
                     _serviceBusOptions.Outbox == null,
                     string.Format(Resources.RequiredOptionsMissingException, "Outbox"));
             }
+        }
 
-            if (_serviceBusConfiguration.HasControlInbox())
+        public void Dispose()
+        {
+            if (_disposed)
             {
-                Guard.Against<InvalidOperationException>(
-                    _serviceBusConfiguration.ControlInbox.WorkQueue == null &&
-                    string.IsNullOrEmpty(_serviceBusOptions.ControlInbox.WorkQueueUri),
-                    string.Format(Resources.RequiredQueueUriMissingException, "ControlInbox.WorkQueueUri"));
-
-                Guard.Against<InvalidOperationException>(
-                    _serviceBusOptions.ControlInbox == null,
-                    string.Format(Resources.RequiredOptionsMissingException, "ControlInbox"));
+                return;
             }
+
+            this.Stop();
+
+            _cancellationTokenSource.TryDispose();
+
+            _disposed = true;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            await StopAsync().ConfigureAwait(false);
+
+            _cancellationTokenSource.TryDispose();
+
+            _disposed = true;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Esb
@@ -8,26 +9,38 @@ namespace Shuttle.Esb
     public class ServiceBusHostedService : IHostedService
     {
         private readonly IServiceBus _serviceBus;
+        private readonly ServiceBusOptions _serviceBusOptions;
 
-        public ServiceBusHostedService(IServiceBus serviceBus)
+        public ServiceBusHostedService(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus)
         {
-            Guard.AgainstNull(serviceBus, nameof(serviceBus));
-
-            _serviceBus = serviceBus;
+            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
+            
+            _serviceBusOptions = Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
+            _serviceBus = Guard.AgainstNull(serviceBus, nameof(serviceBus));
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _serviceBus.Start();
-
-            return Task.CompletedTask;
+            if (_serviceBusOptions.Asynchronous)
+            {
+                await _serviceBus.StartAsync();
+            }
+            else
+            {
+                _serviceBus.Start();
+            }
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _serviceBus.Stop();
-
-            return Task.CompletedTask;
+            if (_serviceBusOptions.Asynchronous)
+            {
+                await _serviceBus.StopAsync();
+            }
+            else
+            {
+                _serviceBus.Stop();
+            }
         }
     }
 }

@@ -34,11 +34,11 @@ namespace Shuttle.Esb
     {
     }
 
-    public class OnAssessMessageHandling : PipelineEvent
+    public class OnEvaluateMessageHandling : PipelineEvent
     {
     }
 
-    public class OnAfterAssessMessageHandling : PipelineEvent
+    public class OnAfterEvaluateMessageHandling : PipelineEvent
     {
     }
 

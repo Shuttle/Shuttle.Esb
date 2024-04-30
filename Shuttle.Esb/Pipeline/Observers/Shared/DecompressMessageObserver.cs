@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -22,15 +22,26 @@ namespace Shuttle.Esb
 
         public void Execute(OnDecompressMessage pipelineEvent)
         {
-            var state = pipelineEvent.Pipeline.State;
-            var transportMessage = state.GetTransportMessage();
+            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+        }
+
+        public async Task ExecuteAsync(OnDecompressMessage pipelineEvent)
+        {
+            await ExecuteAsync(pipelineEvent, false);
+        }
+
+        private async Task ExecuteAsync(OnDecompressMessage pipelineEvent, bool sync)
+        {
+            var transportMessage = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State.GetTransportMessage();
 
             if (!transportMessage.CompressionEnabled())
             {
                 return;
             }
 
-            transportMessage.Message = _compressionService.Decompress(transportMessage.CompressionAlgorithm, transportMessage.Message);
+            transportMessage.Message = sync
+                ? _compressionService.Decompress(transportMessage.CompressionAlgorithm, transportMessage.Message)
+                : await _compressionService.DecompressAsync(transportMessage.CompressionAlgorithm, transportMessage.Message).ConfigureAwait(false);
         }
     }
 }
