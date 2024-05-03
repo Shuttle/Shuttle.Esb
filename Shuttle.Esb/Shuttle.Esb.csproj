@@ -16,9 +16,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="Shuttle.Core.Compression" Version="12.0.0" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="12.0.1" />
     <PackageReference Include="Shuttle.Core.Contract" Version="11.1.0" />
-    <PackageReference Include="Shuttle.Core.Encryption" Version="12.0.0" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="12.0.1" />
     <PackageReference Include="Shuttle.Core.Pipelines" Version="13.0.0" />
     <PackageReference Include="Shuttle.Core.PipelineTransaction" Version="13.0.0" />
     <PackageReference Include="Shuttle.Core.Reflection" Version="13.0.0" />
