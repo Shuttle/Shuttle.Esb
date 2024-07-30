@@ -7,18 +7,17 @@ using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.PipelineTransactionScope;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.System;
 using Shuttle.Core.Threading;
-using Shuttle.Core.Transactions;
+using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Esb
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddServiceBus(this IServiceCollection services,
-            Action<ServiceBusBuilder> builder = null)
+        public static IServiceCollection AddServiceBus(this IServiceCollection services,            Action<ServiceBusBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
 
@@ -39,12 +38,17 @@ namespace Shuttle.Esb
             services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
             services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
             services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
-            services.TryAddSingleton<ITransactionScopeObserver, TransactionScopeObserver>();
             services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();
             services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
             services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
+            services.TryAddSingleton<IProcessorThreadPoolFactory, ProcessorThreadPoolFactory>();
+
+            services.AddPipelineProcessing(pipelineProcessingBuilder =>
+            {
+                pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+            });
 
             var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 
@@ -53,11 +57,9 @@ namespace Shuttle.Esb
                 services.AddTransactionScope();
             }
 
-            services.AddPipelineProcessing(pipelineProcessingBuilder =>
+            services.AddPipelineTransactionScope(transactionScopeBuilder =>
             {
-                pipelineProcessingBuilder
-                    .AddAssembly(typeof(ServiceBus).Assembly)
-                    .AddTransactions();
+                transactionScopeBuilder.AddStage<InboxMessagePipeline>("Handle");
             });
 
             services.AddOptions<ServiceBusOptions>().Configure(options =>
@@ -83,8 +85,7 @@ namespace Shuttle.Esb
                 options.Idempotence = serviceBusBuilder.Options.Idempotence;
                 options.ProcessorThread = serviceBusBuilder.Options.ProcessorThread;
             });
-
-
+            
             services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
 
             if (serviceBusBuilder.Options.AddMessageHandlers)

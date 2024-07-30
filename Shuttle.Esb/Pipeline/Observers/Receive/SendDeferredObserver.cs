@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.PipelineTransactionScope;
 using Shuttle.Core.Serialization;
 
 namespace Shuttle.Esb
@@ -56,7 +56,7 @@ namespace Shuttle.Esb
 
             if (state.GetProcessingStatus() == ProcessingStatus.Ignore ||
                 (
-                    pipelineEvent.Pipeline.Exception != null && !state.GetTransactionComplete()
+                    pipelineEvent.Pipeline.Exception != null && !state.GetTransactionScopeCompleted()
                 ))
             {
                 return;

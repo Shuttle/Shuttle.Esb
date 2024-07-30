@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.PipelineTransactionScope;
 
 namespace Shuttle.Esb
 {
@@ -25,7 +25,7 @@ namespace Shuttle.Esb
         {
             var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
 
-            if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionComplete())
+            if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionScopeCompleted())
             {
                 return;
             }

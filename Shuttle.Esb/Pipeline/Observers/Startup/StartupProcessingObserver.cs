@@ -15,23 +15,23 @@ namespace Shuttle.Esb
 
     public class StartupProcessingObserver : IStartupProcessingObserver
     {
-        private readonly IServiceBus _serviceBus;
+        private readonly IProcessorThreadPoolFactory _processorThreadPoolFactory;
         private readonly ServiceBusOptions _serviceBusOptions;
         private readonly IServiceBusConfiguration _serviceBusConfiguration;
         private readonly IPipelineFactory _pipelineFactory;
         private readonly IPipelineThreadActivity _pipelineThreadActivity;
         private readonly IDeferredMessageProcessor _deferredMessageProcessor;
 
-        public StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IServiceBusConfiguration serviceBusConfiguration, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
+        public StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity, IProcessorThreadPoolFactory processorThreadPoolFactory)
         {
             Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
 
-            _serviceBus = Guard.AgainstNull(serviceBus, nameof(serviceBus));
             _serviceBusOptions = Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
             _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor, nameof(deferredMessageProcessor));
             _pipelineFactory = Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
             _pipelineThreadActivity = Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
             _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration, nameof(serviceBusConfiguration));
+            _processorThreadPoolFactory = Guard.AgainstNull(processorThreadPoolFactory, nameof(processorThreadPoolFactory));
         }
 
         public void Execute(OnCreatePhysicalQueues pipelineEvent)
@@ -65,7 +65,7 @@ namespace Shuttle.Esb
         {
             if (_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox.HasDeferredQueue())
             {
-                pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", new ProcessorThreadPool(
+                pipelineEvent.Pipeline.State.Add("DeferredMessageThreadPool", _processorThreadPoolFactory.Create(
                     "DeferredMessageProcessor",
                     1,
                     new DeferredMessageProcessorFactory(_deferredMessageProcessor),
@@ -74,7 +74,7 @@ namespace Shuttle.Esb
 
             if (_serviceBusConfiguration.HasInbox())
             {
-                pipelineEvent.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool(
+                pipelineEvent.Pipeline.State.Add("InboxThreadPool", _processorThreadPoolFactory.Create(
                     "InboxProcessor",
                     _serviceBusOptions.Inbox.ThreadCount,
                     new InboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),                    _serviceBusOptions.ProcessorThread));
@@ -82,7 +82,7 @@ namespace Shuttle.Esb
 
             if (_serviceBusConfiguration.HasOutbox())
             {
-                pipelineEvent.Pipeline.State.Add("OutboxThreadPool", new ProcessorThreadPool(
+                pipelineEvent.Pipeline.State.Add("OutboxThreadPool", _processorThreadPoolFactory.Create(
                     "OutboxProcessor",
                     _serviceBusOptions.Outbox.ThreadCount,
                     new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory, _pipelineThreadActivity),

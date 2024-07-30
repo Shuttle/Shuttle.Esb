@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransaction;
+using Shuttle.Core.PipelineTransactionScope;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
 
@@ -82,7 +83,7 @@ namespace Shuttle.Esb
                     await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
                 }
 
-                state.SetTransactionComplete();
+                state.SetTransactionScopeCompleted();
                 pipelineEvent.Pipeline.Abort();
 
                 return;

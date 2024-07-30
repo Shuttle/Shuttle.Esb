@@ -69,7 +69,7 @@ namespace Shuttle.Esb
 
         public static ProcessingStatus GetProcessingStatus(this IState state)
         {
-            return state.Get<ProcessingStatus>(StateKeys.ProcessingStatus);
+            return state.Contains(StateKeys.ProcessingStatus) ? state.Get<ProcessingStatus>(StateKeys.ProcessingStatus) : ProcessingStatus.Active;
         }
 
         public static void SetReceivedMessage(this IState state, ReceivedMessage receivedMessage)
@@ -129,7 +129,7 @@ namespace Shuttle.Esb
 
         public static bool GetWorking(this IState state)
         {
-            return state.Get<bool>(StateKeys.Working);
+            return state.Contains(StateKeys.Working) && state.Get<bool>(StateKeys.Working);
         }
 
         public static void ResetWorking(this IState state)
