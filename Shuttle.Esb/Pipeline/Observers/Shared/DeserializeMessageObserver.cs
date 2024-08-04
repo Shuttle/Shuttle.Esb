@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.PipelineTransaction;
 using Shuttle.Core.PipelineTransactionScope;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
