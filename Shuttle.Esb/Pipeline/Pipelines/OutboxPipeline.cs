@@ -19,7 +19,7 @@ public class OutboxPipeline : Pipeline
         }
 
         State.SetWorkQueue(Guard.AgainstNull(serviceBusConfiguration.Outbox.WorkQueue));
-        State.SetErrorQueue(Guard.AgainstNull(serviceBusConfiguration.Outbox.ErrorQueue));
+        State.SetErrorQueue(serviceBusConfiguration.Outbox.ErrorQueue);
 
         State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.DurationToIgnoreOnFailure);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
