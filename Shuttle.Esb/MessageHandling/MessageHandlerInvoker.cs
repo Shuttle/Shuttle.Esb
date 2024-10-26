@@ -12,7 +12,7 @@ namespace Shuttle.Esb;
 
 public class MessageHandlerInvoker : IMessageHandlerInvoker
 {
-    private static readonly Type AsyncMessageHandlerType = typeof(IMessageHandler<>);
+    private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
     private static readonly object LockGetHandler = new();
     private static readonly object LockInvoke = new();
     private readonly Dictionary<Type, HandlerContextConstructorInvoker> _constructorCache = new();
@@ -31,20 +31,20 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
     {
         lock (LockGetHandler)
         {
-            if (!_threadAsyncHandlers.TryGetValue(messageType, out Dictionary<int, object>? instances))
+            if (!_threadAsyncHandlers.TryGetValue(messageType, out var instances))
             {
                 instances = new();
                 _threadAsyncHandlers.Add(messageType, instances);
             }
 
-            var managedThreadId = Thread.CurrentThread.ManagedThreadId;
+            var managedThreadId = Environment.CurrentManagedThreadId;
 
             if (instances.TryGetValue(managedThreadId, out var handler))
             {
                 return handler;
             }
 
-            handler = _serviceProvider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
+            handler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
 
             if (handler != null)
             {
@@ -85,7 +85,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
 
                 if (!_methodCacheAsync.TryGetValue(messageType, out asyncContextMethod))
                 {
-                    var interfaceType = AsyncMessageHandlerType.MakeGenericType(messageType);
+                    var interfaceType = MessageHandlerType.MakeGenericType(messageType);
                     var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
                     if (method == null)
@@ -93,7 +93,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
                         throw new MessageHandlerInvokerException(string.Format(Resources.HandlerMessageMethodMissingException, handler.GetType().FullName, messageType.FullName));
                     }
 
-                    var methodInfo = handler.GetType().GetInterfaceMap(AsyncMessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
+                    var methodInfo = handler.GetType().GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
 
                     if (methodInfo == null)
                     {
@@ -132,7 +132,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
                 return;
             }
 
-            instances.Remove(Thread.CurrentThread.ManagedThreadId);
+            instances.Remove(Environment.CurrentManagedThreadId);
         }
     }
 }
