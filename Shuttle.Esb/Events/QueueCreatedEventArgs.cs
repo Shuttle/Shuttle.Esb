@@ -1,15 +1,14 @@
 using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
-{
-    public class QueueEventArgs : EventArgs
-    {
-        public QueueEventArgs(IQueue queue)
-        {
-            Queue = Guard.AgainstNull(queue, nameof(queue));
-        }
+namespace Shuttle.Esb;
 
-        public IQueue Queue { get; }
+public class QueueEventArgs : EventArgs
+{
+    public QueueEventArgs(IQueue queue)
+    {
+        Queue = Guard.AgainstNull(queue);
     }
+
+    public IQueue Queue { get; }
 }

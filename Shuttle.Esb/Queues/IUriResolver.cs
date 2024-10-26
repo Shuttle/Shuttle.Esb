@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IUriResolver
 {
-    public interface IUriResolver
-    {
-        Uri GetTarget(Uri sourceUri);
-        void Add(Uri sourceUri, Uri targetUri);
-    }
+    void Add(Uri sourceUri, Uri targetUri);
+    Uri GetTarget(Uri sourceUri);
 }

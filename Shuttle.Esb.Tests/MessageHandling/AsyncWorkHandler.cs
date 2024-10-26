@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Shuttle.Esb.Tests.MessageHandling;
 
-public class AsyncWorkHandler : IAsyncMessageHandler<WorkMessage>
+public class WorkHandler : IMessageHandler<WorkMessage>
 {
     public async Task ProcessMessageAsync(IHandlerContext<WorkMessage> context)
     {

@@ -8,319 +8,212 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageHandlerInvoker : IMessageHandlerInvoker
 {
-    public class MessageHandlerInvoker : IMessageHandlerInvoker
+    private static readonly Type AsyncMessageHandlerType = typeof(IMessageHandler<>);
+    private static readonly object LockGetHandler = new();
+    private static readonly object LockInvoke = new();
+    private readonly Dictionary<Type, HandlerContextConstructorInvoker> _constructorCache = new();
+    private readonly IMessageSender _messageSender;
+    private readonly Dictionary<Type, AsyncContextMethodInvoker> _methodCacheAsync = new();
+    private readonly IServiceProvider _serviceProvider;
+    private readonly Dictionary<Type, Dictionary<int, object>> _threadAsyncHandlers = new();
+
+    public MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender)
     {
-        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-        private static readonly Type AsyncMessageHandlerType = typeof(IAsyncMessageHandler<>);
-        private static readonly object LockGetHandler = new object();
-        private static readonly object LockInvoke = new object();
-        private readonly Dictionary<Type, ContextConstructorInvoker> _constructorCache = new Dictionary<Type, ContextConstructorInvoker>();
-        private readonly IMessageSender _messageSender;
-        private readonly Dictionary<Type, ContextMethodInvoker> _methodCache = new Dictionary<Type, ContextMethodInvoker>();
-        private readonly Dictionary<Type, AsyncContextMethodInvoker> _methodCacheAsync = new Dictionary<Type, AsyncContextMethodInvoker>();
-        private readonly IServiceProvider _serviceProvider;
-        private readonly Dictionary<Type, Dictionary<int, object>> _threadAsyncHandlers = new Dictionary<Type, Dictionary<int, object>>();
+        _serviceProvider = Guard.AgainstNull(serviceProvider);
+        _messageSender = Guard.AgainstNull(messageSender);
+    }
 
-        private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new Dictionary<Type, Dictionary<int, object>>();
-
-        public MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender)
+    private object? GetHandler(Type messageType)
+    {
+        lock (LockGetHandler)
         {
-            Guard.AgainstNull(serviceProvider, nameof(serviceProvider));
-            Guard.AgainstNull(messageSender, nameof(messageSender));
-
-            _serviceProvider = serviceProvider;
-            _messageSender = messageSender;
-        }
-
-        public MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent)
-        {
-            return InvokeAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent)
-        {
-            return await InvokeAsync(pipelineEvent, false);
-        }
-
-        private object GetHandler(Type messageType, bool sync)
-        {
-            lock (LockGetHandler)
+            if (!_threadAsyncHandlers.TryGetValue(messageType, out Dictionary<int, object>? instances))
             {
-                Dictionary<int, object> instances = null;
+                instances = new();
+                _threadAsyncHandlers.Add(messageType, instances);
+            }
 
-                switch (sync)
-                {
-                    case true when !_threadHandlers.TryGetValue(messageType, out instances):
-                    {
-                        instances = new Dictionary<int, object>();
-                        _threadHandlers.Add(messageType, instances);
-                        break;
-                    }
-                    case false when !_threadAsyncHandlers.TryGetValue(messageType, out instances):
-                    {
-                        instances = new Dictionary<int, object>();
-                        _threadAsyncHandlers.Add(messageType, instances);
-                        break;
-                    }
-                }
+            var managedThreadId = Thread.CurrentThread.ManagedThreadId;
 
-                var managedThreadId = Thread.CurrentThread.ManagedThreadId;
-
-                object handler = null;
-
-                switch (sync)
-                {
-                    case true when !instances.TryGetValue(managedThreadId, out handler):
-                    {
-                        handler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
-                        instances.Add(managedThreadId, handler);
-                        break;
-                    }
-                    case false when !instances.TryGetValue(managedThreadId, out handler):
-                    {
-                        handler = _serviceProvider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
-                        instances.Add(managedThreadId, handler);
-                        break;
-                    }
-                }
-
+            if (instances.TryGetValue(managedThreadId, out var handler))
+            {
                 return handler;
             }
-        }
 
-        private async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
-            var messageType = message.GetType();
-            var handler = GetHandler(messageType, sync);
+            handler = _serviceProvider.GetService(AsyncMessageHandlerType.MakeGenericType(messageType));
 
-            if (handler == null)
+            if (handler != null)
             {
-                return MessageHandlerInvokeResult.MissingHandler();
+                instances.Add(managedThreadId, handler);
             }
 
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
-
-            try
-            {
-                ContextMethodInvoker contextMethod = null;
-                AsyncContextMethodInvoker asyncContextMethod = null;
-                ContextConstructorInvoker contextConstructor;
-
-                lock (LockInvoke)
-                {
-                    if (!_constructorCache.TryGetValue(messageType, out contextConstructor))
-                    {
-                        contextConstructor = new ContextConstructorInvoker(messageType);
-
-                        _constructorCache.Add(messageType, contextConstructor);
-                    }
-
-                    if (sync && !_methodCache.TryGetValue(messageType, out contextMethod))
-                    {
-                        var interfaceType = MessageHandlerType.MakeGenericType(messageType);
-                        var method =
-                            handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
-
-                        if (method == null)
-                        {
-                            throw new HandlerMessageMethodMissingException(string.Format(
-                                Resources.HandlerMessageMethodMissingException,
-                                handler.GetType().FullName,
-                                messageType.FullName));
-                        }
-
-                        contextMethod = new ContextMethodInvoker(
-                            messageType,
-                            handler.GetType()
-                                .GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType))
-                                .TargetMethods.SingleOrDefault()
-                        );
-
-                        _methodCache.Add(messageType, contextMethod);
-                    }
-
-                    if (!sync && !_methodCacheAsync.TryGetValue(messageType, out asyncContextMethod))
-                    {
-                        var interfaceType = AsyncMessageHandlerType.MakeGenericType(messageType);
-                        var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
-
-                        if (method == null)
-                        {
-                            throw new HandlerMessageMethodMissingException(string.Format(
-                                Resources.HandlerMessageMethodMissingException,
-                                handler.GetType().FullName,
-                                messageType.FullName));
-                        }
-
-                        asyncContextMethod = new AsyncContextMethodInvoker(
-                            messageType,
-                            handler.GetType()
-                                .GetInterfaceMap(AsyncMessageHandlerType.MakeGenericType(messageType))
-                                .TargetMethods.SingleOrDefault()
-                        );
-
-                        _methodCacheAsync.Add(messageType, asyncContextMethod);
-                    }
-                }
-
-                var handlerContext = contextConstructor.CreateHandlerContext(Guard.AgainstNull(_messageSender, nameof(_messageSender)), Guard.AgainstNull(transportMessage, nameof(transportMessage)), message, pipelineEvent.Pipeline.CancellationToken);
-
-                state.SetHandlerContext(handlerContext);
-
-                if (sync)
-                {
-                    contextMethod.Invoke(handler, handlerContext);
-                }
-                else
-                {
-                    await asyncContextMethod.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
-                }
-            }
-            finally
-            {
-                if (handler is IReusability { IsReusable: false })
-                {
-                    ReleaseHandler(messageType, sync);
-                }
-            }
-
-            return MessageHandlerInvokeResult.InvokedHandler(handler.GetType().AssemblyQualifiedName);
-        }
-
-        private void ReleaseHandler(Type messageType, bool sync)
-        {
-            lock (LockGetHandler)
-            {
-                Dictionary<int, object> instances = null;
-
-                switch (sync)
-                {
-                    case true when !_threadHandlers.TryGetValue(messageType, out instances):
-                    case false when !_threadAsyncHandlers.TryGetValue(messageType, out instances):
-                    {
-                        return;
-                    }
-                    default:
-                    {
-                        instances?.Remove(Thread.CurrentThread.ManagedThreadId);
-                        break;
-                    }
-                }
-            }
+            return handler;
         }
     }
 
-    internal class ContextConstructorInvoker
+    public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
     {
-        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var message = Guard.AgainstNull(state.GetMessage());
+        var messageType = message.GetType();
+        var handler = GetHandler(messageType);
 
-        private readonly ConstructorInvokeHandler _constructorInvoker;
-
-        public ContextConstructorInvoker(Type messageType)
+        if (handler == null)
         {
-            var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
-                new[]
+            return MessageHandlerInvokeResult.MissingHandler();
+        }
+
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
+
+        try
+        {
+            AsyncContextMethodInvoker? asyncContextMethod;
+            HandlerContextConstructorInvoker? handlerContextConstructor;
+
+            lock (LockInvoke)
+            {
+                if (!_constructorCache.TryGetValue(messageType, out handlerContextConstructor))
                 {
-                    typeof(IMessageSender),
-                    typeof(TransportMessage),
-                    typeof(object),
-                    typeof(CancellationToken)
-                }, HandlerContextType.Module);
+                    handlerContextConstructor = new(messageType);
 
-            var il = dynamicMethod.GetILGenerator();
+                    _constructorCache.Add(messageType, handlerContextConstructor);
+                }
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Ldarg_3);
+                if (!_methodCacheAsync.TryGetValue(messageType, out asyncContextMethod))
+                {
+                    var interfaceType = AsyncMessageHandlerType.MakeGenericType(messageType);
+                    var method = handler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
-            var contextType = HandlerContextType.MakeGenericType(messageType);
-            var constructorInfo = contextType.GetConstructor(new[]
+                    if (method == null)
+                    {
+                        throw new MessageHandlerInvokerException(string.Format(Resources.HandlerMessageMethodMissingException, handler.GetType().FullName, messageType.FullName));
+                    }
+
+                    var methodInfo = handler.GetType().GetInterfaceMap(AsyncMessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
+
+                    if (methodInfo == null)
+                    {
+                        throw new MessageHandlerInvokerException(string.Format(Resources.HandlerMessageMethodMissingException, handler.GetType().FullName, messageType.FullName));
+                    }
+
+                    asyncContextMethod = new(methodInfo);
+
+                    _methodCacheAsync.Add(messageType, asyncContextMethod);
+                }
+            }
+
+            var handlerContext = handlerContextConstructor.CreateHandlerContext(Guard.AgainstNull(_messageSender), Guard.AgainstNull(transportMessage), message, pipelineContext.Pipeline.CancellationToken);
+
+            state.SetHandlerContext(handlerContext);
+
+            await asyncContextMethod.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (handler is IReusability { IsReusable: false })
+            {
+                ReleaseHandler(messageType);
+            }
+        }
+
+        return MessageHandlerInvokeResult.InvokedHandler(handler.GetType().AssemblyQualifiedName ?? throw new MessageHandlerInvokerException(string.Format(Resources.AssemblyQualifiedNameException, handler.GetType().Name)));
+    }
+
+    private void ReleaseHandler(Type messageType)
+    {
+        lock (LockGetHandler)
+        {
+            if (!_threadAsyncHandlers.TryGetValue(messageType, out Dictionary<int, object>? instances))
+            {
+                return;
+            }
+
+            instances.Remove(Thread.CurrentThread.ManagedThreadId);
+        }
+    }
+}
+
+internal class HandlerContextConstructorInvoker
+{
+    private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
+    private readonly ConstructorInvokeHandler _constructorInvoker;
+
+    public HandlerContextConstructorInvoker(Type messageType)
+    {
+        var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
+            new[]
             {
                 typeof(IMessageSender),
                 typeof(TransportMessage),
-                messageType,
+                typeof(object),
                 typeof(CancellationToken)
-            });
+            }, HandlerContextType.Module);
 
-            il.Emit(OpCodes.Newobj, constructorInfo);
-            il.Emit(OpCodes.Ret);
+        var il = dynamicMethod.GetILGenerator();
 
-            _constructorInvoker =
-                (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
-        }
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Ldarg_2);
+        il.Emit(OpCodes.Ldarg_3);
 
-        public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+        var contextType = HandlerContextType.MakeGenericType(messageType);
+        var constructorInfo = contextType.GetConstructor(new[]
         {
-            return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
+            typeof(IMessageSender),
+            typeof(TransportMessage),
+            messageType,
+            typeof(CancellationToken)
+        });
+
+        if (constructorInfo == null)
+        {
+            throw new MessageHandlerInvokerException(string.Format(Resources.HandlerContextConstructorMissingException, contextType.FullName));
         }
 
-        private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+        il.Emit(OpCodes.Newobj, constructorInfo);
+        il.Emit(OpCodes.Ret);
+
+        _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
     }
 
-    internal class ContextMethodInvoker
+    public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
     {
-        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
-
-        private readonly InvokeHandler _invoker;
-
-        public ContextMethodInvoker(Type messageType, MethodInfo methodInfo)
-        {
-            var dynamicMethod = new DynamicMethod(string.Empty,
-                typeof(void), new[] { typeof(object), typeof(object) },
-                HandlerContextType.Module);
-
-            var il = dynamicMethod.GetILGenerator();
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-
-            il.EmitCall(OpCodes.Callvirt, methodInfo, null);
-            il.Emit(OpCodes.Ret);
-
-            _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
-        }
-
-        public void Invoke(object handler, object handlerContext)
-        {
-            _invoker.Invoke(handler, handlerContext);
-        }
-
-        private delegate void InvokeHandler(object handler, object handlerContext);
+        return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
     }
 
-    internal class AsyncContextMethodInvoker
+    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+}
+
+internal class AsyncContextMethodInvoker
+{
+    private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
+    private readonly InvokeHandler _invoker;
+
+    public AsyncContextMethodInvoker(MethodInfo methodInfo)
     {
-        private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+        var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), new[] { typeof(object), typeof(object) }, HandlerContextType.Module);
 
-        private readonly InvokeHandler _invoker;
+        var il = dynamicMethod.GetILGenerator();
 
-        public AsyncContextMethodInvoker(Type messageType, MethodInfo methodInfo)
-        {
-            var dynamicMethod = new DynamicMethod(string.Empty,
-                typeof(Task), new[] { typeof(object), typeof(object) },
-                HandlerContextType.Module);
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldarg_1);
 
-            var il = dynamicMethod.GetILGenerator();
+        il.EmitCall(OpCodes.Callvirt, methodInfo, null);
+        il.Emit(OpCodes.Ret);
 
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-
-            il.EmitCall(OpCodes.Callvirt, methodInfo, null);
-            il.Emit(OpCodes.Ret);
-
-            _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
-        }
-
-        public async Task InvokeAsync(object handler, object handlerContext)
-        {
-            await _invoker.Invoke(handler, handlerContext).ConfigureAwait(false);
-        }
-
-        private delegate Task InvokeHandler(object handler, object handlerContext);
+        _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
     }
+
+    public async Task InvokeAsync(object handler, object handlerContext)
+    {
+        await _invoker.Invoke(handler, handlerContext).ConfigureAwait(false);
+    }
+
+    private delegate Task InvokeHandler(object handler, object handlerContext);
 }

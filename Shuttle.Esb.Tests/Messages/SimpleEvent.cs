@@ -1,7 +1,6 @@
-﻿namespace Shuttle.Esb.Tests
+﻿namespace Shuttle.Esb.Tests;
+
+public class SimpleEvent
 {
-    public class SimpleEvent
-    {
-        public string EventName { get; set; }
-    }
+    public string EventName { get; set; } = string.Empty;
 }

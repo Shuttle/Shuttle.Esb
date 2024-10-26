@@ -4,105 +4,81 @@ using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class ServiceBusBuilder
 {
-    public class ServiceBusBuilder
+    private static readonly Type AsyncMessageHandlerType = typeof(IMessageHandler<>);
+
+    private readonly ReflectionService _reflectionService = new();
+    private ServiceBusOptions _serviceBusOptions = new();
+
+    public ServiceBusBuilder(IServiceCollection services)
     {
-        private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-        private static readonly Type AsyncMessageHandlerType = typeof(IAsyncMessageHandler<>);
+        Services = Guard.AgainstNull(services);
+    }
 
-        public ServiceBusOptions Options
+    public ServiceBusOptions Options
+    {
+        get => _serviceBusOptions;
+        set => _serviceBusOptions = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public IServiceCollection Services { get; }
+
+    public bool SuppressHostedService { get; set; }
+
+    public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
+    {
+        foreach (var type in _reflectionService.GetTypesCastableToAsync(AsyncMessageHandlerType, Guard.AgainstNull(assembly)).GetAwaiter().GetResult())
+        foreach (var @interface in type.GetInterfaces())
         {
-            get => _serviceBusOptions;
-            set => _serviceBusOptions = value ?? throw new ArgumentNullException(nameof(value));
-        }
-        
-        private readonly ReflectionService _reflectionService = new ReflectionService();
-        private ServiceBusOptions _serviceBusOptions = new ServiceBusOptions();
-
-        public ServiceBusBuilder(IServiceCollection services)
-        {
-            Guard.AgainstNull(services, nameof(services));
-
-            Services = services;
-        }
-
-        public IServiceCollection Services { get; }
-        
-        public bool SuppressHostedService { get; set; }
-
-        public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
-        {
-            Guard.AgainstNull(assembly, nameof(assembly));
-
-            foreach (var type in _reflectionService.GetTypesAssignableTo(MessageHandlerType, assembly))
-            foreach (var @interface in type.GetInterfaces())
+            if (!@interface.IsCastableTo(AsyncMessageHandlerType))
             {
-                if (!@interface.IsAssignableTo(MessageHandlerType))
-                {
-                    continue;
-                }
-
-                var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
-
-                if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
-                {
-                    Services.AddTransient(genericType, type);
-                }
+                continue;
             }
 
-            foreach (var type in _reflectionService.GetTypesAssignableTo(AsyncMessageHandlerType, assembly))
-            foreach (var @interface in type.GetInterfaces())
+            var genericType = AsyncMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+
+            if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
             {
-                if (!@interface.IsAssignableTo(AsyncMessageHandlerType))
-                {
-                    continue;
-                }
-
-                var genericType = AsyncMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
-
-                if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
-                {
-                    Services.AddTransient(genericType, type);
-                }
+                Services.AddTransient(genericType, type);
             }
-
-            return this;
         }
 
-        public ServiceBusBuilder AddSubscription<T>()
+        return this;
+    }
+
+    public ServiceBusBuilder AddSubscription<T>()
+    {
+        AddSubscription(typeof(T));
+
+        return this;
+    }
+
+    public ServiceBusBuilder AddSubscription(Type messageType)
+    {
+        AddSubscription(Guard.AgainstNullOrEmptyString(Guard.AgainstNull(messageType).FullName));
+
+        return this;
+    }
+
+    public ServiceBusBuilder AddSubscription(string messageType)
+    {
+        Guard.AgainstNullOrEmptyString(messageType);
+
+        var messageTypes = _serviceBusOptions.Subscription.MessageTypes;
+
+        if (messageTypes == null)
         {
-            AddSubscription(typeof(T));
-
-            return this;
+            throw new InvalidOperationException(Resources.AddSubscriptionException);
         }
 
-        public ServiceBusBuilder AddSubscription(Type messageType)
+        if (!messageTypes.Contains(messageType))
         {
-            Guard.AgainstNull(messageType, nameof(messageType));
-
-            AddSubscription(messageType.FullName);
-
-            return this;
+            messageTypes.Add(messageType);
         }
 
-        public ServiceBusBuilder AddSubscription(string messageType)
-        {
-            Guard.AgainstNullOrEmptyString(messageType, nameof(messageType));
-
-            var messageTypes = _serviceBusOptions?.Subscription?.MessageTypes;
-
-            if (messageTypes == null)
-            {
-                throw new InvalidOperationException(Resources.AddSubscriptionException);
-            }
-
-            if (!messageTypes.Contains(messageType))
-            {
-                messageTypes.Add(messageType);
-            }
-
-            return this;
-        }
+        return this;
     }
 }

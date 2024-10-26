@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb.Tests;
@@ -8,13 +7,13 @@ public class ThrowExceptionObserver : IPipelineObserver<OnException>
 {
     public void Execute(OnException pipelineEvent)
     {
-        throw new Exception(string.Empty, new UnrecoverableHandlerException());
+        throw new(string.Empty, new UnrecoverableHandlerException());
     }
 
-    public async Task ExecuteAsync(OnException pipelineEvent)
+    public async Task ExecuteAsync(IPipelineContext<OnException> pipelineContext)
     {
         await Task.CompletedTask;
 
-        throw new Exception(string.Empty, new UnrecoverableHandlerException());
+        throw new(string.Empty, new UnrecoverableHandlerException());
     }
 }

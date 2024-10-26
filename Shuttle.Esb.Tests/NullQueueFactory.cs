@@ -1,22 +1,14 @@
 ﻿using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+public class NullQueueFactory : IQueueFactory
 {
-    public class NullQueueFactory : IQueueFactory
+    public string Scheme { get; } = "null-queue";
+
+    public IQueue Create(Uri uri)
     {
-        public NullQueueFactory()
-        {
-            Scheme = "null-queue";
-        }
-
-        public string Scheme { get; }
-
-        public IQueue Create(Uri uri)
-        {
-            Guard.AgainstNull(uri, nameof(uri));
-
-            return new NullQueue(uri);
-        }
+        return new NullQueue(Guard.AgainstNull(uri));
     }
 }

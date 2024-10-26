@@ -11,18 +11,7 @@ namespace Shuttle.Esb.Tests;
 public class FindMessageRouteObserverFixture
 {
     [Test]
-    public void Should_be_able_to_skip_when_there_is_already_a_recipient()
-    {
-        Should_be_able_to_skip_when_there_is_already_a_recipient_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_skip_when_there_is_already_a_recipient_async()
-    {
-        await Should_be_able_to_skip_when_there_is_already_a_recipient_async(false);
-    }
-
-    private async Task Should_be_able_to_skip_when_there_is_already_a_recipient_async(bool sync)
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
 
@@ -35,33 +24,15 @@ public class FindMessageRouteObserverFixture
             .RegisterStage(".")
             .WithEvent<OnFindRouteForMessage>();
 
-        pipeline.State.SetTransportMessage(new TransportMessage { RecipientInboxWorkQueueUri = "recipient-uri"});
+        pipeline.State.SetTransportMessage(new() { RecipientInboxWorkQueueUri = "recipient-uri" });
 
-        if (sync)
-        {
-            pipeline.Execute();
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-        }
+        await pipeline.ExecuteAsync();
 
         messageRouteProvider.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_throw_exception_when_no_route_found()
-    {
-        Should_throw_exception_when_no_route_found_async(true);
-    }
-
-    [Test]
     public void Should_throw_exception_when_no_route_found_async()
-    {
-        Should_throw_exception_when_no_route_found_async(false);
-    }
-
-    private void Should_throw_exception_when_no_route_found_async(bool sync)
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
@@ -82,20 +53,9 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        Core.Pipelines.PipelineException exception;
+        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
-        if (sync)
-        {
-            exception = Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
-
-            messageRouteProvider.Verify(m => m.GetRouteUris(messageType), Times.Once);
-        }
-        else
-        {
-            exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
-            
-            messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
-        }
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring("No route could be found"));
@@ -104,18 +64,7 @@ public class FindMessageRouteObserverFixture
     }
 
     [Test]
-    public void Should_throw_exception_when_multiple_routes_found()
-    {
-        Should_throw_exception_when_multiple_routes_found_async(true);
-    }
-
-    [Test]
     public void Should_throw_exception_when_multiple_routes_found_async()
-    {
-        Should_throw_exception_when_multiple_routes_found_async(false);
-    }
-
-    private void Should_throw_exception_when_multiple_routes_found_async(bool sync)
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
@@ -137,40 +86,18 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        Core.Pipelines.PipelineException exception;
+        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
-        if (sync)
-        {
-            exception = Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
-
-            messageRouteProvider.Verify(m => m.GetRouteUris(messageType), Times.Once);
-        }
-        else
-        {
-            exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
-            
-            messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
-        }
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
 
         Assert.That(exception, Is.Not.Null);
-        Assert.That(exception.InnerException?.Message, Contains.Substring("has been routed to more than one endpoint"));
+        Assert.That(exception!.InnerException?.Message, Contains.Substring("has been routed to more than one endpoint"));
 
         messageRouteProvider.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_be_able_to_route_to_single_endpoint()
-    {
-        Should_be_able_to_route_to_single_endpoint_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_route_to_single_endpoint_async()
-    {
-        await Should_be_able_to_route_to_single_endpoint_async(false);
-    }
-
-    private async Task Should_be_able_to_route_to_single_endpoint_async(bool sync)
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
@@ -192,18 +119,9 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            messageRouteProvider.Verify(m => m.GetRouteUris(messageType), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-            
-            messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
-        }
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
 
         Assert.That(transportMessage.RecipientInboxWorkQueueUri, Is.EqualTo("route-a"));
 

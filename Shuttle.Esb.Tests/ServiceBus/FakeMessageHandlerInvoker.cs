@@ -1,22 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb.Tests;
 
 public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
 {
-    private readonly Dictionary<string, int> _invokeCounts = new Dictionary<string, int>();
-
-    public MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent)
-    {
-        return InvokeAsync(pipelineEvent, true).GetAwaiter().GetResult();
-    }
-
-    public async Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent)
-    {
-        return await InvokeAsync(pipelineEvent, false).ConfigureAwait(false);
-    }
+    private readonly Dictionary<string, int> _invokeCounts = new();
 
     public int GetInvokeCount(string messageType)
     {
@@ -25,17 +16,16 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
         return count;
     }
 
-    private async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineEvent pipelineEvent, bool sync)
+    public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
     {
-        var messageType = pipelineEvent.Pipeline.State.GetTransportMessage().MessageType;
+        var transportMessage = Guard.AgainstNull(pipelineContext.Pipeline.State.GetTransportMessage());
+        var messageType = transportMessage.MessageType;
 
         _invokeCounts.TryGetValue(messageType, out var count);
         _invokeCounts[messageType] = count + 1;
 
-        var messageHandlerInvokeResult = MessageHandlerInvokeResult.InvokedHandler(pipelineEvent.Pipeline.State.GetTransportMessage().AssemblyQualifiedName);
+        var messageHandlerInvokeResult = MessageHandlerInvokeResult.InvokedHandler(transportMessage.AssemblyQualifiedName);
 
-        return sync
-            ? messageHandlerInvokeResult
-            : await Task.FromResult(messageHandlerInvokeResult).ConfigureAwait(false);
+        return await Task.FromResult(messageHandlerInvokeResult).ConfigureAwait(false);
     }
 }

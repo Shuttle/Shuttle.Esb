@@ -5,14 +5,9 @@ namespace Shuttle.Esb.Tests;
 
 public class HandleExceptionObserver : IPipelineObserver<OnPipelineException>
 {
-    public void Execute(OnPipelineException pipelineEvent)
+    public async Task ExecuteAsync(IPipelineContext<OnPipelineException> pipelineContext)
     {
-        pipelineEvent.Pipeline.MarkExceptionHandled();
-    }
-
-    public async Task ExecuteAsync(OnPipelineException pipelineEvent)
-    {
-        pipelineEvent.Pipeline.MarkExceptionHandled();
+        pipelineContext.Pipeline.MarkExceptionHandled();
 
         await Task.CompletedTask;
     }

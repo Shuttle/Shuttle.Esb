@@ -1,10 +1,9 @@
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IServiceBusPolicy
 {
-    public interface IServiceBusPolicy
-    {
-        MessageFailureAction EvaluateMessageHandlingFailure(OnPipelineException pipelineEvent);
-        MessageFailureAction EvaluateOutboxFailure(OnPipelineException pipelineEvent);
-    }
+    MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<OnPipelineException> pipelineContext);
+    MessageFailureAction EvaluateOutboxFailure(IPipelineContext<OnPipelineException> pipelineContext);
 }

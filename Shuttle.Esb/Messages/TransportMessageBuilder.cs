@@ -2,136 +2,134 @@
 using System.Collections.Generic;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class TransportMessageBuilder
 {
-    public class TransportMessageBuilder
+    private readonly TransportMessage _transportMessage;
+
+    public TransportMessageBuilder(TransportMessage transportMessage)
     {
-        private readonly TransportMessage _transportMessage;
+        _transportMessage = Guard.AgainstNull(transportMessage);
+    }
 
-        public TransportMessageBuilder(TransportMessage transportMessage)
+    public bool HasRecipient => !string.IsNullOrWhiteSpace(_transportMessage.RecipientInboxWorkQueueUri);
+
+    public List<TransportHeader> Headers => _transportMessage.Headers;
+    public bool ShouldReply { get; private set; }
+
+    public bool ShouldSendLocal { get; private set; }
+
+    public TransportMessageBuilder Defer(DateTime ignoreTillDate)
+    {
+        _transportMessage.IgnoreTillDate = ignoreTillDate;
+
+        return this;
+    }
+
+    private void GuardRecipient()
+    {
+        if (!HasRecipient && !ShouldSendLocal && !ShouldReply)
         {
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-
-            _transportMessage = transportMessage;
+            return;
         }
 
-        public List<TransportHeader> Headers => _transportMessage.Headers;
+        throw new InvalidOperationException(Resources.TransportMessageRecipientException);
+    }
 
-        public bool ShouldSendLocal { get; private set; }
-        public bool ShouldReply { get; private set; }
-        public bool HasRecipient => !string.IsNullOrWhiteSpace(_transportMessage.RecipientInboxWorkQueueUri);
+    public TransportMessageBuilder Local()
+    {
+        GuardRecipient();
 
-        public TransportMessageBuilder Defer(DateTime ignoreTillDate)
-        {
-            _transportMessage.IgnoreTillDate = ignoreTillDate;
+        ShouldSendLocal = true;
 
-            return this;
-        }
+        return this;
+    }
 
-        public TransportMessageBuilder WillExpire(DateTime expiryDate)
-        {
-            _transportMessage.ExpiryDate = expiryDate;
+    public TransportMessageBuilder Reply()
+    {
+        GuardRecipient();
 
-            return this;
-        }
+        ShouldReply = true;
 
-        public TransportMessageBuilder WillExpire(TimeSpan fromUtcNow)
-        {
-            _transportMessage.ExpiryDate = DateTime.UtcNow.Add(fromUtcNow);
+        return this;
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WillExpire(DateTime expiryDate)
+    {
+        _transportMessage.ExpiryDate = expiryDate;
 
-        public TransportMessageBuilder WithPriority(int priority)
-        {
-            _transportMessage.Priority = priority;
+        return this;
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WillExpire(TimeSpan fromUtcNow)
+    {
+        _transportMessage.ExpiryDate = DateTime.UtcNow.Add(fromUtcNow);
 
-        public TransportMessageBuilder WithEncryption(string encryption)
-        {
-            _transportMessage.EncryptionAlgorithm = encryption;
+        return this;
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WithCompression(string compression)
+    {
+        _transportMessage.CompressionAlgorithm = compression;
 
-        public TransportMessageBuilder WithCompression(string compression)
-        {
-            _transportMessage.CompressionAlgorithm = compression;
+        return this;
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WithCorrelationId(string correlationId)
+    {
+        _transportMessage.CorrelationId = correlationId;
 
-        public TransportMessageBuilder WithCorrelationId(string correlationId)
-        {
-            _transportMessage.CorrelationId = correlationId;
+        return this;
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WithEncryption(string encryption)
+    {
+        _transportMessage.EncryptionAlgorithm = encryption;
 
-        public TransportMessageBuilder WithRecipient(IQueue queue)
-        {
-            return WithRecipient(queue.Uri.ToString());
-        }
+        return this;
+    }
 
-        private void GuardRecipient()
-        {
-            if (!HasRecipient && !ShouldSendLocal && !ShouldReply)
-            {
-                return;
-            }
+    public TransportMessageBuilder WithPriority(int priority)
+    {
+        _transportMessage.Priority = priority;
 
-            throw new InvalidOperationException(Resources.TransportMessageRecipientException);
-        }
+        return this;
+    }
 
-        public TransportMessageBuilder WithRecipient(Uri uri)
-        {
-            return WithRecipient(uri.ToString());
-        }
+    public TransportMessageBuilder WithRecipient(IQueue queue)
+    {
+        return WithRecipient(queue.Uri.ToString());
+    }
 
-        public TransportMessageBuilder WithRecipient(string uri)
-        {
-            GuardRecipient();
-            
-            _transportMessage.RecipientInboxWorkQueueUri = uri;
+    public TransportMessageBuilder WithRecipient(Uri uri)
+    {
+        return WithRecipient(uri.ToString());
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WithRecipient(string uri)
+    {
+        GuardRecipient();
 
-        public TransportMessageBuilder WithSender(IQueue queue)
-        {
-            return WithSender(queue.Uri.ToString());
-        }
+        _transportMessage.RecipientInboxWorkQueueUri = uri;
 
-        public TransportMessageBuilder WithSender(Uri uri)
-        {
-            return WithSender(uri.ToString());
-        }
+        return this;
+    }
 
-        public TransportMessageBuilder WithSender(string uri)
-        {
-            _transportMessage.SenderInboxWorkQueueUri = uri;
+    public TransportMessageBuilder WithSender(IQueue queue)
+    {
+        return WithSender(queue.Uri.ToString());
+    }
 
-            return this;
-        }
+    public TransportMessageBuilder WithSender(Uri uri)
+    {
+        return WithSender(uri.ToString());
+    }
 
-        public TransportMessageBuilder Local()
-        {
-            GuardRecipient();
-            
-            ShouldSendLocal = true;
+    public TransportMessageBuilder WithSender(string uri)
+    {
+        _transportMessage.SenderInboxWorkQueueUri = uri;
 
-            return this;
-        }
-
-        public TransportMessageBuilder Reply()
-        {
-            GuardRecipient();
-
-            ShouldReply = true;
-
-            return this;
-        }
+        return this;
     }
 }

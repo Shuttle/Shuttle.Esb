@@ -1,15 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
+using JsonSerializer = Shuttle.Core.Serialization.JsonSerializer;
 
 namespace Shuttle.Esb.Tests;
 
 public class FakeQueue : IQueue
 {
-    private readonly ISerializer _serializer = new DefaultSerializer();
+    private readonly ISerializer _serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
 
     public FakeQueue(int messagesToReturn)
     {
@@ -20,77 +23,44 @@ public class FakeQueue : IQueue
 
     public int MessagesToReturn { get; }
 
-    public QueueUri Uri { get; }
+    public QueueUri Uri { get; } = new(new Uri("fake://configuration/queue"));
     public bool IsStream => false;
-
-    public bool IsEmpty()
-    {
-        return MessageCount < MessagesToReturn;
-    }
 
     public async ValueTask<bool> IsEmptyAsync()
     {
-        return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
-    }
+        Operation?.Invoke(this, new("IsEmpty"));
 
-    public void Enqueue(TransportMessage transportMessage, Stream stream)
-    {
+        return await ValueTask.FromResult(MessageCount < MessagesToReturn).ConfigureAwait(false);
     }
 
     public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
     {
+        MessageEnqueued?.Invoke(this, new(transportMessage, stream));
+
         await Task.CompletedTask.ConfigureAwait(false);
-    }
-
-    public ReceivedMessage GetMessage()
-    {
-        return GetMessageAsync(true).GetAwaiter().GetResult();
-    }
-
-    public async Task<ReceivedMessage> GetMessageAsync()
-    {
-        return await GetMessageAsync(false);
-    }
-
-    public void Acknowledge(object acknowledgementToken)
-    {
     }
 
     public async Task AcknowledgeAsync(object acknowledgementToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
+        MessageAcknowledged?.Invoke(this, new(acknowledgementToken));
 
-    public void Release(object acknowledgementToken)
-    {
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken)
     {
+        MessageReleased?.Invoke(this, new(acknowledgementToken));
+
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate
-    {
-    };
+    public event EventHandler<MessageEnqueuedEventArgs>? MessageEnqueued;
+    public event EventHandler<MessageAcknowledgedEventArgs>? MessageAcknowledged;
+    public event EventHandler<MessageReleasedEventArgs>? MessageReleased;
+    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
+    public event EventHandler<OperationEventArgs>? Operation;
 
-    public event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged = delegate
-    {
-    };
-
-    public event EventHandler<MessageReleasedEventArgs> MessageReleased = delegate
-    {
-    };
-
-    public event EventHandler<MessageReceivedEventArgs> MessageReceived = delegate
-    {
-    };
-
-    public event EventHandler<OperationEventArgs> Operation = delegate
-    {
-    };
-
-    private async Task<ReceivedMessage> GetMessageAsync(bool sync)
+    public async Task<ReceivedMessage?> GetMessageAsync()
     {
         if (MessageCount == MessagesToReturn)
         {
@@ -106,14 +76,16 @@ public class FakeQueue : IQueue
             MessageType = command.GetType().Name,
             ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
             PrincipalIdentityName = "Identity",
-            AssemblyQualifiedName = command.GetType().AssemblyQualifiedName,
-            Message = sync
-                ? _serializer.Serialize(command).ToBytes()
-                : await (await _serializer.SerializeAsync(command)).ToBytesAsync().ConfigureAwait(false)
+            AssemblyQualifiedName = command.GetType().AssemblyQualifiedName!,
+            Message = await (await _serializer.SerializeAsync(command)).ToBytesAsync().ConfigureAwait(false)
         };
 
         MessageCount += 1;
 
-        return new ReceivedMessage(sync ? _serializer.Serialize(transportMessage) : await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), null);
+        var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), string.Empty);
+
+        MessageReceived?.Invoke(this, new(result));
+
+        return result;
     }
 }

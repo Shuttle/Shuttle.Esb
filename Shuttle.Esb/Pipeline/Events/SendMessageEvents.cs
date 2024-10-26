@@ -1,60 +1,57 @@
-﻿using Shuttle.Core.Pipelines;
+﻿namespace Shuttle.Esb;
 
-namespace Shuttle.Esb
+public class OnAssembleMessage
 {
-    public class OnAssembleMessage : PipelineEvent
-    {
-    }
+}
 
-    public class OnAfterAssembleMessage : PipelineEvent
-    {
-    }
+public class OnAfterAssembleMessage
+{
+}
 
-    public class OnFindRouteForMessage : PipelineEvent
-    {
-    }
+public class OnFindRouteForMessage
+{
+}
 
-    public class OnAfterFindRouteForMessage : PipelineEvent
-    {
-    }
+public class OnAfterFindRouteForMessage
+{
+}
 
-    public class OnSerializeMessage : PipelineEvent
-    {
-    }
+public class OnSerializeMessage
+{
+}
 
-    public class OnAfterSerializeMessage : PipelineEvent
-    {
-    }
+public class OnAfterSerializeMessage
+{
+}
 
-    public class OnSerializeTransportMessage : PipelineEvent
-    {
-    }
+public class OnSerializeTransportMessage
+{
+}
 
-    public class OnAfterSerializeTransportMessage : PipelineEvent
-    {
-    }
+public class OnAfterSerializeTransportMessage
+{
+}
 
-    public class OnCompressMessage : PipelineEvent
-    {
-    }
+public class OnCompressMessage
+{
+}
 
-    public class OnAfterCompressMessage : PipelineEvent
-    {
-    }
+public class OnAfterCompressMessage
+{
+}
 
-    public class OnEncryptMessage : PipelineEvent
-    {
-    }
+public class OnEncryptMessage
+{
+}
 
-    public class OnAfterEncryptMessage : PipelineEvent
-    {
-    }
+public class OnAfterEncryptMessage
+{
+}
 
-    public class OnDispatchTransportMessage : PipelineEvent
-    {
-    }
+public class OnDispatchTransportMessage
+{
+}
 
-    public class OnAfterDispatchTransportMessage : PipelineEvent
-    {
-    }
+public class OnAfterDispatchTransportMessage
+{
 }

@@ -1,14 +1,13 @@
 using System;
 
-namespace Shuttle.Esb
-{
-    public class DeferredMessageProcessingHaltedEventArgs : EventArgs
-    {
-        public DateTime RestartDateTime { get; }
+namespace Shuttle.Esb;
 
-        public DeferredMessageProcessingHaltedEventArgs(DateTime restartDateTime)
-        {
-            RestartDateTime = restartDateTime;
-        }
+public class DeferredMessageProcessingHaltedEventArgs : EventArgs
+{
+    public DeferredMessageProcessingHaltedEventArgs(DateTime restartDateTime)
+    {
+        RestartDateTime = restartDateTime;
     }
+
+    public DateTime RestartDateTime { get; }
 }

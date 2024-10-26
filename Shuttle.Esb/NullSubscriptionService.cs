@@ -2,20 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class NullSubscriptionService : ISubscriptionService
 {
-    public class NullSubscriptionService : ISubscriptionService
+    public IEnumerable<string> GetSubscribedUris(string messageType)
     {
-        public IEnumerable<string> GetSubscribedUris(string messageType)
-        {
-            throw new NotImplementedException("NullSubscriptionManager");
-        }
+        throw new NotImplementedException("NullSubscriptionManager");
+    }
 
-        public async Task<IEnumerable<string>> GetSubscribedUrisAsync(string messageType)
-        {
-            await Task.CompletedTask;
+    public async Task<IEnumerable<string>> GetSubscribedUrisAsync(string messageType)
+    {
+        await Task.CompletedTask;
 
-            throw new NotImplementedException("NullSubscriptionManager");
-        }
+        throw new NotImplementedException("NullSubscriptionManager");
     }
 }

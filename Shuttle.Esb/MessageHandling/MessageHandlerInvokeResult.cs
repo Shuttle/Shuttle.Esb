@@ -1,23 +1,22 @@
-﻿namespace Shuttle.Esb
+﻿namespace Shuttle.Esb;
+
+public class MessageHandlerInvokeResult
 {
-    public class MessageHandlerInvokeResult
+    private MessageHandlerInvokeResult(string messageHandlerAssemblyQualifiedName)
     {
-        private MessageHandlerInvokeResult(string messageHandlerAssemblyQualifiedName)
-        {
-            MessageHandlerAssemblyQualifiedName = messageHandlerAssemblyQualifiedName;
-        }
+        MessageHandlerAssemblyQualifiedName = messageHandlerAssemblyQualifiedName;
+    }
 
-        public bool Invoked => !string.IsNullOrEmpty(MessageHandlerAssemblyQualifiedName);
-        public string MessageHandlerAssemblyQualifiedName { get; }
+    public bool Invoked => !string.IsNullOrEmpty(MessageHandlerAssemblyQualifiedName);
+    public string MessageHandlerAssemblyQualifiedName { get; }
 
-        public static MessageHandlerInvokeResult InvokedHandler(string assemblyQualifiedName)
-        {
-            return new MessageHandlerInvokeResult(assemblyQualifiedName);
-        }
+    public static MessageHandlerInvokeResult InvokedHandler(string assemblyQualifiedName)
+    {
+        return new(assemblyQualifiedName);
+    }
 
-        public static MessageHandlerInvokeResult MissingHandler()
-        {
-            return new MessageHandlerInvokeResult(string.Empty);
-        }
+    public static MessageHandlerInvokeResult MissingHandler()
+    {
+        return new(string.Empty);
     }
 }

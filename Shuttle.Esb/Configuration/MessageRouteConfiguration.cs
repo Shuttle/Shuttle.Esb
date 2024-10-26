@@ -2,29 +2,27 @@
 using System.Collections.ObjectModel;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageRouteConfiguration
 {
-    public class MessageRouteConfiguration
+    private readonly List<MessageRouteSpecificationConfiguration> _specifications = new();
+
+    public MessageRouteConfiguration(string uri)
     {
-        private readonly List<MessageRouteSpecificationConfiguration> _specifications =
-            new List<MessageRouteSpecificationConfiguration>();
+        Uri = uri;
+    }
 
-        public MessageRouteConfiguration(string uri)
-        {
-            Uri = uri;
-        }
+    public IEnumerable<MessageRouteSpecificationConfiguration> Specifications => new
+        ReadOnlyCollection<MessageRouteSpecificationConfiguration>(_specifications);
 
-        public string Uri { get; }
+    public string Uri { get; }
 
-        public IEnumerable<MessageRouteSpecificationConfiguration> Specifications => new
-            ReadOnlyCollection<MessageRouteSpecificationConfiguration>(_specifications);
+    public void AddSpecification(string name, string value)
+    {
+        Guard.AgainstNullOrEmptyString(name);
+        Guard.AgainstNullOrEmptyString(value);
 
-        public void AddSpecification(string name, string value)
-        {
-            Guard.AgainstNullOrEmptyString(name, "name");
-            Guard.AgainstNullOrEmptyString(value, "value");
-
-            _specifications.Add(new MessageRouteSpecificationConfiguration(name, value));
-        }
+        _specifications.Add(new(name, value));
     }
 }

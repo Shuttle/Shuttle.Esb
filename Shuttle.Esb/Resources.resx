@@ -189,7 +189,7 @@
     <value>The service bus instance has not yet been started.</value>
   </data>
   <data name="HandlerMessageMethodMissingException" xml:space="preserve">
-    <value>Handler type '{0}' does not have the required ProcessMessage method that handles message type '{1}'.</value>
+    <value>Handler type '{0}' does not have the required `ProcessMessage` method that handles message type '{1}'.</value>
     <comment>0 = handler full type name, 1 = message full type name</comment>
   </data>
   <data name="RequiredOptionsMissingException" xml:space="preserve">
@@ -246,5 +246,17 @@
   </data>
   <data name="ServiceBusStartSynchronousException" xml:space="preserve">
     <value>The service bus options asynchronous value is 'false'.  Cannot start the service bus asynchronously.  Please call the `Start()` method.</value>
+  </data>
+  <data name="HandlerContextConstructorMissingException" xml:space="preserve">
+    <value>Could not create a HandlerContext for type '{0}'.</value>
+    <comment>0 = handler context type</comment>
+  </data>
+  <data name="AssemblyQualifiedNameException" xml:space="preserve">
+    <value>Could not get the `AssemblyQualifiedName` for handler type '{0}'.</value>
+    <comment>0 = message type</comment>
+  </data>
+  <data name="CouldNotResolveSourceUriException" xml:space="preserve">
+    <value>Could not resolve source uri '{0}'.</value>
+    <comment>0 = source uri</comment>
   </data>
 </root>

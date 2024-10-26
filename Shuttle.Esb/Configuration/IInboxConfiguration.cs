@@ -1,7 +1,6 @@
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IInboxConfiguration : IWorkProcessorConfiguration
 {
-    public interface IInboxConfiguration : IWorkProcessorConfiguration
-    {
-        IQueue DeferredQueue { get; set; }
-    }
+    IQueue? DeferredQueue { get; set; }
 }

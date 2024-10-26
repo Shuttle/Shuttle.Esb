@@ -3,38 +3,33 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+[TestFixture]
+public class MessageRouteProviderFixture
 {
-    [TestFixture]
-    public class MessageRouteProviderFixture
+    [Test]
+    public void Should_be_able_to_add_or_merge_message_routes()
     {
-        [Test]
-        public void Should_be_able_to_add_or_merge_message_routes()
-        {
-            var nullQueueUri = new Uri("null://queue/");
-            const string firstMessageType = "first-message-type";
-            const string secondMessageType = "second-message-type";
+        var nullQueueUri = new Uri("null://queue/");
+        const string firstMessageType = "first-message-type";
+        const string secondMessageType = "second-message-type";
 
-            var provider = new MessageRouteProvider(Options.Create(new ServiceBusOptions()));
+        var provider = new MessageRouteProvider(Options.Create(new ServiceBusOptions()));
 
-            Assert.IsFalse(provider.GetRouteUris(firstMessageType).Any());
+        Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.False);
 
-            provider.Add(
-                new MessageRoute(nullQueueUri).AddSpecification(
-                    new StartsWithMessageRouteSpecification("first")));
+        provider.Add(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("first")));
 
-            Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
-            Assert.IsFalse(provider.GetRouteUris(secondMessageType).Any());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(firstMessageType).First());
+        Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.True);
+        Assert.That(provider.GetRouteUris(secondMessageType).Any(), Is.False);
+        Assert.That(provider.GetRouteUris(firstMessageType).First(), Is.EqualTo(nullQueueUri));
 
-            provider.Add(
-                new MessageRoute(nullQueueUri).AddSpecification(
-                    new StartsWithMessageRouteSpecification("second")));
+        provider.Add(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("second")));
 
-            Assert.IsTrue(provider.GetRouteUris(firstMessageType).Any());
-            Assert.IsTrue(provider.GetRouteUris(secondMessageType).Any());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(firstMessageType).First());
-            Assert.AreEqual(nullQueueUri, provider.GetRouteUris(secondMessageType).First());
-        }
+        Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.True);
+        Assert.That(provider.GetRouteUris(secondMessageType).Any(), Is.True);
+        Assert.That(provider.GetRouteUris(firstMessageType).First(), Is.EqualTo(nullQueueUri));
+        Assert.That(provider.GetRouteUris(secondMessageType).First(), Is.EqualTo(nullQueueUri));
     }
 }

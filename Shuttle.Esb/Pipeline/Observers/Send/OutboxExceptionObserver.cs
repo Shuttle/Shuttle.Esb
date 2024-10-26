@@ -4,129 +4,87 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IOutboxExceptionObserver : IPipelineObserver<OnPipelineException>
 {
-    public interface IOutboxExceptionObserver : IPipelineObserver<OnPipelineException>
+}
+
+public class OutboxExceptionObserver : IOutboxExceptionObserver
+{
+    private readonly IServiceBusPolicy _policy;
+    private readonly ISerializer _serializer;
+
+    public OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
     {
+        _policy = Guard.AgainstNull(policy);
+        _serializer = Guard.AgainstNull(serializer);
     }
 
-    public class OutboxExceptionObserver : IOutboxExceptionObserver
+    public async Task ExecuteAsync(IPipelineContext<OnPipelineException> pipelineContext)
     {
-        private readonly IServiceBusPolicy _policy;
-        private readonly ISerializer _serializer;
+        var state = pipelineContext.Pipeline.State;
 
-        public OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        try
         {
-            Guard.AgainstNull(policy, nameof(policy));
-            Guard.AgainstNull(serializer, nameof(serializer));
+            state.ResetWorking();
 
-            _policy = policy;
-            _serializer = serializer;
-        }
-
-        private async Task ExecuteAsync(OnPipelineException pipelineEvent, bool sync)
-        {
-            var state = pipelineEvent.Pipeline.State;
+            if (pipelineContext.Pipeline.ExceptionHandled)
+            {
+                return;
+            }
 
             try
             {
-                state.ResetWorking();
+                var receivedMessage = state.GetReceivedMessage();
+                var transportMessage = state.GetTransportMessage();
+                var workQueue = Guard.AgainstNull(state.GetWorkQueue());
+                var errorQueue = state.GetErrorQueue();
 
-                if (pipelineEvent.Pipeline.ExceptionHandled)
+                if (transportMessage == null)
                 {
-                    return;
-                }
-
-                try
-                {
-                    var receivedMessage = state.GetReceivedMessage();
-                    var transportMessage = state.GetTransportMessage();
-                    var workQueue = state.GetWorkQueue();
-                    var errorQueue = state.GetErrorQueue();
-
-                    if (transportMessage == null)
+                    if (receivedMessage == null)
                     {
-                        if (receivedMessage == null)
-                        {
-                            return;
-                        }
-
-                        if (sync)
-                        {
-                            workQueue.Release(receivedMessage.AcknowledgementToken);
-                        }
-                        else
-                        {
-                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                        }
-
                         return;
                     }
 
-                    if (!workQueue.IsStream)
+                    await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+
+                    return;
+                }
+
+                Guard.AgainstNull(receivedMessage);
+
+                if (!workQueue.IsStream)
+                {
+                    var action = _policy.EvaluateOutboxFailure(pipelineContext);
+
+                    transportMessage.RegisterFailure(Guard.AgainstNull(pipelineContext.Pipeline.Exception).AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
+
+                    if (action.Retry || errorQueue == null)
                     {
-                        var action = _policy.EvaluateOutboxFailure(pipelineEvent);
-
-                        transportMessage.RegisterFailure(pipelineEvent.Pipeline.Exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
-
-                        if (sync)
-                        {
-                            if (action.Retry || errorQueue == null)
-                            {
-                                workQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
-                            }
-                            else
-                            {
-                                errorQueue.Enqueue(transportMessage, _serializer.Serialize(transportMessage));
-                            }
-
-                            workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
-                        }
-                        else
-                        {
-                            if (action.Retry || errorQueue == null)
-                            {
-                                await workQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                await errorQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
-                            }
-
-                            await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                        }
+                        await workQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
                     }
                     else
                     {
-                        if (sync)
-                        {
-                            workQueue.Release(receivedMessage.AcknowledgementToken);
-                        }
-                        else
-                        {
-                            await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                        }
+                        await errorQueue.EnqueueAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false)).ConfigureAwait(false);
                     }
+
+                    await workQueue.AcknowledgeAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
                 }
-                finally
+                else
                 {
-                    pipelineEvent.Pipeline.MarkExceptionHandled();
+                    await workQueue.ReleaseAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
                 }
             }
             finally
             {
-                pipelineEvent.Pipeline.Abort();
+                pipelineContext.Pipeline.MarkExceptionHandled();
             }
         }
-
-        public void Execute(OnPipelineException pipelineEvent)
+        finally
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+            pipelineContext.Pipeline.Abort();
         }
     }
 }

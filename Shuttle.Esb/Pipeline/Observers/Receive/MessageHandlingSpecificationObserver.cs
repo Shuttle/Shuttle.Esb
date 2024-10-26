@@ -2,42 +2,38 @@
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IMessageHandlingSpecificationObserver : IPipelineObserver<OnEvaluateMessageHandling>
 {
-    public interface IMessageHandlingSpecificationObserver : IPipelineObserver<OnEvaluateMessageHandling>
+}
+
+public class MessageHandlingSpecificationObserver : IMessageHandlingSpecificationObserver
+{
+    private readonly IMessageHandlingSpecification _messageHandlingSpecification;
+
+    public MessageHandlingSpecificationObserver(IMessageHandlingSpecification messageHandlingSpecification)
+    {
+        _messageHandlingSpecification = Guard.AgainstNull(messageHandlingSpecification);
+    }
+
+    public void Execute(OnEvaluateMessageHandling pipelineEvent)
     {
     }
 
-    public class MessageHandlingSpecificationObserver : IMessageHandlingSpecificationObserver
+    public async Task ExecuteAsync(IPipelineContext<OnEvaluateMessageHandling> pipelineContext)
     {
-        private readonly IMessageHandlingSpecification _messageHandlingSpecification;
+        Guard.AgainstNull(pipelineContext);
 
-        public MessageHandlingSpecificationObserver(IMessageHandlingSpecification messageHandlingSpecification)
+        var state = pipelineContext.Pipeline.State;
+
+        if (_messageHandlingSpecification.IsSatisfiedBy(pipelineContext))
         {
-            Guard.AgainstNull(messageHandlingSpecification, nameof(messageHandlingSpecification));
-
-            _messageHandlingSpecification = messageHandlingSpecification;
+            return;
         }
 
-        public void Execute(OnEvaluateMessageHandling pipelineEvent)
-        {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+        state.SetProcessingStatus(ProcessingStatus.Ignore);
 
-            var state = pipelineEvent.Pipeline.State;
-
-            if (_messageHandlingSpecification.IsSatisfiedBy(pipelineEvent))
-            {
-                return;
-            }
-
-            state.SetProcessingStatus(ProcessingStatus.Ignore);
-        }
-
-        public async Task ExecuteAsync(OnEvaluateMessageHandling pipelineEvent)
-        {
-            Execute(pipelineEvent);
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

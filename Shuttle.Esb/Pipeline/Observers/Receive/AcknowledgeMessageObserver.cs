@@ -3,43 +3,25 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransactionScope;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IAcknowledgeMessageObserver : IPipelineObserver<OnAcknowledgeMessage>
 {
-    public interface IAcknowledgeMessageObserver : IPipelineObserver<OnAcknowledgeMessage>
+}
+
+public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
+{
+    public async Task ExecuteAsync(IPipelineContext<OnAcknowledgeMessage> pipelineContext)
     {
-    }
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 
-    public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
-    {
-        public void Execute(OnAcknowledgeMessage pipelineEvent)
+        if (pipelineContext.Pipeline.Exception != null && !state.GetTransactionScopeCompleted())
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+            return;
         }
 
-        public async Task ExecuteAsync(OnAcknowledgeMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+        var acknowledgementToken = Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken;
 
-        private async Task ExecuteAsync(OnAcknowledgeMessage pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-
-            if (pipelineEvent.Pipeline.Exception != null && !state.GetTransactionScopeCompleted())
-            {
-                return;
-            }
-
-            var acknowledgementToken = Guard.AgainstNull(state.GetReceivedMessage(), StateKeys.ReceivedMessage).AcknowledgementToken;
-
-            if (sync)
-            {
-                state.GetWorkQueue().Acknowledge(acknowledgementToken);
-            }
-            else
-            {
-                await state.GetWorkQueue().AcknowledgeAsync(acknowledgementToken).ConfigureAwait(false);
-            }
-        }
+        await Guard.AgainstNull(state.GetWorkQueue()).AcknowledgeAsync(acknowledgementToken).ConfigureAwait(false);
     }
 }

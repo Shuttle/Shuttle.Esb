@@ -7,66 +7,53 @@ using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Transactions;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+[TestFixture]
+public class ServiceBusFixture
 {
-    [TestFixture]
-    public class ServiceBusFixture
+    [Test]
+    public async Task Should_be_able_to_handle_expired_message_async()
     {
-        [Test]
-        public void Should_be_able_to_handle_expired_message()
+        var handlerInvoker = new FakeMessageHandlerInvoker();
+        var fakeQueue = new FakeQueue(2);
+
+        var queueService = new Mock<IQueueService>();
+
+        queueService.Setup(m => m.Get(It.IsAny<string>())).Returns(fakeQueue);
+
+        var services = new ServiceCollection();
+
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        services.AddTransactionScope(builder =>
         {
-            Should_be_able_to_handle_expired_message_async(true).GetAwaiter().GetResult();
-        }
-
-        [Test]
-        public async Task Should_be_able_to_handle_expired_message_async()
+            builder.Options.Enabled = false;
+        });
+        services.AddSingleton(queueService.Object);
+        services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
+        services.AddServiceBus(builder =>
         {
-            await Should_be_able_to_handle_expired_message_async(false);
-        }
+            builder.Options.Inbox = new()
+            {
+                WorkQueueUri = "fake://work",
+                ErrorQueueUri = "fake://error",
+                ThreadCount = 1
+            };
+        });
 
-        private async Task Should_be_able_to_handle_expired_message_async(bool sync)
+        var serviceBus = services.BuildServiceProvider().GetRequiredService<IServiceBus>();
+
+        await using (await serviceBus.StartAsync())
         {
-            var handlerInvoker = new FakeMessageHandlerInvoker();
-            var fakeQueue = new FakeQueue(2);
+            var timeout = DateTime.Now.AddSeconds(5);
 
-            var queueService = new Mock<IQueueService>();
-
-            queueService.Setup(m => m.Get(It.IsAny<Uri>())).Returns(fakeQueue);
-
-            var services = new ServiceCollection();
-
-            services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
-            services.AddTransactionScope(builder =>
+            while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
             {
-                builder.Options.Enabled = false;
-            });
-            services.AddSingleton(queueService.Object);
-            services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
-            services.AddServiceBus(builder =>
-            {
-                builder.Options.Asynchronous = !sync;
-                builder.Options.Inbox = new InboxOptions
-                {
-                    WorkQueueUri = "fake://work",
-                    ErrorQueueUri = "fake://error",
-                    ThreadCount = 1
-                };
-            });
-
-            var serviceBus = services.BuildServiceProvider().GetRequiredService<IServiceBus>();
-
-            using (sync ? serviceBus.Start() : await serviceBus.StartAsync())
-            {
-                var timeout = DateTime.Now.AddSeconds(5);
-
-                while (fakeQueue.MessageCount < 2 && DateTime.Now < timeout)
-                {
-                    Thread.Sleep(5);
-                }
+                Thread.Sleep(5);
             }
-
-            Assert.AreEqual(1, handlerInvoker.GetInvokeCount("SimpleCommand"), "FakeHandlerInvoker was not invoked exactly once.");
-            Assert.AreEqual(2, fakeQueue.MessageCount, "FakeQueue was not invoked exactly twice.");
         }
+
+        Assert.That(handlerInvoker.GetInvokeCount("SimpleCommand"), Is.EqualTo(1), "FakeHandlerInvoker was not invoked exactly once.");
+        Assert.That(fakeQueue.MessageCount, Is.EqualTo(2), "FakeQueue was not invoked exactly twice.");
     }
 }

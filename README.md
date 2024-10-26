@@ -136,7 +136,7 @@ services.AddServiceBus(builder =>
 ### Handle any messages
 
 ``` c#
-public class RegisterMemberHandler : IAsyncMessageHandler<RegisterMember>
+public class RegisterMemberHandler : IMessageHandler<RegisterMember>
 {
     public RegisterMemberHandler(IDependency dependency)
     {
@@ -155,7 +155,7 @@ public class RegisterMemberHandler : IAsyncMessageHandler<RegisterMember>
 ```
 
 ``` c#
-public class MemberRegisteredHandler : IAsyncMessageHandler<MemberRegistered>
+public class MemberRegisteredHandler : IMessageHandler<MemberRegistered>
 {
 	public async Task ProcessMessageAsync(IHandlerContext<MemberRegistered> context)
 	{

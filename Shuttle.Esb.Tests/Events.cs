@@ -1,8 +1,5 @@
-﻿using Shuttle.Core.Pipelines;
+﻿namespace Shuttle.Esb.Tests;
 
-namespace Shuttle.Esb.Tests
+public class OnException
 {
-    public class OnException : PipelineEvent
-    {
-    }
 }

@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace Shuttle.Esb;
 
-namespace Shuttle.Esb
+public class OutboxOptions : ProcessorOptions
 {
-    public class OutboxOptions : ProcessorOptions
+    public OutboxOptions()
     {
-        public OutboxOptions()
-        {
-            ThreadCount = 1;
-        }
+        ThreadCount = 1;
     }
 }

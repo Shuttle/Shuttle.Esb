@@ -1,8 +1,7 @@
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IServiceBusConfiguration
 {
-    public interface IServiceBusConfiguration
-    {
-        IInboxConfiguration Inbox { get; }
-        IOutboxConfiguration Outbox { get; }
-    }
+    IInboxConfiguration? Inbox { get; }
+    IOutboxConfiguration? Outbox { get; }
 }

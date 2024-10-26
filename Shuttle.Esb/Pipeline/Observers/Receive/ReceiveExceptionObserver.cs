@@ -5,170 +5,124 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IReceiveExceptionObserver : IPipelineObserver<OnPipelineException>
 {
-    public interface IReceiveExceptionObserver : IPipelineObserver<OnPipelineException>
+}
+
+public class ReceiveExceptionObserver : IReceiveExceptionObserver
+{
+    private readonly IServiceBusPolicy _policy;
+    private readonly ISerializer _serializer;
+
+    public ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
     {
+        _policy = Guard.AgainstNull(policy);
+        _serializer = Guard.AgainstNull(serializer);
     }
 
-    public class ReceiveExceptionObserver : IReceiveExceptionObserver
+    public async Task ExecuteAsync(IPipelineContext<OnPipelineException> pipelineContext)
     {
-        private readonly IServiceBusPolicy _policy;
-        private readonly ISerializer _serializer;
+        Guard.AgainstNull(pipelineContext);
 
-        public ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer serializer)
+        var state = pipelineContext.Pipeline.State;
+
+        try
         {
-            Guard.AgainstNull(policy, nameof(policy));
-            Guard.AgainstNull(serializer, nameof(serializer));
-
-            _policy = policy;
-            _serializer = serializer;
-        }
-
-        private async Task ExecuteAsync(OnPipelineException pipelineEvent, bool sync)
-        {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
-
-            var state = pipelineEvent.Pipeline.State;
-
-            try
+            using (var tx = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
             {
-                using (var tx = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+                state.ResetWorking();
+
+                if (pipelineContext.Pipeline.ExceptionHandled)
                 {
-                    state.ResetWorking();
+                    return;
+                }
 
-                    if (pipelineEvent.Pipeline.ExceptionHandled)
+                try
+                {
+                    var transportMessage = state.GetTransportMessage();
+                    var receivedMessage = state.GetReceivedMessage();
+                    var workQueue = Guard.AgainstNull(state.GetWorkQueue());
+
+                    if (transportMessage == null)
                     {
-                        return;
-                    }
-
-                    try
-                    {
-                        var transportMessage = state.GetTransportMessage();
-                        var receivedMessage = state.GetReceivedMessage();
-                        var workQueue = state.GetWorkQueue();
-                        var errorQueue = state.GetErrorQueue();
-                        var handlerContext = (IHandlerContext)state.GetHandlerContext();
-
-                        if (transportMessage == null)
+                        if (receivedMessage == null)
                         {
-                            if (receivedMessage == null)
-                            {
-                                return;
-                            }
-
-                            if (sync)
-                            {
-                                workQueue.Release(receivedMessage.AcknowledgementToken);
-                            }
-                            else
-                            {
-                                await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                            }
-
                             return;
                         }
 
-                        var action = _policy.EvaluateMessageHandlingFailure(pipelineEvent);
+                        await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
 
-                        transportMessage.RegisterFailure(
-                            pipelineEvent.Pipeline.Exception.AllMessages(),
-                            action.TimeSpanToIgnoreRetriedMessage);
-
-                        var retry = !workQueue.IsStream;
-
-                        retry = retry && !pipelineEvent.Pipeline.Exception.Contains<UnrecoverableHandlerException>();
-                        retry = retry && action.Retry;
-
-                        if (retry && handlerContext != null)
-                        {
-                            retry =
-                                handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
-                                handlerContext.ExceptionHandling == ExceptionHandling.Default;
-                        }
-
-                        var poison = errorQueue != null;
-
-                        poison = poison && !retry;
-
-                        if (poison && handlerContext != null)
-                        {
-                            poison =
-                                handlerContext.ExceptionHandling == ExceptionHandling.Poison ||
-                                handlerContext.ExceptionHandling == ExceptionHandling.Default;
-                        }
-
-                        if (retry || poison)
-                        {
-                            if (sync)
-                            {
-                                using (var stream = _serializer.Serialize(transportMessage))
-                                {
-                                    if (retry)
-                                    {
-                                        workQueue.Enqueue(transportMessage, stream);
-                                    }
-
-                                    if (poison)
-                                    {
-                                        errorQueue.Enqueue(transportMessage, stream);
-                                    }
-                                }
-
-                                workQueue.Acknowledge(receivedMessage.AcknowledgementToken);
-                            }
-                            else
-                            {
-                                await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
-                                {
-                                    if (retry)
-                                    {
-                                        await workQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
-                                    }
-
-                                    if (poison)
-                                    {
-                                        await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
-                                    }
-                                }
-
-                                await workQueue.AcknowledgeAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                            }
-                        }
-                        else
-                        {
-                            if (sync)
-                            {
-                                workQueue.Release(receivedMessage.AcknowledgementToken);
-                            }
-                            else
-                            {
-                                await workQueue.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
-                            }
-                        }
+                        return;
                     }
-                    finally
-                    {
-                        pipelineEvent.Pipeline.MarkExceptionHandled();
 
-                        tx.Complete();
+                    var action = _policy.EvaluateMessageHandlingFailure(pipelineContext);
+
+                    var errorQueue = state.GetErrorQueue();
+                    var handlerContext = state.GetHandlerContext() as IHandlerContext;
+                    var exception = Guard.AgainstNull(pipelineContext.Pipeline.Exception);
+
+                    transportMessage.RegisterFailure(exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
+
+                    var retry = !workQueue.IsStream;
+
+                    retry = retry && !exception.Contains<UnrecoverableHandlerException>();
+                    retry = retry && action.Retry;
+
+                    if (retry && handlerContext != null)
+                    {
+                        retry =
+                            handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
+                            handlerContext.ExceptionHandling == ExceptionHandling.Default;
+                    }
+
+                    var poison = errorQueue != null;
+
+                    poison = poison && !retry;
+
+                    if (poison && handlerContext != null)
+                    {
+                        poison =
+                            handlerContext.ExceptionHandling == ExceptionHandling.Poison ||
+                            handlerContext.ExceptionHandling == ExceptionHandling.Default;
+                    }
+
+                    Guard.AgainstNull(receivedMessage);
+
+                    if (retry || poison)
+                    {
+                        await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
+                        {
+                            if (retry)
+                            {
+                                await workQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                            }
+
+                            if (poison)
+                            {
+                                await errorQueue!.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
+                            }
+                        }
+
+                        await workQueue.AcknowledgeAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await workQueue.ReleaseAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
                     }
                 }
-            }
-            finally
-            {
-                pipelineEvent.Pipeline.Abort();
+                finally
+                {
+                    pipelineContext.Pipeline.MarkExceptionHandled();
+
+                    tx.Complete();
+                }
             }
         }
-
-        public void Execute(OnPipelineException pipelineEvent)
+        finally
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnPipelineException pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+            pipelineContext.Pipeline.Abort();
         }
     }
 }

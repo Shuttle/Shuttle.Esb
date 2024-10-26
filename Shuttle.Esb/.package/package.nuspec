@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Esb</id>
-		<version>15.0.0</version>
+		<version>20.0.0</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<license type="expression">BSD-3-Clause</license>
@@ -16,20 +16,20 @@
 		<copyright>Copyright (c) 2024, Eben Roux</copyright>
 		<tags>shuttle</tags>
 		<dependencies>
-      <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.0" />
-      <dependency id="Microsoft.Extensions.Hosting" version="8.0.0" />
-      <dependency id="Shuttle.Core.Compression" version="12.0.1" />
-      <dependency id="Shuttle.Core.Contract" version="11.1.1" />
-      <dependency id="Shuttle.Core.Encryption" version="12.0.1" />
-      <dependency id="Shuttle.Core.Pipelines" version="14.0.0" />
-      <dependency id="Shuttle.Core.PipelineTransactionScope" version="14.0.0" />
-      <dependency id="Shuttle.Core.Reflection" version="13.0.0" />
-      <dependency id="Shuttle.Core.Serialization" version="11.0.0" />
-      <dependency id="Shuttle.Core.Specification" version="11.0.0" />
-      <dependency id="Shuttle.Core.Streams" version="10.3.0" />
-      <dependency id="Shuttle.Core.System" version="11.1.0" />
-      <dependency id="Shuttle.Core.Threading" version="13.1.0" />
-      <dependency id="Shuttle.Core.TransactionScope" version="11.1.0" />
+      <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.1" />
+      <dependency id="Microsoft.Extensions.Hosting" version="8.0.1" />
+      <dependency id="Shuttle.Core.Compression" version="20.0.0" />
+      <dependency id="Shuttle.Core.Contract" version="20.0.0" />
+      <dependency id="Shuttle.Core.Encryption" version="20.0.0" />
+      <dependency id="Shuttle.Core.Pipelines" version="20.0.0" />
+      <dependency id="Shuttle.Core.PipelineTransactionScope" version="20.0.0" />
+      <dependency id="Shuttle.Core.Reflection" version="20.0.0" />
+      <dependency id="Shuttle.Core.Serialization" version="20.0.0" />
+      <dependency id="Shuttle.Core.Specification" version="20.0.0" />
+      <dependency id="Shuttle.Core.Streams" version="20.0.0" />
+      <dependency id="Shuttle.Core.System" version="20.0.0" />
+      <dependency id="Shuttle.Core.Threading" version="20.0.0" />
+      <dependency id="Shuttle.Core.TransactionScope" version="20.0.0" />
 		</dependencies>
 	</metadata>
 	<files>

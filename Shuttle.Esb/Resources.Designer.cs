@@ -79,6 +79,24 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not get the `AssemblyQualifiedName` for handler type &apos;{0}&apos;..
+        /// </summary>
+        public static string AssemblyQualifiedNameException {
+            get {
+                return ResourceManager.GetString("AssemblyQualifiedNameException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not resolve source uri &apos;{0}&apos;..
+        /// </summary>
+        public static string CouldNotResolveSourceUriException {
+            get {
+                return ResourceManager.GetString("CouldNotResolveSourceUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread..
         /// </summary>
         public static string DeferredMessageProcessorInstanceException {
@@ -106,7 +124,16 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Could not create a HandlerContext for type &apos;{0}&apos;..
+        /// </summary>
+        public static string HandlerContextConstructorMissingException {
+            get {
+                return ResourceManager.GetString("HandlerContextConstructorMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required `ProcessMessage` method that handles message type &apos;{1}&apos;..
         /// </summary>
         public static string HandlerMessageMethodMissingException {
             get {

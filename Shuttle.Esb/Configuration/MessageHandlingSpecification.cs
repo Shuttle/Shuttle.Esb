@@ -5,35 +5,30 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Specification;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageHandlingSpecification : IMessageHandlingSpecification
 {
-    public class MessageHandlingSpecification : IMessageHandlingSpecification
+    private readonly List<Func<IPipelineContext, bool>> _specificationFunctions = new();
+
+    private readonly List<ISpecification<IPipelineContext>> _specifications = new();
+
+    public bool IsSatisfiedBy(IPipelineContext pipelineContext)
     {
-        private readonly List<Func<IPipelineEvent, bool>> _specificationFunctions = new List<Func<IPipelineEvent, bool>>();
+        Guard.AgainstNull(pipelineContext);
 
-        private readonly List<ISpecification<IPipelineEvent>> _specifications = new List<ISpecification<IPipelineEvent>>();
+        return _specificationFunctions.All(assessor => assessor.Invoke(pipelineContext))
+               &&
+               _specifications.All(specification => specification.IsSatisfiedBy(pipelineContext));
+    }
 
-        public bool IsSatisfiedBy(IPipelineEvent pipelineEvent)
-        {
-            Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent));
+    public void Add(Func<IPipelineContext, bool> assessor)
+    {
+        _specificationFunctions.Add(Guard.AgainstNull(assessor));
+    }
 
-            return _specificationFunctions.All(assessor => assessor.Invoke(pipelineEvent))
-                   &&
-                   _specifications.All(specification => specification.IsSatisfiedBy(pipelineEvent));
-        }
-
-        public void Add(Func<IPipelineEvent, bool> assessor)
-        {
-            Guard.AgainstNull(assessor, nameof(assessor));
-
-            _specificationFunctions.Add(assessor);
-        }
-
-        public void Add(ISpecification<IPipelineEvent> specification)
-        {
-            Guard.AgainstNull(specification, nameof(specification));
-
-            _specifications.Add(specification);
-        }
+    public void Add(ISpecification<IPipelineContext> specification)
+    {
+        _specifications.Add(Guard.AgainstNull(specification));
     }
 }

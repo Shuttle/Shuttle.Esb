@@ -10,18 +10,7 @@ namespace Shuttle.Esb.Tests;
 public class EncryptMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_skip_when_encryption_is_not_required()
-    {
-        Should_be_able_to_skip_when_encryption_is_not_required_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_skip_when_encryption_is_not_required_async()
-    {
-        await Should_be_able_to_skip_when_encryption_is_not_required_async(false);
-    }
-
-    private async Task Should_be_able_to_skip_when_encryption_is_not_required_async(bool sync)
     {
         var encryptionService = new Mock<IEncryptionService>();
 
@@ -34,33 +23,15 @@ public class EncryptMessageObserverFixture
             .RegisterStage(".")
             .WithEvent<OnEncryptMessage>();
 
-        pipeline.State.SetTransportMessage(new TransportMessage());
+        pipeline.State.SetTransportMessage(new());
 
-        if (sync)
-        {
-            pipeline.Execute();
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-        }
+        await pipeline.ExecuteAsync();
 
         encryptionService.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_be_able_to_encrypt_message()
-    {
-        Should_be_able_to_encrypt_message_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_encrypt_message_async()
-    {
-        await Should_be_able_to_encrypt_message_async(false);
-    }
-
-    private async Task Should_be_able_to_encrypt_message_async(bool sync)
     {
         var encryptionAlgorithm = new Mock<IEncryptionAlgorithm>();
         var encryptionService = new Mock<IEncryptionService>();
@@ -80,18 +51,9 @@ public class EncryptMessageObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            encryptionAlgorithm.Verify(m => m.Encrypt(It.IsAny<byte[]>()), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            encryptionAlgorithm.Verify(m => m.EncryptAsync(It.IsAny<byte[]>()), Times.Once);
-        }
+        encryptionAlgorithm.Verify(m => m.EncryptAsync(It.IsAny<byte[]>()), Times.Once);
 
         encryptionService.Verify(m => m.Get(transportMessage.EncryptionAlgorithm), Times.Once);
 

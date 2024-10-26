@@ -4,124 +4,74 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransactionScope;
 using Shuttle.Core.Serialization;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface ISendDeferredObserver :
+    IPipelineObserver<OnSendDeferred>,
+    IPipelineObserver<OnAfterSendDeferred>
 {
-    public interface ISendDeferredObserver :
-        IPipelineObserver<OnSendDeferred>,
-        IPipelineObserver<OnAfterSendDeferred>
+}
+
+public class SendDeferredObserver : ISendDeferredObserver
+{
+    private readonly IIdempotenceService _idempotenceService;
+    private readonly IPipelineFactory _pipelineFactory;
+    private readonly ISerializer _serializer;
+
+    public SendDeferredObserver(IPipelineFactory pipelineFactory, ISerializer serializer,
+        IIdempotenceService idempotenceService)
     {
+        _pipelineFactory = Guard.AgainstNull(pipelineFactory);
+        _serializer = Guard.AgainstNull(serializer);
+        _idempotenceService = Guard.AgainstNull(idempotenceService);
     }
 
-    public class SendDeferredObserver : ISendDeferredObserver
+    public async Task ExecuteAsync(IPipelineContext<OnAfterSendDeferred> pipelineContext)
     {
-        private readonly IIdempotenceService _idempotenceService;
-        private readonly IPipelineFactory _pipelineFactory;
-        private readonly ISerializer _serializer;
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 
-        public SendDeferredObserver(IPipelineFactory pipelineFactory, ISerializer serializer,
-            IIdempotenceService idempotenceService)
+        if (state.GetProcessingStatus() == ProcessingStatus.Ignore ||
+            (
+                pipelineContext.Pipeline.Exception != null && !state.GetTransactionScopeCompleted()
+            ))
         {
-            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(serializer, nameof(serializer));
-            Guard.AgainstNull(idempotenceService, nameof(idempotenceService));
-
-            _pipelineFactory = pipelineFactory;
-            _serializer = serializer;
-            _idempotenceService = idempotenceService;
+            return;
         }
 
-        public void Execute(OnSendDeferred pipelineEvent)
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
+
+        await _idempotenceService.ProcessingCompletedAsync(transportMessage).ConfigureAwait(false);
+    }
+
+    public async Task ExecuteAsync(IPipelineContext<OnSendDeferred> pipelineContext)
+    {
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+
+        if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+            return;
         }
 
-        public async Task ExecuteAsync(OnSendDeferred pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        public void Execute(OnAfterSendDeferred pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
+        var deferredMessages = await _idempotenceService.GetDeferredMessagesAsync(transportMessage).ConfigureAwait(false);
 
-        public async Task ExecuteAsync(OnAfterSendDeferred pipelineEvent)
+        foreach (var stream in deferredMessages)
         {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+            var deferredTransportMessage = (TransportMessage)await _serializer.DeserializeAsync(typeof(TransportMessage), stream).ConfigureAwait(false);
 
-        private async Task ExecuteAsync(OnAfterSendDeferred pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
+            var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
 
-            if (state.GetProcessingStatus() == ProcessingStatus.Ignore ||
-                (
-                    pipelineEvent.Pipeline.Exception != null && !state.GetTransactionScopeCompleted()
-                ))
+            try
             {
-                return;
+               await messagePipeline.ExecuteAsync(deferredTransportMessage, null).ConfigureAwait(false);
+            }
+            finally
+            {
+                _pipelineFactory.ReleasePipeline(messagePipeline);
             }
 
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
-
-            if (sync)
-            {
-                _idempotenceService.ProcessingCompleted(transportMessage);
-            }
-            else
-            {
-                await _idempotenceService.ProcessingCompletedAsync(transportMessage).ConfigureAwait(false);
-            }
-        }
-
-        private async Task ExecuteAsync(OnSendDeferred pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-
-            if (state.GetProcessingStatus() == ProcessingStatus.Ignore)
-            {
-                return;
-            }
-
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
-
-            var deferredMessages = sync
-                ? _idempotenceService.GetDeferredMessages(transportMessage)
-                : await _idempotenceService.GetDeferredMessagesAsync(transportMessage).ConfigureAwait(false);
-
-            foreach (var stream in deferredMessages)
-            {
-                var deferredTransportMessage = sync
-                    ? (TransportMessage)_serializer.Deserialize(typeof(TransportMessage), stream)
-                    : (TransportMessage)await _serializer.DeserializeAsync(typeof(TransportMessage), stream).ConfigureAwait(false);
-
-                var messagePipeline = _pipelineFactory.GetPipeline<DispatchTransportMessagePipeline>();
-
-                try
-                {
-                    if (sync)
-                    {
-                        messagePipeline.Execute(deferredTransportMessage, null);
-                    }
-                    else
-                    {
-                        await messagePipeline.ExecuteAsync(deferredTransportMessage, null).ConfigureAwait(false);
-                    }
-                }
-                finally
-                {
-                    _pipelineFactory.ReleasePipeline(messagePipeline);
-                }
-
-                if (sync)
-                {
-                    _idempotenceService.DeferredMessageSent(transportMessage, deferredTransportMessage);
-                }
-                else
-                {
-                    await _idempotenceService.DeferredMessageSentAsync(transportMessage, deferredTransportMessage).ConfigureAwait(false);
-                }
-            }
+            await _idempotenceService.DeferredMessageSentAsync(transportMessage, deferredTransportMessage).ConfigureAwait(false);
         }
     }
 }

@@ -1,15 +1,14 @@
 using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
-{
-    public class MessageAcknowledgedEventArgs : EventArgs
-    {
-        public object AcknowledgementToken { get; }
+namespace Shuttle.Esb;
 
-        public MessageAcknowledgedEventArgs(object acknowledgementToken)
-        {
-            AcknowledgementToken = Guard.AgainstNull(acknowledgementToken, nameof(acknowledgementToken));
-        }
+public class MessageAcknowledgedEventArgs : EventArgs
+{
+    public MessageAcknowledgedEventArgs(object acknowledgementToken)
+    {
+        AcknowledgementToken = Guard.AgainstNull(acknowledgementToken);
     }
+
+    public object AcknowledgementToken { get; }
 }

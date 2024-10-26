@@ -2,43 +2,30 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IGetDeferredMessageObserver : IPipelineObserver<OnGetMessage>
 {
-    public interface IGetDeferredMessageObserver : IPipelineObserver<OnGetMessage>
+}
+
+public class GetDeferredMessageObserver : IGetDeferredMessageObserver
+{
+    public async Task ExecuteAsync(IPipelineContext<OnGetMessage> pipelineContext)
     {
-    }
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var queue = Guard.AgainstNull(state.GetDeferredQueue());
 
-    public class GetDeferredMessageObserver : IGetDeferredMessageObserver
-    {
-        private async Task ExecuteAsync(OnGetMessage pipelineEvent, bool sync)
+        var receivedMessage = await queue.GetMessageAsync().ConfigureAwait(false);
+
+        // Abort the pipeline if there is no message on the queue
+        if (receivedMessage == null)
         {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var queue = Guard.AgainstNull(state.GetDeferredQueue(), StateKeys.DeferredQueue);
-
-            var receivedMessage = sync
-                ? queue.GetMessage()
-                : await queue.GetMessageAsync().ConfigureAwait(false);
-
-            // Abort the pipeline if there is no message on the queue
-            if (receivedMessage == null)
-            {
-                pipelineEvent.Pipeline.Abort();
-            }
-            else
-            {
-                state.SetWorking();
-                state.SetReceivedMessage(receivedMessage);
-            }
+            pipelineContext.Pipeline.Abort();
         }
-
-        public void Execute(OnGetMessage pipelineEvent)
+        else
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnGetMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+            state.SetWorking();
+            state.SetReceivedMessage(receivedMessage);
         }
     }
 }

@@ -10,18 +10,7 @@ namespace Shuttle.Esb.Tests;
 public class CompressMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_skip_when_compression_is_not_required()
-    {
-        Should_be_able_to_skip_when_compression_is_not_required_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_skip_when_compression_is_not_required_async()
-    {
-        await Should_be_able_to_skip_when_compression_is_not_required_async(false);
-    }
-
-    private async Task Should_be_able_to_skip_when_compression_is_not_required_async(bool sync)
     {
         var compressionService = new Mock<ICompressionService>();
 
@@ -34,33 +23,15 @@ public class CompressMessageObserverFixture
             .RegisterStage(".")
             .WithEvent<OnCompressMessage>();
 
-        pipeline.State.SetTransportMessage(new TransportMessage());
+        pipeline.State.SetTransportMessage(new());
 
-        if (sync)
-        {
-            pipeline.Execute();
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-        }
+        await pipeline.ExecuteAsync();
 
         compressionService.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_be_able_to_compress_message()
-    {
-        Should_be_able_to_compress_message_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_compress_message_async()
-    {
-        await Should_be_able_to_compress_message_async(false);
-    }
-
-    private async Task Should_be_able_to_compress_message_async(bool sync)
     {
         var compressionAlgorithm = new Mock<ICompressionAlgorithm>();
         var compressionService = new Mock<ICompressionService>();
@@ -80,18 +51,9 @@ public class CompressMessageObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            compressionAlgorithm.Verify(m => m.Compress(It.IsAny<byte[]>()), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            compressionAlgorithm.Verify(m => m.CompressAsync(It.IsAny<byte[]>()), Times.Once);
-        }
+        compressionAlgorithm.Verify(m => m.CompressAsync(It.IsAny<byte[]>()), Times.Once);
 
         compressionService.Verify(m => m.Get(transportMessage.CompressionAlgorithm), Times.Once);
 

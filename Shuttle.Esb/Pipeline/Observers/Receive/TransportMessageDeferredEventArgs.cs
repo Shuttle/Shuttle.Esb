@@ -1,17 +1,14 @@
 ﻿using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class TransportMessageDeferredEventArgs : EventArgs
 {
-    public class TransportMessageDeferredEventArgs : EventArgs
+    public TransportMessageDeferredEventArgs(TransportMessage transportMessage)
     {
-        public TransportMessageDeferredEventArgs(TransportMessage transportMessage)
-        {
-            Guard.AgainstNull(transportMessage, nameof(transportMessage));
-
-            TransportMessage = transportMessage;
-        }
-
-        public TransportMessage TransportMessage { get; }
+        TransportMessage = Guard.AgainstNull(transportMessage);
     }
+
+    public TransportMessage TransportMessage { get; }
 }

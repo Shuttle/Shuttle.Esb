@@ -1,11 +1,10 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageHandlerInvokerException : Exception
 {
-    public class HandlerMessageMethodMissingException : Exception
+    public MessageHandlerInvokerException(string message) : base(message)
     {
-        public HandlerMessageMethodMissingException(string message) : base(message)
-        {
-        }
     }
 }

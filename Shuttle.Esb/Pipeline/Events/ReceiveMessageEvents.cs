@@ -1,97 +1,89 @@
-﻿using Shuttle.Core.Pipelines;
+﻿namespace Shuttle.Esb;
 
-namespace Shuttle.Esb
+public class OnGetMessage
 {
-    public class OnGetMessage : PipelineEvent
-    {
-    }
+}
 
-    public class OnAfterGetMessage : PipelineEvent
-    {
-    }
+public class OnAfterGetMessage
+{
+}
 
-    public class OnDeserializeTransportMessage : PipelineEvent
-    {
-    }
+public class OnDeserializeTransportMessage
+{
+}
 
-    public class OnAfterDeserializeTransportMessage : PipelineEvent
-    {
-    }
+public class OnAfterDeserializeTransportMessage
+{
+}
 
-    public class OnDecryptMessage : PipelineEvent
-    {
-    }
+public class OnDecryptMessage
+{
+}
 
-    public class OnAfterDecryptMessage : PipelineEvent
-    {
-    }
+public class OnAfterDecryptMessage
+{
+}
 
-    public class OnDeserializeMessage : PipelineEvent
-    {
-    }
+public class OnDeserializeMessage
+{
+}
 
-    public class OnAfterDeserializeMessage : PipelineEvent
-    {
-    }
+public class OnAfterDeserializeMessage
+{
+}
 
-    public class OnEvaluateMessageHandling : PipelineEvent
-    {
-    }
+public class OnEvaluateMessageHandling
+{
+}
 
-    public class OnAfterEvaluateMessageHandling : PipelineEvent
-    {
-    }
+public class OnAfterEvaluateMessageHandling
+{
+}
 
-    public class OnProcessIdempotenceMessage : PipelineEvent
-    {
-    }
+public class OnProcessIdempotenceMessage
+{
+}
 
-    public class OnHandleMessage : PipelineEvent
-    {
-    }
+public class OnHandleMessage
+{
+}
 
-    public class OnAfterHandleMessage : PipelineEvent
-    {
-    }
+public class OnAfterHandleMessage
+{
+}
 
-    public class OnIdempotenceMessageHandled : PipelineEvent
-    {
-    }
+public class OnIdempotenceMessageHandled
+{
+}
 
-    public class OnRemoveJournalMessage : PipelineEvent
-    {
-    }
+public class OnAcknowledgeMessage
+{
+}
 
+public class OnAfterAcknowledgeMessage
+{
+}
 
-    public class OnAcknowledgeMessage : PipelineEvent
-    {
-    }
+public class OnSendDeferred
+{
+}
 
-    public class OnAfterAcknowledgeMessage : PipelineEvent
-    {
-    }
+public class OnAfterSendDeferred
+{
+}
 
-    public class OnSendDeferred : PipelineEvent
-    {
-    }
+public class OnProcessDeferredMessage
+{
+}
 
-    public class OnAfterSendDeferred : PipelineEvent
-    {
-    }
+public class OnAfterProcessDeferredMessage
+{
+}
 
-    public class OnProcessDeferredMessage : PipelineEvent
-    {
-    }
+public class OnDecompressMessage
+{
+}
 
-    public class OnAfterProcessDeferredMessage : PipelineEvent
-    {
-    }
-
-    public class OnDecompressMessage : PipelineEvent
-    {
-    }
-
-    public class OnAfterDecompressMessage : PipelineEvent
-    {
-    }
+public class OnAfterDecompressMessage
+{
 }

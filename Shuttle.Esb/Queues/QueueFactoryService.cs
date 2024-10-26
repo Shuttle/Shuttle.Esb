@@ -5,69 +5,72 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class QueueFactoryService : IQueueFactoryService
 {
-    public class QueueFactoryService : IQueueFactoryService
+    private readonly List<IQueueFactory> _queueFactories = new();
+    private bool _disposed;
+
+    public QueueFactoryService(IEnumerable<IQueueFactory>? queueFactories = null)
     {
-        private bool _disposed;
+        _queueFactories.AddRange(queueFactories ?? Enumerable.Empty<IQueueFactory>());
+    }
 
-        private readonly List<IQueueFactory> _queueFactories = new List<IQueueFactory>();
-
-        public QueueFactoryService(IEnumerable<IQueueFactory> queueFactories = null)
+    public void Dispose()
+    {
+        if (_disposed)
         {
-            _queueFactories.AddRange(queueFactories ?? Enumerable.Empty<IQueueFactory>());
+            return;
         }
 
-        public void Dispose()
+        foreach (var queueFactory in _queueFactories)
         {
-            if (_disposed)
-            {
-                return;
-            }
-
-            foreach (var queueFactory in _queueFactories)
-            {
-                queueFactory.TryDispose();
-            }
-
-            _queueFactories.Clear();
-
-            _disposed = true;
+            queueFactory.TryDispose();
         }
 
-        public IQueueFactory Get(string scheme)
-        {
-            Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
+        _queueFactories.Clear();
 
-            return _queueFactories.FirstOrDefault(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase)) ?? throw new QueueFactoryNotFoundException(scheme);
+        _disposed = true;
+    }
+
+    public IQueueFactory Get(string scheme)
+    {
+        Guard.AgainstNullOrEmptyString(scheme);
+
+        return Find(scheme) ?? throw new QueueFactoryNotFoundException(scheme);
+    }
+
+    public IEnumerable<IQueueFactory> Factories => _queueFactories.AsReadOnly();
+
+    public IQueueFactory? Find(string scheme)
+    {
+        Guard.AgainstNullOrEmptyString(scheme);
+
+        return _queueFactories.FirstOrDefault(factory => factory.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    public void Register(IQueueFactory queueFactory)
+    {
+        var factory = Find(Guard.AgainstNull(queueFactory).Scheme);
+
+        if (factory != null)
+        {
+            _queueFactories.Remove(factory);
         }
 
-        public IEnumerable<IQueueFactory> Factories => _queueFactories.AsReadOnly();
+        _queueFactories.Add(queueFactory);
+    }
 
-        public void Register(IQueueFactory queueFactory)
-        {
-            Guard.AgainstNull(queueFactory, nameof(queueFactory));
+    public bool Contains(string scheme)
+    {
+        return Find(scheme) != null;
+    }
 
-            var factory = Get(queueFactory.Scheme);
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
 
-            if (factory != null)
-            {
-                _queueFactories.Remove(factory);
-            }
-
-            _queueFactories.Add(queueFactory);
-        }
-
-        public bool Contains(string scheme)
-        {
-            return Get(scheme) != null;
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            Dispose();
-
-            return new ValueTask();
-        }
+        return new();
     }
 }

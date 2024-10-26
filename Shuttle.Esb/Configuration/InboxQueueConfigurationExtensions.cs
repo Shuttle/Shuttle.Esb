@@ -1,14 +1,11 @@
 ﻿using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
-{
-    public static class InboxQueueConfigurationExtensions
-    {
-        public static bool HasDeferredQueue(this IInboxConfiguration configuration)
-        {
-            Guard.AgainstNull(configuration, nameof(configuration));
+namespace Shuttle.Esb;
 
-            return configuration.DeferredQueue != null;
-        }
+public static class InboxQueueConfigurationExtensions
+{
+    public static bool HasDeferredQueue(this IInboxConfiguration configuration)
+    {
+        return Guard.AgainstNull(configuration).DeferredQueue != null;
     }
 }

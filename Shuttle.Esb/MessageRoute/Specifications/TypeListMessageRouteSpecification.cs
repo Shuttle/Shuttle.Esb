@@ -1,52 +1,43 @@
 using System;
 using System.Collections.Generic;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Reflection;
 using Shuttle.Core.Specification;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class TypeListMessageRouteSpecification : ISpecification<string>
 {
-    public class TypeListMessageRouteSpecification : ISpecification<string>
+    protected readonly List<string> MessageTypes = new();
+
+    public TypeListMessageRouteSpecification(params string[] messageTypes)
+        : this((IEnumerable<string>)messageTypes)
     {
-        protected readonly List<string> MessageTypes = new List<string>();
+    }
 
-        public TypeListMessageRouteSpecification(params string[] messageTypes)
-            : this((IEnumerable<string>)messageTypes)
+    public TypeListMessageRouteSpecification(IEnumerable<string> messageTypes)
+    {
+        MessageTypes.AddRange(messageTypes);
+    }
+
+    public TypeListMessageRouteSpecification(string value)
+    {
+        var typeNames = Guard.AgainstNullOrEmptyString(value).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var typeName in typeNames)
         {
-        }
+            var type = Type.GetType(typeName);
 
-        public TypeListMessageRouteSpecification(IEnumerable<string> messageTypes)
-        {
-            Guard.AgainstNull(messageTypes, nameof(messageTypes));
-
-            MessageTypes.AddRange(MessageTypes);
-        }
-
-        public TypeListMessageRouteSpecification(string value)
-        {
-            Guard.AgainstNullOrEmptyString(value, nameof(value));
-
-            var typeNames = value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            var reflectionService = new ReflectionService();
-
-            foreach (var typeName in typeNames)
+            if (type == null)
             {
-                var type = reflectionService.GetType(typeName);
-
-                if (type == null)
-                {
-                    throw new MessageRouteSpecificationException(string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
-                }
-
-                MessageTypes.Add(type.FullName);
+                throw new MessageRouteSpecificationException(string.Format(Resources.TypeListMessageRouteSpecificationUnknownType, typeName));
             }
-        }
 
-        public bool IsSatisfiedBy(string messageType)
-        {
-            Guard.AgainstNull(messageType, nameof(messageType));
-
-            return MessageTypes.Contains(messageType);
+            MessageTypes.Add(Guard.AgainstNullOrEmptyString(type.FullName));
         }
+    }
+
+    public bool IsSatisfiedBy(string messageType)
+    {
+        return MessageTypes.Contains(Guard.AgainstNull(messageType));
     }
 }

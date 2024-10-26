@@ -1,14 +1,13 @@
 using System;
 
-namespace Shuttle.Esb
-{
-    public class DeferredMessageProcessingAdjustedEventArgs : EventArgs
-    {
-        public DateTime NextProcessingDateTime { get; }
+namespace Shuttle.Esb;
 
-        public DeferredMessageProcessingAdjustedEventArgs(DateTime nextProcessingDateTime)
-        {
-            NextProcessingDateTime = nextProcessingDateTime;
-        }
+public class DeferredMessageProcessingAdjustedEventArgs : EventArgs
+{
+    public DeferredMessageProcessingAdjustedEventArgs(DateTime nextProcessingDateTime)
+    {
+        NextProcessingDateTime = nextProcessingDateTime;
     }
+
+    public DateTime NextProcessingDateTime { get; }
 }

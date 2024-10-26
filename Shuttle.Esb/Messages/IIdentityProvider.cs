@@ -1,9 +1,8 @@
 ﻿using System.Security.Principal;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IIdentityProvider
 {
-    public interface IIdentityProvider
-    {
-        IIdentity Get();
-    }
+    IIdentity Get();
 }

@@ -1,12 +1,9 @@
-﻿using Shuttle.Core.Pipelines;
+﻿namespace Shuttle.Esb;
 
-namespace Shuttle.Esb
+public class OnStopping
 {
-    public class OnStopping : PipelineEvent
-    {
-    }
+}
 
-    public class OnStopped : PipelineEvent
-    {
-    }
+public class OnStopped
+{
 }

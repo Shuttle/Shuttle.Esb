@@ -1,7 +1,6 @@
-﻿namespace Shuttle.Esb
+﻿namespace Shuttle.Esb;
+
+public interface IReusability
 {
-    public interface IReusability
-    {
-        bool IsReusable { get; }
-    }
+    bool IsReusable { get; }
 }

@@ -1,11 +1,10 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class WorkerException : Exception
 {
-    public class WorkerException : Exception
+    public WorkerException(string message) : base(message)
     {
-        public WorkerException(string message) : base(message)
-        {
-        }
     }
 }

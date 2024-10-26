@@ -12,18 +12,7 @@ namespace Shuttle.Esb.Tests;
 public class DeserializeMessageObserverFixture
 {
     [Test]
-    public void Should_throw_exception_on_invariant_failure()
-    {
-        Should_throw_exception_on_invariant_failure_async(true);
-    }
-
-    [Test]
     public void Should_throw_exception_on_invariant_failure_async()
-    {
-        Should_throw_exception_on_invariant_failure_async(false);
-    }
-
-    private void Should_throw_exception_on_invariant_failure_async(bool sync)
     {
         var serializer = new Mock<ISerializer>();
 
@@ -38,14 +27,7 @@ public class DeserializeMessageObserverFixture
 
         Core.Pipelines.PipelineException exception;
 
-        if (sync)
-        {
-            exception = Assert.Throws<Core.Pipelines.PipelineException>(() => pipeline.Execute());
-        }
-        else
-        {
-            exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
-        }
+        exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.TransportMessage));
@@ -54,18 +36,7 @@ public class DeserializeMessageObserverFixture
     }
 
     [Test]
-    public void Should_be_able_to_deserialize_message()
-    {
-        Should_be_able_to_deserialize_message_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_deserialize_message_async()
-    {
-        await Should_be_able_to_deserialize_message_async(false);
-    }
-
-    private async Task Should_be_able_to_deserialize_message_async(bool sync)
     {
         var serializer = new Mock<ISerializer>();
 
@@ -80,39 +51,19 @@ public class DeserializeMessageObserverFixture
 
         pipeline.State.SetTransportMessage(new()
         {
-            AssemblyQualifiedName = typeof(TransportMessage).AssemblyQualifiedName,
-            Message = new byte[] { }
+            AssemblyQualifiedName = typeof(TransportMessage).AssemblyQualifiedName!,
+            Message = Array.Empty<byte>()
         });
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            serializer.Verify(m => m.Deserialize(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
-        }
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
 
         serializer.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_be_able_to_requeue_on_exception()
-    {
-        Should_be_able_to_requeue_on_exception_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_requeue_on_exception_async()
-    {
-        await Should_be_able_to_requeue_on_exception_async(false);
-    }
-
-    private async Task Should_be_able_to_requeue_on_exception_async(bool sync)
     {
         var serializer = new Mock<ISerializer>();
         var workQueue = new Mock<IQueue>();
@@ -121,7 +72,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(serializer.Object);
 
-        observer.MessageDeserializationException += (sender, args) =>
+        observer.MessageDeserializationException += (_, _) =>
         {
             messageDeserializationExceptionCount++;
         };
@@ -137,7 +88,7 @@ public class DeserializeMessageObserverFixture
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
         var transportMessage = new TransportMessage
         {
-            AssemblyQualifiedName = transportMessageType.AssemblyQualifiedName,
+            AssemblyQualifiedName = transportMessageType.AssemblyQualifiedName!,
             Message = new byte[] { }
         };
 
@@ -147,29 +98,16 @@ public class DeserializeMessageObserverFixture
         pipeline.State.SetErrorQueue(errorQueue.Object);
         pipeline.State.SetReceivedMessage(receivedMessage);
 
-        serializer.Setup(m => m.Deserialize(transportMessageType, It.IsAny<Stream>())).Throws<Exception>();
         serializer.Setup(m => m.DeserializeAsync(transportMessageType, It.IsAny<Stream>())).Throws<Exception>();
 
         workQueue.Setup(m => m.IsStream).Returns(false);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            serializer.Verify(m => m.Deserialize(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
-            serializer.Verify(m => m.Serialize(It.IsAny<object>()), Times.Once);
-            errorQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
-            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
-            serializer.Verify(m => m.SerializeAsync(It.IsAny<object>()), Times.Once);
-            errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
-            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
-        }
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(It.IsAny<object>()), Times.Once);
+        errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
+        workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
 
         workQueue.Verify(m => m.IsStream, Times.Once);
 

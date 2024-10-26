@@ -3,58 +3,43 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IFindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
 {
-    public interface IFindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>
+}
+
+public class FindMessageRouteObserver : IFindMessageRouteObserver
+{
+    private readonly IMessageRouteProvider _messageRouteProvider;
+
+    public FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider)
     {
+        _messageRouteProvider = Guard.AgainstNull(messageRouteProvider);
     }
 
-    public class FindMessageRouteObserver : IFindMessageRouteObserver
+    public async Task ExecuteAsync(IPipelineContext<OnFindRouteForMessage> pipelineContext)
     {
-        private readonly IMessageRouteProvider _messageRouteProvider;
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        public FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider)
+        if (!string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
         {
-            Guard.AgainstNull(messageRouteProvider, nameof(messageRouteProvider));
-
-            _messageRouteProvider = messageRouteProvider;
+            return;
         }
 
-        public void Execute(OnFindRouteForMessage pipelineEvent)
+        var routeUris = (await _messageRouteProvider.GetRouteUrisAsync(transportMessage.MessageType)).ToList();
+
+        if (!routeUris.Any())
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
+            throw new SendMessageException(string.Format(Resources.MessageRouteNotFound, transportMessage.MessageType));
         }
 
-        public async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent)
+        if (routeUris.Count > 1)
         {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
+            throw new SendMessageException(string.Format(Resources.MessageRoutedToMoreThanOneEndpoint, transportMessage.MessageType, string.Join(",", routeUris.ToArray())));
         }
 
-        private async Task ExecuteAsync(OnFindRouteForMessage pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
-
-            if (!string.IsNullOrEmpty(transportMessage.RecipientInboxWorkQueueUri))
-            {
-                return;
-            }
-
-            var routeUris = (sync
-                ? _messageRouteProvider.GetRouteUris(transportMessage.MessageType)
-                : await _messageRouteProvider.GetRouteUrisAsync(transportMessage.MessageType)).ToList();
-
-            if (!routeUris.Any())
-            {
-                throw new SendMessageException(string.Format(Resources.MessageRouteNotFound, transportMessage.MessageType));
-            }
-
-            if (routeUris.Count > 1)
-            {
-                throw new SendMessageException(string.Format(Resources.MessageRoutedToMoreThanOneEndpoint, transportMessage.MessageType, string.Join(",", routeUris.ToArray())));
-            }
-
-            transportMessage.RecipientInboxWorkQueueUri = routeUris.ElementAt(0);
-        }
+        transportMessage.RecipientInboxWorkQueueUri = routeUris.ElementAt(0);
     }
 }

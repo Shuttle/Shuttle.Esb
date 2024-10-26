@@ -11,18 +11,7 @@ namespace Shuttle.Esb.Tests;
 public class DispatchTransportMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_defer_message()
-    {
-        Should_be_able_to_defer_message_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_defer_message_async()
-    {
-        await Should_be_able_to_defer_message_async(false);
-    }
-
-    private async Task Should_be_able_to_defer_message_async(bool sync)
     {
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var queueService = new Mock<IQueueService>();
@@ -40,7 +29,6 @@ public class DispatchTransportMessageObserverFixture
         outboxConfiguration.Setup(m => m.WorkQueue).Returns(outboxQueue.Object);
         serviceBusConfiguration.Setup(m => m.Outbox).Returns(outboxConfiguration.Object);
         queueService.Setup(m => m.Get(new Uri(transportMessage.RecipientInboxWorkQueueUri))).Returns(recipientQueue.Object);
-        idempotenceService.Setup(m => m.AddDeferredMessage(transportMessageReceived, transportMessage, transportMessageStream)).Returns(true);
         idempotenceService.Setup(m => m.AddDeferredMessageAsync(transportMessageReceived, transportMessage, transportMessageStream)).Returns(ValueTask.FromResult(true));
 
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, queueService.Object, idempotenceService.Object);
@@ -56,18 +44,9 @@ public class DispatchTransportMessageObserverFixture
         pipeline.State.SetTransportMessageStream(transportMessageStream);
         pipeline.State.SetTransportMessageReceived(transportMessageReceived);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            idempotenceService.Verify(m => m.AddDeferredMessage(transportMessageReceived, transportMessage, transportMessageStream), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            idempotenceService.Verify(m => m.AddDeferredMessageAsync(transportMessageReceived, transportMessage, transportMessageStream), Times.Once);
-        }
+        idempotenceService.Verify(m => m.AddDeferredMessageAsync(transportMessageReceived, transportMessage, transportMessageStream), Times.Once);
 
         serviceBusConfiguration.VerifyNoOtherCalls();
         queueService.VerifyNoOtherCalls();
@@ -78,18 +57,7 @@ public class DispatchTransportMessageObserverFixture
     }
 
     [Test]
-    public void Should_be_able_to_dispatch_message_to_outbox()
-    {
-        Should_be_able_to_dispatch_message_to_outbox_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_dispatch_message_to_outbox_async()
-    {
-        await Should_be_able_to_dispatch_message_to_outbox_async(false);
-    }
-
-    private async Task Should_be_able_to_dispatch_message_to_outbox_async(bool sync)
     {
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var queueService = new Mock<IQueueService>();
@@ -119,18 +87,9 @@ public class DispatchTransportMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetTransportMessageStream(transportMessageStream);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            outboxQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            outboxQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
-        }
+        outboxQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
 
         serviceBusConfiguration.VerifyNoOtherCalls();
         queueService.VerifyNoOtherCalls();
@@ -141,18 +100,7 @@ public class DispatchTransportMessageObserverFixture
     }
 
     [Test]
-    public void Should_be_able_to_dispatch_message_to_recipient()
-    {
-        Should_be_able_to_dispatch_message_to_recipient_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_dispatch_message_to_recipient_async()
-    {
-        await Should_be_able_to_dispatch_message_to_recipient_async(false);
-    }
-
-    private async Task Should_be_able_to_dispatch_message_to_recipient_async(bool sync)
     {
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var queueService = new Mock<IQueueService>();
@@ -165,7 +113,7 @@ public class DispatchTransportMessageObserverFixture
         };
         var transportMessageStream = Stream.Null;
 
-        queueService.Setup(m => m.Get(new Uri(transportMessage.RecipientInboxWorkQueueUri))).Returns(recipientQueue.Object);
+        queueService.Setup(m => m.Get(transportMessage.RecipientInboxWorkQueueUri)).Returns(recipientQueue.Object);
 
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, queueService.Object, idempotenceService.Object);
 
@@ -179,18 +127,9 @@ public class DispatchTransportMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetTransportMessageStream(transportMessageStream);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            recipientQueue.Verify(m => m.Enqueue(transportMessage, It.IsAny<Stream>()), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            recipientQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
-        }
+        recipientQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
 
         queueService.VerifyNoOtherCalls();
         idempotenceService.VerifyNoOtherCalls();

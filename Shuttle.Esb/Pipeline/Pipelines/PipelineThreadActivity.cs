@@ -1,32 +1,20 @@
 ﻿using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class PipelineThreadActivity : IPipelineThreadActivity
 {
-    public class PipelineThreadActivity : IPipelineThreadActivity
+    public event EventHandler<ThreadStateEventArgs>? ThreadWorking;
+    public event EventHandler<ThreadStateEventArgs>? ThreadWaiting;
+
+    public void OnThreadWorking(object sender, ThreadStateEventArgs args)
     {
-        public event EventHandler<ThreadStateEventArgs> ThreadWorking = delegate
-        {
-        };
+        ThreadWorking?.Invoke(Guard.AgainstNull(sender), Guard.AgainstNull(args));
+    }
 
-        public event EventHandler<ThreadStateEventArgs> ThreadWaiting = delegate
-        {
-        };
-
-        public void OnThreadWorking(object sender, ThreadStateEventArgs args)
-        {
-            Guard.AgainstNull(sender, nameof(sender));
-            Guard.AgainstNull(args, nameof(args));
-
-            ThreadWorking.Invoke(sender, args);
-        }
-
-        public void OnThreadWaiting(object sender, ThreadStateEventArgs args)
-        {
-            Guard.AgainstNull(sender, nameof(sender));
-            Guard.AgainstNull(args, nameof(args));
-
-            ThreadWaiting.Invoke(sender, args);
-        }
+    public void OnThreadWaiting(object sender, ThreadStateEventArgs args)
+    {
+        ThreadWaiting?.Invoke(Guard.AgainstNull(sender), Guard.AgainstNull(args));
     }
 }

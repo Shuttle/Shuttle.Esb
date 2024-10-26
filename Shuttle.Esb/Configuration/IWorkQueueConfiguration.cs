@@ -1,7 +1,6 @@
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IWorkQueueConfiguration
 {
-    public interface IWorkQueueConfiguration
-    {
-        IQueue WorkQueue { get; set; }
-    }
+    IQueue? WorkQueue { get; set; }
 }

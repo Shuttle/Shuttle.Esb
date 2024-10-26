@@ -11,18 +11,7 @@ namespace Shuttle.Esb.Tests;
 public class TransportMessagePipelineFixture
 {
     [Test]
-    public void Should_be_able_execute_transport_message_pipeline_with_optimal_performance()
-    {
-        Should_be_able_execute_transport_message_pipeline_with_optimal_performance_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_execute_transport_message_pipeline_with_optimal_performance_async()
-    {
-        await Should_be_able_execute_transport_message_pipeline_with_optimal_performance_async(false).ConfigureAwait(false);
-    }
-
-    private async Task Should_be_able_execute_transport_message_pipeline_with_optimal_performance_async(bool sync)
     {
         var services = new ServiceCollection();
 
@@ -42,16 +31,9 @@ public class TransportMessagePipelineFixture
         {
             var pipeline = pipelineFactory.GetPipeline<TransportMessagePipeline>();
 
-            pipeline.State.Replace(StateKeys.Message, new object());
+            pipeline.State.Replace(StateKeys.Message, new());
 
-            if (sync)
-            {
-                pipeline.Execute();
-            }
-            else
-            {
-                await pipeline.ExecuteAsync().ConfigureAwait(false);
-            }
+            await pipeline.ExecuteAsync().ConfigureAwait(false);
 
             pipelineFactory.ReleasePipeline(pipeline);
 

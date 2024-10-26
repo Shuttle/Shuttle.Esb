@@ -1,81 +1,51 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public abstract class QueueProcessor<TPipeline> : IProcessor
+    where TPipeline : IPipeline
 {
-    public abstract class QueueProcessor<TPipeline> : IProcessor
-        where TPipeline : IPipeline
+    private readonly IPipelineFactory _pipelineFactory;
+    private readonly IPipelineThreadActivity _pipelineThreadActivity;
+    private readonly IThreadActivity _threadActivity;
+
+    protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
     {
-        private readonly IPipelineFactory _pipelineFactory;
-        private readonly IPipelineThreadActivity _pipelineThreadActivity;
-        private readonly IThreadActivity _threadActivity;
+        _threadActivity = Guard.AgainstNull(threadActivity);
+        _pipelineFactory = Guard.AgainstNull(pipelineFactory);
+        _pipelineThreadActivity = Guard.AgainstNull(pipelineThreadActivity);
+    }
 
-        protected QueueProcessor(IThreadActivity threadActivity, IPipelineFactory pipelineFactory, IPipelineThreadActivity pipelineThreadActivity)
+    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
+    {
+        var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
+
+        try
         {
-            Guard.AgainstNull(threadActivity, nameof(threadActivity));
-            Guard.AgainstNull(pipelineFactory, nameof(pipelineFactory));
-            Guard.AgainstNull(pipelineThreadActivity, nameof(pipelineThreadActivity));
+            messagePipeline.State.ResetWorking();
 
-            _threadActivity = threadActivity;
-            _pipelineFactory = pipelineFactory;
-            _pipelineThreadActivity = pipelineThreadActivity;
-        }
+            await messagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-        private async Task ExecuteAsync(CancellationToken cancellationToken, bool sync)
-        {
-            var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
-
-            try
+            if (messagePipeline.State.GetWorking())
             {
-                messagePipeline.State.ResetWorking();
+                _threadActivity.Working();
 
-                if (sync)
-                {
-                    messagePipeline.Execute(cancellationToken);
-                }
-                else
-                {
-                    await messagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-                }
-
-                if (messagePipeline.State.GetWorking())
-                {
-                    _threadActivity.Working();
-
-                    _pipelineThreadActivity.OnThreadWorking(this, new ThreadStateEventArgs(messagePipeline));
-                }
-                else
-                {
-                    _pipelineThreadActivity.OnThreadWaiting(this, new ThreadStateEventArgs(messagePipeline));
-
-                    if (sync)
-                    {
-                        _threadActivity.Waiting(cancellationToken);
-                    }
-                    else
-                    {
-                        await _threadActivity.WaitingAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
+                _pipelineThreadActivity.OnThreadWorking(this, new(messagePipeline));
             }
-            finally
+            else
             {
-                _pipelineFactory.ReleasePipeline(messagePipeline);
+                _pipelineThreadActivity.OnThreadWaiting(this, new(messagePipeline));
+
+                await _threadActivity.WaitingAsync(cancellationToken).ConfigureAwait(false);
             }
         }
-
-        public void Execute(CancellationToken cancellationToken)
+        finally
         {
-            ExecuteAsync(cancellationToken, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(CancellationToken cancellationToken)
-        {
-            await ExecuteAsync(cancellationToken, false).ConfigureAwait(false);
+            _pipelineFactory.ReleasePipeline(messagePipeline);
         }
     }
 }

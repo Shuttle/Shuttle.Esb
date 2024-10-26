@@ -1,60 +1,59 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class AssemblyMessageRouteSpecification : TypeListMessageRouteSpecification
 {
-    public class AssemblyMessageRouteSpecification : TypeListMessageRouteSpecification
+    public AssemblyMessageRouteSpecification(Assembly assembly)
     {
-        public AssemblyMessageRouteSpecification(Assembly assembly)
-        {
-            AddAssemblyTypes(assembly);
-        }
+        AddAssemblyTypes(assembly);
+    }
 
-        public AssemblyMessageRouteSpecification(string assembly)
-        {
-            Assembly scanAssembly = null;
+    public AssemblyMessageRouteSpecification(string assembly)
+    {
+        Assembly? scanAssembly = null;
 
-            try
+        try
+        {
+            switch (Path.GetExtension(assembly))
             {
-                switch (Path.GetExtension(assembly))
+                case ".dll":
+                case ".exe":
                 {
-                    case ".dll":
-                    case ".exe":
-                    {
-                        scanAssembly = Path.GetDirectoryName(assembly) == AppDomain.CurrentDomain.BaseDirectory
-                            ? Assembly.Load(Path.GetFileNameWithoutExtension(assembly))
-                            : Assembly.LoadFile(assembly);
-                        break;
-                    }
+                    scanAssembly = Path.GetDirectoryName(assembly) == AppDomain.CurrentDomain.BaseDirectory
+                        ? Assembly.Load(Path.GetFileNameWithoutExtension(assembly))
+                        : Assembly.LoadFile(assembly);
+                    break;
+                }
+                default:
+                {
+                    scanAssembly = Assembly.Load(assembly);
 
-                    default:
-                    {
-                        scanAssembly = Assembly.Load(assembly);
-
-                        break;
-                    }
+                    break;
                 }
             }
-            catch
-            {
-            }
-
-            if (scanAssembly == null)
-            {
-                throw new MessageRouteSpecificationException(string.Format(Resources.AssemblyNotFound, assembly,
-                    "AssemblyMessageRouteSpecification"));
-            }
-
-            AddAssemblyTypes(scanAssembly);
+        }
+        catch
+        {
+            // ignore
         }
 
-        private void AddAssemblyTypes(Assembly assembly)
+        if (scanAssembly == null)
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                MessageTypes.Add(type.FullName);
-            }
+            throw new MessageRouteSpecificationException(string.Format(Resources.AssemblyNotFound, assembly, "AssemblyMessageRouteSpecification"));
+        }
+
+        AddAssemblyTypes(scanAssembly);
+    }
+
+    private void AddAssemblyTypes(Assembly assembly)
+    {
+        foreach (var type in assembly.GetTypes())
+        {
+            MessageTypes.Add(Guard.AgainstNullOrEmptyString(type.FullName));
         }
     }
 }

@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IPurgeQueue
 {
-    public interface IPurgeQueue
-    {
-        void Purge();
-        Task PurgeAsync();
-    }
+    void Purge();
+    Task PurgeAsync();
 }
