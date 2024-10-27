@@ -1,49 +1,49 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-		<PropertyGroup>
-				<TargetFramework>net6.0</TargetFramework>
-				<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-				<nullable>enable</nullable>
-		</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <nullable>enable</nullable>
+  </PropertyGroup>
 
-		<ItemGroup>
-				<None Include=".package\AssemblyInfo.cs.template" />
-				<None Include=".package\package.msbuild" />
-				<None Include=".package\package.nuspec.template" />
-				<None Include=".package\Shuttle.NuGetPackager.MSBuild.dll" />
-				<None Include=".package\Shuttle.NuGetPackager.targets" />
-		</ItemGroup>
+  <ItemGroup>
+    <None Include=".package\AssemblyInfo.cs.template" />
+    <None Include=".package\package.msbuild" />
+    <None Include=".package\package.nuspec.template" />
+    <None Include=".package\Shuttle.NuGetPackager.MSBuild.dll" />
+    <None Include=".package\Shuttle.NuGetPackager.targets" />
+  </ItemGroup>
 
-		<ItemGroup>
-				<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-				<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
-				<PackageReference Include="Shuttle.Core.Compression" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Contract" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Encryption" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Pipelines" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.PipelineTransactionScope" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Reflection" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Serialization" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Specification" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Streams" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.System" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.Threading" Version="20.0.0" />
-				<PackageReference Include="Shuttle.Core.TransactionScope" Version="20.0.0" />
-		</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Contract" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.PipelineTransactionScope" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Specification" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.System" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.TransactionScope" Version="20.0.0" />
+  </ItemGroup>
 
-		<ItemGroup>
-				<Compile Update="Resources.Designer.cs">
-						<DesignTime>True</DesignTime>
-						<AutoGen>True</AutoGen>
-						<DependentUpon>Resources.resx</DependentUpon>
-				</Compile>
-		</ItemGroup>
+  <ItemGroup>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
-		<ItemGroup>
-				<EmbeddedResource Update="Resources.resx">
-						<Generator>PublicResXFileCodeGenerator</Generator>
-						<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-				</EmbeddedResource>
-		</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>
