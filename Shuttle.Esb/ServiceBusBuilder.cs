@@ -26,7 +26,22 @@ public class ServiceBusBuilder
 
     public IServiceCollection Services { get; }
 
-    public bool SuppressHostedService { get; set; }
+    public bool ShouldSuppressHostedService { get; private set; }
+    public bool ShouldSuppressPipelineTransactionScope { get; private set; }
+
+    public ServiceBusBuilder SuppressHostedService()
+    {
+        ShouldSuppressHostedService = true;
+
+        return this;
+    }
+
+    public ServiceBusBuilder SuppressPipelineTransactionScope()
+    {
+        ShouldSuppressPipelineTransactionScope = true;
+
+        return this;
+    }
 
     public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
     {

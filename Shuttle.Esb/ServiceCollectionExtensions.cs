@@ -54,10 +54,13 @@ public static class ServiceCollectionExtensions
             services.AddTransactionScope();
         }
 
-        services.AddPipelineTransactionScope(transactionScopeBuilder =>
+        if (!serviceBusBuilder.ShouldSuppressPipelineTransactionScope)
         {
-            transactionScopeBuilder.AddStage<InboxMessagePipeline>("Handle");
-        });
+            services.AddPipelineTransactionScope(transactionScopeBuilder =>
+            {
+                transactionScopeBuilder.AddStage<InboxMessagePipeline>("Handle");
+            });
+        }
 
         services.AddOptions<ServiceBusOptions>().Configure(options =>
         {
@@ -98,7 +101,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMessageSender, MessageSender>();
         services.AddSingleton<IServiceBus, ServiceBus>();
 
-        if (!serviceBusBuilder.SuppressHostedService)
+        if (!serviceBusBuilder.ShouldSuppressHostedService)
         {
             services.AddHostedService<ServiceBusHostedService>();
         }
