@@ -17,7 +17,7 @@ public class SendOutboxMessageObserverFixture
 
         var observer = new SendOutboxMessageObserver(queueService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -54,7 +54,7 @@ public class SendOutboxMessageObserverFixture
 
         var observer = new SendOutboxMessageObserver(queueService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

@@ -18,7 +18,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -42,7 +42,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -77,7 +77,7 @@ public class DeserializeMessageObserverFixture
             messageDeserializationExceptionCount++;
         };
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

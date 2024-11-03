@@ -169,6 +169,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The delegate is mapped to message type `{0}` but requesting `IHandlerContext&lt;{1}&gt;`..
+        /// </summary>
+        public static string MessageHandlerTypeException {
+            get {
+                return ResourceManager.GetString("MessageHandlerTypeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No handler has been registered for message type &apos;{0}&apos;.  The message (id &apos;{1}&apos;) has been moved to error queue &apos;{2}&apos;..
         /// </summary>
         public static string MessageNotHandledFailure {

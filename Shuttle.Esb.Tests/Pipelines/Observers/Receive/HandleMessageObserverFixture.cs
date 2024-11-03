@@ -20,7 +20,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -58,7 +58,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -107,7 +107,7 @@ public class HandleMessageObserverFixture
 
         errorQueue.Setup(m => m.Uri).Returns(new QueueUri("queue://configuration/name"));
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -159,7 +159,7 @@ public class HandleMessageObserverFixture
             handlerExceptionCount++;
         };
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -207,7 +207,7 @@ public class HandleMessageObserverFixture
             handlerExceptionCount++;
         };
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

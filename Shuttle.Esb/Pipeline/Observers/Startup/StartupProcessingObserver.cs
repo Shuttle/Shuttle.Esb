@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
@@ -38,6 +39,9 @@ public class StartupProcessingObserver : IStartupProcessingObserver
         {
             return;
         }
+
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Inbox!.WorkQueueUri), string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasOutbox() && _serviceBusConfiguration.Outbox!.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Outbox!.WorkQueueUri), string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
 
         await _serviceBusConfiguration.CreatePhysicalQueuesAsync().ConfigureAwait(false);
     }

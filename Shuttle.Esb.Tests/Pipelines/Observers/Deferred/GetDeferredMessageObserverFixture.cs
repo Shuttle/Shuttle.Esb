@@ -15,7 +15,7 @@ public class GetDeferredMessageObserverFixture
     {
         var observer = new GetDeferredMessageObserver();
 
-        var pipeline = new Pipeline().RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).RegisterObserver(observer);
 
         pipeline
             .RegisterStage(".")

@@ -19,7 +19,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -59,7 +59,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -97,7 +97,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

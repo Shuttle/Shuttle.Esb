@@ -16,7 +16,7 @@ public class AssembleMessageObserverFixture
         var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var observer = new AssembleMessageObserver(Options.Create(new ServiceBusOptions()), serviceBusConfiguration.Object, new DefaultIdentityProvider(Options.Create(new ServiceBusOptions())));
 
-        var pipeline = new Pipeline();
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object);
         var state = pipeline.State;
 
         state.SetMessage(new SimpleCommand());

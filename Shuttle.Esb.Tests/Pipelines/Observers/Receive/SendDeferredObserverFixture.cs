@@ -22,7 +22,7 @@ public class SendDeferredObserverFixture
 
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -49,7 +49,7 @@ public class SendDeferredObserverFixture
 
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -77,7 +77,7 @@ public class SendDeferredObserverFixture
 
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -103,7 +103,7 @@ public class SendDeferredObserverFixture
         var pipelineFactory = new Mock<IPipelineFactory>();
         var serializer = new Mock<ISerializer>();
         var idempotenceService = new Mock<IIdempotenceService>();
-        var messagePipeline = new DispatchTransportMessagePipeline(new Mock<IFindMessageRouteObserver>().Object, new Mock<ISerializeTransportMessageObserver>().Object, new Mock<IDispatchTransportMessageObserver>().Object);
+        var messagePipeline = new DispatchTransportMessagePipeline(new Mock<IServiceProvider>().Object, new Mock<IFindMessageRouteObserver>().Object, new Mock<ISerializeTransportMessageObserver>().Object, new Mock<IDispatchTransportMessageObserver>().Object);
         var transportMessage = new TransportMessage();
         var deferredTransportMessage = new TransportMessage();
 
@@ -115,7 +115,7 @@ public class SendDeferredObserverFixture
 
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

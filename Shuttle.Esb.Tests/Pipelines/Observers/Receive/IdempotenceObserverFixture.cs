@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -18,7 +19,7 @@ public class IdempotenceObserverFixture
 
         var observer = new IdempotenceObserver(idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -53,7 +54,7 @@ public class IdempotenceObserverFixture
 
         var observer = new IdempotenceObserver(idempotenceService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

@@ -15,7 +15,7 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(new HandleExceptionObserver())
             .RegisterObserver(observer);
@@ -39,7 +39,7 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

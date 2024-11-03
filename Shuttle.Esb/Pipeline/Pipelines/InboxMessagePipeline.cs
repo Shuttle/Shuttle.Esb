@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.PipelineTransactionScope;
@@ -7,15 +8,8 @@ namespace Shuttle.Esb;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration,
-        IGetWorkMessageObserver getWorkMessageObserver,
-        IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
-        IDeferTransportMessageObserver deferTransportMessageObserver,
-        IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver,
-        IDecompressMessageObserver decompressMessageObserver,
-        IMessageHandlingSpecificationObserver messageHandlingSpecificationObserver, IIdempotenceObserver idempotenceObserver,
-        IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver,
-        ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver)
+    public InboxMessagePipeline(IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IMessageHandlingSpecificationObserver messageHandlingSpecificationObserver, IIdempotenceObserver idempotenceObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver) 
+        : base(serviceProvider)
     {
         RegisterStage("Read")
             .WithEvent<OnGetMessage>()

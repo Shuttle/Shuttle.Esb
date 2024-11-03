@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
@@ -6,14 +7,12 @@ namespace Shuttle.Esb;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver,
-        IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
-        ISendOutboxMessageObserver sendOutboxMessageObserver,
-        IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+    public OutboxPipeline(IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver) 
+        : base(serviceProvider)
     {
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-        if (serviceBusConfiguration.Outbox == null || serviceBusOptions.Value.Outbox == null)
+        if (serviceBusConfiguration.Outbox == null)
         {
             return;
         }

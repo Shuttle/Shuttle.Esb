@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -17,7 +18,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -42,7 +43,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -75,7 +76,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -108,7 +109,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

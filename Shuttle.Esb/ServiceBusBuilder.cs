@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
@@ -12,6 +14,7 @@ public class ServiceBusBuilder
 
     private readonly ReflectionService _reflectionService = new();
     private ServiceBusOptions _serviceBusOptions = new();
+    private readonly Dictionary<Type, List<Delegate>> _delegates = new();
 
     public ServiceBusBuilder(IServiceCollection services)
     {
@@ -39,6 +42,38 @@ public class ServiceBusBuilder
     public ServiceBusBuilder SuppressPipelineTransactionScope()
     {
         ShouldSuppressPipelineTransactionScope = true;
+
+        return this;
+    }
+
+    public ServiceBusBuilder MapHandler<TMessage>(Delegate handler) where TMessage : class
+    {
+        if (!typeof(Task).IsAssignableFrom(Guard.AgainstNull(handler).Method.ReturnType))
+        {
+            throw new ApplicationException(Core.Pipelines.Resources.AsyncDelegateRequiredException);
+        }
+
+        var parameters = handler.Method.GetParameters();
+        var messageType = typeof(TMessage);
+
+        foreach (var parameter in parameters)
+        {
+            var parameterType = parameter.ParameterType;
+
+            if (parameterType.IsCastableTo(typeof(IHandlerContext)))
+            {
+                var genericArguments = parameterType.GetGenericArguments();
+
+                if (genericArguments.Length == 1 &&
+                    Guard.AgainstNull(genericArguments[0]) != messageType)
+                {
+                    throw new ArgumentException(string.Format(Resources.MessageHandlerTypeException, messageType.Name, genericArguments[0].Name));
+                }
+            }
+        }
+
+        _delegates.TryAdd(messageType, new());
+        _delegates[messageType].Add(handler);
 
         return this;
     }

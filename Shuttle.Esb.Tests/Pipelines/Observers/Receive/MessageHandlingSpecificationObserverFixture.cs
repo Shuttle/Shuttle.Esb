@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -19,7 +20,7 @@ public class MessageHandlingSpecificationObserverFixture
 
         var observer = new MessageHandlingSpecificationObserver(messageHandlingSpecification.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

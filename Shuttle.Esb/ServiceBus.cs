@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
@@ -15,9 +14,6 @@ public class ServiceBus : IServiceBus
     private readonly ICancellationTokenSource _cancellationTokenSource;
     private readonly IMessageSender _messageSender;
     private readonly IPipelineFactory _pipelineFactory;
-    private readonly IServiceBusConfiguration _serviceBusConfiguration;
-
-    private readonly ServiceBusOptions _serviceBusOptions;
 
     private IProcessorThreadPool? _controlInboxThreadPool;
     private IProcessorThreadPool? _deferredMessageThreadPool;
@@ -26,10 +22,8 @@ public class ServiceBus : IServiceBus
 
     private bool _disposed;
 
-    public ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IPipelineFactory pipelineFactory, IMessageSender messageSender, ICancellationTokenSource? cancellationTokenSource = null)
+    public ServiceBus(IPipelineFactory pipelineFactory, IMessageSender messageSender, ICancellationTokenSource? cancellationTokenSource = null)
     {
-        _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions.Value));
-        _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
         _pipelineFactory = Guard.AgainstNull(pipelineFactory);
         _messageSender = Guard.AgainstNull(messageSender);
     
@@ -107,20 +101,12 @@ public class ServiceBus : IServiceBus
         _disposed = true;
     }
 
-    private void ConfigurationInvariant()
-    {
-        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Inbox!.WorkQueueUri), string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
-        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasOutbox() && _serviceBusConfiguration.Outbox!.WorkQueue == null && string.IsNullOrEmpty(_serviceBusOptions.Outbox!.WorkQueueUri), string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
-    }
-
     private async Task<IServiceBus> StartAsync(bool sync)
     {
         if (Started)
         {
             throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
         }
-
-        ConfigurationInvariant();
 
         var startupPipeline = _pipelineFactory.GetPipeline<StartupPipeline>();
 

@@ -259,4 +259,7 @@
     <value>Could not resolve source uri '{0}'.</value>
     <comment>0 = source uri</comment>
   </data>
+  <data name="MessageHandlerTypeException" xml:space="preserve">
+    <value>The delegate is mapped to message type `{0}` but requesting `IHandlerContext&lt;{1}&gt;`.</value>
+  </data>
 </root>

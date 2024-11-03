@@ -35,12 +35,7 @@ public class DeferredProcessingFixture
         var processDeferredMessageObserver = new ProcessDeferredMessageObserver();
 
         pipelineFactory.Setup(m => m.GetPipeline<DeferredMessagePipeline>()).Returns(
-            new DeferredMessagePipeline(
-                configuration.Object,
-                new GetDeferredMessageObserver(),
-                new DeserializeTransportMessageObserver(Options.Create(new ServiceBusOptions()), serializer, new EnvironmentService(), new ProcessService()),
-                processDeferredMessageObserver
-            ));
+            new DeferredMessagePipeline(new Mock<IServiceProvider>().Object, configuration.Object, new GetDeferredMessageObserver(), new DeserializeTransportMessageObserver(Options.Create(new ServiceBusOptions()), serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
 
         var deferredMessageProcessor = new DeferredMessageProcessor(Options.Create(new ServiceBusOptions { Inbox = new() { DeferredQueueUri = "memory://memory/deferred-queue", DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500) } }), pipelineFactory.Object);
 

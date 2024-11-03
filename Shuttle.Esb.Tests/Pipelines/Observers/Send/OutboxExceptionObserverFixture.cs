@@ -21,7 +21,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(new HandleExceptionObserver()) // marks exception as handled
             .RegisterObserver(observer);
@@ -53,7 +53,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 
@@ -84,7 +84,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 
@@ -120,7 +120,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 
@@ -161,7 +161,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 
@@ -208,7 +208,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 
@@ -253,7 +253,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(new ThrowExceptionObserver())
             .RegisterObserver(observer);
 

@@ -8,9 +8,8 @@ namespace Shuttle.Esb;
 
 public class TransportMessagePipeline : Pipeline
 {
-    public TransportMessagePipeline(IAssembleMessageObserver assembleMessageObserver,
-        ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver,
-        IEncryptMessageObserver encryptMessageObserver)
+    public TransportMessagePipeline(IServiceProvider serviceProvider, IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
+        : base(serviceProvider)
     {
         RegisterStage("Create")
             .WithEvent<OnAssembleMessage>()

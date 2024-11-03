@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -17,7 +18,7 @@ public class SerializeMessageObserverFixture
 
         var observer = new SerializeMessageObserver(serializer.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

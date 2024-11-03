@@ -15,7 +15,7 @@ public class GetWorkMessageObserverFixture
     {
         var observer = new GetWorkMessageObserver();
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -34,7 +34,7 @@ public class GetWorkMessageObserverFixture
         var workQueue = new Mock<IQueue>();
         var observer = new GetWorkMessageObserver();
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -61,7 +61,7 @@ public class GetWorkMessageObserverFixture
         var workQueue = new Mock<IQueue>();
         var observer = new GetWorkMessageObserver();
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

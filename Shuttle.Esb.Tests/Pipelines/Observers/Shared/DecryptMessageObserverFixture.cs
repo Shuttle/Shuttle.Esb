@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Encryption;
@@ -16,7 +17,7 @@ public class DecryptMessageObserverFixture
 
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline
@@ -38,7 +39,7 @@ public class DecryptMessageObserverFixture
 
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline()
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
             .RegisterObserver(observer);
 
         pipeline

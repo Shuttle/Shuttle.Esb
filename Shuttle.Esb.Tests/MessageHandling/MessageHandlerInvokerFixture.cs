@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -27,7 +28,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline());
+        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(new Mock<IServiceProvider>().Object));
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);

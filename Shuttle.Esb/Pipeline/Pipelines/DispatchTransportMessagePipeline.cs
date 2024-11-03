@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -7,9 +8,8 @@ namespace Shuttle.Esb;
 
 public class DispatchTransportMessagePipeline : Pipeline
 {
-    public DispatchTransportMessagePipeline(IFindMessageRouteObserver findMessageRouteObserver,
-        ISerializeTransportMessageObserver serializeTransportMessageObserver,
-        IDispatchTransportMessageObserver dispatchTransportMessageObserver)
+    public DispatchTransportMessagePipeline(IServiceProvider serviceProvider, IFindMessageRouteObserver findMessageRouteObserver, ISerializeTransportMessageObserver serializeTransportMessageObserver, IDispatchTransportMessageObserver dispatchTransportMessageObserver) 
+        : base(serviceProvider)
     {
         RegisterStage("Send")
             .WithEvent<OnFindRouteForMessage>()

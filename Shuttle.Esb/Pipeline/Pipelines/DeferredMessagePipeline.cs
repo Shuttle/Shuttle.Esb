@@ -1,14 +1,13 @@
-﻿using Shuttle.Core.Contract;
+﻿using System;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Esb;
 
 public class DeferredMessagePipeline : Pipeline
 {
-    public DeferredMessagePipeline(IServiceBusConfiguration serviceBusConfiguration,
-        IGetDeferredMessageObserver getDeferredMessageObserver,
-        IDeserializeTransportMessageObserver deserializeTransportMessageObserver,
-        IProcessDeferredMessageObserver processDeferredMessageObserver)
+    public DeferredMessagePipeline(IServiceProvider serviceProvider, IServiceBusConfiguration serviceBusConfiguration, IGetDeferredMessageObserver getDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver) 
+        : base(serviceProvider)
     {
         Guard.AgainstNull(serviceBusConfiguration);
         Guard.AgainstNull(serviceBusConfiguration.Inbox);

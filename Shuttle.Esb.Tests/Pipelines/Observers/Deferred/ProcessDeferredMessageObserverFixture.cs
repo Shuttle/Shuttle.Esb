@@ -15,7 +15,7 @@ public class ProcessDeferredMessageObserverFixture
     {
         var observer = new ProcessDeferredMessageObserver();
 
-        var pipeline = new Pipeline().RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).RegisterObserver(observer);
 
         pipeline
             .RegisterStage(".")
