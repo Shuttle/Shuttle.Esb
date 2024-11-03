@@ -47,9 +47,9 @@ public static class PipelineStateExtensions
         return state.Get<byte[]>(StateKeys.MessageBytes);
     }
 
-    public static MessageHandlerInvokeResult? GetMessageHandlerInvokeResult(this IState state)
+    public static bool GetMessageHandlerInvoked(this IState state)
     {
-        return state.Get<MessageHandlerInvokeResult>(StateKeys.MessageHandlerInvokeResult);
+        return state.Get<bool>(StateKeys.MessageHandlerInvokeResult);
     }
 
     public static ProcessingStatus? GetProcessingStatus(this IState state)
@@ -137,7 +137,7 @@ public static class PipelineStateExtensions
         state.Replace(StateKeys.MessageBytes, bytes);
     }
 
-    public static void SetMessageHandlerInvokeResult(this IState state, MessageHandlerInvokeResult value)
+    public static void SetMessageHandlerInvoked(this IState state, bool value)
     {
         state.Replace(StateKeys.MessageHandlerInvokeResult, value);
     }

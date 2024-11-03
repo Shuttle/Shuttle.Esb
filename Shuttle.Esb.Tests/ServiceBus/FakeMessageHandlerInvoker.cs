@@ -16,7 +16,7 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
         return count;
     }
 
-    public async Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
+    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
     {
         var transportMessage = Guard.AgainstNull(pipelineContext.Pipeline.State.GetTransportMessage());
         var messageType = transportMessage.MessageType;
@@ -24,8 +24,6 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
         _invokeCounts.TryGetValue(messageType, out var count);
         _invokeCounts[messageType] = count + 1;
 
-        var messageHandlerInvokeResult = MessageHandlerInvokeResult.InvokedHandler(transportMessage.AssemblyQualifiedName);
-
-        return await Task.FromResult(messageHandlerInvokeResult).ConfigureAwait(false);
+        return await ValueTask.FromResult(true).ConfigureAwait(false);
     }
 }

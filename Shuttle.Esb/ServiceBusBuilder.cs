@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,11 +11,11 @@ namespace Shuttle.Esb;
 
 public class ServiceBusBuilder
 {
-    private static readonly Type AsyncMessageHandlerType = typeof(IMessageHandler<>);
+    private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
 
     private readonly ReflectionService _reflectionService = new();
     private ServiceBusOptions _serviceBusOptions = new();
-    private readonly Dictionary<Type, List<Delegate>> _delegates = new();
+    private readonly Dictionary<Type, Delegate> _delegates = new();
 
     public ServiceBusBuilder(IServiceCollection services)
     {
@@ -28,6 +29,8 @@ public class ServiceBusBuilder
     }
 
     public IServiceCollection Services { get; }
+
+    public IDictionary<Type, Delegate> GetDelegates() => new ReadOnlyDictionary<Type, Delegate>(_delegates);
 
     public bool ShouldSuppressHostedService { get; private set; }
     public bool ShouldSuppressPipelineTransactionScope { get; private set; }
@@ -72,23 +75,25 @@ public class ServiceBusBuilder
             }
         }
 
-        _delegates.TryAdd(messageType, new());
-        _delegates[messageType].Add(handler);
+        if (!_delegates.TryAdd(messageType, handler))
+        {
+            throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyMappedException, messageType.FullName));
+        }
 
         return this;
     }
 
     public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
     {
-        foreach (var type in _reflectionService.GetTypesCastableToAsync(AsyncMessageHandlerType, Guard.AgainstNull(assembly)).GetAwaiter().GetResult())
+        foreach (var type in _reflectionService.GetTypesCastableToAsync(MessageHandlerType, Guard.AgainstNull(assembly)).GetAwaiter().GetResult())
         foreach (var @interface in type.GetInterfaces())
         {
-            if (!@interface.IsCastableTo(AsyncMessageHandlerType))
+            if (!@interface.IsCastableTo(MessageHandlerType))
             {
                 continue;
             }
 
-            var genericType = AsyncMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
 
             if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
             {

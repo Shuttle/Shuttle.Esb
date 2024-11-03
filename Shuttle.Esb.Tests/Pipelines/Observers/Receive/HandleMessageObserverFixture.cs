@@ -72,13 +72,13 @@ public class HandleMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(Task.FromResult(MessageHandlerInvokeResult.InvokedHandler("assembly-qualified-name")));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(true));
 
         await pipeline.ExecuteAsync();
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
 
-        Assert.That(pipeline.State.GetMessageHandlerInvokeResult()!.Invoked, Is.True);
+        Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.True);
 
         messageHandlerInvoker.VerifyNoOtherCalls();
         serializer.VerifyNoOtherCalls();
@@ -122,7 +122,7 @@ public class HandleMessageObserverFixture
         pipeline.State.SetMessage(message);
         pipeline.State.SetErrorQueue(errorQueue.Object);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
 
         await pipeline.ExecuteAsync();
 
@@ -131,7 +131,7 @@ public class HandleMessageObserverFixture
         errorQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
         serializer.Verify(m => m.SerializeAsync(transportMessage));
 
-        Assert.That(pipeline.State.GetMessageHandlerInvokeResult()!.Invoked, Is.False);
+        Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));
         Assert.That(handlerExceptionCount, Is.Zero);
 
@@ -173,13 +173,13 @@ public class HandleMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
 
         await pipeline.ExecuteAsync();
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
 
-        Assert.That(pipeline.State.GetMessageHandlerInvokeResult()!.Invoked, Is.False);
+        Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));
         Assert.That(handlerExceptionCount, Is.Zero);
 
@@ -221,13 +221,13 @@ public class HandleMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(Task.FromResult(MessageHandlerInvokeResult.MissingHandler()));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
 
         Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
 
-        Assert.That(pipeline.State.GetMessageHandlerInvokeResult()!.Invoked, Is.False);
+        Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));
         Assert.That(handlerExceptionCount, Is.EqualTo(1));
 

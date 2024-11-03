@@ -53,11 +53,11 @@ public class HandleMessageObserver : IHandleMessageObserver
 
         try
         {
-            var messageHandlerInvokeResult = await _messageHandlerInvoker.InvokeAsync(pipelineContext).ConfigureAwait(false);
+            var messageHandlerInvoked = await _messageHandlerInvoker.InvokeAsync(pipelineContext).ConfigureAwait(false);
 
-            state.SetMessageHandlerInvokeResult(messageHandlerInvokeResult);
+            state.SetMessageHandlerInvoked(messageHandlerInvoked);
 
-            if (messageHandlerInvokeResult.Invoked)
+            if (messageHandlerInvoked)
             {
                 return;
             }

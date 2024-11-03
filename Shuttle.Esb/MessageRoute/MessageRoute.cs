@@ -37,6 +37,5 @@ public class MessageRoute : IMessageRoute
 
     public Uri Uri { get; }
 
-    public IEnumerable<ISpecification<string>> Specifications =>
-        new ReadOnlyCollection<ISpecification<string>>(_specifications);
+    public IEnumerable<ISpecification<string>> Specifications => new ReadOnlyCollection<ISpecification<string>>(_specifications);
 }

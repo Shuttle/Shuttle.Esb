@@ -84,7 +84,8 @@ public static class ServiceCollectionExtensions
             options.ProcessorThread = serviceBusBuilder.Options.ProcessorThread;
         });
 
-        services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
+        services.AddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
+        services.AddSingleton<IMappedDelegateProvider>(_ => new MappedDelegateProvider(serviceBusBuilder.GetDelegates()));
 
         if (serviceBusBuilder.Options.AddMessageHandlers)
         {

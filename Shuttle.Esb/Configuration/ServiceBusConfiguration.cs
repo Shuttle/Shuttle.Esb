@@ -8,7 +8,7 @@ public class ServiceBusConfiguration : IServiceBusConfiguration
     public ServiceBusConfiguration(IOptions<ServiceBusOptions> serviceBusOptions, IQueueService queueService)
     {
         Guard.AgainstNull(queueService);
-
+        
         var options = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
         if (!string.IsNullOrWhiteSpace(options.Inbox.WorkQueueUri))

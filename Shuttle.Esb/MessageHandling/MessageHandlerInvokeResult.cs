@@ -2,21 +2,15 @@
 
 public class MessageHandlerInvokeResult
 {
-    private MessageHandlerInvokeResult(string messageHandlerAssemblyQualifiedName)
-    {
-        MessageHandlerAssemblyQualifiedName = messageHandlerAssemblyQualifiedName;
-    }
+    public bool Invoked { get; init; }
 
-    public bool Invoked => !string.IsNullOrEmpty(MessageHandlerAssemblyQualifiedName);
-    public string MessageHandlerAssemblyQualifiedName { get; }
-
-    public static MessageHandlerInvokeResult InvokedHandler(string assemblyQualifiedName)
+    public static MessageHandlerInvokeResult InvokedHandler()
     {
-        return new(assemblyQualifiedName);
+        return new() { Invoked = true };
     }
 
     public static MessageHandlerInvokeResult MissingHandler()
     {
-        return new(string.Empty);
+        return new();
     }
 }

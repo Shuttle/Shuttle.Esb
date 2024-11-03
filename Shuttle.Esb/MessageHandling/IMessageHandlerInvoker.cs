@@ -5,5 +5,5 @@ namespace Shuttle.Esb;
 
 public interface IMessageHandlerInvoker
 {
-    Task<MessageHandlerInvokeResult> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext);
+    ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext);
 }

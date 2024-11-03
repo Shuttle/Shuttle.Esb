@@ -79,15 +79,6 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not get the `AssemblyQualifiedName` for handler type &apos;{0}&apos;..
-        /// </summary>
-        public static string AssemblyQualifiedNameException {
-            get {
-                return ResourceManager.GetString("AssemblyQualifiedNameException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not resolve source uri &apos;{0}&apos;..
         /// </summary>
         public static string CouldNotResolveSourceUriException {
@@ -111,6 +102,15 @@ namespace Shuttle.Esb {
         public static string DeferStreamException {
             get {
                 return ResourceManager.GetString("DeferStreamException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is already a delegate mapped to message type &apos;{0}&apos;..
+        /// </summary>
+        public static string DelegateAlreadyMappedException {
+            get {
+                return ResourceManager.GetString("DelegateAlreadyMappedException", resourceCulture);
             }
         }
         

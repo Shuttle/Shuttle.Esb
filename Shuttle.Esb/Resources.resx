@@ -251,15 +251,15 @@
     <value>Could not create a HandlerContext for type '{0}'.</value>
     <comment>0 = handler context type</comment>
   </data>
-  <data name="AssemblyQualifiedNameException" xml:space="preserve">
-    <value>Could not get the `AssemblyQualifiedName` for handler type '{0}'.</value>
-    <comment>0 = message type</comment>
-  </data>
   <data name="CouldNotResolveSourceUriException" xml:space="preserve">
     <value>Could not resolve source uri '{0}'.</value>
     <comment>0 = source uri</comment>
   </data>
   <data name="MessageHandlerTypeException" xml:space="preserve">
     <value>The delegate is mapped to message type `{0}` but requesting `IHandlerContext&lt;{1}&gt;`.</value>
+  </data>
+  <data name="DelegateAlreadyMappedException" xml:space="preserve">
+    <value>There is already a delegate mapped to message type '{0}'.</value>
+    <comment>0 = message type name</comment>
   </data>
 </root>
