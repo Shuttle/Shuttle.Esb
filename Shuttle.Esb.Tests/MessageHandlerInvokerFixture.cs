@@ -75,7 +75,7 @@ public class MessageHandlerInvokerFixture
 
         services.AddServiceBus(builder =>
         {
-            builder.Options.Inbox!.ThreadCount = 1;
+            builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkQueueUri = "memory://configuration/inbox";
             builder.Options.Inbox.DurationToSleepWhenIdle = new()
             {
