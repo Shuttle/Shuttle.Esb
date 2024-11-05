@@ -169,7 +169,7 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The delegate is mapped to message type `{0}` but requesting `IHandlerContext&lt;{1}&gt;`..
+        ///   Looks up a localized string similar to The delegate must contain at least a parameter of type `IHandlerContext&lt;TMessage&gt;`..
         /// </summary>
         public static string MessageHandlerTypeException {
             get {
