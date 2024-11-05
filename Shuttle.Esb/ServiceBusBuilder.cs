@@ -64,7 +64,7 @@ public class ServiceBusBuilder
         {
             var parameterType = parameter.ParameterType;
 
-            if (parameterType.IsCastableTo(typeof(IHandlerContext)))
+            if (parameterType.IsCastableTo(typeof(IHandlerContext<>)))
             {
                 messageType = parameterType.GetGenericArguments()[0];
             }
