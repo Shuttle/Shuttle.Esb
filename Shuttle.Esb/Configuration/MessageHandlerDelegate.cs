@@ -8,7 +8,7 @@ namespace Shuttle.Esb;
 
 public class MessageHandlerDelegate
 {
-    private readonly Type _handlerContextType = typeof(IHandlerContext);
+    private static readonly Type HandlerContextType = typeof(IHandlerContext);
     private readonly IEnumerable<Type> _parameterTypes;
 
     public MessageHandlerDelegate(Delegate handler, IEnumerable<Type> parameterTypes)
@@ -24,7 +24,7 @@ public class MessageHandlerDelegate
     public object[] GetParameters(IServiceProvider serviceProvider, object handlerContext)
     {
         return _parameterTypes
-            .Select(parameterType => !parameterType.IsCastableTo(_handlerContextType)
+            .Select(parameterType => !parameterType.IsCastableTo(HandlerContextType)
                 ? serviceProvider.GetRequiredService(parameterType)
                 : handlerContext
             ).ToArray();
