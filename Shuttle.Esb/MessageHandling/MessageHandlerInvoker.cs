@@ -12,22 +12,18 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
 {
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
     private readonly Dictionary<Type, HandlerContextConstructorInvoker> _constructorCache = new();
-    private readonly Dictionary<Type, MappedDelegate> _delegates = new();
+    private readonly Dictionary<Type, MessageHandlerDelegate> _delegates;
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly IMessageSender _messageSender;
     private readonly Dictionary<Type, ProcessMessageMethodInvoker> _methodCacheAsync = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly Dictionary<Type, Dictionary<int, object>> _threadHandlers = new();
 
-    public MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender, IMappedDelegateProvider mappedDelegateProvider)
+    public MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender, IMessageHandlerDelegateProvider messageHandlerDelegateProvider)
     {
         _serviceProvider = Guard.AgainstNull(serviceProvider);
         _messageSender = Guard.AgainstNull(messageSender);
-
-        foreach (var pair in Guard.AgainstNull(mappedDelegateProvider.Delegates))
-        {
-            MapHandler(pair.Key, pair.Value);
-        }
+        _delegates = Guard.AgainstNull(Guard.AgainstNull(messageHandlerDelegateProvider).Delegates).ToDictionary(pair => pair.Key, pair => pair.Value);
     }
 
     public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
@@ -59,15 +55,15 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
 
         state.SetHandlerContext(handlerContext);
 
-        if (_delegates.TryGetValue(messageType, out var mappedDelegate))
+        if (_delegates.TryGetValue(messageType, out var messageHandlerDelegate))
         {
-            if (mappedDelegate.HasParameters)
+            if (messageHandlerDelegate.HasParameters)
             {
-                await (Task)mappedDelegate.Handler.DynamicInvoke(mappedDelegate.GetParameters(_serviceProvider, handlerContext))!;
+                await (Task)messageHandlerDelegate.Handler.DynamicInvoke(messageHandlerDelegate.GetParameters(_serviceProvider, handlerContext))!;
             }
             else
             {
-                await (Task)mappedDelegate.Handler.DynamicInvoke()!;
+                await (Task)messageHandlerDelegate.Handler.DynamicInvoke()!;
             }
 
             return true;
@@ -163,13 +159,5 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
         }
 
         return handler;
-    }
-
-    private void MapHandler(Type messageType, Delegate handler)
-    {
-        if (!_delegates.TryAdd(messageType, new(handler, handler.Method.GetParameters().Select(item => item.ParameterType))))
-        {
-            throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyMappedException, messageType.FullName));
-        }
     }
 }

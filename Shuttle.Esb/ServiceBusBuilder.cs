@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,7 @@ public class ServiceBusBuilder
 
     private readonly ReflectionService _reflectionService = new();
     private ServiceBusOptions _serviceBusOptions = new();
-    private readonly Dictionary<Type, Delegate> _delegates = new();
+    private readonly Dictionary<Type, MessageHandlerDelegate> _delegates = new();
 
     public ServiceBusBuilder(IServiceCollection services)
     {
@@ -30,7 +31,7 @@ public class ServiceBusBuilder
 
     public IServiceCollection Services { get; }
 
-    public IDictionary<Type, Delegate> GetDelegates() => new ReadOnlyDictionary<Type, Delegate>(_delegates);
+    public IDictionary<Type, MessageHandlerDelegate> GetDelegates() => new ReadOnlyDictionary<Type, MessageHandlerDelegate>(_delegates);
 
     public bool ShouldSuppressHostedService { get; private set; }
     public bool ShouldSuppressPipelineTransactionScope { get; private set; }
@@ -49,7 +50,7 @@ public class ServiceBusBuilder
         return this;
     }
 
-    public ServiceBusBuilder MapHandler<TMessage>(Delegate handler) where TMessage : class
+    public ServiceBusBuilder MapMessageHandler<TMessage>(Delegate handler) where TMessage : class
     {
         if (!typeof(Task).IsAssignableFrom(Guard.AgainstNull(handler).Method.ReturnType))
         {
@@ -75,7 +76,7 @@ public class ServiceBusBuilder
             }
         }
 
-        if (!_delegates.TryAdd(messageType, handler))
+        if (!_delegates.TryAdd(messageType, new(handler, handler.Method.GetParameters().Select(item => item.ParameterType))))
         {
             throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyMappedException, messageType.FullName));
         }

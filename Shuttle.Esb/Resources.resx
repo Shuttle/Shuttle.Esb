@@ -257,6 +257,7 @@
   </data>
   <data name="MessageHandlerTypeException" xml:space="preserve">
     <value>The delegate is mapped to message type `{0}` but requesting `IHandlerContext&lt;{1}&gt;`.</value>
+    <comment>0 = mapped message type name, 1 = requested message type name</comment>
   </data>
   <data name="DelegateAlreadyMappedException" xml:space="preserve">
     <value>There is already a delegate mapped to message type '{0}'.</value>

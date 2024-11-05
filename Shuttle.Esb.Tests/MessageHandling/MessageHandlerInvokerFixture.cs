@@ -22,7 +22,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MappedDelegateProvider(new Dictionary<Type, Delegate>()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(new Dictionary<Type, MessageHandlerDelegate>()));
 
         var transportMessage = new TransportMessage
         {
@@ -43,7 +43,7 @@ public class MessageHandlerInvokerFixture
         var services = new ServiceCollection();
 
         var builder = new ServiceBusBuilder(services)
-            .MapHandler<WorkMessage>(async (IHandlerContext<WorkMessage> context) =>
+            .MapMessageHandler<WorkMessage>(async (IHandlerContext<WorkMessage> context) =>
             {
                 Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
 
@@ -52,7 +52,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MappedDelegateProvider(builder.GetDelegates()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(builder.GetDelegates()));
 
         var transportMessage = new TransportMessage
         {

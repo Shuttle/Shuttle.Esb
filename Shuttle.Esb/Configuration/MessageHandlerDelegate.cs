@@ -6,11 +6,12 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb;
 
-internal class MappedDelegate
+public class MessageHandlerDelegate
 {
+    private readonly Type _handlerContextType = typeof(IHandlerContext);
     private readonly IEnumerable<Type> _parameterTypes;
 
-    public MappedDelegate(Delegate handler, IEnumerable<Type> parameterTypes)
+    public MessageHandlerDelegate(Delegate handler, IEnumerable<Type> parameterTypes)
     {
         Handler = handler;
         HasParameters = parameterTypes.Any();
@@ -23,7 +24,7 @@ internal class MappedDelegate
     public object[] GetParameters(IServiceProvider serviceProvider, object handlerContext)
     {
         return _parameterTypes
-            .Select(parameterType => !parameterType.IsCastableTo(typeof(IHandlerContext))
+            .Select(parameterType => !parameterType.IsCastableTo(_handlerContextType)
                 ? serviceProvider.GetRequiredService(parameterType)
                 : handlerContext
             ).ToArray();

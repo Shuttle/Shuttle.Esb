@@ -85,7 +85,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
-        services.AddSingleton<IMappedDelegateProvider>(_ => new MappedDelegateProvider(serviceBusBuilder.GetDelegates()));
+        services.AddSingleton<IMessageHandlerDelegateProvider>(_ => new MessageHandlerDelegateProvider(serviceBusBuilder.GetDelegates()));
 
         if (serviceBusBuilder.Options.AddMessageHandlers)
         {
