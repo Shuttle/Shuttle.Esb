@@ -256,7 +256,7 @@
     <comment>0 = source uri</comment>
   </data>
   <data name="MessageHandlerTypeException" xml:space="preserve">
-    <value>The delegate must contain at least a parameter of type `IHandlerContext&lt;TMessage&gt;`.</value>
+    <value>The delegate must contain a parameter of type `IHandlerContext&lt;TMessage&gt;`.</value>
   </data>
   <data name="DelegateAlreadyMappedException" xml:space="preserve">
     <value>There is already a delegate mapped to message type '{0}'.</value>
