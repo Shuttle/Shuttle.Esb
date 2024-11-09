@@ -258,8 +258,12 @@
   <data name="MessageHandlerTypeException" xml:space="preserve">
     <value>The delegate must contain a parameter of type `IHandlerContext&lt;TMessage&gt;`.</value>
   </data>
-  <data name="DelegateAlreadyMappedException" xml:space="preserve">
-    <value>There is already a delegate mapped to message type '{0}'.</value>
+  <data name="DelegateAlreadyRegisteredException" xml:space="preserve">
+    <value>There is already a delegate registered for message type '{0}'.</value>
     <comment>0 = message type name</comment>
+  </data>
+  <data name="MessageHandlerAlreadyRegisteredException" xml:space="preserve">
+    <value>Message handler with type '{0}' has already been registered.</value>
+    <comment>0 = message handler type name</comment>
   </data>
 </root>

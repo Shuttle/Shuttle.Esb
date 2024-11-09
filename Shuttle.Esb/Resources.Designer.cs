@@ -106,11 +106,11 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is already a delegate mapped to message type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to There is already a delegate registered for message type &apos;{0}&apos;..
         /// </summary>
-        public static string DelegateAlreadyMappedException {
+        public static string DelegateAlreadyRegisteredException {
             get {
-                return ResourceManager.GetString("DelegateAlreadyMappedException", resourceCulture);
+                return ResourceManager.GetString("DelegateAlreadyRegisteredException", resourceCulture);
             }
         }
         
@@ -169,7 +169,16 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The delegate must contain at least a parameter of type `IHandlerContext&lt;TMessage&gt;`..
+        ///   Looks up a localized string similar to Message handler with type &apos;{0}&apos; has already been registered..
+        /// </summary>
+        public static string MessageHandlerAlreadyRegisteredException {
+            get {
+                return ResourceManager.GetString("MessageHandlerAlreadyRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The delegate must contain a parameter of type `IHandlerContext&lt;TMessage&gt;`..
         /// </summary>
         public static string MessageHandlerTypeException {
             get {

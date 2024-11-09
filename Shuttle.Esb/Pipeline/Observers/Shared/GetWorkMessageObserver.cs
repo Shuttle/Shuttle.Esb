@@ -17,16 +17,15 @@ public class GetWorkMessageObserver : IGetWorkMessageObserver
 
         var receivedMessage = await queue.GetMessageAsync().ConfigureAwait(false);
 
-        // Abort the pipeline if there is no message on the queue
         if (receivedMessage == null)
         {
             pipelineContext.Pipeline.Abort();
+
+            return;
         }
-        else
-        {
-            state.SetProcessingStatus(ProcessingStatus.Active);
-            state.SetWorking();
-            state.SetReceivedMessage(receivedMessage);
-        }
+        
+        state.SetProcessingStatus(ProcessingStatus.Active);
+        state.SetWorking();
+        state.SetReceivedMessage(receivedMessage);
     }
 }

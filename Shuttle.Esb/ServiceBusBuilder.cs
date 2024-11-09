@@ -58,6 +58,7 @@ public class ServiceBusBuilder
         }
 
         var parameters = handler.Method.GetParameters();
+
         Type? messageType = null;
 
         foreach (var parameter in parameters)
@@ -77,14 +78,16 @@ public class ServiceBusBuilder
 
         if (!_delegates.TryAdd(messageType, new(handler, handler.Method.GetParameters().Select(item => item.ParameterType))))
         {
-            throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyMappedException, messageType.FullName));
+            throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyRegisteredException, messageType.FullName));
         }
 
         return this;
     }
 
-    public ServiceBusBuilder AddMessageHandlers(Assembly assembly)
+    public ServiceBusBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
     {
+        getServiceLifetime ??= _ => ServiceLifetime.Singleton;
+
         foreach (var type in _reflectionService.GetTypesCastableToAsync(MessageHandlerType, Guard.AgainstNull(assembly)).GetAwaiter().GetResult())
         foreach (var @interface in type.GetInterfaces())
         {
@@ -95,10 +98,12 @@ public class ServiceBusBuilder
 
             var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
 
-            if (!Services.Contains(ServiceDescriptor.Transient(genericType, type)))
+            if (Services.Contains(ServiceDescriptor.Transient(genericType, type)))
             {
-                Services.AddTransient(genericType, type);
+                throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
             }
+
+            Services.Add(new(genericType, type, getServiceLifetime(genericType)));
         }
 
         return this;
