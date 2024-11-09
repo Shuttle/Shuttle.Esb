@@ -9,12 +9,12 @@ public class ShutdownPipeline : Pipeline
     public ShutdownPipeline(IServiceProvider serviceProvider, IShutdownProcessingObserver shutdownProcessingObserver) 
         : base(serviceProvider)
     {
-        RegisterStage("Shutdown")
+        AddStage("Shutdown")
             .WithEvent<OnStopping>();
 
-        RegisterStage("Final")
+        AddStage("Final")
             .WithEvent<OnStopped>();
 
-        RegisterObserver(Guard.AgainstNull(shutdownProcessingObserver));
+        AddObserver(Guard.AgainstNull(shutdownProcessingObserver));
     }
 }

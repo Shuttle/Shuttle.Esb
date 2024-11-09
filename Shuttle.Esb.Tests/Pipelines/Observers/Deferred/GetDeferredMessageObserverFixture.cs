@@ -15,10 +15,10 @@ public class GetDeferredMessageObserverFixture
     {
         var observer = new GetDeferredMessageObserver();
 
-        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnGetMessage>();
 
         var deferredQueue = new Mock<IQueue>();

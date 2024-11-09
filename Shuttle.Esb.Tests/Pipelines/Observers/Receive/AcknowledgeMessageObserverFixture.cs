@@ -16,12 +16,12 @@ public class AcknowledgeMessageObserverFixture
         var observer = new AcknowledgeMessageObserver();
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(new HandleExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(new HandleExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>()
             .WithEvent<OnAcknowledgeMessage>();
 
@@ -40,10 +40,10 @@ public class AcknowledgeMessageObserverFixture
         var observer = new AcknowledgeMessageObserver();
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAcknowledgeMessage>();
 
         var workQueue = new Mock<IQueue>();

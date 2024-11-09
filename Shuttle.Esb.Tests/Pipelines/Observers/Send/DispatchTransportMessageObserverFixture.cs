@@ -34,10 +34,10 @@ public class DispatchTransportMessageObserverFixture
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, queueService.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDispatchTransportMessage>();
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -78,10 +78,10 @@ public class DispatchTransportMessageObserverFixture
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, queueService.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDispatchTransportMessage>();
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -118,10 +118,10 @@ public class DispatchTransportMessageObserverFixture
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, queueService.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDispatchTransportMessage>();
 
         pipeline.State.SetTransportMessage(transportMessage);

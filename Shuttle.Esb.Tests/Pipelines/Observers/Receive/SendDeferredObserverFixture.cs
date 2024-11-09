@@ -23,10 +23,10 @@ public class SendDeferredObserverFixture
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnSendDeferred>();
 
         pipeline.State.SetProcessingStatus(ProcessingStatus.Ignore);
@@ -50,10 +50,10 @@ public class SendDeferredObserverFixture
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAfterSendDeferred>();
 
         pipeline.State.SetProcessingStatus(ProcessingStatus.Ignore);
@@ -78,10 +78,10 @@ public class SendDeferredObserverFixture
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAfterSendDeferred>();
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -116,10 +116,10 @@ public class SendDeferredObserverFixture
         var observer = new SendDeferredObserver(pipelineFactory.Object, serializer.Object, idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnSendDeferred>();
 
         pipeline.State.SetTransportMessage(transportMessage);

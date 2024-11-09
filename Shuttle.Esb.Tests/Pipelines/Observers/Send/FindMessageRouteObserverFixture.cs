@@ -19,10 +19,10 @@ public class FindMessageRouteObserverFixture
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnFindRouteForMessage>();
 
         pipeline.State.SetTransportMessage(new() { RecipientInboxWorkQueueUri = "recipient-uri" });
@@ -44,10 +44,10 @@ public class FindMessageRouteObserverFixture
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnFindRouteForMessage>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };
@@ -77,10 +77,10 @@ public class FindMessageRouteObserverFixture
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnFindRouteForMessage>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };
@@ -110,10 +110,10 @@ public class FindMessageRouteObserverFixture
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnFindRouteForMessage>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };

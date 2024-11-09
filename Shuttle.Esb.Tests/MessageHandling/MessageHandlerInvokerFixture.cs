@@ -43,7 +43,7 @@ public class MessageHandlerInvokerFixture
         var services = new ServiceCollection();
 
         var builder = new ServiceBusBuilder(services)
-            .MapMessageHandler(async (IHandlerContext<WorkMessage> context) =>
+            .AddMessageHandler(async (IHandlerContext<WorkMessage> context) =>
             {
                 Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
 

@@ -23,23 +23,23 @@ public class OutboxPipeline : Pipeline
         State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.DurationToIgnoreOnFailure);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
 
-        RegisterStage("Read")
+        AddStage("Read")
             .WithEvent<OnGetMessage>()
             .WithEvent<OnAfterGetMessage>()
             .WithEvent<OnDeserializeTransportMessage>()
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
-        RegisterStage("Send")
+        AddStage("Send")
             .WithEvent<OnDispatchTransportMessage>()
             .WithEvent<OnAfterDispatchTransportMessage>()
             .WithEvent<OnAcknowledgeMessage>()
             .WithEvent<OnAfterAcknowledgeMessage>();
 
-        RegisterObserver(Guard.AgainstNull(getWorkMessageObserver));
-        RegisterObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
-        RegisterObserver(Guard.AgainstNull(sendOutboxMessageObserver));
-        RegisterObserver(Guard.AgainstNull(acknowledgeMessageObserver));
+        AddObserver(Guard.AgainstNull(getWorkMessageObserver));
+        AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
+        AddObserver(Guard.AgainstNull(sendOutboxMessageObserver));
+        AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));
 
-        RegisterObserver(Guard.AgainstNull(outboxExceptionObserver)); // must be last
+        AddObserver(Guard.AgainstNull(outboxExceptionObserver)); // must be last
     }
 }

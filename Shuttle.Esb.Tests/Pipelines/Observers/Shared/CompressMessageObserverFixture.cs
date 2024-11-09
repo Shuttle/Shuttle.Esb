@@ -18,10 +18,10 @@ public class CompressMessageObserverFixture
         var observer = new CompressMessageObserver(compressionService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnCompressMessage>();
 
         pipeline.State.SetTransportMessage(new());
@@ -40,10 +40,10 @@ public class CompressMessageObserverFixture
         var observer = new CompressMessageObserver(compressionService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnCompressMessage>();
 
         var transportMessage = new TransportMessage { CompressionAlgorithm = "gzip" };

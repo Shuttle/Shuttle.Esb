@@ -11,7 +11,7 @@ public class TransportMessagePipeline : Pipeline
     public TransportMessagePipeline(IServiceProvider serviceProvider, IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
         : base(serviceProvider)
     {
-        RegisterStage("Create")
+        AddStage("Create")
             .WithEvent<OnAssembleMessage>()
             .WithEvent<OnAfterAssembleMessage>()
             .WithEvent<OnSerializeMessage>()
@@ -21,10 +21,10 @@ public class TransportMessagePipeline : Pipeline
             .WithEvent<OnCompressMessage>()
             .WithEvent<OnAfterCompressMessage>();
 
-        RegisterObserver(Guard.AgainstNull(assembleMessageObserver));
-        RegisterObserver(Guard.AgainstNull(serializeMessageObserver));
-        RegisterObserver(Guard.AgainstNull(compressMessageObserver));
-        RegisterObserver(Guard.AgainstNull(encryptMessageObserver));
+        AddObserver(Guard.AgainstNull(assembleMessageObserver));
+        AddObserver(Guard.AgainstNull(serializeMessageObserver));
+        AddObserver(Guard.AgainstNull(compressMessageObserver));
+        AddObserver(Guard.AgainstNull(encryptMessageObserver));
     }
 
     public async Task<bool> ExecuteAsync(object message, TransportMessage? transportMessageReceived, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken = default)

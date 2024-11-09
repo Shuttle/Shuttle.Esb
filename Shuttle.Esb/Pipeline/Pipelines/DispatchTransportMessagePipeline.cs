@@ -11,7 +11,7 @@ public class DispatchTransportMessagePipeline : Pipeline
     public DispatchTransportMessagePipeline(IServiceProvider serviceProvider, IFindMessageRouteObserver findMessageRouteObserver, ISerializeTransportMessageObserver serializeTransportMessageObserver, IDispatchTransportMessageObserver dispatchTransportMessageObserver) 
         : base(serviceProvider)
     {
-        RegisterStage("Send")
+        AddStage("Send")
             .WithEvent<OnFindRouteForMessage>()
             .WithEvent<OnAfterFindRouteForMessage>()
             .WithEvent<OnSerializeTransportMessage>()
@@ -19,9 +19,9 @@ public class DispatchTransportMessagePipeline : Pipeline
             .WithEvent<OnDispatchTransportMessage>()
             .WithEvent<OnAfterDispatchTransportMessage>();
 
-        RegisterObserver(Guard.AgainstNull(findMessageRouteObserver));
-        RegisterObserver(Guard.AgainstNull(serializeTransportMessageObserver));
-        RegisterObserver(Guard.AgainstNull(dispatchTransportMessageObserver));
+        AddObserver(Guard.AgainstNull(findMessageRouteObserver));
+        AddObserver(Guard.AgainstNull(serializeTransportMessageObserver));
+        AddObserver(Guard.AgainstNull(dispatchTransportMessageObserver));
     }
 
     public async Task<bool> ExecuteAsync(TransportMessage transportMessage, TransportMessage? transportMessageReceived, CancellationToken cancellationToken = default)

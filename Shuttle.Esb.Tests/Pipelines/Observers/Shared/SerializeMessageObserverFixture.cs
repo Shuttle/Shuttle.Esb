@@ -19,10 +19,10 @@ public class SerializeMessageObserverFixture
         var observer = new SerializeMessageObserver(serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnSerializeMessage>();
 
         var simpleCommand = new SimpleCommand();

@@ -9,7 +9,7 @@ public class StartupPipeline : Pipeline
     public StartupPipeline(IServiceProvider serviceProvider, IStartupProcessingObserver startupProcessingObserver) 
         : base(serviceProvider)
     {
-        RegisterStage("Start")
+        AddStage("Start")
             .WithEvent<OnStarting>()
             .WithEvent<OnCreatePhysicalQueues>()
             .WithEvent<OnAfterCreatePhysicalQueues>()
@@ -18,9 +18,9 @@ public class StartupPipeline : Pipeline
             .WithEvent<OnStartThreadPools>()
             .WithEvent<OnAfterStartThreadPools>();
 
-        RegisterStage("Final")
+        AddStage("Final")
             .WithEvent<OnStarted>();
 
-        RegisterObserver(Guard.AgainstNull(startupProcessingObserver));
+        AddObserver(Guard.AgainstNull(startupProcessingObserver));
     }
 }

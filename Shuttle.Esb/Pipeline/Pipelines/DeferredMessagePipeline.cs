@@ -16,7 +16,7 @@ public class DeferredMessagePipeline : Pipeline
         State.SetErrorQueue(Guard.AgainstNull(serviceBusConfiguration.Inbox.ErrorQueue));
         State.SetDeferredQueue(Guard.AgainstNull(serviceBusConfiguration.Inbox.DeferredQueue));
 
-        RegisterStage("Process")
+        AddStage("Process")
             .WithEvent<OnGetMessage>()
             .WithEvent<OnAfterGetMessage>()
             .WithEvent<OnDeserializeTransportMessage>()
@@ -24,8 +24,8 @@ public class DeferredMessagePipeline : Pipeline
             .WithEvent<OnProcessDeferredMessage>()
             .WithEvent<OnAfterProcessDeferredMessage>();
 
-        RegisterObserver(Guard.AgainstNull(getDeferredMessageObserver));
-        RegisterObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
-        RegisterObserver(Guard.AgainstNull(processDeferredMessageObserver));
+        AddObserver(Guard.AgainstNull(getDeferredMessageObserver));
+        AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
+        AddObserver(Guard.AgainstNull(processDeferredMessageObserver));
     }
 }

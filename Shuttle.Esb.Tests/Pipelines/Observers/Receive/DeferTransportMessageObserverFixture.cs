@@ -20,10 +20,10 @@ public class DeferTransportMessageObserverFixture
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
         pipeline.State.SetTransportMessage(new());
@@ -60,10 +60,10 @@ public class DeferTransportMessageObserverFixture
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage { IgnoreTillDate = DateTime.Now.AddDays(1) };
@@ -98,10 +98,10 @@ public class DeferTransportMessageObserverFixture
         var observer = new DeferTransportMessageObserver(deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage { IgnoreTillDate = DateTime.Now.AddDays(1) };

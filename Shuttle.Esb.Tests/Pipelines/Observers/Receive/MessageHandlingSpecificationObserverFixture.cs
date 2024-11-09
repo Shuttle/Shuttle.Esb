@@ -21,10 +21,10 @@ public class MessageHandlingSpecificationObserverFixture
         var observer = new MessageHandlingSpecificationObserver(messageHandlingSpecification.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnEvaluateMessageHandling>();
 
         await pipeline.ExecuteAsync();

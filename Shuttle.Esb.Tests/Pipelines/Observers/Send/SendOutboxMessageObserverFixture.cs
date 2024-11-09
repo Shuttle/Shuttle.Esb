@@ -18,10 +18,10 @@ public class SendOutboxMessageObserverFixture
         var observer = new SendOutboxMessageObserver(queueService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDispatchTransportMessage>();
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync())!;
@@ -55,10 +55,10 @@ public class SendOutboxMessageObserverFixture
         var observer = new SendOutboxMessageObserver(queueService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDispatchTransportMessage>();
 
         var transportMessage = new TransportMessage { RecipientInboxWorkQueueUri = "queue://host/somewhere" };

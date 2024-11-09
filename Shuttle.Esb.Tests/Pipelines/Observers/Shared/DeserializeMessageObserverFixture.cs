@@ -19,10 +19,10 @@ public class DeserializeMessageObserverFixture
         var observer = new DeserializeMessageObserver(serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDeserializeMessage>();
 
         Core.Pipelines.PipelineException exception;
@@ -43,10 +43,10 @@ public class DeserializeMessageObserverFixture
         var observer = new DeserializeMessageObserver(serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDeserializeMessage>();
 
         pipeline.State.SetTransportMessage(new()
@@ -78,10 +78,10 @@ public class DeserializeMessageObserverFixture
         };
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDeserializeMessage>();
 
         var transportMessageType = typeof(TransportMessage);

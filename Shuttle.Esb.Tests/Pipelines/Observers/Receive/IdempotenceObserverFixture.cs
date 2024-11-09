@@ -20,10 +20,10 @@ public class IdempotenceObserverFixture
         var observer = new IdempotenceObserver(idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnProcessIdempotenceMessage>();
 
         pipeline.State.SetProcessingStatus(ProcessingStatus.Ignore);
@@ -55,10 +55,10 @@ public class IdempotenceObserverFixture
         var observer = new IdempotenceObserver(idempotenceService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnIdempotenceMessageHandled>();
 
         pipeline.State.SetProcessingStatus(ProcessingStatus.Ignore);

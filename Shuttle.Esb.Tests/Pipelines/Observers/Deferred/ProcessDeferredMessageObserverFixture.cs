@@ -15,10 +15,10 @@ public class ProcessDeferredMessageObserverFixture
     {
         var observer = new ProcessDeferredMessageObserver();
 
-        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object).AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnProcessDeferredMessage>();
 
         var workQueue = new Mock<IQueue>();

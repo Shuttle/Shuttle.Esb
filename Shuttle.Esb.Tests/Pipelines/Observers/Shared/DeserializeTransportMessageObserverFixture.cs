@@ -38,10 +38,10 @@ public class DeserializeTransportMessageObserverFixture
             processService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage();
@@ -81,10 +81,10 @@ public class DeserializeTransportMessageObserverFixture
             processService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage();

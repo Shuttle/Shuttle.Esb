@@ -16,10 +16,10 @@ public class GetWorkMessageObserverFixture
         var observer = new GetWorkMessageObserver();
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnGetMessage>();
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
@@ -35,10 +35,10 @@ public class GetWorkMessageObserverFixture
         var observer = new GetWorkMessageObserver();
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnGetMessage>();
 
         workQueue.Setup(m => m.GetMessageAsync()).Returns(Task.FromResult(null as ReceivedMessage));
@@ -62,10 +62,10 @@ public class GetWorkMessageObserverFixture
         var observer = new GetWorkMessageObserver();
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnGetMessage>();
 
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());

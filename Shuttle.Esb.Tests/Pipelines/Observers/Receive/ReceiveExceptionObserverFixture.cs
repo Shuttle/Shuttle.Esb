@@ -36,11 +36,11 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
             new Mock<ISerializer>().Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(this)
-            .RegisterObserver(observer);
+            .AddObserver(this)
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         var transportMessage = new TransportMessage();

@@ -18,10 +18,10 @@ public class DecryptMessageObserverFixture
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDecryptMessage>();
 
         pipeline.State.SetTransportMessage(new());
@@ -40,10 +40,10 @@ public class DecryptMessageObserverFixture
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(observer);
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnDecryptMessage>();
 
         var transportMessage = new TransportMessage { EncryptionAlgorithm = "3des" };

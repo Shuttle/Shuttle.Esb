@@ -22,12 +22,12 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(new HandleExceptionObserver()) // marks exception as handled
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(new HandleExceptionObserver()) // marks exception as handled
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         pipeline.State.SetWorkQueue(workQueue.Object);
@@ -54,11 +54,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         pipeline.State.SetWorkQueue(workQueue.Object);
@@ -85,11 +85,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
@@ -121,11 +121,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         workQueue.Setup(m => m.IsStream).Returns(true);
@@ -162,11 +162,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         workQueue.Setup(m => m.IsStream).Returns(false);
@@ -209,11 +209,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         workQueue.Setup(m => m.IsStream).Returns(false);
@@ -254,11 +254,11 @@ public class OutboxExceptionObserverFixture
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
         var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(observer);
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>();
 
         workQueue.Setup(m => m.IsStream).Returns(false);

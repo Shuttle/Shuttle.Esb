@@ -50,7 +50,7 @@ public class ServiceBusBuilder
         return this;
     }
 
-    public ServiceBusBuilder MapMessageHandler(Delegate handler)
+    public ServiceBusBuilder AddMessageHandler(Delegate handler)
     {
         if (!typeof(Task).IsAssignableFrom(Guard.AgainstNull(handler).Method.ReturnType))
         {
