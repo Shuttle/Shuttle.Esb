@@ -97,13 +97,14 @@ public class ServiceBusBuilder
             }
 
             var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
 
-            if (Services.Contains(ServiceDescriptor.Transient(genericType, type)))
+            if (Services.Contains(serviceDescriptor))
             {
                 throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
             }
 
-            Services.Add(new(genericType, type, getServiceLifetime(genericType)));
+            Services.Add(serviceDescriptor);
         }
 
         return this;
@@ -137,6 +138,31 @@ public class ServiceBusBuilder
         if (!messageTypes.Contains(messageType))
         {
             messageTypes.Add(messageType);
+        }
+
+        return this;
+    }
+
+    public ServiceBusBuilder AddMessageHandler(object messageHandler)
+    {
+        var type = Guard.AgainstNull(messageHandler).GetType();
+
+        foreach (var @interface in type.GetInterfaces())
+        {
+            if (!@interface.IsCastableTo(MessageHandlerType))
+            {
+                continue;
+            }
+
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
+
+            if (Services.Contains(serviceDescriptor))
+            {
+                throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
+            }
+
+            Services.Add(serviceDescriptor);
         }
 
         return this;

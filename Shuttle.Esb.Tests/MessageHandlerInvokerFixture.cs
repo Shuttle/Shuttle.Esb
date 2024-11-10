@@ -67,7 +67,7 @@ public class MessageHandlerInvokerFixture
     }
 
     [Test]
-    public async Task Should_be_able_to_invoke_handler_async()
+    public async Task Should_be_able_to_invoke_handler_type_async()
     {
         const int count = 5;
 
@@ -101,6 +101,69 @@ public class MessageHandlerInvokerFixture
         var serviceProvider = services.BuildServiceProvider();
 
         var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
+
+        DateTime timeout;
+
+        await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+        {
+            for (var i = 0; i < count; i++)
+            {
+                await serviceBus.SendAsync(new Message
+                {
+                    Count = i + 1,
+                    Name = $"message - {i + 1}"
+                });
+            }
+
+            timeout = DateTime.Now.AddSeconds(5);
+
+            while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
+            {
+                Thread.Sleep(25);
+            }
+        }
+
+        Assert.That(timeout > DateTime.Now, "Timed out before all messages were handled.");
+    }
+    
+    [Test]
+    public async Task Should_be_able_to_invoke_handler_instance_async()
+    {
+        const int count = 5;
+
+        var services = new ServiceCollection();
+
+        var messageHandlerTracker = new MessageHandlerTracker();
+        var messageHandler = new MessageHandler(messageHandlerTracker);
+
+        services.AddServiceBus(builder =>
+        {
+            builder.Options.Inbox.ThreadCount = 1;
+            builder.Options.Inbox.WorkQueueUri = "memory://configuration/inbox";
+            builder.Options.Inbox.DurationToSleepWhenIdle = new()
+            {
+                TimeSpan.FromMilliseconds(5)
+            };
+            builder.Options.MessageRoutes.Add(new()
+            {
+                Uri = "memory://configuration/inbox",
+                Specifications = new()
+                {
+                    new()
+                    {
+                        Name = "StartsWith",
+                        Value = "Shuttle"
+                    }
+                }
+            });
+
+            builder.AddMessageHandler(messageHandler);
+        });
+
+        services.AddSingleton<IQueueFactory, MemoryQueueFactory>();
+        services.AddSingleton<IMessageHandlerTracker>(messageHandlerTracker);
+
+        var serviceProvider = services.BuildServiceProvider();
 
         DateTime timeout;
 
