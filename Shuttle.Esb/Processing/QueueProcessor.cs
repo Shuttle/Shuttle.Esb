@@ -20,7 +20,7 @@ public abstract class QueueProcessor<TPipeline> : IProcessor
         _pipelineThreadActivity = Guard.AgainstNull(pipelineThreadActivity);
     }
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IProcessorThreadContext _, CancellationToken cancellationToken = default)
     {
         var messagePipeline = _pipelineFactory.GetPipeline<TPipeline>();
 

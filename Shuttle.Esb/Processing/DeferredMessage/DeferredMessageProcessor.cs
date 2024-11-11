@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Esb;
 
@@ -33,7 +34,7 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
         DeferredMessageProcessingAdjusted?.Invoke(this, new(_nextProcessingDateTime));
     }
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken)
+    public async Task ExecuteAsync(IProcessorThreadContext _, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.DeferredQueueUri))
         {

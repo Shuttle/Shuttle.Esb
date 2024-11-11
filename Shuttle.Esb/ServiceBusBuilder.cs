@@ -89,13 +89,8 @@ public class ServiceBusBuilder
         getServiceLifetime ??= _ => ServiceLifetime.Singleton;
 
         foreach (var type in _reflectionService.GetTypesCastableToAsync(MessageHandlerType, Guard.AgainstNull(assembly)).GetAwaiter().GetResult())
-        foreach (var @interface in type.GetInterfaces())
+        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
         {
-            if (!@interface.IsCastableTo(MessageHandlerType))
-            {
-                continue;
-            }
-
             var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
 
@@ -147,13 +142,8 @@ public class ServiceBusBuilder
     {
         var type = Guard.AgainstNull(messageHandler).GetType();
 
-        foreach (var @interface in type.GetInterfaces())
+        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
         {
-            if (!@interface.IsCastableTo(MessageHandlerType))
-            {
-                continue;
-            }
-
             var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
 
