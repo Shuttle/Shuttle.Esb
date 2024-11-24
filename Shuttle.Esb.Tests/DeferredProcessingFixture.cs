@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -22,6 +23,9 @@ public class DeferredProcessingFixture
         var serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
         var pipelineFactory = new Mock<IPipelineFactory>();
         var configuration = new Mock<IServiceBusConfiguration>();
+        var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+
+        serviceScopeFactory.Setup(m => m.CreateScope()).Returns(new Mock<IServiceScope>().Object);
 
         var inboxConfiguration = new InboxConfiguration
         {
@@ -61,7 +65,7 @@ public class DeferredProcessingFixture
 
         var timeout = DateTime.Now.AddMilliseconds(3500);
 
-        await new ProcessorThreadPool("DeferredMessageProcessor", 1, new DeferredMessageProcessorFactory(deferredMessageProcessor), new()).StartAsync();
+        await new ProcessorThreadPool("DeferredMessageProcessor", 1, serviceScopeFactory.Object, new DeferredMessageProcessorFactory(deferredMessageProcessor), new()).StartAsync();
 
         while (messagesReturned.Count < 3 && DateTime.Now < timeout)
         {
