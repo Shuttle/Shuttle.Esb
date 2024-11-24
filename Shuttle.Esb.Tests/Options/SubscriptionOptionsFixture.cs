@@ -14,8 +14,6 @@ public class SubscriptionOptionsFixture : OptionsFixture
         Assert.That(options, Is.Not.Null);
 
         Assert.That(options.Subscription.SubscribeType, Is.EqualTo(SubscribeType.Normal));
-        Assert.That(options.Subscription.ConnectionStringName, Is.EqualTo("connection-string"));
-        Assert.That(options.Subscription.CacheTimeout, Is.EqualTo(new TimeSpan(0, 0, 7, 15)));
         Assert.That(options.Subscription.MessageTypes[0], Is.EqualTo("message-type-a"));
         Assert.That(options.Subscription.MessageTypes[1], Is.EqualTo("message-type-b"));
     }

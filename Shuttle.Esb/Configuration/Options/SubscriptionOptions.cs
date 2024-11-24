@@ -12,8 +12,6 @@ public enum SubscribeType
 
 public class SubscriptionOptions
 {
-    public TimeSpan CacheTimeout { get; set; } = TimeSpan.FromMinutes(5);
-    public string ConnectionStringName { get; set; } = "Subscription";
     public List<string> MessageTypes { get; set; } = new();
     public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
 }
