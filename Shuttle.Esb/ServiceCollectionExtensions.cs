@@ -80,7 +80,6 @@ public static class ServiceCollectionExtensions
             options.UriMappings = serviceBusBuilder.Options.UriMappings;
             options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
             options.Subscription = serviceBusBuilder.Options.Subscription;
-            options.Idempotence = serviceBusBuilder.Options.Idempotence;
             options.ProcessorThread = serviceBusBuilder.Options.ProcessorThread;
         });
 

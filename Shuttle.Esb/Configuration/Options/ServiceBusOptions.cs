@@ -30,11 +30,8 @@ public class ServiceBusOptions
     public bool AddMessageHandlers { get; set; } = true;
     public bool CacheIdentity { get; set; } = true;
     public string CompressionAlgorithm { get; set; } = string.Empty;
-
     public bool CreatePhysicalQueues { get; set; } = true;
     public string EncryptionAlgorithm { get; set; } = string.Empty;
-    public IdempotenceOptions Idempotence { get; set; } = new();
-
     public InboxOptions Inbox { get; set; } = new();
     public List<MessageRouteOptions> MessageRoutes { get; set; } = new();
     public OutboxOptions Outbox { get; set; } = new();
