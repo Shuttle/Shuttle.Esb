@@ -8,7 +8,7 @@ namespace Shuttle.Esb;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IMessageHandlingSpecificationObserver messageHandlingSpecificationObserver, IIdempotenceObserver idempotenceObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, ISendDeferredObserver sendDeferredObserver, IReceiveExceptionObserver receiveExceptionObserver) 
+    public InboxMessagePipeline(IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceiveExceptionObserver receiveExceptionObserver) 
         : base(serviceProvider)
     {
         AddStage("Read")
@@ -24,15 +24,10 @@ public class InboxMessagePipeline : Pipeline
             .WithEvent<OnAfterDeserializeMessage>();
 
         AddStage("Handle")
-            .WithEvent<OnEvaluateMessageHandling>()
-            .WithEvent<OnAfterEvaluateMessageHandling>()
-            .WithEvent<OnProcessIdempotenceMessage>()
             .WithEvent<OnHandleMessage>()
             .WithEvent<OnAfterHandleMessage>()
             .WithEvent<OnCompleteTransactionScope>()
             .WithEvent<OnDisposeTransactionScope>()
-            .WithEvent<OnSendDeferred>()
-            .WithEvent<OnAfterSendDeferred>()
             .WithEvent<OnAcknowledgeMessage>()
             .WithEvent<OnAfterAcknowledgeMessage>();
 
@@ -42,11 +37,8 @@ public class InboxMessagePipeline : Pipeline
         AddObserver(Guard.AgainstNull(deserializeMessageObserver));
         AddObserver(Guard.AgainstNull(decryptMessageObserver));
         AddObserver(Guard.AgainstNull(decompressMessageObserver));
-        AddObserver(Guard.AgainstNull(messageHandlingSpecificationObserver));
-        AddObserver(Guard.AgainstNull(idempotenceObserver));
         AddObserver(Guard.AgainstNull(handleMessageObserver));
         AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));
-        AddObserver(Guard.AgainstNull(sendDeferredObserver));
 
         AddObserver(Guard.AgainstNull(receiveExceptionObserver)); // must be last
 

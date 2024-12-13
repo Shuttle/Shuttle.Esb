@@ -52,11 +52,6 @@ public static class PipelineStateExtensions
         return state.Get<bool>(StateKeys.MessageHandlerInvokeResult);
     }
 
-    public static ProcessingStatus? GetProcessingStatus(this IState state)
-    {
-        return state.Contains(StateKeys.ProcessingStatus) ? state.Get<ProcessingStatus>(StateKeys.ProcessingStatus) : ProcessingStatus.Active;
-    }
-
     public static ReceivedMessage? GetReceivedMessage(this IState state)
     {
         return state.Get<ReceivedMessage>(StateKeys.ReceivedMessage);
@@ -140,11 +135,6 @@ public static class PipelineStateExtensions
     public static void SetMessageHandlerInvoked(this IState state, bool value)
     {
         state.Replace(StateKeys.MessageHandlerInvokeResult, value);
-    }
-
-    public static void SetProcessingStatus(this IState state, ProcessingStatus processingStatus)
-    {
-        state.Replace(StateKeys.ProcessingStatus, processingStatus);
     }
 
     public static void SetReceivedMessage(this IState state, ReceivedMessage? receivedMessage)

@@ -34,13 +34,6 @@ public class HandleMessageObserver : IHandleMessageObserver
     public async Task ExecuteAsync(IPipelineContext<OnHandleMessage> pipelineContext)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
-        var processingStatus = state.GetProcessingStatus();
-
-        if (processingStatus == ProcessingStatus.Ignore || processingStatus == ProcessingStatus.MessageHandled)
-        {
-            return;
-        }
-
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
         if (transportMessage.HasExpired())

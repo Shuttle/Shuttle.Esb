@@ -13,7 +13,6 @@
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="Shuttle.Core.System" Version="20.0.0" />
-    <PackageReference Include="Shuttle.Core.Transactions" Version="11.1.0" />
   </ItemGroup>
 
   <ItemGroup>

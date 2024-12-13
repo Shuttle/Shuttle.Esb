@@ -27,21 +27,6 @@ public class HandleMessageObserverFixture
             .AddStage(".")
             .WithEvent<OnHandleMessage>();
 
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Ignore);
-
-        await pipeline.ExecuteAsync();
-
-        messageHandlerInvoker.VerifyNoOtherCalls();
-        serializer.VerifyNoOtherCalls();
-
-        pipeline.State.SetProcessingStatus(ProcessingStatus.MessageHandled);
-
-        await pipeline.ExecuteAsync();
-
-        messageHandlerInvoker.VerifyNoOtherCalls();
-        serializer.VerifyNoOtherCalls();
-
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
         pipeline.State.SetTransportMessage(new() { ExpiryDate = DateTime.Now.AddDays(-1) });
 
         await pipeline.ExecuteAsync();
@@ -68,7 +53,6 @@ public class HandleMessageObserverFixture
         var transportMessage = new TransportMessage();
         var message = new object();
 
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
@@ -117,7 +101,6 @@ public class HandleMessageObserverFixture
         var transportMessage = new TransportMessage();
         var message = new object();
 
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
         pipeline.State.SetErrorQueue(errorQueue.Object);
@@ -169,7 +152,6 @@ public class HandleMessageObserverFixture
         var transportMessage = new TransportMessage();
         var message = new object();
 
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
@@ -217,7 +199,6 @@ public class HandleMessageObserverFixture
         var transportMessage = new TransportMessage();
         var message = new object();
 
-        pipeline.State.SetProcessingStatus(ProcessingStatus.Active);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 

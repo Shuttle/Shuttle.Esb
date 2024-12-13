@@ -29,12 +29,10 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
         services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
         services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
-        services.TryAddSingleton<IMessageHandlingSpecification, MessageHandlingSpecification>();
         services.TryAddSingleton<IUriResolver, UriResolver>();
         services.TryAddSingleton<IQueueService, QueueService>();
         services.TryAddSingleton<IQueueFactoryService, QueueFactoryService>();
         services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
-        services.TryAddSingleton<IIdempotenceService, NullIdempotenceService>();
         services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();
         services.TryAddSingleton<IPipelineThreadActivity, PipelineThreadActivity>();
         services.TryAddSingleton<IEncryptionService, EncryptionService>();
@@ -118,12 +116,12 @@ public static class ServiceCollectionExtensions
 
         if (!processorOptions.DurationToIgnoreOnFailure.Any())
         {
-            processorOptions.DurationToIgnoreOnFailure = new(ServiceBusOptions.DefaultDurationToIgnoreOnFailure);
+            processorOptions.DurationToIgnoreOnFailure = [..ServiceBusOptions.DefaultDurationToIgnoreOnFailure];
         }
 
         if (!processorOptions.DurationToSleepWhenIdle.Any())
         {
-            processorOptions.DurationToSleepWhenIdle = new(ServiceBusOptions.DefaultDurationToSleepWhenIdle);
+            processorOptions.DurationToSleepWhenIdle = [..ServiceBusOptions.DefaultDurationToSleepWhenIdle];
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Transactions;
+using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Esb.Tests;
 

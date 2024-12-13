@@ -24,7 +24,6 @@ public class GetWorkMessageObserver : IGetWorkMessageObserver
             return;
         }
         
-        state.SetProcessingStatus(ProcessingStatus.Active);
         state.SetWorking();
         state.SetReceivedMessage(receivedMessage);
     }

@@ -11,29 +11,19 @@ public interface IDispatchTransportMessageObserver : IPipelineObserver<OnDispatc
 
 public class DispatchTransportMessageObserver : IDispatchTransportMessageObserver
 {
-    private readonly IIdempotenceService _idempotenceService;
     private readonly IQueueService _queueService;
     private readonly IServiceBusConfiguration _serviceBusConfiguration;
 
-    public DispatchTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService, IIdempotenceService idempotenceService)
+    public DispatchTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration, IQueueService queueService)
     {
         _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
         _queueService = Guard.AgainstNull(queueService);
-        _idempotenceService = Guard.AgainstNull(idempotenceService);
     }
 
     public async Task ExecuteAsync(IPipelineContext<OnDispatchTransportMessage> pipelineContext)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
-        var transportMessageReceived = state.GetTransportMessageReceived();
-
-        if (transportMessageReceived != null &&
-            await _idempotenceService.AddDeferredMessageAsync(transportMessageReceived, transportMessage, Guard.AgainstNull(state.GetTransportMessageStream()))
-           )
-        {
-            return;
-        }
 
         Guard.AgainstNullOrEmptyString(transportMessage.RecipientInboxWorkQueueUri);
 
