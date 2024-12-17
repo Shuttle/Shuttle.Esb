@@ -6,12 +6,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 
 namespace Shuttle.Esb;
 
 public class ServiceBusBuilder
 {
+    public event EventHandler<AddPipelineProcessingEventArgs>? AddPipelineProcessing;
+
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
 
     private readonly ReflectionService _reflectionService = new();
@@ -35,6 +38,7 @@ public class ServiceBusBuilder
 
     public bool ShouldSuppressHostedService { get; private set; }
     public bool ShouldSuppressPipelineTransactionScope { get; private set; }
+    public bool ShouldSuppressPipelineProcessing { get; private set; }
 
     public ServiceBusBuilder SuppressHostedService()
     {
@@ -46,6 +50,13 @@ public class ServiceBusBuilder
     public ServiceBusBuilder SuppressPipelineTransactionScope()
     {
         ShouldSuppressPipelineTransactionScope = true;
+
+        return this;
+    }
+
+    public ServiceBusBuilder SuppressPipelineProcessing()
+    {
+        ShouldSuppressPipelineProcessing = true;
 
         return this;
     }
@@ -156,5 +167,10 @@ public class ServiceBusBuilder
         }
 
         return this;
+    }
+
+    public void OnAddPipelineProcessing(PipelineProcessingBuilder pipelineProcessingBuilder)
+    {
+        AddPipelineProcessing?.Invoke(this, new(pipelineProcessingBuilder));
     }
 }

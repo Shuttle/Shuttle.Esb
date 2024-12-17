@@ -20,8 +20,6 @@ public class OnHandleMessage;
 
 public class OnAfterHandleMessage;
 
-public class OnIdempotenceMessageHandled;
-
 public class OnAcknowledgeMessage;
 
 public class OnAfterAcknowledgeMessage;
