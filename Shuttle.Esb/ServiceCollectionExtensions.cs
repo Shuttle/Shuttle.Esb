@@ -40,10 +40,15 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
         services.TryAddSingleton<IProcessorThreadPoolFactory, ProcessorThreadPoolFactory>();
 
-        services.AddPipelineProcessing(pipelineProcessingBuilder =>
+        if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
         {
-            pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
-        });
+            services.AddPipelineProcessing(pipelineProcessingBuilder =>
+            {
+                pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+
+                serviceBusBuilder.OnAddPipelineProcessing(pipelineProcessingBuilder);
+            });
+        }
 
         var transactionScopeFactoryType = typeof(ITransactionScopeFactory);
 
