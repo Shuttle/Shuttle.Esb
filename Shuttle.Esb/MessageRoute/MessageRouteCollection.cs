@@ -8,7 +8,7 @@ namespace Shuttle.Esb;
 
 public class MessageRouteCollection : IMessageRouteCollection
 {
-    private readonly List<IMessageRoute> _messageRoutes = new();
+    private readonly List<IMessageRoute> _messageRoutes = [];
 
     public IMessageRouteCollection Add(IMessageRoute messageRoute)
     {

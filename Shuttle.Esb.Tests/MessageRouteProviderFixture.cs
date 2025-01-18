@@ -19,13 +19,13 @@ public class MessageRouteProviderFixture
 
         Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.False);
 
-        provider.Add(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("first")));
+        provider.AddAsync(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("first")));
 
         Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.True);
         Assert.That(provider.GetRouteUris(secondMessageType).Any(), Is.False);
         Assert.That(provider.GetRouteUris(firstMessageType).First(), Is.EqualTo(nullQueueUri));
 
-        provider.Add(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("second")));
+        provider.AddAsync(new MessageRoute(nullQueueUri).AddSpecification(new StartsWithMessageRouteSpecification("second")));
 
         Assert.That(provider.GetRouteUris(firstMessageType).Any(), Is.True);
         Assert.That(provider.GetRouteUris(secondMessageType).Any(), Is.True);

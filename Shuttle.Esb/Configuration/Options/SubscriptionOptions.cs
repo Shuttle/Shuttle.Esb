@@ -12,6 +12,6 @@ public enum SubscribeType
 
 public class SubscriptionOptions
 {
-    public List<string> MessageTypes { get; set; } = new();
+    public List<string> MessageTypes { get; set; } = [];
     public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
 }

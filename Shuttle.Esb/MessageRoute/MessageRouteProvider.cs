@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -35,17 +34,12 @@ public sealed class MessageRouteProvider : IMessageRouteProvider
 
     public async Task<IEnumerable<string>> GetRouteUrisAsync(string messageType)
     {
-        return await Task.FromResult(GetRouteUris(messageType));
-    }
-
-    public IEnumerable<string> GetRouteUris(string messageType)
-    {
         var uri = _messageRoutes.FindAll(Guard.AgainstNullOrEmptyString(messageType)).Select(messageRoute => messageRoute.Uri.ToString()).FirstOrDefault();
 
-        return string.IsNullOrEmpty(uri) ? Array.Empty<string>() : new[] { uri };
+        return await Task.FromResult(string.IsNullOrEmpty(uri) ? [] : new[] { uri });
     }
 
-    public void Add(IMessageRoute messageRoute)
+    public async Task AddAsync(IMessageRoute messageRoute)
     {
         var existing = _messageRoutes.Find(Guard.AgainstNull(messageRoute).Uri);
 
@@ -60,6 +54,8 @@ public sealed class MessageRouteProvider : IMessageRouteProvider
                 existing.AddSpecification(specification);
             }
         }
+
+        await Task.CompletedTask;
     }
 
     public IEnumerable<IMessageRoute> MessageRoutes => new List<IMessageRoute>(_messageRoutes).AsReadOnly();

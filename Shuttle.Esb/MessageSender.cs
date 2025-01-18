@@ -75,7 +75,7 @@ public class MessageSender : IMessageSender
             return result;
         }
 
-        return Enumerable.Empty<TransportMessage>();
+        return [];
     }
 
     public async Task<TransportMessage> SendAsync(object message, TransportMessage? transportMessageReceived = null, Action<TransportMessageBuilder>? builder = null)
