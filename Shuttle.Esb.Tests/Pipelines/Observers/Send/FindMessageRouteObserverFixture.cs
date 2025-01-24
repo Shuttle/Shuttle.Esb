@@ -38,7 +38,6 @@ public class FindMessageRouteObserverFixture
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
 
-        messageRouteProvider.Setup(m => m.GetRouteUris(messageType)).Returns(Enumerable.Empty<string>());
         messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(Enumerable.Empty<string>()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
@@ -71,7 +70,6 @@ public class FindMessageRouteObserverFixture
         const string messageType = "message-type";
         var routes = new List<string> { "route-a", "route-b" };
 
-        messageRouteProvider.Setup(m => m.GetRouteUris(messageType)).Returns(routes);
         messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(routes.AsEnumerable()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
@@ -104,7 +102,6 @@ public class FindMessageRouteObserverFixture
         const string messageType = "message-type";
         var routes = new List<string> { "route-a" };
 
-        messageRouteProvider.Setup(m => m.GetRouteUris(messageType)).Returns(routes);
         messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(routes.AsEnumerable()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);

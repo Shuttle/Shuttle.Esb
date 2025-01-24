@@ -11,25 +11,19 @@ public class ServiceBusOptionsValidator : IValidateOptions<ServiceBusOptions>
     {
         Guard.AgainstNull(options);
 
-        if (options.Inbox != null)
+        if (string.IsNullOrWhiteSpace(options.Inbox!.WorkQueueUri))
         {
-            if (string.IsNullOrWhiteSpace(options.Inbox!.WorkQueueUri))
-            {
-                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
-            }
+            return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "Inbox.WorkQueueUri"));
         }
 
-        if (options.Outbox != null)
+        if (string.IsNullOrWhiteSpace(options.Outbox.WorkQueueUri))
         {
-            if (string.IsNullOrWhiteSpace(options.Outbox.WorkQueueUri))
-            {
-                return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
-            }
+            return ValidateOptionsResult.Fail(string.Format(Resources.RequiredQueueUriMissingException, "Outbox.WorkQueueUri"));
         }
 
         foreach (var messageRoute in options.MessageRoutes)
         {
-            if (!Uri.TryCreate(messageRoute.Uri, UriKind.RelativeOrAbsolute, out _))
+            if (!Uri.TryCreate(messageRoute.Uri, UriKind.Absolute, out _))
             {
                 return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, messageRoute.Uri, "MessageRoute.Uri"));
             }
@@ -42,12 +36,12 @@ public class ServiceBusOptionsValidator : IValidateOptions<ServiceBusOptions>
 
         foreach (var uriMapping in options.UriMappings)
         {
-            if (!Uri.TryCreate(uriMapping.SourceUri, UriKind.RelativeOrAbsolute, out _))
+            if (!Uri.TryCreate(uriMapping.SourceUri, UriKind.Absolute, out _))
             {
                 return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, uriMapping.SourceUri, nameof(uriMapping.SourceUri)));
             }
 
-            if (!Uri.TryCreate(uriMapping.TargetUri, UriKind.RelativeOrAbsolute, out _))
+            if (!Uri.TryCreate(uriMapping.TargetUri, UriKind.Absolute, out _))
             {
                 return ValidateOptionsResult.Fail(string.Format(Resources.InvalidUriException, uriMapping.TargetUri, nameof(uriMapping.TargetUri)));
             }

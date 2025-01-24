@@ -66,10 +66,27 @@ public static class ServiceCollectionExtensions
             });
         }
 
-        ApplyDefaults(serviceBusBuilder.Options.Inbox);
-        ApplyDefaults(serviceBusBuilder.Options.Outbox);
+        services.AddOptions<ServiceBusOptions>().Configure(options =>
+        {
+            options.Inbox = serviceBusBuilder.Options.Inbox;
+            options.Outbox = serviceBusBuilder.Options.Outbox;
 
-        services.AddSingleton(Options.Create(serviceBusBuilder.Options));
+            ApplyDefaults(options.Inbox);
+            ApplyDefaults(options.Outbox);
+
+            options.AddMessageHandlers = serviceBusBuilder.Options.AddMessageHandlers;
+            options.CacheIdentity = serviceBusBuilder.Options.CacheIdentity;
+            options.CompressionAlgorithm = serviceBusBuilder.Options.CompressionAlgorithm;
+            options.CreatePhysicalQueues = serviceBusBuilder.Options.CreatePhysicalQueues;
+            options.EncryptionAlgorithm = serviceBusBuilder.Options.EncryptionAlgorithm;
+            options.RemoveCorruptMessages = serviceBusBuilder.Options.RemoveCorruptMessages;
+
+            options.UriMappings = serviceBusBuilder.Options.UriMappings;
+            options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
+            options.Subscription = serviceBusBuilder.Options.Subscription;
+            options.ProcessorThread = serviceBusBuilder.Options.ProcessorThread;
+        });
+        
         services.AddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
         services.AddSingleton<IMessageHandlerDelegateProvider>(_ => new MessageHandlerDelegateProvider(serviceBusBuilder.GetDelegates()));
 

@@ -18,7 +18,6 @@ public class ServiceBusPerformanceFixture
 
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
 
-        messageRouteProvider.Setup(m => m.GetRouteUris(It.IsAny<string>())).Returns(new List<string> { "null-queue://null/null" });
         messageRouteProvider.Setup(m => m.GetRouteUrisAsync(It.IsAny<string>())).Returns(Task.FromResult<IEnumerable<string>>(new List<string> { "null-queue://null/null" }));
 
         services.AddSingleton(messageRouteProvider.Object);
