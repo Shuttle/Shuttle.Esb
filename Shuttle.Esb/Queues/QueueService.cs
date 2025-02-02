@@ -4,136 +4,141 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class QueueService : IQueueService
 {
-    public class QueueService : IQueueService
+    private static readonly object Padlock = new();
+    private readonly IQueueFactoryService _queueFactoryService;
+
+    private readonly List<IQueue> _queues = new();
+    private readonly IUriResolver _uriResolver;
+    private bool _disposed;
+
+    public QueueService(IQueueFactoryService queueFactoryService, IUriResolver uriResolver)
     {
-        private bool _disposed;
-        private static readonly object Padlock = new object();
-        private readonly IQueueFactoryService _queueFactoryService;
+        _queueFactoryService = Guard.AgainstNull(queueFactoryService);
+        _uriResolver = Guard.AgainstNull(uriResolver);
+    }
 
-        private readonly List<IQueue> _queues = new List<IQueue>();
-        private readonly IUriResolver _uriResolver;
-
-        public QueueService(IQueueFactoryService queueFactoryService, IUriResolver uriResolver)
+    public void Dispose()
+    {
+        if (_disposed)
         {
-            Guard.AgainstNull(queueFactoryService, nameof(queueFactoryService));
-            Guard.AgainstNull(uriResolver, nameof(uriResolver));
-
-            _queueFactoryService = queueFactoryService;
-            _uriResolver = uriResolver;
+            return;
         }
 
-        public void Dispose()
+        foreach (var queue in _queues)
         {
-            if (_disposed)
-            {
-                return;
-            }
+            QueueDisposing?.Invoke(this, new(queue));
 
-            foreach (var queue in _queues)
-            {
-                QueueDisposing.Invoke(this, new QueueEventArgs(queue));
+            queue.TryDispose();
 
-                queue.TryDispose();
-
-                QueueDisposed.Invoke(this, new QueueEventArgs(queue));
-            }
-
-            _queues.Clear();
-
-            _disposed = true;
+            QueueDisposed?.Invoke(this, new(queue));
         }
 
-        public event EventHandler<QueueEventArgs> QueueCreated = delegate
-        {
-        };
+        _queues.Clear();
 
-        public event EventHandler<QueueEventArgs> QueueDisposing = delegate
-        {
-        };
+        _disposed = true;
+    }
 
-        public event EventHandler<QueueEventArgs> QueueDisposed = delegate
-        {
-        };
+    public event EventHandler<QueueEventArgs>? QueueCreated;
+    public event EventHandler<QueueEventArgs>? QueueDisposing;
+    public event EventHandler<QueueEventArgs>? QueueDisposed;
 
-        public IQueue Get(Uri uri)
-        {
-            Guard.AgainstNull(uri, nameof(uri));
+    public bool Contains(Uri uri)
+    {
+        return Find(uri) != null;
+    }
 
-            var queue = Find(uri);
+    public IQueue? Find(Uri uri)
+    {
+        Guard.AgainstNull(uri);
+
+        return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+
+        return new();
+    }
+
+    public IQueue Get(Uri uri)
+    {
+        var queue = Find(Guard.AgainstNull(uri));
+
+        if (queue != null)
+        {
+            return queue;
+        }
+
+        lock (Padlock)
+        {
+            queue = _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
 
             if (queue != null)
             {
                 return queue;
             }
 
-            lock (Padlock)
+            var queueUri = uri;
+
+            if (queueUri.Scheme.Equals("resolver"))
             {
-                queue =
-                    _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
+                var resolvedQueueUri = _uriResolver.GetTarget(queueUri);
 
-                if (queue != null)
+                if (resolvedQueueUri == null)
                 {
-                    return queue;
+                    throw new KeyNotFoundException(string.Format(Resources.UriNameNotFoundException, _uriResolver.GetType().FullName, uri));
                 }
 
-                var queueUri = uri;
-
-                if (queueUri.Scheme.Equals("resolver"))
-                {
-                    var resolvedQueueUri = _uriResolver.GetTarget(queueUri);
-
-                    if (resolvedQueueUri == null)
-                    {
-                        throw new KeyNotFoundException(string.Format(Resources.UriNameNotFoundException,
-                            _uriResolver.GetType().FullName,
-                            uri));
-                    }
-
-                    queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri.Scheme), resolvedQueueUri),
-                        queueUri);
-                }
-                else
-                {
-                    queue = CreateQueue(_queueFactoryService.Get(queueUri.Scheme), queueUri);
-                }
-
-                _queues.Add(queue);
-
-                return queue;
+                queue = new ResolvedQueue(CreateQueue(_queueFactoryService.Get(resolvedQueueUri.Scheme), resolvedQueueUri), queueUri);
             }
-        }
+            else
+            {
+                queue = CreateQueue(_queueFactoryService.Get(queueUri.Scheme), queueUri);
+            }
 
-        public bool Contains(Uri uri)
+            _queues.Add(queue);
+
+            return queue;
+        }
+    }
+
+    public bool Contains(string uri)
+    {
+        try
         {
-            return Find(uri) != null;
+            return Contains(new Uri(Guard.AgainstNullOrEmptyString(uri)));
         }
-
-        private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
+        catch (UriFormatException ex)
         {
-            var result = queueFactory.Create(queueUri);
-
-            Guard.AgainstNull(result,
-                string.Format(Resources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
-
-            QueueCreated.Invoke(this, new QueueEventArgs(result));
-
-            return result;
+            throw new UriFormatException($"{ex.Message} / uri = '{uri}'");
         }
+    }
 
-        public IQueue Find(Uri uri)
+    public IQueue Get(string uri)
+    {
+        try
         {
-            Guard.AgainstNull(uri, nameof(uri));
-
-            return _queues.Find(candidate => candidate.Uri.Uri.Equals(uri));
+            return Get(new Uri(Guard.AgainstNullOrEmptyString(uri)));
         }
-
-        public ValueTask DisposeAsync()
+        catch (UriFormatException ex)
         {
-            Dispose();
-
-            return new ValueTask();
+            throw new UriFormatException($"{ex.Message} / uri = '{uri}'");
         }
+    }
+
+    private IQueue CreateQueue(IQueueFactory queueFactory, Uri queueUri)
+    {
+        var result = queueFactory.Create(queueUri);
+
+        Guard.AgainstNull(result, string.Format(Resources.QueueFactoryCreatedNullQueue, queueFactory.GetType().FullName, queueUri));
+
+        QueueCreated?.Invoke(this, new(result));
+
+        return result;
     }
 }

@@ -1,10 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface ICreateQueue
 {
-    public interface ICreateQueue
-    {
-        void Create();
-        Task CreateAsync();
-    }
+    Task CreateAsync();
 }

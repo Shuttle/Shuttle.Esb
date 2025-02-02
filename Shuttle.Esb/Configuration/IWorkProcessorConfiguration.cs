@@ -1,8 +1,7 @@
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IWorkProcessorConfiguration :
+    IWorkQueueConfiguration,
+    IErrorQueueConfiguration
 {
-    public interface IWorkProcessorConfiguration :
-        IWorkQueueConfiguration,
-        IErrorQueueConfiguration
-    {
-    }
 }

@@ -1,21 +1,19 @@
 using System;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
-{
-    public class DeserializationExceptionEventArgs : PipelineEventEventArgs
-    {
-        public DeserializationExceptionEventArgs(IPipelineEvent pipelineEvent, IQueue workQueue, IQueue errorQueue,
-            Exception exception)
-            : base(pipelineEvent)
-        {
-            WorkQueue = workQueue;
-            ErrorQueue = errorQueue;
-            Exception = exception;
-        }
+namespace Shuttle.Esb;
 
-        public IQueue WorkQueue { get; }
-        public IQueue ErrorQueue { get; }
-        public Exception Exception { get; }
+public class DeserializationExceptionEventArgs : PipelineContextEventArgs
+{
+    public DeserializationExceptionEventArgs(IPipelineContext pipelineContext, IQueue workQueue, IQueue errorQueue, Exception exception)
+        : base(pipelineContext)
+    {
+        WorkQueue = workQueue;
+        ErrorQueue = errorQueue;
+        Exception = exception;
     }
+
+    public IQueue WorkQueue { get; }
+    public IQueue ErrorQueue { get; }
+    public Exception Exception { get; }
 }

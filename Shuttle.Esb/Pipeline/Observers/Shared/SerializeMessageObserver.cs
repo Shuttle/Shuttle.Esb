@@ -4,55 +4,32 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface ISerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
 {
-    public interface ISerializeMessageObserver : IPipelineObserver<OnSerializeMessage>
+}
+
+public class SerializeMessageObserver : ISerializeMessageObserver
+{
+    private readonly ISerializer _serializer;
+
+    public SerializeMessageObserver(ISerializer serializer)
     {
+        _serializer = Guard.AgainstNull(serializer);
     }
 
-    public class SerializeMessageObserver : ISerializeMessageObserver
+    public async Task ExecuteAsync(IPipelineContext<OnSerializeMessage> pipelineContext)
     {
-        private readonly ISerializer _serializer;
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var message = Guard.AgainstNull(state.GetMessage());
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        public SerializeMessageObserver(ISerializer serializer)
+        await using (var stream = await _serializer.SerializeAsync(message).ConfigureAwait(false))
         {
-            Guard.AgainstNull(serializer, nameof(serializer));
-
-            _serializer = serializer;
+            transportMessage.Message = await stream.ToBytesAsync().ConfigureAwait(false);
         }
 
-        private async Task ExecuteAsync(OnSerializeMessage pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent,nameof(pipelineEvent)).Pipeline.State;
-            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), StateKeys.TransportMessage);
-
-            if (sync)
-            {
-                using (var stream = _serializer.Serialize(message))
-                {
-                    transportMessage.Message = stream.ToBytes();
-                }
-            }
-            else
-            {
-                await using (var stream = await _serializer.SerializeAsync(message).ConfigureAwait(false))
-                {
-                    transportMessage.Message = await stream.ToBytesAsync().ConfigureAwait(false);
-                }
-            }
-
-            state.SetMessageBytes(transportMessage.Message);
-        }
-
-        public void Execute(OnSerializeMessage pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnSerializeMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+        state.SetMessageBytes(transportMessage.Message);
     }
 }

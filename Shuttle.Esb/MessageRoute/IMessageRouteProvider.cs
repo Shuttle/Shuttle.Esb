@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IMessageRouteProvider
 {
-    public interface IMessageRouteProvider
-    {
-        IEnumerable<IMessageRoute> MessageRoutes { get; }
-        Task<IEnumerable<string>> GetRouteUrisAsync(string messageType);
-        IEnumerable<string> GetRouteUris(string messageType);
-        void Add(IMessageRoute messageRoute);
-    }
+    IEnumerable<IMessageRoute> MessageRoutes { get; }
+    Task AddAsync(IMessageRoute messageRoute);
+    Task<IEnumerable<string>> GetRouteUrisAsync(string messageType);
 }

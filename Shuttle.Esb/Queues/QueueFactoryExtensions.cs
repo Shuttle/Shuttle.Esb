@@ -1,12 +1,11 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public static class QueueFactoryExtensions
 {
-    public static class QueueFactoryExtensions
+    public static bool CanCreate(this IQueueFactory factory, Uri uri)
     {
-        public static bool CanCreate(this IQueueFactory factory, Uri uri)
-        {
-            return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
-        }
+        return uri.Scheme.Equals(factory.Scheme, StringComparison.InvariantCultureIgnoreCase);
     }
 }

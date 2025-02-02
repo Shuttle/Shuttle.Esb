@@ -1,10 +1,9 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IQueueFactory
 {
-    public interface IQueueFactory
-    {
-        string Scheme { get; }
-        IQueue Create(Uri uri);
-    }
+    string Scheme { get; }
+    IQueue Create(Uri uri);
 }

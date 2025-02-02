@@ -1,11 +1,10 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class SendMessageException : Exception
 {
-    public class SendMessageException : Exception
+    public SendMessageException(string message) : base(message)
     {
-        public SendMessageException(string message) : base(message)
-        {
-        }
     }
 }

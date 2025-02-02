@@ -2,44 +2,29 @@ using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IGetWorkMessageObserver : IPipelineObserver<OnGetMessage>
 {
-    public interface IGetWorkMessageObserver : IPipelineObserver<OnGetMessage>
+}
+
+public class GetWorkMessageObserver : IGetWorkMessageObserver
+{
+    public async Task ExecuteAsync(IPipelineContext<OnGetMessage> pipelineContext)
     {
-    }
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var queue = Guard.AgainstNull(state.GetWorkQueue());
 
-    public class GetWorkMessageObserver : IGetWorkMessageObserver
-    {
-        private async Task ExecuteAsync(OnGetMessage pipelineEvent, bool sync)
+        var receivedMessage = await queue.GetMessageAsync().ConfigureAwait(false);
+
+        if (receivedMessage == null)
         {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var queue = Guard.AgainstNull(state.GetWorkQueue(), StateKeys.WorkQueue);
+            pipelineContext.Pipeline.Abort();
 
-            var receivedMessage = sync
-                ? queue.GetMessage()
-                : await queue.GetMessageAsync().ConfigureAwait(false);
-
-            // Abort the pipeline if there is no message on the queue
-            if (receivedMessage == null)
-            {
-                pipelineEvent.Pipeline.Abort();
-            }
-            else
-            {
-                state.SetProcessingStatus(ProcessingStatus.Active);
-                state.SetWorking();
-                state.SetReceivedMessage(receivedMessage);
-            }
+            return;
         }
-
-        public void Execute(OnGetMessage pipelineEvent)
-        {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
-
-        public async Task ExecuteAsync(OnGetMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+        
+        state.SetWorking();
+        state.SetReceivedMessage(receivedMessage);
     }
 }

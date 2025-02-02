@@ -1,40 +1,37 @@
-﻿using Shuttle.Core.Pipelines;
+﻿namespace Shuttle.Esb;
 
-namespace Shuttle.Esb
+public class OnInitializing
 {
-    public class OnInitializing : PipelineEvent
-    {
-    }
+}
 
-    public class OnCreatePhysicalQueues : PipelineEvent
-    {
-    }
+public class OnCreatePhysicalQueues
+{
+}
 
-    public class OnAfterCreatePhysicalQueues : PipelineEvent
-    {
-    }
+public class OnAfterCreatePhysicalQueues
+{
+}
 
-    public class OnConfigureThreadPools : PipelineEvent
-    {
-    }
+public class OnConfigureThreadPools
+{
+}
 
-    public class OnAfterConfigureThreadPools : PipelineEvent
-    {
-    }
-    
-    public class OnStartThreadPools : PipelineEvent
-    {
-    }
+public class OnAfterConfigureThreadPools
+{
+}
 
-    public class OnAfterStartThreadPools : PipelineEvent
-    {
-    }
+public class OnStartThreadPools
+{
+}
 
-    public class OnStarting : PipelineEvent
-    {
-    }
+public class OnAfterStartThreadPools
+{
+}
 
-    public class OnStarted : PipelineEvent
-    {
-    }
+public class OnStarting
+{
+}
+
+public class OnStarted
+{
 }

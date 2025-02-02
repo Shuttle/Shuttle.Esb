@@ -1,22 +1,19 @@
 using Shuttle.Core.Contract;
 using Shuttle.Core.Specification;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class StartsWithMessageRouteSpecification : ISpecification<string>
 {
-    public class StartsWithMessageRouteSpecification : ISpecification<string>
+    private readonly string _startWith;
+
+    public StartsWithMessageRouteSpecification(string startWith)
     {
-        private readonly string _startWith;
+        _startWith = Guard.AgainstNullOrEmptyString(startWith).ToLower();
+    }
 
-        public StartsWithMessageRouteSpecification(string startWith)
-        {
-            _startWith = startWith.ToLower();
-        }
-
-        public bool IsSatisfiedBy(string messageType)
-        {
-            Guard.AgainstNull(messageType, nameof(messageType));
-
-            return messageType.ToLower().StartsWith(_startWith);
-        }
+    public bool IsSatisfiedBy(string messageType)
+    {
+        return Guard.AgainstNull(messageType).ToLower().StartsWith(_startWith);
     }
 }

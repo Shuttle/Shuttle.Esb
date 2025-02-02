@@ -3,33 +3,23 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IShutdownProcessingObserver : IPipelineObserver<OnStopping>
 {
-    public interface IShutdownProcessingObserver : IPipelineObserver<OnStopping>
+}
+
+public class ShutdownProcessingObserver : IShutdownProcessingObserver
+{
+    private readonly IQueueService _queueService;
+
+    public ShutdownProcessingObserver(IQueueService queueService)
     {
+        _queueService = Guard.AgainstNull(queueService);
     }
 
-    public class ShutdownProcessingObserver : IShutdownProcessingObserver
+    public async Task ExecuteAsync(IPipelineContext<OnStopping> pipelineContext)
     {
-        private readonly IQueueService _queueService;
-
-        public ShutdownProcessingObserver(IQueueService queueService)
-        {
-            Guard.AgainstNull(queueService, nameof(queueService));
-
-            _queueService = queueService;
-        }
-
-        public void Execute(OnStopping pipelineEvent)
-        {
-            _queueService.TryDispose();
-        }
-
-        public async Task ExecuteAsync(OnStopping pipelineEvent)
-        {
-            _queueService.TryDispose();
-
-            await Task.CompletedTask.ConfigureAwait(false);
-        }
+        await _queueService.TryDisposeAsync();
     }
 }

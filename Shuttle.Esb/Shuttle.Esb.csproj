@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,20 +15,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Shuttle.Core.Compression" Version="12.0.1" />
-    <PackageReference Include="Shuttle.Core.Contract" Version="11.1.1" />
-    <PackageReference Include="Shuttle.Core.Encryption" Version="12.0.1" />
-    <PackageReference Include="Shuttle.Core.Pipelines" Version="14.0.0" />
-    <PackageReference Include="Shuttle.Core.PipelineTransactionScope" Version="14.0.0" />
-    <PackageReference Include="Shuttle.Core.Reflection" Version="13.0.0" />
-    <PackageReference Include="Shuttle.Core.Serialization" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Specification" Version="11.0.0" />
-    <PackageReference Include="Shuttle.Core.Streams" Version="10.3.0" />
-    <PackageReference Include="Shuttle.Core.System" Version="11.1.0" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="13.1.0" />
-    <PackageReference Include="Shuttle.Core.TransactionScope" Version="11.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Contract" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.PipelineTransactionScope" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Specification" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.System" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="20.0.0" />
+    <PackageReference Include="Shuttle.Core.TransactionScope" Version="20.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,19 +1,20 @@
+using System;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class ShutdownPipeline : Pipeline
 {
-    public class ShutdownPipeline : Pipeline
+    public ShutdownPipeline(IServiceProvider serviceProvider, IShutdownProcessingObserver shutdownProcessingObserver) 
+        : base(serviceProvider)
     {
-        public ShutdownPipeline(IShutdownProcessingObserver shutdownProcessingObserver)
-        {
-            RegisterStage("Shutdown")
-                .WithEvent<OnStopping>();
+        AddStage("Shutdown")
+            .WithEvent<OnStopping>();
 
-            RegisterStage("Final")
-                .WithEvent<OnStopped>();
+        AddStage("Final")
+            .WithEvent<OnStopped>();
 
-            RegisterObserver(Guard.AgainstNull(shutdownProcessingObserver, nameof(shutdownProcessingObserver)));
-        }
+        AddObserver(Guard.AgainstNull(shutdownProcessingObserver));
     }
 }

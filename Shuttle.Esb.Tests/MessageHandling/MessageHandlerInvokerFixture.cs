@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using NUnit.Framework;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
+using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -13,45 +14,56 @@ namespace Shuttle.Esb.Tests.MessageHandling;
 public class MessageHandlerInvokerFixture
 {
     [Test]
-    public void Should_be_able_to_invoke()
-    {
-        Should_be_able_to_invoke_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
-    public async Task Should_be_able_to_invoke_async()
-    {
-        await Should_be_able_to_invoke_async(false);
-    }
-
-    private async Task Should_be_able_to_invoke_async(bool sync)
+    public async Task Should_be_able_to_invoke_message_handler_async()
     {
         var services = new ServiceCollection();
 
         services.AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
-        services.AddSingleton(typeof(IAsyncMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(AsyncWorkHandler));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object);
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(new Dictionary<Type, MessageHandlerDelegate>()));
 
-        var onHandleMessage = new OnHandleMessage();
         var transportMessage = new TransportMessage
         {
-            Message = sync ? Stream.Null.ToBytes() : await Stream.Null.ToBytesAsync()
+            Message = await Stream.Null.ToBytesAsync()
         };
 
-        onHandleMessage.Reset(new Pipeline());
+        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(new Mock<IServiceProvider>().Object));
 
-        onHandleMessage.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
-        onHandleMessage.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
+        pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
+        pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
 
-        var result = sync 
-            ? invoker.Invoke(onHandleMessage)
-            : await invoker.InvokeAsync(onHandleMessage);
+        Assert.That(await invoker.InvokeAsync(pipelineContext), Is.True);
+    }
+    
+    [Test]
+    public async Task Should_be_able_to_invoke_delegate_async()
+    {
+        var services = new ServiceCollection();
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Invoked, Is.True);
+        var builder = new ServiceBusBuilder(services)
+            .AddMessageHandler(async (IHandlerContext<WorkMessage> context) =>
+            {
+                Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
 
+                await Task.CompletedTask;
+            });
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(builder.GetDelegates()));
+
+        var transportMessage = new TransportMessage
+        {
+            Message = await Stream.Null.ToBytesAsync()
+        };
+
+        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(new Mock<IServiceProvider>().Object));
+
+        pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
+        pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
+
+        Assert.That(await invoker.InvokeAsync(pipelineContext), Is.True);
     }
 }

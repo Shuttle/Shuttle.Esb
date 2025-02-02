@@ -7,117 +7,80 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
 using Shuttle.Core.Serialization;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
 {
-    public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>
+    event EventHandler<HandlerExceptionEventArgs>? HandlerException;
+    event EventHandler<MessageNotHandledEventArgs>? MessageNotHandled;
+}
+
+public class HandleMessageObserver : IHandleMessageObserver
+{
+    private readonly IMessageHandlerInvoker _messageHandlerInvoker;
+    private readonly ISerializer _serializer;
+    private readonly ServiceBusOptions _serviceBusOptions;
+
+    public HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
     {
-        event EventHandler<HandlerExceptionEventArgs> HandlerException;
-        event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+        _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+        _messageHandlerInvoker = Guard.AgainstNull(messageHandlerInvoker);
+        _serializer = Guard.AgainstNull(serializer);
     }
 
-    public class HandleMessageObserver : IHandleMessageObserver
+    public event EventHandler<MessageNotHandledEventArgs>? MessageNotHandled;
+    public event EventHandler<HandlerExceptionEventArgs>? HandlerException;
+
+    public async Task ExecuteAsync(IPipelineContext<OnHandleMessage> pipelineContext)
     {
-        private readonly IMessageHandlerInvoker _messageHandlerInvoker;
-        private readonly ISerializer _serializer;
-        private readonly ServiceBusOptions _serviceBusOptions;
+        var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
+        var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        public HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions,
-            IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
+        if (transportMessage.HasExpired())
         {
-            Guard.AgainstNull(serviceBusOptions, nameof(serviceBusOptions));
-            Guard.AgainstNull(serviceBusOptions.Value, nameof(serviceBusOptions.Value));
-            Guard.AgainstNull(messageHandlerInvoker, nameof(messageHandlerInvoker));
-            Guard.AgainstNull(serializer, nameof(serializer));
-
-            _serviceBusOptions = serviceBusOptions.Value;
-            _messageHandlerInvoker = messageHandlerInvoker;
-            _serializer = serializer;
+            return;
         }
 
-        public event EventHandler<MessageNotHandledEventArgs> MessageNotHandled;
+        var message = Guard.AgainstNull(state.GetMessage());
+        var errorQueue = state.GetErrorQueue();
 
-        public event EventHandler<HandlerExceptionEventArgs> HandlerException;
-
-        public void Execute(OnHandleMessage pipelineEvent)
+        try
         {
-            ExecuteAsync(pipelineEvent, true).GetAwaiter().GetResult();
-        }
+            var messageHandlerInvoked = await _messageHandlerInvoker.InvokeAsync(pipelineContext).ConfigureAwait(false);
 
-        public async Task ExecuteAsync(OnHandleMessage pipelineEvent)
-        {
-            await ExecuteAsync(pipelineEvent, false).ConfigureAwait(false);
-        }
+            state.SetMessageHandlerInvoked(messageHandlerInvoked);
 
-        private async Task ExecuteAsync(OnHandleMessage pipelineEvent, bool sync)
-        {
-            var state = Guard.AgainstNull(pipelineEvent, nameof(pipelineEvent)).Pipeline.State;
-            var processingStatus = state.GetProcessingStatus();
-
-            if (processingStatus == ProcessingStatus.Ignore || processingStatus == ProcessingStatus.MessageHandled)
+            if (messageHandlerInvoked)
             {
                 return;
             }
 
-            var transportMessage = Guard.AgainstNull(state.GetTransportMessage(), nameof(StateKeys.TransportMessage));
+            MessageNotHandled?.Invoke(this, new(pipelineContext, transportMessage, message));
 
-            if (transportMessage.HasExpired())
+            if (_serviceBusOptions.RemoveMessagesNotHandled)
             {
                 return;
             }
 
-            var message = Guard.AgainstNull(state.GetMessage(), StateKeys.Message);
-            var errorQueue = state.GetErrorQueue();
-
-            try
+            if (errorQueue == null)
             {
-                var messageHandlerInvokeResult = sync
-                    ? _messageHandlerInvoker.Invoke(pipelineEvent)
-                    : await _messageHandlerInvoker.InvokeAsync(pipelineEvent).ConfigureAwait(false);
-
-                state.SetMessageHandlerInvokeResult(messageHandlerInvokeResult);
-
-                if (messageHandlerInvokeResult.Invoked)
-                {
-                    return;
-                }
-
-                MessageNotHandled?.Invoke(this, new MessageNotHandledEventArgs(pipelineEvent, transportMessage, message));
-
-                if (_serviceBusOptions.RemoveMessagesNotHandled)
-                {
-                    return;
-                }
-
-                if (errorQueue == null)
-                {
-                    throw new InvalidOperationException(string.Format(Resources.MessageNotHandledMissingErrorQueueFailure, message.GetType().FullName, transportMessage.MessageId));
-                }
-
-                transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorQueue == null ? Resources.NoErrorQueue : errorQueue.Uri.ToString()));
-
-                if (sync)
-                {
-                    using (var stream = _serializer.Serialize(transportMessage))
-                    {
-                        errorQueue.Enqueue(transportMessage, stream);
-                    }
-                }
-                else
-                {
-                    await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
-                    {
-                        await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
-                    }
-                }
+                throw new InvalidOperationException(string.Format(Resources.MessageNotHandledMissingErrorQueueFailure, message.GetType().FullName, transportMessage.MessageId));
             }
-            catch (Exception ex)
+
+            transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorQueue.Uri));
+
+            await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
             {
-                var exception = ex.TrimLeading<TargetInvocationException>();
-
-                HandlerException?.Invoke(this, new HandlerExceptionEventArgs(pipelineEvent, transportMessage, message, exception));
-
-                throw exception;
+                await errorQueue.EnqueueAsync(transportMessage, stream).ConfigureAwait(false);
             }
+        }
+        catch (Exception ex)
+        {
+            var exception = ex.TrimLeading<TargetInvocationException>();
+
+            HandlerException?.Invoke(this, new(pipelineContext, transportMessage, message, exception));
+
+            throw exception;
         }
     }
 }

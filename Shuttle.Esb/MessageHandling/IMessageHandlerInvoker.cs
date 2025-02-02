@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IMessageHandlerInvoker
 {
-    public interface IMessageHandlerInvoker
-    {
-        MessageHandlerInvokeResult Invoke(OnHandleMessage pipelineEvent);
-        Task<MessageHandlerInvokeResult> InvokeAsync(OnHandleMessage pipelineEvent);
-    }
+    ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext);
 }

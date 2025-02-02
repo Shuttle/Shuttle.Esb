@@ -12,24 +12,13 @@ namespace Shuttle.Esb.Tests;
 public class DispatchTransportMessagePipelineFixture
 {
     [Test]
-    public void Should_be_able_to_execute_dispatch_transport_message_pipeline_with_optimal_performance()
-    {
-        Should_be_able_to_execute_dispatch_transport_message_pipeline_with_optimal_performance_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_execute_dispatch_transport_message_pipeline_with_optimal_performance_async()
-    {
-        await Should_be_able_to_execute_dispatch_transport_message_pipeline_with_optimal_performance_async(false).ConfigureAwait(false);
-    }
-
-    private async Task Should_be_able_to_execute_dispatch_transport_message_pipeline_with_optimal_performance_async(bool sync)
     {
         var recipientInboxWorkQueueUri = new Uri("queue://null/null");
 
         var queueService = new Mock<IQueueService>();
 
-        queueService.Setup(m => m.Get(recipientInboxWorkQueueUri)).Returns(new Mock<IQueue>().Object);
+        queueService.Setup(m => m.Get(recipientInboxWorkQueueUri.ToString())).Returns(new Mock<IQueue>().Object);
 
         var services = new ServiceCollection();
 
@@ -59,14 +48,7 @@ public class DispatchTransportMessagePipelineFixture
 
             pipeline.State.Replace(StateKeys.TransportMessage, transportMessage);
 
-            if (sync)
-            {
-                pipeline.Execute();
-            }
-            else
-            {
-                await pipeline.ExecuteAsync().ConfigureAwait(false);
-            }
+            await pipeline.ExecuteAsync().ConfigureAwait(false);
 
             pipelineFactory.ReleasePipeline(pipeline);
 

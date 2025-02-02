@@ -1,21 +1,20 @@
 using NUnit.Framework;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+[TestFixture]
+public class ServiceBusOptionsFixture : OptionsFixture
 {
-    [TestFixture]
-    public class ServiceBusOptionsFixture : OptionsFixture
+    [Test]
+    public void Should_be_able_to_load_shared_configuration()
     {
-        [Test]
-        public void Should_be_able_to_load_shared_configuration()
-        {
-            var options = GetOptions();
+        var options = GetOptions();
 
-            Assert.IsNotNull(options);
+        Assert.That(options, Is.Not.Null);
 
-            Assert.IsTrue(options.RemoveMessagesNotHandled);
-            Assert.IsTrue(options.RemoveCorruptMessages);
-            Assert.AreEqual("GZip", options.CompressionAlgorithm);
-            Assert.AreEqual("3DES", options.EncryptionAlgorithm);
-        }
+        Assert.That(options.RemoveMessagesNotHandled, Is.True);
+        Assert.That(options.RemoveCorruptMessages, Is.True);
+        Assert.That(options.CompressionAlgorithm, Is.EqualTo("GZip"));
+        Assert.That(options.EncryptionAlgorithm, Is.EqualTo("3DES"));
     }
 }

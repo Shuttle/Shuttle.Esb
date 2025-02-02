@@ -1,177 +1,73 @@
 using System;
 using System.Threading.Tasks;
-using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public static class QueueExtensions
 {
-    public static class QueueExtensions
+    public static async Task CreateAsync(this IQueue queue)
     {
-        public static bool TryCreate(this IQueue queue)
+        if (queue is not ICreateQueue operation)
         {
-            return TryCreateAsync(queue, true).GetAwaiter().GetResult();
+            throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue, queue.GetType().FullName, "ICreateQueue"));
         }
 
-        public static async ValueTask<bool> TryCreateAsync(this IQueue queue)
+        await operation.CreateAsync().ConfigureAwait(false);
+    }
+
+    public static async Task DropAsync(this IQueue queue)
+    {
+        if (queue is not IDropQueue operation)
         {
-            return await TryCreateAsync(queue, false).ConfigureAwait(false);
+            throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue, queue.GetType().FullName, "IDropQueue"));
         }
 
-        private static async ValueTask<bool> TryCreateAsync(this IQueue queue, bool sync)
+        await operation.DropAsync();
+    }
+
+    public static async Task PurgeAsync(this IQueue queue)
+    {
+        if (queue is not IPurgeQueue operation)
         {
-            var operation = queue as ICreateQueue;
-            
-            if (operation == null)
-            {
-                return false;
-            }
-
-            if (sync)
-            {
-                operation.Create();
-            }
-            else
-            {
-                await operation.CreateAsync().ConfigureAwait(false);
-            }
-
-            return true;
+            throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue, queue.GetType().FullName, "IPurgeQueue"));
         }
 
-        public static void Create(this IQueue queue)
+        await operation.PurgeAsync();
+    }
+
+    public static async ValueTask<bool> TryCreateAsync(this IQueue queue)
+    {
+        if (queue is not ICreateQueue operation)
         {
-            CreateAsync(queue, true).GetAwaiter().GetResult();
+            return false;
         }
 
-        public static async Task CreateAsync(this IQueue queue)
+        await operation.CreateAsync().ConfigureAwait(false);
+
+        return true;
+    }
+
+    public static async ValueTask<bool> TryDropAsync(this IQueue queue)
+    {
+        if (queue is not IDropQueue operation)
         {
-            await CreateAsync(queue, false).ConfigureAwait(false);
+            return false;
         }
 
-        private static async Task CreateAsync(this IQueue queue, bool sync)
+        await operation.DropAsync().ConfigureAwait(false);
+
+        return true;
+    }
+
+    public static async ValueTask<bool> TryPurgeAsync(this IQueue queue)
+    {
+        if (queue is not IPurgeQueue operation)
         {
-            Guard.AgainstNull(queue, nameof(queue));
-
-            var operation = queue as ICreateQueue;
-
-            if (operation == null)
-            {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
-                    queue.GetType().FullName, "ICreateQueue"));
-            }
-
-            if (sync)
-            {
-                operation.Create();
-            }
-            else
-            {
-                await operation.CreateAsync().ConfigureAwait(false);
-            }
+            return false;
         }
 
-        public static bool TryDrop(this IQueue queue)
-        {
-            return TryDropAsync(queue, true).GetAwaiter().GetResult();
-        }
+        await operation.PurgeAsync();
 
-        public static async ValueTask<bool> TryDropAsync(this IQueue queue)
-        {
-            return await TryDropAsync(queue, false).ConfigureAwait(false);
-        }
-
-        private static async ValueTask<bool> TryDropAsync(this IQueue queue, bool sync)
-        {
-            var operation = queue as IDropQueue;
-
-            if (operation == null)
-            {
-                return false;
-            }
-
-            if (sync)
-            {
-                operation.Drop();
-            }
-            else
-            {
-                await operation.DropAsync().ConfigureAwait(false);
-            }
-
-            return true;
-        }
-
-        public static void Drop(this IQueue queue)
-        {
-            DropAsync(queue, true).GetAwaiter().GetResult();
-        }
-
-        public static async Task DropAsync(this IQueue queue)
-        {
-            await DropAsync(queue, false).ConfigureAwait(false);
-        }
-
-        private static async Task DropAsync(this IQueue queue, bool sync)
-        {
-            Guard.AgainstNull(queue, nameof(queue));
-
-            var operation = queue as IDropQueue;
-
-            if (operation == null)
-            {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
-                    queue.GetType().FullName, "IDropQueue"));
-            }
-
-            await operation.DropAsync();
-        }
-
-        public static bool TryPurge(this IQueue queue)
-        {
-            return TryPurgeAsync(queue, true).GetAwaiter().GetResult();
-        }
-
-        public static async ValueTask<bool> TryPurgeAsync(this IQueue queue)
-        {
-            return await TryPurgeAsync(queue, false).ConfigureAwait(false);
-        }
-
-        private static async ValueTask<bool> TryPurgeAsync(this IQueue queue, bool sync)
-        {
-            var operation = queue as IPurgeQueue;
-
-            if (operation == null)
-            {
-                return false;
-            }
-
-            await operation.PurgeAsync();
-
-            return true;
-        }
-
-        public static void Purge(this IQueue queue)
-        {
-            PurgeAsync(queue, true).GetAwaiter().GetResult();
-        }
-
-        public static async Task PurgeAsync(this IQueue queue)
-        {
-            await PurgeAsync(queue, false).ConfigureAwait(false);
-        }
-
-        private static async Task PurgeAsync(this IQueue queue, bool sync)
-        {
-            Guard.AgainstNull(queue, nameof(queue));
-
-            var operation = queue as IPurgeQueue;
-
-            if (operation == null)
-            {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnQueue,
-                    queue.GetType().FullName, "IPurgeQueue"));
-            }
-
-            await operation.PurgeAsync();
-        }
+        return true;
     }
 }

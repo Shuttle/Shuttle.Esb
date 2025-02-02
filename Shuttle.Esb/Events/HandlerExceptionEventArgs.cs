@@ -1,20 +1,19 @@
 using System;
 using Shuttle.Core.Pipelines;
 
-namespace Shuttle.Esb
-{
-    public class HandlerExceptionEventArgs : PipelineEventEventArgs
-    {
-        public HandlerExceptionEventArgs(IPipelineEvent pipelineEvent, TransportMessage transportMessage, object message, Exception exception)
-            : base(pipelineEvent)
-        {
-            TransportMessage = transportMessage;
-            Message = message;
-            Exception = exception;
-        }
+namespace Shuttle.Esb;
 
-        public TransportMessage TransportMessage { get; }
-        public object Message { get; }
-        public Exception Exception { get; }
+public class HandlerExceptionEventArgs : PipelineContextEventArgs
+{
+    public HandlerExceptionEventArgs(IPipelineContext pipelineContext, TransportMessage transportMessage, object message, Exception exception)
+        : base(pipelineContext)
+    {
+        TransportMessage = transportMessage;
+        Message = message;
+        Exception = exception;
     }
+
+    public Exception Exception { get; }
+    public object Message { get; }
+    public TransportMessage TransportMessage { get; }
 }

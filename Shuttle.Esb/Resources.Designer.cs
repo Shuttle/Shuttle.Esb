@@ -79,6 +79,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not resolve source uri &apos;{0}&apos;..
+        /// </summary>
+        public static string CouldNotResolveSourceUriException {
+            get {
+                return ResourceManager.GetString("CouldNotResolveSourceUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only one instance of the DeferredMessageProcessor should be created.  Check that the ProcessorThreadPool for the DeferredMessageProcessorFactory is not using more than 1 thread..
         /// </summary>
         public static string DeferredMessageProcessorInstanceException {
@@ -97,6 +106,15 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is already a delegate registered for message type &apos;{0}&apos;..
+        /// </summary>
+        public static string DelegateAlreadyRegisteredException {
+            get {
+                return ResourceManager.GetString("DelegateAlreadyRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is already a configuration registered for endpoint with name &apos;{0}&apos;..
         /// </summary>
         public static string DuplicateQueueConfigurationNameException {
@@ -106,7 +124,16 @@ namespace Shuttle.Esb {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required ProcessMessage method that handles message type &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Could not create a HandlerContext for type &apos;{0}&apos;..
+        /// </summary>
+        public static string HandlerContextConstructorMissingException {
+            get {
+                return ResourceManager.GetString("HandlerContextConstructorMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Handler type &apos;{0}&apos; does not have the required `ProcessMessage` method that handles message type &apos;{1}&apos;..
         /// </summary>
         public static string HandlerMessageMethodMissingException {
             get {
@@ -138,6 +165,24 @@ namespace Shuttle.Esb {
         public static string InvalidUriException {
             get {
                 return ResourceManager.GetString("InvalidUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message handler with type &apos;{0}&apos; has already been registered..
+        /// </summary>
+        public static string MessageHandlerAlreadyRegisteredException {
+            get {
+                return ResourceManager.GetString("MessageHandlerAlreadyRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The delegate must contain a parameter of type `IHandlerContext&lt;TMessage&gt;`..
+        /// </summary>
+        public static string MessageHandlerTypeException {
+            get {
+                return ResourceManager.GetString("MessageHandlerTypeException", resourceCulture);
             }
         }
         

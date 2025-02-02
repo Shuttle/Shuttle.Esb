@@ -1,10 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IDropQueue
 {
-    public interface IDropQueue
-    {
-        void Drop();
-        Task DropAsync();
-    }
+    Task DropAsync();
 }

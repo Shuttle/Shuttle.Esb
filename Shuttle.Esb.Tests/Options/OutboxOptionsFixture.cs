@@ -1,29 +1,28 @@
 using System;
 using NUnit.Framework;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+[TestFixture]
+public class OutboxOptionsFixture : OptionsFixture
 {
-    [TestFixture]
-    public class OutboxOptionsFixture : OptionsFixture
+    [Test]
+    public void Should_be_able_to_load_a_full_configuration()
     {
-        [Test]
-        public void Should_be_able_to_load_a_full_configuration()
-        {
-            var options = GetOptions();
+        var options = GetOptions();
 
-            Assert.IsNotNull(options);
+        Assert.That(options, Is.Not.Null);
 
-            Assert.AreEqual("queue://./outbox-work", options.Outbox.WorkQueueUri);
-            Assert.AreEqual("queue://./outbox-error", options.Outbox.ErrorQueueUri);
+        Assert.That(options.Outbox!.WorkQueueUri, Is.EqualTo("queue://./outbox-work"));
+        Assert.That(options.Outbox.ErrorQueueUri, Is.EqualTo("queue://./outbox-error"));
 
-            Assert.AreEqual(25, options.Outbox.MaximumFailureCount);
+        Assert.That(options.Outbox.MaximumFailureCount, Is.EqualTo(25));
 
-            Assert.AreEqual(TimeSpan.FromMilliseconds(250), options.Outbox.DurationToSleepWhenIdle[0]);
-            Assert.AreEqual(TimeSpan.FromSeconds(10), options.Outbox.DurationToSleepWhenIdle[1]);
-            Assert.AreEqual(TimeSpan.FromSeconds(30), options.Outbox.DurationToSleepWhenIdle[2]);
+        Assert.That(options.Outbox.DurationToSleepWhenIdle[0], Is.EqualTo(TimeSpan.FromMilliseconds(250)));
+        Assert.That(options.Outbox.DurationToSleepWhenIdle[1], Is.EqualTo(TimeSpan.FromSeconds(10)));
+        Assert.That(options.Outbox.DurationToSleepWhenIdle[2], Is.EqualTo(TimeSpan.FromSeconds(30)));
 
-            Assert.AreEqual(TimeSpan.FromMinutes(30), options.Outbox.DurationToIgnoreOnFailure[0]);
-            Assert.AreEqual(TimeSpan.FromHours(1), options.Outbox.DurationToIgnoreOnFailure[1]);
-        }
+        Assert.That(options.Outbox.DurationToIgnoreOnFailure[0], Is.EqualTo(TimeSpan.FromMinutes(30)));
+        Assert.That(options.Outbox.DurationToIgnoreOnFailure[1], Is.EqualTo(TimeSpan.FromHours(1)));
     }
 }

@@ -15,9 +15,7 @@ public class MemoryQueue : IQueue
 
     public MemoryQueue(Uri uri)
     {
-        Guard.AgainstNull(uri, nameof(uri));
-
-        Uri = new QueueUri(uri);
+        Uri = new(Guard.AgainstNull(uri));
     }
 
     public QueueUri Uri { get; }
@@ -33,17 +31,9 @@ public class MemoryQueue : IQueue
 
     public async ValueTask<bool> IsEmptyAsync()
     {
+        Operation?.Invoke(this, new("IsEmpty"));
+
         return await ValueTask.FromResult(IsEmpty()).ConfigureAwait(false);
-    }
-
-    public void Enqueue(TransportMessage transportMessage, Stream stream)
-    {
-        var copy = stream.Copy();
-
-        lock (_lock)
-        {
-            _queue.Enqueue(new Message(transportMessage, copy));
-        }
     }
 
     public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
@@ -52,11 +42,13 @@ public class MemoryQueue : IQueue
 
         lock (_lock)
         {
-            _queue.Enqueue(new Message(transportMessage, copy));
+            _queue.Enqueue(new(transportMessage, copy));
         }
+
+        MessageEnqueued?.Invoke(this, new(transportMessage, copy));
     }
 
-    public ReceivedMessage GetMessage()
+    public async Task<ReceivedMessage?> GetMessageAsync()
     {
         Message message;
 
@@ -72,30 +64,26 @@ public class MemoryQueue : IQueue
             _unacknowledged.Add(message.TransportMessage.MessageId, message);
         }
 
-        return new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
+        var result = await Task.FromResult(new ReceivedMessage(message.Stream, message.TransportMessage.MessageId)).ConfigureAwait(false);
+
+        MessageReceived?.Invoke(this, new(result));
+
+        return result;
     }
 
-    public async Task<ReceivedMessage> GetMessageAsync()
-    {
-        return await Task.FromResult(GetMessage()).ConfigureAwait(false);
-    }
-
-    public void Acknowledge(object acknowledgementToken)
+    public async Task AcknowledgeAsync(object acknowledgementToken)
     {
         lock (_lock)
         {
             _unacknowledged.Remove((Guid)acknowledgementToken);
         }
-    }
 
-    public async Task AcknowledgeAsync(object acknowledgementToken)
-    {
-        Acknowledge(acknowledgementToken);
+        MessageAcknowledged?.Invoke(this, new(acknowledgementToken));
 
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public void Release(object acknowledgementToken)
+    public async Task ReleaseAsync(object acknowledgementToken)
     {
         lock (_lock)
         {
@@ -104,34 +92,17 @@ public class MemoryQueue : IQueue
             _queue.Enqueue(_unacknowledged[token]);
             _unacknowledged.Remove(token);
         }
-    }
 
-    public async Task ReleaseAsync(object acknowledgementToken)
-    {
-        Release(acknowledgementToken);
+        MessageReleased?.Invoke(this, new(acknowledgementToken));
 
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate
-    {
-    };
-
-    public event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged = delegate
-    {
-    };
-
-    public event EventHandler<MessageReleasedEventArgs> MessageReleased = delegate
-    {
-    };
-
-    public event EventHandler<MessageReceivedEventArgs> MessageReceived = delegate
-    {
-    };
-
-    public event EventHandler<OperationEventArgs> Operation = delegate
-    {
-    };
+    public event EventHandler<MessageEnqueuedEventArgs>? MessageEnqueued;
+    public event EventHandler<MessageAcknowledgedEventArgs>? MessageAcknowledged;
+    public event EventHandler<MessageReleasedEventArgs>? MessageReleased;
+    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
+    public event EventHandler<OperationEventArgs>? Operation;
 
     private class Message
     {

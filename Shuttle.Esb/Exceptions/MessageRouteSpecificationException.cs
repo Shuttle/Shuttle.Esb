@@ -1,11 +1,10 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageRouteSpecificationException : Exception
 {
-    public class MessageRouteSpecificationException : Exception
+    public MessageRouteSpecificationException(string message) : base(message)
     {
-        public MessageRouteSpecificationException(string message) : base(message)
-        {
-        }
     }
 }

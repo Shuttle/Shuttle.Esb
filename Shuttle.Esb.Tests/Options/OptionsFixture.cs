@@ -2,19 +2,18 @@ using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace Shuttle.Esb.Tests
+namespace Shuttle.Esb.Tests;
+
+public class OptionsFixture
 {
-    public class OptionsFixture
+    protected ServiceBusOptions GetOptions()
     {
-        protected ServiceBusOptions GetOptions()
-        {
-            var result = new ServiceBusOptions();
+        var result = new ServiceBusOptions();
 
-            new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Options\appsettings.json")).Build()
-                .GetSection(ServiceBusOptions.SectionName).Bind(result);
+        new ConfigurationBuilder()
+            .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Options\appsettings.json")).Build()
+            .GetSection(ServiceBusOptions.SectionName).Bind(result);
 
-            return result;
-        }
+        return result;
     }
 }

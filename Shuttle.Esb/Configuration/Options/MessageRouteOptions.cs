@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class MessageRouteOptions
 {
-    public class MessageRouteOptions
+    public List<SpecificationOptions> Specifications { get; set; } = new();
+    public string Uri { get; set; } = default!;
+
+    public class SpecificationOptions
     {
-        public string Uri { get; set; }
-
-        public List<SpecificationOptions> Specifications { get; set; } = new List<SpecificationOptions>();
-
-        public class SpecificationOptions
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-        }
+        public string Name { get; set; } = default!;
+        public string Value { get; set; } = default!;
     }
 }

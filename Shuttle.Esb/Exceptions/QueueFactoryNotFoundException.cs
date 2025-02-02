@@ -1,12 +1,11 @@
 using System;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class QueueFactoryNotFoundException : Exception
 {
-    public class QueueFactoryNotFoundException : Exception
+    public QueueFactoryNotFoundException(string scheme)
+        : base(string.Format(Resources.QueueFactoryNotFoundException, scheme))
     {
-        public QueueFactoryNotFoundException(string scheme)
-            : base(string.Format(Resources.QueueFactoryNotFoundException, scheme))
-        {
-        }
     }
 }

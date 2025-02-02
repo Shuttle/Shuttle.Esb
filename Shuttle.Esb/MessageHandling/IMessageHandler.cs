@@ -1,7 +1,8 @@
-namespace Shuttle.Esb
+using System.Threading.Tasks;
+
+namespace Shuttle.Esb;
+
+public interface IMessageHandler<in T> where T : class
 {
-    public interface IMessageHandler<in T> where T : class
-    {
-        void ProcessMessage(IHandlerContext<T> context);
-    }
+    Task ProcessMessageAsync(IHandlerContext<T> context);
 }

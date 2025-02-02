@@ -11,28 +11,17 @@ namespace Shuttle.Esb.Tests;
 public class AcknowledgeMessageObserverFixture
 {
     [Test]
-    public void Should_be_able_to_ignore_acknowledgement_on_failures()
-    {
-        Should_be_able_to_ignore_acknowledgement_on_failures_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_ignore_acknowledgement_on_failures_async()
-    {
-        await Should_be_able_to_ignore_acknowledgement_on_failures_async(false);
-    }
-
-    private async Task Should_be_able_to_ignore_acknowledgement_on_failures_async(bool sync)
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline()
-            .RegisterObserver(new ThrowExceptionObserver())
-            .RegisterObserver(new HandleExceptionObserver())
-            .RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
+            .AddObserver(new ThrowExceptionObserver())
+            .AddObserver(new HandleExceptionObserver())
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnException>()
             .WithEvent<OnAcknowledgeMessage>();
 
@@ -40,39 +29,21 @@ public class AcknowledgeMessageObserverFixture
 
         pipeline.State.SetWorkQueue(workQueue.Object);
 
-        if (sync)
-        {
-            pipeline.Execute();
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-        }
+        await pipeline.ExecuteAsync();
 
         workQueue.VerifyNoOtherCalls();
     }
 
     [Test]
-    public void Should_be_able_to_acknowledge_message()
-    {
-        Should_be_able_to_acknowledge_message_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_acknowledge_message_async()
-    {
-        await Should_be_able_to_acknowledge_message_async(false);
-    }
-
-    private async Task Should_be_able_to_acknowledge_message_async(bool sync)
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline()
-            .RegisterObserver(observer);
+        var pipeline = new Pipeline(new Mock<IServiceProvider>().Object)
+            .AddObserver(observer);
 
         pipeline
-            .RegisterStage(".")
+            .AddStage(".")
             .WithEvent<OnAcknowledgeMessage>();
 
         var workQueue = new Mock<IQueue>();
@@ -81,18 +52,9 @@ public class AcknowledgeMessageObserverFixture
         pipeline.State.SetWorkQueue(workQueue.Object);
         pipeline.State.SetReceivedMessage(receivedMessage);
 
-        if (sync)
-        {
-            pipeline.Execute();
+        await pipeline.ExecuteAsync();
 
-            workQueue.Verify(m => m.Acknowledge(receivedMessage.AcknowledgementToken), Times.Once);
-        }
-        else
-        {
-            await pipeline.ExecuteAsync();
-
-            workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
-        }
+        workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
 
         workQueue.VerifyNoOtherCalls();
     }

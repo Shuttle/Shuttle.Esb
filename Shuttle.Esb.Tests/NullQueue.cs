@@ -14,77 +14,50 @@ public class NullQueue : IQueue
 
     public NullQueue(Uri uri)
     {
-        Uri = new QueueUri(uri);
+        Uri = new(uri);
     }
 
     public QueueUri Uri { get; }
     public bool IsStream => false;
 
-    public bool IsEmpty()
-    {
-        return true;
-    }
-
     public async ValueTask<bool> IsEmptyAsync()
     {
-        return await Task.FromResult(IsEmpty());
-    }
+        Operation?.Invoke(this, new("IsEmpty"));
 
-    public void Enqueue(TransportMessage transportMessage, Stream stream)
-    {
+        return await Task.FromResult(true);
     }
 
     public async Task EnqueueAsync(TransportMessage transportMessage, Stream stream)
     {
+        MessageEnqueued?.Invoke(this, new(transportMessage, stream));
+
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public ReceivedMessage GetMessage()
+    public async Task<ReceivedMessage?> GetMessageAsync()
     {
-        return null;
-    }
+        MessageReceived?.Invoke(this, new(new(Stream.Null, "token")));
 
-    public async Task<ReceivedMessage> GetMessageAsync()
-    {
-        return await Task.FromResult<ReceivedMessage>(null).ConfigureAwait(false);
-    }
-
-    public void Acknowledge(object acknowledgementToken)
-    {
-        
+        return await Task.FromResult<ReceivedMessage?>(null).ConfigureAwait(false);
     }
 
     public async Task AcknowledgeAsync(object acknowledgementToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-    }
+        MessageAcknowledged?.Invoke(this, new(acknowledgementToken));
 
-    public void Release(object acknowledgementToken)
-    {
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken)
     {
+        MessageReleased?.Invoke(this, new(acknowledgementToken));
+
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    public event EventHandler<MessageEnqueuedEventArgs> MessageEnqueued = delegate
-    {
-    };
-
-    public event EventHandler<MessageAcknowledgedEventArgs> MessageAcknowledged = delegate
-    {
-    };
-
-    public event EventHandler<MessageReleasedEventArgs> MessageReleased = delegate
-    {
-    };
-
-    public event EventHandler<MessageReceivedEventArgs> MessageReceived = delegate
-    {
-    };
-
-    public event EventHandler<OperationEventArgs> Operation = delegate
-    {
-    };
+    public event EventHandler<MessageEnqueuedEventArgs>? MessageEnqueued;
+    public event EventHandler<MessageAcknowledgedEventArgs>? MessageAcknowledged;
+    public event EventHandler<MessageReleasedEventArgs>? MessageReleased;
+    public event EventHandler<MessageReceivedEventArgs>? MessageReceived;
+    public event EventHandler<OperationEventArgs>? Operation;
 }

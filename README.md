@@ -30,7 +30,14 @@ internal class Program
                     .AddServiceBus(builder =>
                     {
                         builder.Options.Inbox.WorkQueueUri = "azuresq://azure/work";
-                        builder.Options.Asynchronous = true; // NOTE: we'll be using async processing
+
+                        // Delegates may also be added to the builder, including adding dependencies
+                        builder.AddMessageHandler(async (IHandlerContext<SomeMessage> context, ISomeDependency instance) =>
+                        {
+                            Console.WriteLine($@"[some-message] : guid = {context.Message.Guid}");
+
+                            await Task.CompletedTask;
+                        });
                     })
                     .AddAzureStorageQueues(builder =>
                     {
@@ -68,8 +75,6 @@ internal class Program
                         configuration
                             .GetSection(ServiceBusOptions.SectionName)
                             .Bind(builder.Options);
-
-                        builder.Options.Asynchronous = true; // NOTE: we'll be using async processing
                     })
                     .AddAzureStorageQueues(builder =>
                     {
@@ -136,7 +141,7 @@ services.AddServiceBus(builder =>
 ### Handle any messages
 
 ``` c#
-public class RegisterMemberHandler : IAsyncMessageHandler<RegisterMember>
+public class RegisterMemberHandler : IMessageHandler<RegisterMember>
 {
     public RegisterMemberHandler(IDependency dependency)
     {
@@ -155,7 +160,7 @@ public class RegisterMemberHandler : IAsyncMessageHandler<RegisterMember>
 ```
 
 ``` c#
-public class MemberRegisteredHandler : IAsyncMessageHandler<MemberRegistered>
+public class MemberRegisteredHandler : IMessageHandler<MemberRegistered>
 {
 	public async Task ProcessMessageAsync(IHandlerContext<MemberRegistered> context)
 	{
@@ -163,3 +168,4 @@ public class MemberRegisteredHandler : IAsyncMessageHandler<MemberRegistered>
 	}
 }
 ```
+

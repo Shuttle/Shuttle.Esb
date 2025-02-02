@@ -1,50 +1,44 @@
 ﻿using System;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public class QueueUri
 {
-    public class QueueUri
+    public QueueUri(Uri uri)
     {
-        public Uri Uri { get; }
+        Uri = Guard.AgainstNull(uri);
 
-        public QueueUri(Uri uri)
+        if (uri.LocalPath == "/" || uri.Segments.Length != 2)
         {
-            Guard.AgainstNull(uri, nameof(uri));
-
-            Uri = uri;
-
-            if (uri.LocalPath == "/" || uri.Segments.Length != 2)
-            {
-                throw new UriFormatException(string.Format(Resources.UriFormatException, $"{uri.Scheme}://{{configuration-name}}/{{topic}}", uri));
-            }
-
-            ConfigurationName = Uri.Host;
-            QueueName = Uri.Segments[1];
+            throw new UriFormatException(string.Format(Resources.UriFormatException, $"{uri.Scheme}://{{configuration-name}}/{{topic}}", uri));
         }
 
-        public QueueUri(string uri) : this(new Uri(uri))
+        ConfigurationName = Uri.Host;
+        QueueName = Uri.Segments[1];
+    }
+
+    public QueueUri(string uri) : this(new Uri(uri))
+    {
+    }
+
+    public string ConfigurationName { get; }
+
+    public string QueueName { get; }
+    public Uri Uri { get; }
+
+    public QueueUri SchemeInvariant(string scheme)
+    {
+        if (!Uri.Scheme.Equals(Guard.AgainstNullOrEmptyString(scheme), StringComparison.InvariantCultureIgnoreCase))
         {
+            throw new InvalidSchemeException(Uri.Scheme, Uri.ToString());
         }
 
-        public string QueueName { get; }
+        return this;
+    }
 
-        public string ConfigurationName { get; }
-
-        public QueueUri SchemeInvariant(string scheme)
-        {
-            Guard.AgainstNullOrEmptyString(scheme, nameof(scheme));
-
-            if (!Uri.Scheme.Equals(scheme, StringComparison.InvariantCultureIgnoreCase))
-            {
-                throw new InvalidSchemeException(Uri.Scheme, Uri.ToString());
-            }
-
-            return this;
-        }
-
-        public override string ToString()
-        {
-            return Uri.ToString();
-        }
+    public override string ToString()
+    {
+        return Uri.ToString();
     }
 }

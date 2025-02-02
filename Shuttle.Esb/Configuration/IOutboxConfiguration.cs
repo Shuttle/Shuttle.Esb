@@ -1,8 +1,7 @@
-namespace Shuttle.Esb
+namespace Shuttle.Esb;
+
+public interface IOutboxConfiguration :
+    IWorkQueueConfiguration,
+    IErrorQueueConfiguration
 {
-    public interface IOutboxConfiguration :
-        IWorkQueueConfiguration,
-        IErrorQueueConfiguration
-    {
-    }
 }
