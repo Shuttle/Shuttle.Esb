@@ -1,6 +1,6 @@
 # Documentation
 
-Please visit out [official documentation](https://www.pendel.co.za/shuttle-esb/index.html) for more information.
+Please visit out [official documentation](https://www.pendel.co.za/shuttle-esb/home.html) for more information.
 
 # Getting Started
 
