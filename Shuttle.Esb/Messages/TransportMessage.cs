@@ -10,10 +10,10 @@ public class TransportMessage
     public string CompressionAlgorithm { get; set; } = string.Empty;
     public string CorrelationId { get; set; } = string.Empty;
     public string EncryptionAlgorithm { get; set; } = string.Empty;
-    public DateTime ExpiryDate { get; set; } = DateTime.MaxValue;
+    public DateTimeOffset ExpiryDate { get; set; } = DateTimeOffset.MaxValue;
     public List<string> FailureMessages { get; set; } = new();
     public List<TransportHeader> Headers { get; set; } = new();
-    public DateTime IgnoreTillDate { get; set; } = DateTime.MinValue;
+    public DateTimeOffset IgnoreTillDate { get; set; } = DateTimeOffset.MinValue;
     public byte[] Message { get; set; } = null!;
     public Guid MessageId { get; set; } = Guid.NewGuid();
 
@@ -22,6 +22,6 @@ public class TransportMessage
     public string PrincipalIdentityName { get; set; } = string.Empty;
     public int Priority { get; set; }
     public string RecipientInboxWorkQueueUri { get; set; } = string.Empty;
-    public DateTime SendDate { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset SendDate { get; set; } = DateTimeOffset.UtcNow;
     public string SenderInboxWorkQueueUri { get; set; } = string.Empty;
 }

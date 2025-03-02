@@ -66,7 +66,7 @@ public class DeferTransportMessageObserverFixture
             .AddStage(".")
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
-        var transportMessage = new TransportMessage { IgnoreTillDate = DateTime.Now.AddDays(1) };
+        var transportMessage = new TransportMessage { IgnoreTillDate = DateTimeOffset.Now.AddDays(1) };
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -104,7 +104,7 @@ public class DeferTransportMessageObserverFixture
             .AddStage(".")
             .WithEvent<OnAfterDeserializeTransportMessage>();
 
-        var transportMessage = new TransportMessage { IgnoreTillDate = DateTime.Now.AddDays(1) };
+        var transportMessage = new TransportMessage { IgnoreTillDate = DateTimeOffset.Now.AddDays(1) };
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -116,7 +116,7 @@ public class DeferTransportMessageObserverFixture
 
         deferredQueue.Verify(m => m.EnqueueAsync(transportMessage, It.IsAny<Stream>()), Times.Once);
         workQueue.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken), Times.Once);
-        deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTime>()), Times.Once);
+        deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTimeOffset>()), Times.Once);
 
         workQueue.Verify(m => m.IsStream, Times.Once);
 

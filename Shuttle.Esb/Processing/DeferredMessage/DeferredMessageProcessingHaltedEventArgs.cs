@@ -4,10 +4,10 @@ namespace Shuttle.Esb;
 
 public class DeferredMessageProcessingHaltedEventArgs : EventArgs
 {
-    public DeferredMessageProcessingHaltedEventArgs(DateTime restartDateTime)
+    public DeferredMessageProcessingHaltedEventArgs(DateTimeOffset restartDateTime)
     {
         RestartDateTime = restartDateTime;
     }
 
-    public DateTime RestartDateTime { get; }
+    public DateTimeOffset RestartDateTime { get; }
 }
