@@ -74,7 +74,7 @@ public class FakeQueue : IQueue
         var transportMessage = new TransportMessage
         {
             MessageType = command.GetType().Name,
-            ExpiryDate = expired ? DateTimeOffset.Now.AddMilliseconds(-1) : DateTimeOffset.MaxValue,
+            ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
             PrincipalIdentityName = "Identity",
             AssemblyQualifiedName = command.GetType().AssemblyQualifiedName!,
             Message = await (await _serializer.SerializeAsync(command)).ToBytesAsync().ConfigureAwait(false)

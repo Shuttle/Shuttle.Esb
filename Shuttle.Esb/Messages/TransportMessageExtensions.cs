@@ -43,12 +43,12 @@ public static class TransportMessageExtensions
 
     public static bool HasExpired(this TransportMessage transportMessage)
     {
-        return transportMessage.ExpiryDate.ToUniversalTime() < DateTimeOffset.UtcNow;
+        return transportMessage.ExpiryDate.ToUniversalTime() < DateTime.UtcNow;
     }
 
     public static bool HasExpiryDate(this TransportMessage transportMessage)
     {
-        return transportMessage.ExpiryDate < DateTimeOffset.MaxValue;
+        return transportMessage.ExpiryDate < DateTime.MaxValue;
     }
 
     public static bool HasPriority(this TransportMessage transportMessage)
@@ -63,7 +63,7 @@ public static class TransportMessageExtensions
 
     public static bool IsIgnoring(this TransportMessage transportMessage)
     {
-        return DateTimeOffset.UtcNow < transportMessage.IgnoreTillDate.ToUniversalTime();
+        return DateTime.UtcNow < transportMessage.IgnoreTillDate.ToUniversalTime();
     }
 
     public static void Merge(this List<TransportHeader> merge, IEnumerable<TransportHeader> headers)
@@ -87,8 +87,8 @@ public static class TransportMessageExtensions
     {
         Guard.AgainstNullOrEmptyString(message);
 
-        transportMessage.FailureMessages.Add($"[{DateTimeOffset.UtcNow:O}] : {message}");
-        transportMessage.IgnoreTillDate = DateTimeOffset.UtcNow.Add(timeSpanToIgnore);
+        transportMessage.FailureMessages.Add($"[{DateTime.UtcNow:O}] : {message}");
+        transportMessage.IgnoreTillDate = DateTime.UtcNow.Add(timeSpanToIgnore);
     }
 
     public static void SetHeaderValue(this List<TransportHeader> headers, string key, string value)
@@ -111,6 +111,6 @@ public static class TransportMessageExtensions
 
     public static void StopIgnoring(this TransportMessage transportMessage)
     {
-        transportMessage.IgnoreTillDate = DateTimeOffset.MinValue;
+        transportMessage.IgnoreTillDate = DateTime.MinValue;
     }
 }

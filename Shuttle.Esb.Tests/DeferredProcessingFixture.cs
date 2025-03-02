@@ -48,9 +48,9 @@ public class DeferredProcessingFixture
             Console.WriteLine(@"[deferred processing halted]");
         };
 
-        var transportMessage1 = CreateTransportMessage(DateTimeOffset.Now.AddSeconds(3).ToUniversalTime());
-        var transportMessage2 = CreateTransportMessage(DateTimeOffset.Now.AddSeconds(2).ToUniversalTime());
-        var transportMessage3 = CreateTransportMessage(DateTimeOffset.Now.AddSeconds(1).ToUniversalTime());
+        var transportMessage1 = CreateTransportMessage(DateTime.Now.AddSeconds(3).ToUniversalTime());
+        var transportMessage2 = CreateTransportMessage(DateTime.Now.AddSeconds(2).ToUniversalTime());
+        var transportMessage3 = CreateTransportMessage(DateTime.Now.AddSeconds(1).ToUniversalTime());
 
         await inboxConfiguration.DeferredQueue.EnqueueAsync(transportMessage1, await serializer.SerializeAsync(transportMessage1));
         await inboxConfiguration.DeferredQueue.EnqueueAsync(transportMessage2, await serializer.SerializeAsync(transportMessage2));
@@ -63,11 +63,11 @@ public class DeferredProcessingFixture
             messagesReturned.Add(e.TransportMessage);
         };
 
-        var timeout = DateTimeOffset.Now.AddMilliseconds(3500);
+        var timeout = DateTime.Now.AddMilliseconds(3500);
 
         await new ProcessorThreadPool("DeferredMessageProcessor", 1, serviceScopeFactory.Object, new DeferredMessageProcessorFactory(deferredMessageProcessor), new()).StartAsync();
 
-        while (messagesReturned.Count < 3 && DateTimeOffset.Now < timeout)
+        while (messagesReturned.Count < 3 && DateTime.Now < timeout)
         {
             Thread.Sleep(250);
         }
@@ -77,7 +77,7 @@ public class DeferredProcessingFixture
         Assert.That(messagesReturned.Find(item => item.MessageId.Equals(transportMessage3.MessageId)), Is.Not.Null);
     }
 
-    private static TransportMessage CreateTransportMessage(DateTimeOffset ignoreTillDate)
+    private static TransportMessage CreateTransportMessage(DateTime ignoreTillDate)
     {
         return new()
         {

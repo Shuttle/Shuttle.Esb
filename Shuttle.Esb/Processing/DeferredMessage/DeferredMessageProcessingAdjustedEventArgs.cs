@@ -4,10 +4,10 @@ namespace Shuttle.Esb;
 
 public class DeferredMessageProcessingAdjustedEventArgs : EventArgs
 {
-    public DeferredMessageProcessingAdjustedEventArgs(DateTimeOffset nextProcessingDateTime)
+    public DeferredMessageProcessingAdjustedEventArgs(DateTime nextProcessingDateTime)
     {
         NextProcessingDateTime = nextProcessingDateTime;
     }
 
-    public DateTimeOffset NextProcessingDateTime { get; }
+    public DateTime NextProcessingDateTime { get; }
 }

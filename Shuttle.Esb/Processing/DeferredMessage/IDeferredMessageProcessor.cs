@@ -9,5 +9,5 @@ public interface IDeferredMessageProcessor : IProcessor
     event EventHandler<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted;
     event EventHandler<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted;
 
-    Task MessageDeferredAsync(DateTimeOffset ignoreTillDate);
+    Task MessageDeferredAsync(DateTime ignoreTillDate);
 }

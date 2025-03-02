@@ -15,8 +15,8 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
     private readonly IPipelineFactory _pipelineFactory;
     private readonly ServiceBusOptions _serviceBusOptions;
     private Guid _checkpointMessageId = Guid.Empty;
-    private DateTimeOffset _ignoreTillDate = DateTimeOffset.MaxValue.ToUniversalTime();
-    private DateTimeOffset _nextProcessingDateTime = DateTimeOffset.MinValue.ToUniversalTime();
+    private DateTime _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
+    private DateTime _nextProcessingDateTime = DateTime.MinValue.ToUniversalTime();
 
     public DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOptions, IPipelineFactory pipelineFactory)
     {
@@ -27,7 +27,7 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
     public event EventHandler<DeferredMessageProcessingAdjustedEventArgs>? DeferredMessageProcessingAdjusted;
     public event EventHandler<DeferredMessageProcessingHaltedEventArgs>? DeferredMessageProcessingHalted;
 
-    private void AdjustNextProcessingDateTime(DateTimeOffset dateTime)
+    private void AdjustNextProcessingDateTime(DateTime dateTime)
     {
         _nextProcessingDateTime = dateTime;
 
@@ -45,7 +45,7 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
 
         try
         {
-            if (DateTimeOffset.UtcNow < _nextProcessingDateTime)
+            if (DateTime.UtcNow < _nextProcessingDateTime)
             {
                 try
                 {
@@ -103,18 +103,18 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
 
                 _checkpointMessageId = Guid.Empty;
 
-                if (_nextProcessingDateTime > DateTimeOffset.UtcNow)
+                if (_nextProcessingDateTime > DateTime.UtcNow)
                 {
                     return;
                 }
 
-                var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+                var nextProcessingDateTime = DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
 
                 AdjustNextProcessingDateTime(_ignoreTillDate < nextProcessingDateTime
                     ? _ignoreTillDate
                     : nextProcessingDateTime);
 
-                _ignoreTillDate = DateTimeOffset.MaxValue.ToUniversalTime();
+                _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
 
                 DeferredMessageProcessingHalted?.Invoke(this, new(_nextProcessingDateTime));
             }
@@ -129,7 +129,7 @@ public class DeferredMessageProcessor : IDeferredMessageProcessor
         }
     }
 
-    public async Task MessageDeferredAsync(DateTimeOffset ignoreTillDate)
+    public async Task MessageDeferredAsync(DateTime ignoreTillDate)
     {
         await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
